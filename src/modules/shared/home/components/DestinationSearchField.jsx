@@ -241,7 +241,7 @@ function DestinationSearchField({
 
       <div
         title={value?.city || ""}
-        className={`relative w-full min-w-0 overflow-visible rounded border !bg-white px-3 py-1 transition-all hover:border-[#0077b6]  ${
+        className={`relative w-full min-w-0 overflow-visible rounded border !bg-white px-3 py-1 transition-all hover:border-[#0077b6] ${
           error ? "border-red-500" : "border-gray-300"
         } ${wrapperClassName}`}
         style={{ height }}
@@ -253,9 +253,7 @@ function DestinationSearchField({
               : "min-h-[6px] flex-col justify-center px-1 md:px-2"
           }`}
         >
-
           {icon && <div className="flex shrink-0 items-center">{icon}</div>}
-
 
           <div className="flex w-full min-w-0 items-center gap-2 overflow-hidden">
             {icon || <SearchOutlined className="!text-[20px] text-gray-400" />}
@@ -322,7 +320,6 @@ function DestinationSearchField({
             </div>
           </div>
 
-
           {compact ? (
             <span
               className="ml-1 max-w-[70px] flex-shrink-0 overflow-hidden text-[11px] text-ellipsis whitespace-nowrap text-gray-400"
@@ -333,7 +330,7 @@ function DestinationSearchField({
               {value?.cityData?.country || value?.cityData?.countryCode || ""}
             </span>
           ) : (
-            <span className="!z-34 text-xs !font-bold text-gray-700 md:text-sm">
+            <span className="!z-34 inline-block w-fit bg-white !font-bold text-xs text-gray-700 md:text-sm">
               {value?.cityData?.country ||
                 value?.cityData?.countryCode ||
                 "Search destinations"}
