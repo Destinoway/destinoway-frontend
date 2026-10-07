@@ -2,17 +2,13 @@
 
 import { useRouter } from "next/navigation";
 
-export default function HotelNotFound({ type = "not-found" }) {
+export default function HotelNotFound({
+  type = "not-found",
+  message,
+}) {
   const router = useRouter();
 
   const isError = type === "error";
-
-  // const handleChangeDestination = () => {
-  //   window.scrollTo({
-  //     top: 0,
-  //     behavior: "smooth",
-  //   });
-  // };
 
   const handleHome = () => {
     router.push("/");
@@ -21,6 +17,7 @@ export default function HotelNotFound({ type = "not-found" }) {
   return (
     <div className="flex min-h-[500px] w-full items-center justify-center px-4 py-10">
       <div className="w-full max-w-2xl rounded-2xl bg-white px-6 py-12 text-center shadow-sm md:px-10">
+
         {/* Icon */}
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50">
           {isError ? (
@@ -90,18 +87,19 @@ export default function HotelNotFound({ type = "not-found" }) {
 
         {/* Heading */}
         <h2 className="mb-3 text-2xl font-semibold text-gray-900 md:text-3xl">
-          {isError ? "Hotels Are Currently Unavailable" : "No Hotels Found"}
+          {isError ? "Hotel Information Unavailable" : "No Hotels Found"}
         </h2>
 
-        {/* Description */}
+        {/* Message */}
         <p className="mx-auto mb-8 max-w-lg text-sm leading-6 text-gray-500 md:text-base">
-          {isError
-            ? "We couldn't load hotels for this destination right now. Please try changing your destination or search again."
-            : "We couldn't find any hotels for your selected destination and dates. Try changing your destination or search dates to find available hotels."}
+          {message ||
+            (isError
+              ? "Hotel information is temporarily unavailable. Please try again later."
+              : "We couldn't find any hotels for your selected destination and dates. Try changing your destination or search dates to find available hotels.")}
         </p>
 
-        {/* Buttons */}
-        <div className="flex flex-col justify-center gap-3 sm:flex-row">
+        {/* Button */}
+        <div className="flex justify-center">
           <button
             type="button"
             onClick={handleHome}

@@ -45,7 +45,7 @@ const navigationItems = [
   },
   {
     id: "flight",
-    label: "Flight Booking",
+    label: "Flight",
     subtitle: "Available Soon",
     icon: Plane,
     desktop: true,
@@ -54,7 +54,7 @@ const navigationItems = [
   },
   {
     id: "bus",
-    label: "Bus Booking",
+    label: "Bus ",
     subtitle: "Available Soon",
     icon: Bus,
     desktop: true,
@@ -217,7 +217,7 @@ export default function Header() {
           </Link>
         </div>
 
-        <nav className="font-roboto hidden items-center justify-center gap-7 font-semibold text-[#051449] min-[901px]:flex lg:gap-4 xl:gap-7 2xl:gap-7">
+        <nav className="font-roboto hidden items-center justify-center gap-5 text-[13px] font-semibold text-[#051449] min-[901px]:flex min-[1100px]:gap-6 min-[1100px]:text-[13.5px] min-[1200px]:gap-7 min-[1200px]:text-[14px] min-[1400px]:gap-8 min-[1400px]:text-[19px]">
           {desktopNavigationItems.map((item) =>
             item.type === "comingSoon" ? (
               <Tooltip
@@ -236,7 +236,7 @@ export default function Header() {
         </nav>
 
         {/* Right Side */}
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-2 md:gap-4">
           {/* Wishlist */}
           <button
             onClick={() =>
@@ -244,7 +244,7 @@ export default function Header() {
                 router.push("/profile?tab=wishlist");
               })
             }
-            className="group teb-border-color most-text-color background-color hidden cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 hover:-translate-y-0.5 hover:text-white! md:flex"
+            className="group teb-border-color most-text-color background-color hidden cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 text-[15px] font-medium transition-all duration-300 hover:-translate-y-0.5 hover:text-white! md:flex"
           >
             {wishlistCount > 0 && (
               <span className="buttion-background-color group-hover:text-most-text-color ml-1 rounded-full px-2 py-0.5 text-xs font-semibold text-white transition-colors duration-300 group-hover:bg-white">
@@ -261,7 +261,7 @@ export default function Header() {
             getPopupContainer={(trigger) => trigger.parentElement}
             popupRender={() => currencyDropdownContent}
           >
-            <button className="group teb-border-color most-text-color background-color hidden cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 hover:-translate-y-0.5 hover:text-white! md:flex">
+            <button className="group teb-border-color most-text-color background-color hidden cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 text-[15px] font-medium transition-all duration-300 hover:-translate-y-0.5 hover:text-white! md:flex">
               <span>{hydrated ? selectedCurrency?.symbol : "₹"}</span>
               <span className="max-w-20 truncate">
                 {hydrated ? selectedCurrency?.code : "INR"}
