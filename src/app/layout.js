@@ -51,8 +51,6 @@ export default async function RootLayout({ children }) {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <link rel="preload" as="image" href="/images/homepage/home.svg" />
-
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-DYY7076V0W"
           strategy="afterInteractive"

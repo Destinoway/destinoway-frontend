@@ -160,7 +160,7 @@ export default async function Page() {
       <ScrollToTopButton />
       <Hero banner={banner} />
       <TrustSection />
-      <GiftCardSlider />
+      {/* <GiftCardSlider /> */}
       <VacationSection vibes={placesAsPerYourVibe} />
       <Herobanner />
       <WhySection />
