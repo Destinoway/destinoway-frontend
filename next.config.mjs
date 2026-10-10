@@ -31,6 +31,30 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "hg-static.hyperguest.com",
+      },
+      {
+        protocol: "https",
+        hostname: "hotel-extranet-new.s3.ap-southeast-1.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "rukmini-ct.flixcart.com",
+      },
+      {
+        protocol: "https",
+        hostname: "photos.hotelbeds.com",
+      },
+      {
+        protocol: "https",
+        hostname: "static-images.webbeds.com",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.xconnect.in",
+      },
+      {
+        protocol: "https",
         hostname: "media-cdn.tripadvisor.com",
       },
       {

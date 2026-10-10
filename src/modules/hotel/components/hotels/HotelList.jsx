@@ -37,6 +37,7 @@ function HotelList({
     data,
     isLoading,
     isError,
+    isSearchProcessing,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -80,28 +81,30 @@ function HotelList({
   const hotels = useMemo(() => {
     const allHotels =
       data?.pages?.flatMap((page) => {
-        const hotelDetailId = page?.data?.hotelDetailId || "";
-
-        return (page?.data?.hotels || []).map((hotel) => ({
+        return (page?.data?.items || []).map((hotel) => ({
           ...hotel,
-          hotelDetailId,
+          hotelDetailId: page?.data?.hotelDetailId || "",
         }));
       }) || [];
 
     return Array.from(
       new Map(
         allHotels.map((hotel, index) => [
-          hotel?.id || hotel?.hotelId || hotel?.HotelId || `hotel-${index}`,
+          hotel?.supplierHotelId ||
+            hotel?.id ||
+            hotel?.hotelId ||
+            hotel?.HotelId ||
+            `hotel-${index}`,
           hotel,
         ]),
       ).values(),
     );
   }, [data]);
 
-  const currencySymbol =
-    data?.pages?.[0]?.data?.currencySymbol ||
-    data?.pages?.[0]?.data?.CurrencySymbol ||
-    "₹";
+  const currencyCode =
+    data?.pages?.[0]?.data?.items?.[0]?.price?.currency || "INR";
+
+  const currencySymbol = currencyCode === "INR" ? "₹" : currencyCode;
 
   const searchKey =
     data?.pages?.[0]?.data?.searchKey ||
@@ -124,18 +127,20 @@ function HotelList({
     onResultChange?.(mappedHotels.length > 0);
   }, [mappedHotels, onResultChange]);
 
-  if (isLoading) {
+  if (isLoading || isSearchProcessing) {
     return <HotelContentLoader />;
   }
 
   if (isError) {
     return <HotelNotFound type="error" />;
   }
+  if (isSearchProcessing) {
+    return <div>Searching hotels... Please wait.</div>;
+  }
 
   if (!mappedHotels.length) {
     return <HotelNotFound type="not-found" />;
   }
-
   return (
     <div className="w-full space-y-4">
       {mappedHotels.map((hotel, index) => (

@@ -53,16 +53,35 @@ function MobileHotelCard({ hotel, wishlistIds }) {
   }, [rating]);
 
   const hotelImages = useMemo(() => {
-    if (hotel.images?.length > 1) {
-      return hotel.images;
+    const images = [];
+
+    const addImage = (value) => {
+      const url =
+        typeof value === "string"
+          ? value.trim()
+          : value?.url ||
+            value?.imageUrl ||
+            value?.imageURL ||
+            value?.ImageURL ||
+            value?.src ||
+            "";
+
+      if (url && !images.includes(url)) {
+        images.push(url);
+      }
+    };
+
+    // Main image from the API / mapper
+    addImage(hotel?.image);
+    addImage(hotel?.heroImage);
+
+    // Additional images, whenever the API provides them
+    if (Array.isArray(hotel?.images)) {
+      hotel.images.forEach(addImage);
     }
 
-    return [
-      hotel.image ||
-        hotel.images?.[0] ||
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945",
-    ];
-  }, [hotel.images, hotel.image]);
+    return images;
+  }, [hotel?.image, hotel?.heroImage, hotel?.images]);
 
   const price = useMemo(() => {
     return Number(hotel.price || 0);
