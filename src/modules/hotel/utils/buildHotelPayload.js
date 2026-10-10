@@ -1,20 +1,41 @@
 import { formatSupplierDate } from "./supplierDate";
 
+const SUPPORTED_DESTINATION_TYPES = new Set([
+  "city",
+  "multicity",
+  "hotel",
+  "airport",
+  "trainstation",
+  "pointofinterest",
+  "neighborhood",
+]);
+
 export const buildHotelPayload = ({
   searchData,
   filters = {},
   sort = null,
 }) => {
-  if (!searchData?.city && !searchData?.cityData?.id) {
+  const cityData = searchData?.cityData || {};
+
+  const destinationType = String(cityData?.type || "city")
+    .trim()
+    .toLowerCase();
+
+  const locationId = cityData?.supplierData?.supplierLocationId || cityData?.id;
+
+  const latitude = cityData?.coordinates?.lat ?? cityData?.latitude;
+
+  const longitude = cityData?.coordinates?.long ?? cityData?.longitude;
+
+  if (
+    !searchData?.city ||
+    !locationId ||
+    latitude == null ||
+    longitude == null ||
+    !SUPPORTED_DESTINATION_TYPES.has(destinationType)
+  ) {
     return null;
   }
-
-  const cityData = searchData?.cityData || {};
-  const destinationType = cityData?.type?.toLowerCase() || "city";
-  const destinationCity =
-    cityData?.city || cityData?.name || searchData?.city || "";
-  const destinationState = cityData?.state || cityData?.stateName || "";
-  const destinationCountry = cityData?.country || "";
 
   let rooms = [];
 
@@ -22,64 +43,64 @@ export const buildHotelPayload = ({
     Array.isArray(searchData?.roomGuests) &&
     searchData.roomGuests.length > 0
   ) {
-    rooms = searchData.roomGuests.map((room) => ({
-      adults: Number(room?.adults) || 1,
-
-      children: Array.isArray(room?.children)
+    rooms = searchData.roomGuests.map((room) => {
+      const children = Array.isArray(room?.children)
         ? room.children
-            .map((child) => ({
-              age: Number(child?.age),
-            }))
-            .filter((child) => !Number.isNaN(child.age))
-        : [],
-    }));
+            .map((child) => Number(child?.age))
+            .filter((age) => Number.isFinite(age))
+        : [];
+
+      return {
+        adults: Number(room?.adults) || 1,
+        children: children.length,
+        childAges: children,
+      };
+    });
   } else {
-    const adults = Number(searchData?.adults) || 1;
-    const childrenCount = Number(searchData?.children) || 0;
+    const adults = Math.max(1, Number(searchData?.adults) || 1);
+    const childrenCount = Math.max(0, Number(searchData?.children) || 0);
+
     const childAges = Array.isArray(searchData?.childAges)
       ? searchData.childAges
+          .filter((age) => age !== "" && age != null)
+          .map(Number)
+          .filter(Number.isFinite)
       : [];
-    const requiredRooms = Math.max(
-      1,
-      Math.ceil((adults + childrenCount) / 4),
-      Math.ceil(childrenCount / 2),
-      Math.ceil(adults / 4),
-    );
 
     const roomCount = Math.min(
       8,
-      Math.max(Number(searchData?.rooms) || 1, requiredRooms),
+      Math.max(
+        Number(searchData?.rooms) || 1,
+        Math.ceil((adults + childrenCount) / 4),
+        Math.ceil(childrenCount / 2),
+        Math.ceil(adults / 4),
+      ),
     );
 
-    const roomAdults = Array.from(
-      { length: Math.min(roomCount, adults) },
-      (_, index) =>
-        Math.floor(adults / Math.min(roomCount, adults)) +
-        (index < adults % Math.min(roomCount, adults) ? 1 : 0),
-    );
+    const actualRoomCount = Math.min(roomCount, adults);
+    const baseAdults = Math.floor(adults / actualRoomCount);
+    const extraAdults = adults % actualRoomCount;
 
     let ageIndex = 0;
 
-    rooms = roomAdults.map((roomAdultsCount) => {
-      const maxChildren = Math.min(2, 4 - roomAdultsCount);
+    rooms = Array.from({ length: actualRoomCount }, (_, index) => {
+      const roomAdults = baseAdults + (index < extraAdults ? 1 : 0);
+      const maxChildren = Math.min(2, 4 - roomAdults);
+      const roomChildAges = [];
 
-      const roomChildren = [];
-
-      while (roomChildren.length < maxChildren && ageIndex < childrenCount) {
+      while (roomChildAges.length < maxChildren && ageIndex < childrenCount) {
         const age = childAges[ageIndex];
-
-        if (age !== "" && age !== null && age !== undefined) {
-          roomChildren.push({
-            age: Number(age),
-          });
-        }
-
         ageIndex++;
+
+        if (age !== undefined) {
+          roomChildAges.push(age);
+        }
       }
 
       return {
-        adults: roomAdultsCount,
-        children: roomChildren,
+        adults: roomAdults,
+        children: roomChildAges.length,
+        childAges: roomChildAges,
       };
     });
   }
@@ -105,41 +126,41 @@ export const buildHotelPayload = ({
       break;
 
     case "priceHigh":
-      sortBy = "pricing.totalAmount";
+      sortBy = "price.totalPrice";
       sortOrder = "desc";
       break;
 
     case "priceLow":
-      sortBy = "pricing.totalAmount";
+      sortBy = "price.totalPrice";
       sortOrder = "asc";
       break;
 
     default:
-      sortBy = "";
-      sortOrder = "";
       break;
   }
 
   return {
-    checkIn: formatSupplierDate(searchData?.checkIn),
+    locationId: String(locationId),
 
-    checkOut: formatSupplierDate(searchData?.checkOut),
-
-    destination: {
-      type: destinationType,
-      city: destinationCity,
-      state: destinationState,
-      country: destinationCountry,
+    geoCode: {
+      lat: String(latitude),
+      long: String(longitude),
     },
 
+    checkIn: formatSupplierDate(searchData?.checkIn),
+    checkOut: formatSupplierDate(searchData?.checkOut),
+
     rooms,
+
+    currency: "INR",
+    nationality: "IN",
+    countryOfResidence: "IN",
 
     search,
     starCategory,
     minPrice,
     maxPrice,
     facility,
-
     sortBy,
     sortOrder,
   };
