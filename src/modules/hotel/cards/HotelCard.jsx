@@ -234,11 +234,16 @@ function HotelCard({ hotel, wishlistIds }) {
   const stars = useMemo(() => {
     return Math.min(Number(hotel?.starRating || 0), 5);
   }, [hotel?.starRating]);
-
   /* =========================================================
      FACILITIES
   ========================================================= */
-
+console.log("Rating Verification:", {
+  hotelName: hotel?.name,
+  apiRating: hotel?.rating,
+  mappedRating: rating,
+  hotelStarRating: hotel?.starRating,
+  totalReviews: hotel?.reviews,
+});
   const facilities = useMemo(() => {
     if (!Array.isArray(hotel?.facilities)) return [];
 
@@ -275,7 +280,7 @@ function HotelCard({ hotel, wishlistIds }) {
       setSelectedHotel,
     });
   };
-
+  console.log("HOTEL API DATA:", hotel);
   /* =========================================================
      NEXT IMAGE
   ========================================================= */
@@ -614,7 +619,6 @@ function HotelCard({ hotel, wishlistIds }) {
 
           <div className="flex w-[185px] shrink-0 flex-col justify-between border-l border-gray-300 px-2.5 py-3 min-[1100px]:w-[200px] min-[1200px]:w-[215px] min-[1300px]:w-[225px] min-[1400px]:w-[235px] min-[1536px]:w-[245px]">
             {/* SHARE */}
-
             <div
               className="flex justify-end text-[16px] text-gray-500 min-[1200px]:text-[18px]"
               onClick={(e) => e.stopPropagation()}
@@ -627,19 +631,19 @@ function HotelCard({ hotel, wishlistIds }) {
                 <ShareAltOutlined />
               </button>
             </div>
-
             {/* RATING */}
 
             <div className="flex flex-col items-end">
               <div className="flex max-w-full items-center gap-1">
                 <span className="text-[16px] font-bold text-[#2167d5] min-[1200px]:text-[18px]">
                   {rating > 0 ? rating.toFixed(1) : "N/A"}
-                  {rating.toFixed(1)}
                 </span>
 
-                <span className="truncate text-[12px] font-semibold text-gray-800 min-[1200px]:text-[14px]">
-                  {ratingLabel}
-                </span>
+                {rating > 0 && (
+                  <span className="truncate text-[12px] font-semibold text-gray-800 min-[1200px]:text-[14px]">
+                    {ratingLabel}
+                  </span>
+                )}
               </div>
 
               <p className="mt-0.5 text-[11px] text-gray-500 min-[1200px]:text-[13px]">
@@ -647,14 +651,13 @@ function HotelCard({ hotel, wishlistIds }) {
               </p>
 
               <p className="mt-1 text-right text-[11px] font-semibold text-gray-800 min-[1200px]:text-[14px]">
-                {hotel?.locationScore
+                {hotel?.locationScore != null
                   ? `${hotel.locationScore} Location score`
                   : "9.2 Location score"}
               </p>
             </div>
 
             {/* PRICE */}
-
             <div className="mt-auto pt-2 text-right">
               <p className="mb-1 text-[10px] text-gray-600 min-[1200px]:text-[11px]">
                 Per night before taxes and fees

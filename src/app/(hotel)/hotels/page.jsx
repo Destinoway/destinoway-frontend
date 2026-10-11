@@ -87,7 +87,7 @@ export default async function Page({ searchParams }) {
   const cms = citySlug ? await fetchCmsBySlug(citySlug) : null;
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div></div>}>
       <HotelContent cms={cms} />
     </Suspense>
   );
