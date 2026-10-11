@@ -28,10 +28,8 @@ function HotelList({
   const payload = useMemo(() => {
     return buildHotelPayload({
       searchData,
-      filters,
-      sort,
     });
-  }, [searchData, filters, sort]);
+  }, [searchData]);
 
   const {
     data,
@@ -41,7 +39,7 @@ function HotelList({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteHotels(payload);
+  } = useInfiniteHotels(payload, filters, sort);
 
   useEffect(() => {
     onLoadingChange?.(isLoading);
