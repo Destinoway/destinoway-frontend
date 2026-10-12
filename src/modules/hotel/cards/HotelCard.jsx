@@ -237,13 +237,7 @@ function HotelCard({ hotel, wishlistIds }) {
   /* =========================================================
      FACILITIES
   ========================================================= */
-console.log("Rating Verification:", {
-  hotelName: hotel?.name,
-  apiRating: hotel?.rating,
-  mappedRating: rating,
-  hotelStarRating: hotel?.starRating,
-  totalReviews: hotel?.reviews,
-});
+
   const facilities = useMemo(() => {
     if (!Array.isArray(hotel?.facilities)) return [];
 
@@ -280,7 +274,48 @@ console.log("Rating Verification:", {
       setSelectedHotel,
     });
   };
-  console.log("HOTEL API DATA:", hotel);
+  
+const hotelBenefits = useMemo(() => {
+  const source = hotel?.rawHotel ?? hotel;
+
+  const benefits = [
+    {
+      key: "isRecommended",
+      label: "Recommended",
+      value: source?.isRecommended,
+    },
+    {
+      key: "isRefundable",
+      label: "Refundable",
+      value: source?.isRefundable,
+    },
+    {
+      key: "moreRatesExpected",
+      label: "More rates available",
+      value: source?.moreRatesExpected,
+    },
+    {
+      key: "freeBreakfast",
+      label: "Free breakfast",
+      value: source?.freeBreakfast,
+    },
+    {
+      key: "payAtHotel",
+      label: "Pay at hotel",
+      value: source?.payAtHotel,
+    },
+    {
+      key: "freeCancellation",
+      label: "Free cancellation",
+      value: source?.freeCancellation,
+    },
+  ];
+
+  return benefits.filter((benefit) => benefit.value === true);
+}, [hotel]);
+
+
+
   /* =========================================================
      NEXT IMAGE
   ========================================================= */
@@ -492,6 +527,7 @@ console.log("Rating Verification:", {
               >
                 {hotelName}
               </h2>
+              
               {/* STARS */}
               {stars > 0 && (
                 <div className="mt-1 flex items-center gap-[2px]">
@@ -525,6 +561,7 @@ console.log("Rating Verification:", {
                       </span>
                     )}
                   </p>
+                  
 
                   {(hotel?.distance || hotel?.nearby) && (
                     <p className="truncate text-[11px] leading-[15px] text-gray-500">
@@ -602,6 +639,22 @@ console.log("Rating Verification:", {
                     </button>
                   )}
                 </div>
+                {hotelBenefits.length > 0 && (
+  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+    {hotelBenefits.map((benefit) => (
+      <div
+        key={benefit.key}
+        className="flex items-center gap-1 text-[11px] font-medium text-green-700 min-[1200px]:text-[12px]"
+      >
+        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100">
+          <span className="text-[11px] font-bold text-green-700">✓</span>
+        </span>
+
+        <span>{benefit.label}</span>
+      </div>
+    ))}
+  </div>
+)}
                 <TagsFilled className="shrink-0 text-[11px] !text-[rgb(0,126,62)] min-[1200px]:text-[15px]" />
 
                 <span className="truncate pl-2 text-[11px] font-medium !text-[rgb(0,126,62)] min-[1200px]:text-[14px]">
