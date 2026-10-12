@@ -32,7 +32,7 @@ export default function DestinationsSection({ destinations }) {
 
   return (
     <section className="background-color-bg !mt-[-30px] overflow-hidden !px-0 px-3 py-0 text-black sm:!mt-[-30px] sm:!px-0 sm:py-0 md:!mt-[-30px] md:!px-2 md:py-24 lg:!mt-[-70px] lg:!px-3 xl:!mt-[-90px] xl:!px-4 2xl:!mt-[-50px] 2xl:!px-0">
-      <div className="mx-auto w-full lg:!mt-[-170px] lg:w-[88.87%] xl:!mt-[10px]">
+      <div className="mx-auto w-full lg:!mt-[-70px] lg:w-[88.87%] xl:!mt-[10px]">
         <SectionHeading
           title={destinations?.title || "Popular Destinations"}
           description="We’re committed to offering more than just products we provide exceptional experiences."

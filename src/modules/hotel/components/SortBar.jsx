@@ -41,16 +41,12 @@ function SortBar({ sort, setSort }) {
   );
 
   const handleSortChange = (value) => {
-    if (sort === value) {
-      setSort(null);
-      return;
-    }
-
-    setSort(value);
+    setSort(sort === value ? null : value);
   };
 
   return (
-    <div className="sticky top-[98px] z-[999] w-full overflow-hidden rounded-[6px] bg-white px-[5px] py-[4px] shadow-[0_2px_8px_rgba(0,0,0,0.18)]">
+    <div className="sticky top-[98px] z-[999] w-full min-w-0 rounded-[6px] bg-white p-[4px] shadow-[0_2px_8px_rgba(0,0,0,0.18)]">
+      {/* Tablet: 650px to 850px */}
       <div className="relative hidden min-[650px]:max-[850px]:block">
         <button
           type="button"
@@ -74,7 +70,7 @@ function SortBar({ sort, setSort }) {
                     handleSortChange(tab.value);
                     setMobileSortOpen(false);
                   }}
-                  className={`flex h-[48px] w-full items-center justify-center gap-2 border-b border-gray-200 transition-all ${
+                  className={`flex h-[48px] w-full items-center justify-center gap-2 border-b border-gray-200 ${
                     active ? "bg-[#fff8ed]" : "bg-white hover:bg-gray-50"
                   } ${index === tabs.length - 1 ? "border-b-0" : ""}`}
                 >
@@ -88,7 +84,7 @@ function SortBar({ sort, setSort }) {
                     {tab.icon}
                   </span>
 
-                  <div className="flex items-center gap-1">
+                  <span className="flex items-center gap-1">
                     <span
                       className={`text-[14px] font-medium ${
                         active ? "text-[#e98b00]" : "text-gray-800"
@@ -96,9 +92,8 @@ function SortBar({ sort, setSort }) {
                     >
                       {tab.label}
                     </span>
-
                     <span className="text-[13px] text-gray-500">{tab.sub}</span>
-                  </div>
+                  </span>
                 </button>
               );
             })}
@@ -106,14 +101,13 @@ function SortBar({ sort, setSort }) {
         )}
       </div>
 
-      <div className="hidden min-h-[37px] w-full min-w-0 items-center gap-[8px] px-[10px] min-[650px]:flex min-[650px]:max-[850px]:hidden">
-        <div className="flex shrink-0 items-center">
-          <span className="text-[14px] font-semibold whitespace-nowrap !text-[#344054]">
-            Sort By:
-          </span>
-        </div>
+      {/* Desktop: 851px and above */}
+      <div className="hidden min-h-[37px] w-full min-w-0 items-center gap-2 px-[6px] min-[851px]:flex">
+        <span className="shrink-0 text-[14px] font-semibold whitespace-nowrap !text-[#344054]">
+          Sort By:
+        </span>
 
-        <div className="ml-auto flex min-w-0 items-center justify-end gap-[8px]">
+        <div className="ml-auto flex min-w-0 items-center justify-end gap-[6px]">
           {tabs.map((tab) => {
             const active = sort === tab.value;
             const isRating = tab.value.includes("rating");
@@ -123,14 +117,14 @@ function SortBar({ sort, setSort }) {
                 key={tab.value}
                 type="button"
                 onClick={() => handleSortChange(tab.value)}
-                className={`flex h-[34px] shrink-0 items-center justify-center gap-[4px] rounded-full border px-[12px] whitespace-nowrap transition-all duration-200 focus:outline-none max-[1100px]:h-[32px] max-[1100px]:gap-[3px] max-[1100px]:px-[8px] ${
+                className={`flex h-[34px] min-w-0 shrink items-center justify-center gap-[4px] rounded-full border px-[10px] whitespace-nowrap transition-colors duration-200 focus:outline-none max-[1100px]:h-[32px] max-[1100px]:gap-[3px] max-[1100px]:px-[7px] ${
                   active
-                    ? "border-[#e98b00] bg-[#fffaf2]"
-                    : "border-[#dce3eb] bg-[E2E8F0] hover:border-[#c7d0da] hover:bg-[#f9fafb]"
+                    ? "border-[#e98b00]"
+                    : "border-[#dce3eb]  hover:border-[#c7d0da] hover:bg-[#f9fafb]"
                 }`}
               >
                 <span
-                  className={`flex items-center justify-center text-[13px] max-[1100px]:text-[12px] ${
+                  className={`flex shrink-0 items-center justify-center text-[13px] max-[1100px]:text-[12px] ${
                     isRating ? "text-[#f5b400]" : "text-[#344054]"
                   }`}
                 >
@@ -138,7 +132,7 @@ function SortBar({ sort, setSort }) {
                 </span>
 
                 <span
-                  className={`text-[13px] font-medium max-[1100px]:text-[12px] ${
+                  className={`text-[13px] font-medium max-[1100px]:text-[11px] ${
                     active ? "text-[#e98b00]" : "text-[#344054]"
                   }`}
                 >
@@ -146,7 +140,7 @@ function SortBar({ sort, setSort }) {
                 </span>
 
                 <span
-                  className={`text-[13px] max-[1100px]:text-[12px] ${
+                  className={`text-[13px] max-[1100px]:text-[10px] ${
                     active ? "text-[#e98b00]" : "text-[#8a98aa]"
                   }`}
                 >
