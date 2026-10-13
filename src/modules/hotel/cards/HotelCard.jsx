@@ -30,6 +30,9 @@ import { navigateToHotelDetails } from "../utils/navigateToHotelDetails";
 import { shareHotel } from "../utils/shareHotel";
 import MobileHotelCard from "./MobileHotelCard";
 
+const FALLBACK_HOTEL_IMAGE =
+  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80&auto=format&fit=crop";
+
 function HotelCard({ hotel, wishlistIds }) {
   const router = useRouter();
   const isMobile = useIsMobile();
@@ -37,23 +40,14 @@ function HotelCard({ hotel, wishlistIds }) {
   const [openModal, setOpenModal] = useState(false);
   const [showAllFacilities, setShowAllFacilities] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
+  const [failedImageUrl, setFailedImageUrl] = useState("");
 
   const { setSelectedHotel } = useSelectedHotelStore();
   const { appliedSearchData } = useHotelSearchStore();
   const { mutateAsync, isPending } = useToggleWishlist();
   const { requireAuth } = useAuthGuard();
 
-  /* =========================================================
-     WISHLIST
-  ========================================================= */
-
   const isWishlisted = wishlistIds?.has(hotel?.id?.toString()) || false;
-
-  /* =========================================================
-     HOTEL NAME
-     
-     API me name kisi bhi common field me aaye to support hoga.
-  ========================================================= */
 
   const hotelName = useMemo(() => {
     return (
@@ -72,10 +66,6 @@ function HotelCard({ hotel, wishlistIds }) {
     hotel?.property_name,
   ]);
 
-  /* =========================================================
-     RATING
-  ========================================================= */
-
   const rating = useMemo(() => {
     const value = Number(hotel?.rating);
     return Number.isFinite(value) && value > 0 ? value : 0;
@@ -92,10 +82,6 @@ function HotelCard({ hotel, wishlistIds }) {
     if (rating > 0) return "Average";
     return "Not rated";
   }, [rating]);
-
-  /* =========================================================
-     IMAGE URL EXTRACTOR
-  ========================================================= */
 
   const extractImageUrl = (image) => {
     if (!image) return null;
@@ -126,13 +112,6 @@ function HotelCard({ hotel, wishlistIds }) {
 
     return null;
   };
-
-  /* =========================================================
-     API IMAGES
-     
-     API image ko priority.
-     Dummy image sirf tab jab API me kuch bhi na ho.
-  ========================================================= */
 
   const hotelImages = useMemo(() => {
     const images = [];
@@ -191,28 +170,16 @@ function HotelCard({ hotel, wishlistIds }) {
     hotel?.imageUrl,
   ]);
 
-  /* =========================================================
-     RESET IMAGE WHEN HOTEL CHANGES
-  ========================================================= */
-
   useEffect(() => {
     setCurrentImage(0);
     setShowAllFacilities(false);
   }, [hotel?.id]);
-
-  /* =========================================================
-     KEEP CURRENT IMAGE VALID
-  ========================================================= */
 
   useEffect(() => {
     if (currentImage >= hotelImages.length || currentImage < 0) {
       setCurrentImage(0);
     }
   }, [currentImage, hotelImages.length]);
-
-  /* =========================================================
-     PRICE
-  ========================================================= */
 
   const price = useMemo(() => {
     return Number(hotel?.price || 0);
@@ -227,16 +194,9 @@ function HotelCard({ hotel, wishlistIds }) {
     return Math.round(price + price * 0.1);
   }, [price]);
 
-  /* =========================================================
-     STARS
-  ========================================================= */
-
   const stars = useMemo(() => {
     return Math.min(Number(hotel?.starRating || 0), 5);
   }, [hotel?.starRating]);
-  /* =========================================================
-     FACILITIES
-  ========================================================= */
 
   const facilities = useMemo(() => {
     if (!Array.isArray(hotel?.facilities)) return [];
@@ -250,10 +210,6 @@ function HotelCard({ hotel, wishlistIds }) {
       .filter(Boolean);
   }, [hotel?.facilities]);
 
-  /* =========================================================
-     VISIBLE FACILITIES
-  ========================================================= */
-
   const visibleFacilities = useMemo(() => {
     if (showAllFacilities) {
       return facilities;
@@ -261,10 +217,6 @@ function HotelCard({ hotel, wishlistIds }) {
 
     return facilities.slice(0, 4);
   }, [facilities, showAllFacilities]);
-
-  /* =========================================================
-     HOTEL NAVIGATION
-  ========================================================= */
 
   const handleNavigate = () => {
     navigateToHotelDetails({
@@ -274,51 +226,45 @@ function HotelCard({ hotel, wishlistIds }) {
       setSelectedHotel,
     });
   };
-  
-const hotelBenefits = useMemo(() => {
-  const source = hotel?.rawHotel ?? hotel;
 
-  const benefits = [
-    {
-      key: "isRecommended",
-      label: "Recommended",
-      value: source?.isRecommended,
-    },
-    {
-      key: "isRefundable",
-      label: "Refundable",
-      value: source?.isRefundable,
-    },
-    {
-      key: "moreRatesExpected",
-      label: "More rates available",
-      value: source?.moreRatesExpected,
-    },
-    {
-      key: "freeBreakfast",
-      label: "Free breakfast",
-      value: source?.freeBreakfast,
-    },
-    {
-      key: "payAtHotel",
-      label: "Pay at hotel",
-      value: source?.payAtHotel,
-    },
-    {
-      key: "freeCancellation",
-      label: "Free cancellation",
-      value: source?.freeCancellation,
-    },
-  ];
+  const hotelBenefits = useMemo(() => {
+    const source = hotel?.rawHotel ?? hotel;
 
-  return benefits.filter((benefit) => benefit.value === true);
-}, [hotel]);
+    const benefits = [
+      {
+        key: "isRecommended",
+        label: "Recommended",
+        value: source?.isRecommended,
+      },
+      {
+        key: "isRefundable",
+        label: "Refundable",
+        value: source?.isRefundable,
+      },
+      {
+        key: "moreRatesExpected",
+        label: "More rates available",
+        value: source?.moreRatesExpected,
+      },
+      {
+        key: "freeBreakfast",
+        label: "Free breakfast",
+        value: source?.freeBreakfast,
+      },
+      {
+        key: "payAtHotel",
+        label: "Pay at hotel",
+        value: source?.payAtHotel,
+      },
+      {
+        key: "freeCancellation",
+        label: "Free cancellation",
+        value: source?.freeCancellation,
+      },
+    ];
 
-
-
-  /* =========================================================
-     NEXT IMAGE
-  ========================================================= */
+    return benefits.filter((benefit) => benefit.value === true);
+  }, [hotel]);
 
   const handleNextImage = (e) => {
     e.preventDefault();
@@ -329,10 +275,6 @@ const hotelBenefits = useMemo(() => {
     setCurrentImage((prev) => (prev >= hotelImages.length - 1 ? 0 : prev + 1));
   };
 
-  /* =========================================================
-     PREVIOUS IMAGE
-  ========================================================= */
-
   const handlePreviousImage = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -341,10 +283,6 @@ const hotelBenefits = useMemo(() => {
 
     setCurrentImage((prev) => (prev <= 0 ? hotelImages.length - 1 : prev - 1));
   };
-
-  /* =========================================================
-     WISHLIST
-  ========================================================= */
 
   const handleWishlist = (e) => {
     e.preventDefault();
@@ -368,10 +306,6 @@ const hotelBenefits = useMemo(() => {
     });
   };
 
-  /* =========================================================
-     SHARE
-  ========================================================= */
-
   const handleShare = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -383,21 +317,9 @@ const hotelBenefits = useMemo(() => {
     });
   };
 
-  /* =========================================================
-     MOBILE
-  ========================================================= */
-
   if (isMobile) {
     return <MobileHotelCard hotel={hotel} wishlistIds={wishlistIds} />;
   }
-
-  /* =========================================================
-     DESKTOP 1024+
-     
-     IMPORTANT:
-     Card height content ke according.
-     Image h-full se complete card height lega.
-  ========================================================= */
 
   return (
     <>
@@ -411,32 +333,19 @@ const hotelBenefits = useMemo(() => {
         }}
         className="group w-full cursor-pointer overflow-hidden rounded-xl border border-gray-300 bg-white transition-all duration-300 hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
       >
-        {/* =====================================================
-            MAIN CARD
-
-            1024+:
-            min-height controlled
-            height auto
-        ===================================================== */}
-
         <div className="flex w-full items-stretch">
-          {/* ===================================================
-              IMAGE SECTION
-
-              IMPORTANT:
-              h-auto + self-stretch
-
-              Isse image ki height exactly card ke equal
-              rahegi.
-          =================================================== */}
-
           <div className="relative w-[225px] shrink-0 self-stretch overflow-hidden min-[1100px]:w-[270px] min-[1200px]:w-[290px] min-[1300px]:w-[310px] min-[1400px]:w-[325px] min-[1536px]:w-[340px]">
             <Image
               key={`${hotel?.id}-${currentImage}`}
-              src={hotelImages[currentImage]}
+              src={
+                failedImageUrl === hotelImages[currentImage]
+                  ? FALLBACK_HOTEL_IMAGE
+                  : hotelImages[currentImage]
+              }
               alt={`${hotelName} image ${currentImage + 1}`}
               fill
               unoptimized
+              onError={() => setFailedImageUrl(hotelImages[currentImage])}
               priority={currentImage === 0}
               sizes="
                 (max-width: 1099px) 245px,
@@ -449,13 +358,7 @@ const hotelBenefits = useMemo(() => {
               className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
             />
 
-            {/* IMAGE GRADIENT */}
-
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-
-            {/* =================================================
-                WISHLIST
-            ================================================= */}
 
             <button
               type="button"
@@ -470,10 +373,6 @@ const hotelBenefits = useMemo(() => {
               )}
             </button>
 
-            {/* =================================================
-                PREVIOUS IMAGE
-            ================================================= */}
-
             {hotelImages.length > 1 && (
               <button
                 type="button"
@@ -484,10 +383,6 @@ const hotelBenefits = useMemo(() => {
                 <LeftOutlined />
               </button>
             )}
-
-            {/* =================================================
-                NEXT IMAGE
-            ================================================= */}
 
             {hotelImages.length > 1 && (
               <button
@@ -500,22 +395,12 @@ const hotelBenefits = useMemo(() => {
               </button>
             )}
 
-            {/* =================================================
-                IMAGE COUNTER
-            ================================================= */}
-
             {hotelImages.length > 1 && (
               <div className="absolute bottom-3 left-3 z-20 rounded-md bg-black/75 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
                 {currentImage + 1}/{hotelImages.length}
               </div>
             )}
           </div>
-
-          {/* ===================================================
-              HOTEL INFORMATION
-
-              Flexible width
-          =================================================== */}
 
           <div className="flex min-w-0 flex-1 flex-col border-l border-gray-300 px-3 py-3 min-[1200px]:px-4">
             {/* HOTEL NAME */}
@@ -527,7 +412,7 @@ const hotelBenefits = useMemo(() => {
               >
                 {hotelName}
               </h2>
-              
+
               {/* STARS */}
               {stars > 0 && (
                 <div className="mt-1 flex items-center gap-[2px]">
@@ -561,7 +446,6 @@ const hotelBenefits = useMemo(() => {
                       </span>
                     )}
                   </p>
-                  
 
                   {(hotel?.distance || hotel?.nearby) && (
                     <p className="truncate text-[11px] leading-[15px] text-gray-500">
@@ -601,12 +485,6 @@ const hotelBenefits = useMemo(() => {
               {/* COUPON */}
             </div>
 
-            {/* =================================================
-                FACILITIES
-
-                More button always available
-            ================================================= */}
-
             {facilities.length > 0 && (
               <div className="mt-0">
                 <div className="flex max-w-full flex-wrap items-center gap-1 overflow-hidden min-[1200px]:gap-1.5">
@@ -619,8 +497,6 @@ const hotelBenefits = useMemo(() => {
                       {tag}
                     </span>
                   ))}
-
-                  {/* MORE BUTTON */}
 
                   {facilities.length > 4 && (
                     <button
@@ -640,21 +516,23 @@ const hotelBenefits = useMemo(() => {
                   )}
                 </div>
                 {hotelBenefits.length > 0 && (
-  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-    {hotelBenefits.map((benefit) => (
-      <div
-        key={benefit.key}
-        className="flex items-center gap-1 text-[11px] font-medium text-green-700 min-[1200px]:text-[12px]"
-      >
-        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100">
-          <span className="text-[11px] font-bold text-green-700">✓</span>
-        </span>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                    {hotelBenefits.map((benefit) => (
+                      <div
+                        key={benefit.key}
+                        className="flex items-center gap-1 text-[11px] font-medium text-green-700 min-[1200px]:text-[12px]"
+                      >
+                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100">
+                          <span className="text-[11px] font-bold text-green-700">
+                            ✓
+                          </span>
+                        </span>
 
-        <span>{benefit.label}</span>
-      </div>
-    ))}
-  </div>
-)}
+                        <span>{benefit.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <TagsFilled className="shrink-0 text-[11px] !text-[rgb(0,126,62)] min-[1200px]:text-[15px]" />
 
                 <span className="truncate pl-2 text-[11px] font-medium !text-[rgb(0,126,62)] min-[1200px]:text-[14px]">
@@ -663,12 +541,6 @@ const hotelBenefits = useMemo(() => {
               </div>
             )}
           </div>
-
-          {/* ===================================================
-              RIGHT RATING / PRICE
-
-              Width responsive
-          =================================================== */}
 
           <div className="flex w-[185px] shrink-0 flex-col justify-between border-l border-gray-300 px-2.5 py-3 min-[1100px]:w-[200px] min-[1200px]:w-[215px] min-[1300px]:w-[225px] min-[1400px]:w-[235px] min-[1536px]:w-[245px]">
             {/* SHARE */}
@@ -684,7 +556,6 @@ const hotelBenefits = useMemo(() => {
                 <ShareAltOutlined />
               </button>
             </div>
-            {/* RATING */}
 
             <div className="flex flex-col items-end">
               <div className="flex max-w-full items-center gap-1">
@@ -710,13 +581,10 @@ const hotelBenefits = useMemo(() => {
               </p>
             </div>
 
-            {/* PRICE */}
             <div className="mt-auto pt-2 text-right">
               <p className="mb-1 text-[10px] text-gray-600 min-[1200px]:text-[11px]">
                 Per night before taxes and fees
               </p>
-
-              {/* OLD PRICE */}
 
               <div className="flex items-center justify-end gap-1">
                 <span className="text-[15px] font-semibold text-gray-500 line-through min-[1200px]:text-[18px]">
@@ -728,8 +596,6 @@ const hotelBenefits = useMemo(() => {
                   -8%
                 </span>
               </div>
-
-              {/* CURRENT PRICE */}
 
               <div className="mt-0.5 flex items-center justify-end gap-1">
                 <span className="text-[11px] font-semibold text-[#d93025] min-[1200px]:text-[13px]">
@@ -743,8 +609,6 @@ const hotelBenefits = useMemo(() => {
                 <LockFilled className="ml-1 text-[10px] text-gray-600 min-[1200px]:text-[12px]" />
               </div>
 
-              {/* TAX */}
-
               <p className="mt-1 text-[9px] text-gray-500 min-[1200px]:text-[11px]">
                 + <span className="mr-1">{hotel?.currencySymbol || "₹"}</span>
                 {tax.toLocaleString("en-IN")} taxes & fees
@@ -753,10 +617,6 @@ const hotelBenefits = useMemo(() => {
           </div>
         </div>
       </div>
-
-      {/* =====================================================
-          MODAL
-      ===================================================== */}
 
       <HotelBookingComingSoonModal
         open={openModal}

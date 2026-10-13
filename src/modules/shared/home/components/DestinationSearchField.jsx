@@ -95,7 +95,11 @@ function DestinationSearchField({
     debounceSearch(inputText);
   };
 
-  const { data = [], isLoading } = useDestinationSearch(debouncedSearch);
+  const {
+    data = [],
+    isLoading,
+    isError: destinationSearchFailed,
+  } = useDestinationSearch(debouncedSearch);
 
   const saveRecentSearch = (item) => {
     if (!item || typeof window === "undefined") {
@@ -374,6 +378,10 @@ function DestinationSearchField({
                       <div className="flex justify-center py-4">
                         <Spin size="small" />
                       </div>
+                    ) : destinationSearchFailed ? (
+                      <div className="py-3 text-center text-sm text-red-500">
+                        Couldn’t load destinations. Please try again.
+                      </div>
                     ) : (
                       <div className="py-3 text-center text-sm text-gray-500">
                         No destinations found
@@ -395,7 +403,7 @@ function DestinationSearchField({
               {value?.cityData?.country || value?.cityData?.countryCode || ""}
             </span>
           ) : (
-            <span className="!z-34 inline-block w-fit bg-white !font-bold text-xs text-gray-700 md:text-sm">
+            <span className="!z-34 inline-block w-fit bg-white text-xs !font-bold text-gray-700 md:text-sm">
               {value?.cityData?.country ||
                 value?.cityData?.countryCode ||
                 "Search destinations"}

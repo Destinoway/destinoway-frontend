@@ -28,8 +28,10 @@ function HotelList({
   const payload = useMemo(() => {
     return buildHotelPayload({
       searchData,
+      filters,
+      sort,
     });
-  }, [searchData]);
+  }, [searchData, filters, sort]);
 
   const {
     data,
@@ -131,6 +133,14 @@ function HotelList({
 
   if (isError) {
     return <HotelNotFound type="error" />;
+  }
+  if (!payload && searchData?.city) {
+    return (
+      <HotelNotFound
+        type="error"
+        message="We couldn’t load hotels because destination details are incomplete. Please select the destination again and retry."
+      />
+    );
   }
   if (isSearchProcessing) {
     return <div>Searching hotels... Please wait.</div>;

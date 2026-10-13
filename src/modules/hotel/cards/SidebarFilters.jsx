@@ -1,6 +1,7 @@
 "use client";
 
 import { Checkbox, Collapse, Input } from "antd";
+import debounce from "lodash/debounce";
 import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
@@ -88,6 +89,13 @@ function SidebarFilters({
     ...DEFAULT_FILTERS,
     ...filters,
   });
+  const [searchInputValue, setSearchInputValue] = useState(
+    filters?.search || "",
+  );
+  const [customPriceDraft, setCustomPriceDraft] = useState({
+    minPrice: filters?.minPrice ?? "",
+    maxPrice: filters?.maxPrice ?? "",
+  });
   const [isMobile, setIsMobile] = useState(false);
   const [showAllAmenities, setShowAllAmenities] = useState(false);
   const [showAllChains, setShowAllChains] = useState(false);
@@ -99,14 +107,6 @@ function SidebarFilters({
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
-
-  useEffect(() => {
-    setTempFilters({ ...DEFAULT_FILTERS, ...filters });
-  }, [filters]);
-
-  const currentFilters = isMobile
-    ? tempFilters
-    : { ...DEFAULT_FILTERS, ...filters };
 
   const updateFilters = useCallback(
     (updater) => {
@@ -129,13 +129,61 @@ function SidebarFilters({
     [isMobile, setFilters],
   );
 
-  const handleSearch = useCallback(
-    (event) =>
-      updateFilters((previous) => ({
-        ...previous,
-        search: event.target.value,
-      })),
+  const debouncedSearchUpdate = useMemo(
+    () =>
+      debounce((nextSearch) => {
+        setSearchInputValue(nextSearch);
+        updateFilters({ search: nextSearch });
+      }, 1000),
     [updateFilters],
+  );
+
+  const debouncedPriceUpdate = useMemo(
+    () =>
+      debounce((nextPriceRange) => {
+        updateFilters((previous) => ({
+          ...previous,
+          ...nextPriceRange,
+        }));
+      }, 1000),
+    [updateFilters],
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedSearchUpdate.cancel();
+      debouncedPriceUpdate.cancel();
+    };
+  }, [debouncedPriceUpdate, debouncedSearchUpdate]);
+
+  const currentFilters = useMemo(
+    () =>
+      isMobile
+        ? {
+            ...DEFAULT_FILTERS,
+            ...filters,
+            ...tempFilters,
+            search: searchInputValue,
+            minPrice: customPriceDraft.minPrice,
+            maxPrice: customPriceDraft.maxPrice,
+          }
+        : {
+            ...DEFAULT_FILTERS,
+            ...filters,
+            search: searchInputValue,
+            minPrice: customPriceDraft.minPrice,
+            maxPrice: customPriceDraft.maxPrice,
+          },
+    [customPriceDraft, filters, isMobile, searchInputValue, tempFilters],
+  );
+
+  const handleSearch = useCallback(
+    (event) => {
+      const nextSearch = event.target.value;
+      setSearchInputValue(nextSearch);
+      debouncedSearchUpdate(nextSearch);
+    },
+    [debouncedSearchUpdate],
   );
 
   const toggleArrayValue = useCallback(
@@ -169,19 +217,35 @@ function SidebarFilters({
   );
 
   const handlePriceRange = useCallback(
-    (min, max) =>
-      updateFilters((previous) => ({
-        ...previous,
-        minPrice: String(min),
-        maxPrice: String(max),
-      })),
-    [updateFilters],
+    (min, max) => {
+      const isSelected =
+        Number(currentFilters.minPrice) === min &&
+        Number(currentFilters.maxPrice) === max &&
+        currentFilters.minPrice !== "" &&
+        currentFilters.maxPrice !== "";
+      const nextRange = isSelected
+        ? { minPrice: "", maxPrice: "" }
+        : { minPrice: String(min), maxPrice: String(max) };
+
+      debouncedPriceUpdate.cancel();
+      setCustomPriceDraft(nextRange);
+      updateFilters((previous) => ({ ...previous, ...nextRange }));
+    },
+    [currentFilters.maxPrice, currentFilters.minPrice, debouncedPriceUpdate, updateFilters],
   );
 
   const handleCustomPrice = useCallback(
-    (key, value) =>
-      updateFilters((previous) => ({ ...previous, [key]: value })),
-    [updateFilters],
+    (key, value) => {
+      const nextValue = value === undefined || value === null ? "" : value;
+      const nextRange = {
+        minPrice: key === "minPrice" ? nextValue : customPriceDraft.minPrice,
+        maxPrice: key === "maxPrice" ? nextValue : customPriceDraft.maxPrice,
+      };
+
+      setCustomPriceDraft(nextRange);
+      debouncedPriceUpdate(nextRange);
+    },
+    [customPriceDraft.maxPrice, customPriceDraft.minPrice, debouncedPriceUpdate],
   );
 
   const handlePopularFilter = useCallback(
@@ -421,9 +485,13 @@ function SidebarFilters({
       chainProperties: [],
       propertyType: [],
     };
+    debouncedSearchUpdate.cancel();
+    debouncedPriceUpdate.cancel();
+    setSearchInputValue("");
+    setCustomPriceDraft({ minPrice: "", maxPrice: "" });
     if (isMobile) setTempFilters(reset);
     else setFilters?.(reset);
-  }, [isMobile, setFilters]);
+  }, [debouncedPriceUpdate, debouncedSearchUpdate, isMobile, setFilters]);
 
   return (
     <div className="boder flex h-full min-h-0 flex-col overflow-hidden rounded-[6px] bg-white p-3 shadow-md md:p-4">

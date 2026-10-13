@@ -49,6 +49,8 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
   } = useHotelSearchStore();
 
   const searchParams = useSearchParams();
+  const urlSearchKey = searchParams.toString();
+  const lastHydratedSearchRef = useRef(null);
   const hotelListRef = useRef(null);
   const cmsTriggerRef = useRef(null);
   const scrollFrameRef = useRef(null);
@@ -57,7 +59,7 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
   const [filters, setFilters] = useState(defaultFilters);
   const [hotelsLoading, setHotelsLoading] = useState(true);
   const [hasHotels, setHasHotels] = useState(false);
-  const [sort, setSort] = useState("recommended");
+  const [sort, setSort] = useState(null);
   const [mapOpen, setMapOpen] = useState(false);
   const [hotelsForMap, setHotelsForMap] = useState([]);
   const [sidebarZ0, setSidebarZ0] = useState(false);
@@ -196,12 +198,16 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
 
   useEffect(() => {
     if (!mounted) return;
+    if (lastHydratedSearchRef.current === urlSearchKey) return;
+    lastHydratedSearchRef.current = urlSearchKey;
+
     if (initialSearchData) {
       setDraftSearchData(initialSearchData);
       setAppliedSearchData(initialSearchData);
       return;
     }
 
+    const queryParams = new URLSearchParams(urlSearchKey);
     const today = dayjs().startOf("day");
     const savedCheckIn = dayjs(draftSearchData?.checkIn);
     const savedCheckOut = dayjs(draftSearchData?.checkOut);
@@ -220,52 +226,126 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
     }
 
     const destinationCity =
-      searchParams.get("destinationCity") ||
+      queryParams.get("destinationCity") ||
       draftSearchData?.cityData?.city ||
       draftSearchData?.city ||
       "";
 
     const displayName =
-      searchParams.get("cityName") ||
+      queryParams.get("cityName") ||
       draftSearchData?.cityData?.displayName ||
       destinationCity;
 
+    const destinationId = queryParams.get("cityId") || "";
+    const isSameDestination =
+      destinationId &&
+      destinationId === String(draftSearchData?.cityData?.id || "");
+    const existingCityData = isSameDestination
+      ? draftSearchData?.cityData || {}
+      : {};
+    const latitude =
+      queryParams.get("latitude") ??
+      existingCityData?.coordinates?.lat ??
+      existingCityData?.geoCode?.lat ??
+      existingCityData?.latitude;
+    const longitude =
+      queryParams.get("longitude") ??
+      existingCityData?.coordinates?.long ??
+      existingCityData?.geoCode?.long ??
+      existingCityData?.longitude;
+    const validSavedDates =
+      savedCheckIn.isValid() &&
+      !savedCheckIn.isBefore(today) &&
+      savedCheckOut.isValid() &&
+      !savedCheckOut.isBefore(today);
+
     const urlData = {
-      city: destinationCity,
+      city: displayName || destinationCity,
 
       cityData: {
-        id: searchParams.get("cityId") || "",
-        name: searchParams.get("destinationCity") || destinationCity,
-        type: searchParams.get("destinationType") || "city",
+        ...existingCityData,
+        id: destinationId,
+        name: queryParams.get("destinationCity") || destinationCity,
+        type:
+          queryParams.get("destinationType") ||
+          existingCityData?.type ||
+          "city",
         city: destinationCity,
-        state: searchParams.get("stateName") || "",
-        stateName: searchParams.get("stateName") || "",
-        country: searchParams.get("country") || "",
-        countryCode: searchParams.get("countryCode") || "",
+        state: queryParams.get("stateName") || existingCityData?.state || "",
+        stateName:
+          queryParams.get("stateName") ||
+          existingCityData?.stateName ||
+          existingCityData?.state ||
+          "",
+        country: queryParams.get("country") || existingCityData?.country || "",
+        countryCode:
+          queryParams.get("countryCode") || existingCityData?.countryCode || "",
         displayName,
         normalizedCity: destinationCity,
+        ...(latitude != null && longitude != null
+          ? { coordinates: { lat: latitude, long: longitude } }
+          : {}),
       },
 
-      checkIn: searchParams.get("checkIn") || "",
-      checkOut: searchParams.get("checkOut") || "",
-      rooms: Number(searchParams.get("rooms")) || 1,
-      adults: Number(searchParams.get("adults")) || 2,
-      children: Number(searchParams.get("children")) || 0,
-      childAges: [],
-      pets: searchParams.get("pets") === "true",
+      checkIn:
+        queryParams.get("checkIn") ||
+        (validSavedDates
+          ? draftSearchData.checkIn
+          : today.format("YYYY-MM-DD")),
+      checkOut:
+        queryParams.get("checkOut") ||
+        (validSavedDates
+          ? draftSearchData.checkOut
+          : today.add(1, "day").format("YYYY-MM-DD")),
+      rooms: Number(queryParams.get("rooms")) || 1,
+      adults: Number(queryParams.get("adults")) || 2,
+      children: Number(queryParams.get("children")) || 0,
+      childAges: (queryParams.get("childAges") || "")
+        .split(",")
+        .filter((age) => age !== "")
+        .map(Number)
+        .filter(Number.isFinite),
+      pets: queryParams.get("pets") === "true",
     };
+
+    const matchesSearchData = (searchData) =>
+      urlData.cityData.id === String(searchData?.cityData?.id || "") &&
+      urlData.city === searchData?.city &&
+      urlData.checkIn === searchData?.checkIn &&
+      urlData.checkOut === searchData?.checkOut &&
+      urlData.rooms === searchData?.rooms &&
+      urlData.adults === searchData?.adults &&
+      urlData.children === searchData?.children &&
+      urlData.pets === searchData?.pets &&
+      JSON.stringify(urlData.childAges) ===
+        JSON.stringify(searchData?.childAges || []) &&
+      String(urlData.cityData.coordinates?.lat ?? "") ===
+        String(
+          searchData?.cityData?.coordinates?.lat ??
+            searchData?.cityData?.latitude ??
+            "",
+        ) &&
+      String(urlData.cityData.coordinates?.long ?? "") ===
+        String(
+          searchData?.cityData?.coordinates?.long ??
+            searchData?.cityData?.longitude ??
+            "",
+        );
 
     if (
       urlData.cityData.id &&
-      urlData.cityData.id !== draftSearchData?.cityData?.id
+      (!matchesSearchData(draftSearchData) ||
+        !matchesSearchData(appliedSearchData))
     ) {
       setDraftSearchData(urlData);
       setAppliedSearchData(urlData);
     }
   }, [
     mounted,
-    searchParams,
+    urlSearchKey,
     initialSearchData,
+    draftSearchData,
+    appliedSearchData,
     setDraftSearchData,
     setAppliedSearchData,
   ]);
