@@ -3,15 +3,18 @@ import { api } from "@/services/axios";
 const PAGE_SIZE = 20;
 
 const FILTER_KEYS = [
+  "hotelName",
   "search",
   "minPrice",
   "maxPrice",
   "starRatings",
+  "starRating",
   "starCategory",
   "amenities",
   "facility",
   "minReviewRating",
   "propertyType",
+  "chainProperties",
   "availableOnly",
   "isRecommended",
   "freeCancellation",
@@ -64,19 +67,22 @@ export const getHotelSearchResults = async (
     ...sorting,
   };
 
-  ["starRatings", "amenities", "propertyType", "chainProperties"].forEach(
-    (key) => {
-      if (Array.isArray(queryParams[key])) {
-        queryParams[key] = queryParams[key].join(",");
-      }
-    },
-  );
+  ["starRatings", "amenities", "propertyType"].forEach((key) => {
+    if (Array.isArray(queryParams[key])) {
+      queryParams[key] = queryParams[key].join(",");
+    }
+  });
 
-  // Remove empty values, while preserving numeric zero and false.
+  // Omit inactive boolean filters while preserving numeric zero.
   Object.keys(queryParams).forEach((key) => {
     const value = queryParams[key];
 
-    if (value === undefined || value === null || value === "") {
+    if (
+      value === undefined ||
+      value === null ||
+      value === "" ||
+      value === false
+    ) {
       delete queryParams[key];
     }
   });

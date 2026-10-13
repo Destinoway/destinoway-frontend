@@ -114,6 +114,7 @@ export default function TopRatedHotels({ hotels }) {
       baseSearchData: draftSearchData,
       city: hotel.city,
       cityId: hotel.cityId,
+      destinationData: hotel,
     });
 
     navigateToHotels(router, searchData);

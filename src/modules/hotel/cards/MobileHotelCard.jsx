@@ -23,11 +23,15 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { memo, useMemo, useState } from "react";
 
+const FALLBACK_HOTEL_IMAGE =
+  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80&auto=format&fit=crop";
+
 function MobileHotelCard({ hotel, wishlistIds }) {
   const router = useRouter();
 
   const [openModal, setOpenModal] = useState(false);
   const [showAllFacilities, setShowAllFacilities] = useState(false);
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
 
   const { setSelectedHotel } = useSelectedHotelStore();
   const { appliedSearchData } = useHotelSearchStore();
@@ -224,13 +228,18 @@ function MobileHotelCard({ hotel, wishlistIds }) {
         {/* Image */}
         <div className="relative p-3 pb-0">
           {hotelImages.length > 1 ? (
-            <ImageGallery images={hotelImages} />
+            <ImageGallery
+              images={hotelImages}
+              fallbackImage={FALLBACK_HOTEL_IMAGE}
+            />
           ) : (
             <Image
-              src={hotelImages[0]}
+              src={imageLoadFailed ? FALLBACK_HOTEL_IMAGE : hotelImages[0]}
               alt={hotel.name}
               width={600}
               height={350}
+              unoptimized
+              onError={() => setImageLoadFailed(true)}
               className="h-[230px] w-full rounded-[3px] object-cover"
             />
           )}

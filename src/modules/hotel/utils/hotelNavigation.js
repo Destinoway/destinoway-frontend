@@ -18,6 +18,16 @@ export const navigateToHotels = (router, searchData) => {
   const destinationState = cityData?.state || cityData?.stateName || "";
   const destinationCountry = cityData?.country || "";
   const destinationCountryCode = cityData?.countryCode || "";
+  const latitude =
+    cityData?.coordinates?.lat ??
+    cityData?.geoCode?.lat ??
+    cityData?.latitude ??
+    cityData?.lat;
+  const longitude =
+    cityData?.coordinates?.long ??
+    cityData?.geoCode?.long ??
+    cityData?.longitude ??
+    cityData?.long;
   const displayName =
     cityData?.displayName || searchData?.city || destinationName;
   const citySlug = createSlug(destinationCity);
@@ -37,9 +47,17 @@ export const navigateToHotels = (router, searchData) => {
     rooms: String(searchData?.rooms || 1),
     adults: String(searchData?.adults || 2),
     children: String(searchData?.children || 0),
+    childAges: Array.isArray(searchData?.childAges)
+      ? searchData.childAges.join(",")
+      : "",
 
     pets: searchData?.pets ? "true" : "false",
   });
+
+  if (latitude != null && longitude != null) {
+    query.set("latitude", String(latitude));
+    query.set("longitude", String(longitude));
+  }
 
   router.push(`/hotels?${query.toString()}`);
 };

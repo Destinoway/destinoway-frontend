@@ -11,20 +11,22 @@ import {
 const PAGE_SIZE = 20;
 
 const FILTER_KEYS = [
-  "search",
+  "hotelName",
   "minPrice",
   "maxPrice",
   "starRatings",
-  "starCategory",
+  "starRating",
   "amenities",
-  "facility",
   "minReviewRating",
   "propertyType",
-  "chainProperties",
   "availableOnly",
   "isRecommended",
   "freeCancellation",
   "freeBreakfast",
+  "search",
+  "starCategory",
+  "facility",
+  "chainProperties",
   "sortBy",
   "sortOrder",
 ];
@@ -53,11 +55,12 @@ export const useInfiniteHotels = (params, filters = {}, sorting = {}) => {
   );
 
   const resolvedFilters = {
-    search: filters.search ?? params?.search,
+    hotelName: filters.search ?? params?.hotelName,
     minPrice: filters.minPrice ?? params?.minPrice,
     maxPrice: filters.maxPrice ?? params?.maxPrice,
     starRatings:
       filters.starRatings ?? params?.starRatings ?? params?.starCategory,
+    starRating: filters.starRating ?? params?.starRating,
     amenities: filters.amenities ?? params?.amenities ?? params?.facility,
     minReviewRating: filters.minReviewRating,
     propertyType: filters.propertyType,
@@ -68,8 +71,8 @@ export const useInfiniteHotels = (params, filters = {}, sorting = {}) => {
   };
 
   const resolvedSorting = {
-    sortBy: sorting.sortBy ?? params?.sortBy,
-    sortOrder: sorting.sortOrder ?? params?.sortOrder,
+    sortBy: sorting?.sortBy ?? params?.sortBy,
+    sortOrder: sorting?.sortOrder ?? params?.sortOrder,
   };
 
   // POST: searchId generation only.

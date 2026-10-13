@@ -103,6 +103,7 @@ function DestinationCard({ item }) {
       baseSearchData: draftSearchData,
       city: item.city,
       cityId: item.cityId,
+      destinationData: item,
     });
 
     navigateToHotels(router, searchData);

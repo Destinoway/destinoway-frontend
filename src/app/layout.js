@@ -4,6 +4,7 @@ import BottomNav from "@/components/common/loder/MobileBottomNav ";
 import GlobalLoginModal from "@/modules/auth/components/GlobalLoginModal";
 import ProfileCompletionHandler from "@/modules/auth/components/ProfileCompletionHandler";
 import ScrollToTopButton from "@/modules/hotel/ScrollToTopButton";
+import HotelSearchSessionExpiry from "@/modules/hotel/components/HotelSearchSessionExpiry";
 
 import { getThemeServer } from "@/modules/theme/api/theme.service";
 import { getThemeCSSVariables } from "@/modules/theme/theme.variables";
@@ -76,6 +77,7 @@ export default async function RootLayout({ children }) {
           <main className="flex-1">
             <AntdApp>
               <GlobalLoginModal />
+              <HotelSearchSessionExpiry />
               {children}
             </AntdApp>
           </main>

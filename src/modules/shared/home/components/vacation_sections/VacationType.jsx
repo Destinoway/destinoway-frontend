@@ -21,11 +21,6 @@ export default function VacationType({ activeTab, vibes = [] }) {
   const data = selectedCategory?.items || [];
   const { draftSearchData } = useHotelSearchStore();
 
-  // useEffect(() => {
-  //   setMounted(true);
-  // }, []);
-
-  // Responsive Cards
   useEffect(() => {
     const updatePerPage = () => {
       const width = window.innerWidth;
@@ -65,13 +60,12 @@ export default function VacationType({ activeTab, vibes = [] }) {
   const visibleData =
     perPage === data.length ? data : data.slice(index, index + perPage);
 
-  // if (!mounted) return null;
-
   const handleSearch = (item) => {
     const searchData = buildSearchData({
       baseSearchData: draftSearchData,
       city: item.city,
       cityId: item.cityId,
+      destinationData: item,
     });
 
     navigateToHotels(router, searchData);
@@ -79,7 +73,6 @@ export default function VacationType({ activeTab, vibes = [] }) {
   return (
     <div className="xs:px-1 !sm:-mt-[50px] -mt-7 px-0 py-2 sm:px-1 md:mt-[2px] md:px-2 lg:mt-[2px] lg:px-4 xl:px-4">
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* PREV BUTTON - Hide on Mobile */}
         <button
           onClick={prev}
           disabled={index === 0}
@@ -88,9 +81,7 @@ export default function VacationType({ activeTab, vibes = [] }) {
           <LeftOutlined />
         </button>
 
-        {/* Cards */}
         <div className="flex-1 overflow-hidden">
-          {/* Mobile Scroll */}
           <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-4 lg:hidden">
             {data.map((item, idx) => {
               return (

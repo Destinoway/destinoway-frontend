@@ -1,6 +1,12 @@
+import {
+  clearCachedSession,
+  getCachedSession,
+  refreshCachedSession,
+} from "@/lib/sessionTokenCache";
+import { recordHotelSearchActivity } from "@/modules/hotel/utils/hotelSearchSession";
 import { useCurrencyStore } from "@/modules/shared/store/currency.store";
 import axios from "axios";
-import { getSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
 
 const baseURL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
@@ -11,8 +17,15 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
+    if (
+      config.method?.toLowerCase() === "post" &&
+      config.url?.split("?")[0].replace(/\/+$/, "") === "/hotelSearch/search"
+    ) {
+      recordHotelSearchActivity();
+    }
+
     try {
-      const session = await getSession();
+      const session = await getCachedSession();
 
       if (session?.accessToken) {
         config.headers.Authorization = `Bearer ${session.accessToken}`;
@@ -44,11 +57,12 @@ api.interceptors.response.use(
       console.log("⚠️ 401 received");
 
       try {
-        const session = await getSession();
+        const session = await refreshCachedSession();
 
         // Refresh completely failed
         if (session?.error === "RefreshAccessTokenError") {
           console.log("❌ Refresh failed → logout");
+          clearCachedSession();
 
           await signOut({
             redirect: false,

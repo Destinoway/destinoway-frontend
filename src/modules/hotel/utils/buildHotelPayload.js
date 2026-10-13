@@ -23,9 +23,20 @@ export const buildHotelPayload = ({
 
   const locationId = cityData?.supplierData?.supplierLocationId || cityData?.id;
 
-  const latitude = cityData?.coordinates?.lat ?? cityData?.latitude;
+  const latitude =
+    cityData?.coordinates?.lat ??
+    cityData?.geoCode?.lat ??
+    cityData?.latitude ??
+    cityData?.lat;
 
-  const longitude = cityData?.coordinates?.long ?? cityData?.longitude;
+  const longitude =
+    cityData?.coordinates?.long ??
+    cityData?.coordinates?.lng ??
+    cityData?.geoCode?.long ??
+    cityData?.geoCode?.lng ??
+    cityData?.longitude ??
+    cityData?.lng ??
+    cityData?.long;
 
   if (
     !searchData?.city ||
@@ -105,33 +116,38 @@ export const buildHotelPayload = ({
     });
   }
 
-  const search = filters?.search || "";
+  const hotelName = filters?.search || "";
   const starCategory = filters?.starCategory || filters?.starRating || "";
   const minPrice = filters?.minPrice ?? "";
   const maxPrice = filters?.maxPrice ?? "";
-  const facility = filters?.facility || "";
+  const amenities = filters?.amenities || [];
 
   let sortBy = "";
   let sortOrder = "";
 
   switch (sort) {
+    case "recommended":
+      sortBy = "isRecommended";
+      sortOrder = "desc";
+      break;
+
     case "ratingHigh":
-      sortBy = "starCategory";
+      sortBy = "rating";
       sortOrder = "desc";
       break;
 
     case "ratingLow":
-      sortBy = "starCategory";
+      sortBy = "rating";
       sortOrder = "asc";
       break;
 
     case "priceHigh":
-      sortBy = "price.totalPrice";
+      sortBy = "price";
       sortOrder = "desc";
       break;
 
     case "priceLow":
-      sortBy = "price.totalPrice";
+      sortBy = "price";
       sortOrder = "asc";
       break;
 
@@ -156,11 +172,11 @@ export const buildHotelPayload = ({
     nationality: "IN",
     countryOfResidence: "IN",
 
-    search,
-    starCategory,
+    hotelName,
+    starRating: starCategory,
     minPrice,
     maxPrice,
-    facility,
+    amenities,
     sortBy,
     sortOrder,
   };
