@@ -46,7 +46,6 @@
     object-fit: cover;
   }
 
-
   .cardWrapper {
     width: calc(100% - 4px);
 
@@ -72,7 +71,7 @@
 
 @media (min-width: 700px) and (max-width: 999px) {
   .heroBg {
-    height: 350px;
+    height: 450px;
   }
 
   .heroBg img {
@@ -80,7 +79,7 @@
   }
 
   .cardWrapper {
-    margin-top: -280px;
+    margin-top: 480px;
   }
 }
 

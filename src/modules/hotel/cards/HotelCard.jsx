@@ -35,7 +35,7 @@ const FALLBACK_HOTEL_IMAGE =
 
 function HotelCard({ hotel, wishlistIds }) {
   const router = useRouter();
-  const isMobile = useIsMobile();
+const isMobile = useIsMobile(700);
 
   const [openModal, setOpenModal] = useState(false);
   const [showAllFacilities, setShowAllFacilities] = useState(false);

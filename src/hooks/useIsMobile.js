@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const MOBILE_BREAKPOINT = 768;
+const MOBILE_BREAKPOINT = 778;
 
 export default function useIsMobile(breakpoint = MOBILE_BREAKPOINT) {
   const [isMobile, setIsMobile] = useState(null);
@@ -18,7 +18,6 @@ export default function useIsMobile(breakpoint = MOBILE_BREAKPOINT) {
 
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener("change", handleChange);
-
       return () => mediaQuery.removeEventListener("change", handleChange);
     }
 

@@ -528,7 +528,7 @@ function SidebarFilters({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 !pb-59">
           <Collapse
             defaultActiveKey={[
               "popular",
