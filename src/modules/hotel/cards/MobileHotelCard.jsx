@@ -199,8 +199,18 @@ function MobileHotelCard({ hotel, wishlistIds }) {
     const hotelSlug = slugify(hotel?.name || hotel?.hotelName || "hotel");
 
     const hotelId = hotel?.hotelId || hotel?.HotelId || hotel?.id;
+    const query = new URLSearchParams();
 
-    const url = `${window.location.origin}/hotel-details/${citySlug}/${hotelSlug}?hid=${hotelId}`;
+    if (hotelId) query.set("hid", String(hotelId));
+    if (hotel?.searchId) query.set("searchId", String(hotel.searchId));
+    if (hotel?.supplierHotelId) {
+      query.set("supplierHotelId", String(hotel.supplierHotelId));
+    }
+    if (hotel?.hotelDetailId) {
+      query.set("hotelDetailId", String(hotel.hotelDetailId));
+    }
+
+    const url = `${window.location.origin}/hotel-details/${citySlug}/${hotelSlug}?${query.toString()}`;
 
     if (navigator.share) {
       try {

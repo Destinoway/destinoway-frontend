@@ -26,20 +26,20 @@ export default function RelatedHotels({
     });
   }, [searchData]);
 
-  const { data, isLoading } = useInfiniteHotels(params);
+  const { data, isLoading, searchId } = useInfiniteHotels(params);
+
+  const rawHotels = useMemo(() => {
+    const page = data?.pages?.[0];
+    const hotelDetailId = page?.data?.hotelDetailId || "";
+
+    return (page?.data?.hotels || []).map((hotel) => ({
+      ...hotel,
+      hotelDetailId,
+      searchId,
+    }));
+  }, [data, searchId]);
 
   const hotels = useMemo(() => {
-    const rawHotels = useMemo(() => {
-      const page = data?.pages?.[0];
-
-      const hotelDetailId = page?.data?.hotelDetailId || "";
-
-      return (page?.data?.hotels || []).map((hotel) => ({
-        ...hotel,
-        hotelDetailId,
-      }));
-    }, [data]);
-
     const filtered = rawHotels.filter((hotel) => {
       const hotelId = hotel?.id || hotel?.hotelId || hotel?.HotelId || "";
 
@@ -60,7 +60,7 @@ export default function RelatedHotels({
     });
 
     return uniqueHotels.slice(0, 4);
-  }, [data, currentHotelId]);
+  }, [rawHotels, currentHotelId]);
 
   if (!cityId) {
     return null;

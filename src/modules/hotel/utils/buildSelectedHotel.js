@@ -5,6 +5,14 @@ export const buildSelectedHotel = ({ hotel = {}, searchData = {} }) => {
     hotel?.id || hotel?.hotelId || hotel?.HotelId || "";
 
   const hotelDetailId = hotel?.hotelDetailId || "";
+  const searchId = hotel?.searchId || "";
+  const supplierHotelId =
+    hotel?.supplierHotelId ||
+    hotel?.supplierHotelID ||
+    hotel?.id ||
+    hotel?.hotelId ||
+    hotel?.HotelId ||
+    "";
 
   const hotelName =
     hotel?.name ||
@@ -37,6 +45,9 @@ export const buildSelectedHotel = ({ hotel = {}, searchData = {} }) => {
   const countryCode = cityData?.countryCode || "";
 
   return {
+    searchId,
+    supplierHotelId,
+    hotelDetailId,
     hotelKey:
       hotel?.hotelKey ||
       hotel?.HotelKey ||
@@ -52,6 +63,8 @@ export const buildSelectedHotel = ({ hotel = {}, searchData = {} }) => {
       hotelId,
 
       hotelDetailId,
+      searchId,
+      supplierHotelId,
 
       hotelSlug:
         hotel?.hotelSlug ||

@@ -199,6 +199,9 @@ export default async function Page({ params, searchParams }) {
       <HotelDetails
         initialPayload={{
           hotelId,
+          searchId: query?.searchId || "",
+          supplierHotelId: query?.supplierHotelId || "",
+          hotelDetailId: query?.hotelDetailId || "",
           hotelMeta: {
             hotelName: cms?.data?.hotelMeta?.hotelName || hotelName,
             hotelSlug: slug,

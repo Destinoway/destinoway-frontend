@@ -314,6 +314,9 @@ function HotelCard({ hotel, wishlistIds }) {
       hotelName,
       cityName: appliedSearchData?.city,
       hotelId: hotel?.id,
+      searchId: hotel?.searchId,
+      supplierHotelId: hotel?.supplierHotelId,
+      hotelDetailId: hotel?.hotelDetailId,
     });
   };
 

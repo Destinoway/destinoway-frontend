@@ -38,6 +38,7 @@ function HotelList({
     isLoading,
     isError,
     isSearchProcessing,
+    searchId,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -116,8 +117,9 @@ function HotelList({
       hotels,
       currencySymbol,
       searchKey,
+      searchId,
     });
-  }, [hotels, currencySymbol, searchKey]);
+  }, [hotels, currencySymbol, searchKey, searchId]);
 
   useEffect(() => {
     onHotelsChange?.(mappedHotels);
