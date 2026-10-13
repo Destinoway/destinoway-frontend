@@ -3,20 +3,31 @@ export const buildHotelDetailsPayload = ({ selectedHotel, initialPayload }) => {
 
   const initialHotelMeta = initialPayload?.hotelMeta || {};
 
-  const hotelId = selectedHotelMeta?.hotelId || initialPayload?.hotelId || "";
+  const hotelId = initialPayload?.hotelId || selectedHotelMeta?.hotelId || "";
 
   const hotelDetailId =
-    selectedHotelMeta?.hotelDetailId ||
     initialPayload?.hotelDetailId ||
     initialHotelMeta?.hotelDetailId ||
+    selectedHotelMeta?.hotelDetailId ||
+    selectedHotel?.hotelDetailId ||
+    "";
+  const searchId =
+    initialPayload?.searchId ||
+    selectedHotelMeta?.searchId ||
+    selectedHotel?.searchId ||
+    "";
+  const supplierHotelId =
+    initialPayload?.supplierHotelId ||
+    selectedHotelMeta?.supplierHotelId ||
+    selectedHotel?.supplierHotelId ||
     "";
 
   const payload = {
     hotelDetailId,
     hotelId,
+    searchId,
+    supplierHotelId,
   };
-
-  console.log("BUILD HOTEL DETAILS PAYLOAD:", payload);
 
   return payload;
 };

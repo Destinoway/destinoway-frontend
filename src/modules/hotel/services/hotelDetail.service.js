@@ -1,20 +1,36 @@
 import { api } from "@/services/axios";
 
-// export const HotelDetailApi = async (payload) => {
-//   const response = await api.post("/Hoteldetails", payload);
+export const HotelDetailApi = async ({
+  searchId,
+  supplierHotelId,
+  page = 1,
+  limit = 20,
+}) => {
+  if (!searchId || !supplierHotelId) {
+    throw new Error("searchId and supplierHotelId are required.");
+  }
 
-//   return response?.data?.data || {};
-// };
+  const { data } = await api.get(
+    `/hotelDetails/search/${encodeURIComponent(searchId)}/${encodeURIComponent(
+      supplierHotelId,
+    )}/content`,
+    { params: { page, limit } },
+  );
 
-let count = 0;
+  if (data?.success !== true) {
+    throw new Error(data?.message || "Failed to fetch hotel details.");
+  }
 
-export const HotelDetailApi = async (payload) => {
-  count++;
+  const responseData = data?.data;
+  const roomPage = responseData?.rooms?.data?.rooms;
 
-  console.log("CALL NO:", count);
-  console.log(JSON.stringify(payload, null, 2));
+  if (!Array.isArray(roomPage?.recommendations)) {
+    throw new Error("Hotel details response did not include room results.");
+  }
 
-  const response = await api.post("/Hoteldetails", payload);
+  if (page === 1 && !responseData?.content?.data?.hotel) {
+    throw new Error("Hotel details response did not include hotel content.");
+  }
 
-  return response?.data?.data || {};
+  return data;
 };

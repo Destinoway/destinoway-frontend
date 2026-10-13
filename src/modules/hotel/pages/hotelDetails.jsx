@@ -5,7 +5,7 @@ import {
   HeartOutlined,
   ShareAltOutlined,
 } from "@ant-design/icons";
-import { Card, message } from "antd";
+import { Alert, Card, message } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import HotelDetailsSkeleton from "@/components/common/loder/HotelDetailsSkeleton";
@@ -19,6 +19,7 @@ import { useToggleWishlist } from "@/modules/wishlist/hooks/useToggleWishlist";
 import { useWishlistIds } from "@/modules/wishlist/hooks/useWishlistIds";
 
 import SearchBar from "../components/hotels/SearchBar";
+import RoomPagination from "../components/hotels/RoomPagination";
 import HotelSectionsContent from "../components/hotels/viewhotles/HotelSectionsContent";
 import HotelSectionsTabs from "../components/hotels/viewhotles/HotelSectionsTabs";
 import ViewHotelGallery from "../components/hotels/viewhotles/ViewHotelGallery";
@@ -34,9 +35,12 @@ import DynamicHotelSeoFallback from "../seo/DynamicHotelSeoFallback";
 import { useHotelSearchStore } from "../store/serchData.store";
 import { buildHotelDetailsPayload } from "../utils/buildHotelDetailsPayload";
 import { buildWishlistPayload } from "../utils/buildWishlistPayload";
+import { mapHotelDetailsResponse } from "../utils/mapHotelDetailsResponse";
 import { shareHotel } from "../utils/shareHotel";
 
 import HotelDetailsMobile from "./HotelDetailsMobile";
+
+const EMPTY_OBJECT = {};
 
 function HotelDetails({ initialPayload = null, cms = null }) {
   const { selectedHotel } = useSelectedHotelStore();
@@ -46,6 +50,10 @@ function HotelDetails({ initialPayload = null, cms = null }) {
   const [activeTab, setActiveTab] = useState("Rooms");
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [roomPaginationState, setRoomPaginationState] = useState({
+    key: "",
+    page: 1,
+  });
 
   const { requireAuth } = useAuthGuard();
   const { mutateAsync } = useToggleWishlist();
@@ -69,28 +77,70 @@ function HotelDetails({ initialPayload = null, cms = null }) {
   }, [wishlistData]);
 
   const hotelId = payload?.hotelId?.toString() || "";
+  const paginationKey = `${payload?.searchId || ""}:${payload?.supplierHotelId || ""}`;
+  const roomPage =
+    roomPaginationState.key === paginationKey ? roomPaginationState.page : 1;
 
   const isWishlisted = hotelId ? wishlistIds.has(hotelId) : false;
 
-  const isValidPayload =
-    Boolean(payload?.hotelId) && Boolean(payload?.hotelDetailId);
+  const isValidPayload = Boolean(payload?.searchId && payload?.supplierHotelId);
 
-  const { data, isLoading, isFetching, refetch } = useHotelDetails(
-    isValidPayload ? payload : null,
+  const firstPageQuery = useHotelDetails(payload, 1, isValidPayload);
+  const roomPageQuery = useHotelDetails(
+    payload,
+    roomPage,
+    isValidPayload && roomPage > 1,
   );
+  const activePageQuery = roomPage === 1 ? firstPageQuery : roomPageQuery;
+
+  const hotelResponseData = useMemo(() => {
+    if (!firstPageQuery.data) {
+      return null;
+    }
+
+    return mapHotelDetailsResponse(firstPageQuery.data, firstPageQuery.data);
+  }, [firstPageQuery.data]);
+
+  const roomResponseData = useMemo(() => {
+    if (!firstPageQuery.data) {
+      return null;
+    }
+
+    return mapHotelDetailsResponse(
+      firstPageQuery.data,
+      activePageQuery.data || firstPageQuery.data,
+    );
+  }, [firstPageQuery.data, activePageQuery.data]);
+
+  const data = useMemo(() => {
+    if (!roomResponseData) {
+      return null;
+    }
+
+    return {
+      ...roomResponseData,
+      hotel: hotelResponseData?.hotel || EMPTY_OBJECT,
+    };
+  }, [hotelResponseData, roomResponseData]);
+
+  const isLoading = firstPageQuery.isLoading;
+  const isFetching = activePageQuery.isFetching;
+  const refetch = activePageQuery.refetch;
+  const detailError =
+    activePageQuery.error || firstPageQuery.error || null;
 
   const showSkeleton = isValidPayload && isLoading && !data;
 
-  const hotelData = data || {};
-  const hotel = hotelData?.hotel || {};
-  const details = hotelData?.details || {};
+  const hotelData = data || EMPTY_OBJECT;
+  const hotel = hotelData?.hotel || EMPTY_OBJECT;
+  const details = hotelData?.details || EMPTY_OBJECT;
 
-  const location = hotel?.location || {};
-  const contact = hotel?.contact || {};
-  const pricing = hotel?.pricing || {};
-  const policy = hotel?.policy || {};
-  const checkIn = hotel?.checkIn || {};
-  const checkOut = hotel?.checkOut || {};
+  const location = hotel?.location || EMPTY_OBJECT;
+  const contact = hotel?.contact || EMPTY_OBJECT;
+  const pricing = hotel?.pricing || EMPTY_OBJECT;
+  const policy = hotel?.policy || EMPTY_OBJECT;
+  const checkIn = hotel?.checkIn || EMPTY_OBJECT;
+  const checkOut = hotel?.checkOut || EMPTY_OBJECT;
 
   useEffect(() => {
     if (!appliedSearchData) return;
@@ -154,18 +204,18 @@ function HotelDetails({ initialPayload = null, cms = null }) {
       importantInformation: details?.importantInformation || null,
       Rooms: Array.isArray(details?.rooms) ? details.rooms : [],
       rooms: Array.isArray(details?.rooms) ? details.rooms : [],
+      RatePlanRecommendations: Array.isArray(details?.rooms)
+        ? details.rooms
+        : [],
     };
-  }, [
-    hotel,
-    hotelId,
-    location,
-    contact,
-    pricing,
-    checkIn,
-    checkOut,
-    policy,
-    details,
-  ]);
+  }, [hotel, hotelId, location, contact, pricing, checkIn, checkOut, policy, details]);
+
+  const handleRoomPageChange = useCallback(
+    (page) => {
+      setRoomPaginationState({ key: paginationKey, page });
+    },
+    [paginationKey],
+  );
 
   const hotelImages = useMemo(() => {
     const gallery = Array.isArray(details?.gallery) ? details.gallery : [];
@@ -185,7 +235,7 @@ function HotelDetails({ initialPayload = null, cms = null }) {
     }
 
     return hotel?.image ? [hotel.image] : [];
-  }, [details?.gallery, hotel?.image]);
+  }, [details, hotel]);
 
   const amenities = useMemo(() => {
     const rawAmenities = details?.amenities;
@@ -222,7 +272,7 @@ function HotelDetails({ initialPayload = null, cms = null }) {
     }
 
     return [];
-  }, [details?.amenities, hotel?.facilities]);
+  }, [details, hotel]);
 
   const ratePlans = useMemo(() => {
     const rooms = Array.isArray(details?.rooms) ? details.rooms : [];
@@ -257,14 +307,7 @@ function HotelDetails({ initialPayload = null, cms = null }) {
         },
       },
     ];
-  }, [
-    details?.rooms,
-    hotel?.hotelId,
-    hotel?.hotelKey,
-    hotel?.name,
-    hotelId,
-    pricing,
-  ]);
+  }, [details, hotel, hotelId, pricing]);
 
   const firstRatePlan = ratePlans?.[0] || null;
 
@@ -361,6 +404,9 @@ function HotelDetails({ initialPayload = null, cms = null }) {
       cityName: location?.city || appliedSearchData?.city || "",
 
       hotelId: payload?.hotelId,
+      searchId: payload?.searchId,
+      supplierHotelId: payload?.supplierHotelId,
+      hotelDetailId: payload?.hotelDetailId,
     });
   };
 
@@ -380,6 +426,14 @@ function HotelDetails({ initialPayload = null, cms = null }) {
         isFetching={isFetching}
         refetch={refetch}
         payload={payload}
+        roomPage={roomPage}
+        roomPageTotal={hotelData?.pagination?.total || 0}
+        onRoomPageChange={handleRoomPageChange}
+        detailError={
+          isValidPayload
+            ? detailError?.message
+            : "This hotel link is missing its search details. Please open the hotel from search results."
+        }
         onWishlist={handleWishlist}
         onShare={handleShare}
         isWishlisted={isWishlisted}
@@ -400,6 +454,26 @@ function HotelDetails({ initialPayload = null, cms = null }) {
           isScrolled ? "z-0" : "z-[820]"
         }`}
       >
+        {!isValidPayload ? (
+          <Alert
+            className="mb-4"
+            type="error"
+            showIcon
+            message="Hotel search details are missing"
+            description="Please open this hotel from the search results so we can load its rooms."
+          />
+        ) : (
+          detailError && (
+            <Alert
+              className="mb-4"
+              type="error"
+              showIcon
+              message="Unable to load hotel details"
+              description={detailError.message}
+            />
+          )
+        )}
+
         <div className="-mt-6">
           {showSkeleton ? (
             <HotelDetailsSkeleton />
@@ -517,6 +591,12 @@ function HotelDetails({ initialPayload = null, cms = null }) {
                 amenities={amenities}
                 hotelDetails={hotelDetails}
                 hotelDetailId={payload?.hotelDetailId || ""}
+              />
+              <RoomPagination
+                currentPage={roomPage}
+                total={hotelData?.pagination?.total || 0}
+                disabled={isFetching}
+                onChange={handleRoomPageChange}
               />
             </div>
 

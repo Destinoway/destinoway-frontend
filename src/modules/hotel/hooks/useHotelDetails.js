@@ -1,18 +1,26 @@
 "use client";
 
-import { useCurrencyStore } from "@/modules/shared/store/currency.store";
 import { useQuery } from "@tanstack/react-query";
 
 import { HotelDetailApi } from "../services/hotelDetail.service";
 
-export const useHotelDetails = (payload) => {
-  const currency = useCurrencyStore((state) => state.selectedCurrency.code);
-
+export const useHotelDetails = (payload, page = 1, enabled = true) => {
   return useQuery({
-    queryKey: ["hotel-details", payload, currency],
+    queryKey: [
+      "hotel-details",
+      payload?.searchId,
+      payload?.supplierHotelId,
+      page,
+    ],
 
-    queryFn: () => HotelDetailApi(payload),
+    queryFn: () => HotelDetailApi({ ...payload, page, limit: 20 }),
 
-    enabled: !!payload?.hotelId && !!payload?.hotelDetailId,
+    enabled:
+      enabled && Boolean(payload?.searchId) && Boolean(payload?.supplierHotelId),
+
+    placeholderData: (previousData) => previousData,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 };

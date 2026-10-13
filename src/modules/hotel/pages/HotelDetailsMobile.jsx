@@ -9,7 +9,7 @@ import {
   HeartOutlined, SendOutlined, ShareAltOutlined,
   TeamOutlined
 } from "@ant-design/icons";
-import { Drawer } from "antd";
+import { Alert, Drawer } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 
@@ -22,9 +22,10 @@ import RelatedHotels from "../sections/RelatedHotels";
 import DynamicHotelSeoFallback from "../seo/DynamicHotelSeoFallback";
 
 import ViewHotelGalleryMobile from "../components/hotels/viewhotles/ViewHotelGalleryMobile";
+import RoomPagination from "../components/hotels/RoomPagination";
+import RoomOptions from "../components/hotels/viewhotles/HotelSections/RoomOptions";
 import HotelSectionsContents from "../mobile-componant/HotelSectionsContents";
 import HotelSectionsTabss from "../mobile-componant/HotelSectionsTabss";
-import SlectRoom from "../mobile-componant/SlectRoom";
 import { useHotelBookingStore } from "../store/booking.store";
 import { useHotelSearchStore } from "../store/serchData.store";
 
@@ -36,6 +37,10 @@ function HotelDetailsMobile({
   isFetching,
   refetch,
   payload,
+  roomPage,
+  roomPageTotal,
+  onRoomPageChange,
+  detailError,
 
   isWishlisted,
   onWishlist,
@@ -50,7 +55,7 @@ function HotelDetailsMobile({
   const [reloadingHotels] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const showSkeleton = isLoading || isFetching;
+  const showSkeleton = isLoading;
 
   const ratePlans = supplierData?.RatePlanRecommendations || [];
 
@@ -94,8 +99,7 @@ function HotelDetailsMobile({
       },
     });
   }, [
-    supplierData?.HotelKey,
-    supplierData?.HotelName,
+    supplierData,
     hotelData?.searchKey,
     appliedSearchData,
     setBookingData,
@@ -152,6 +156,15 @@ function HotelDetailsMobile({
         <HotelDetailsSkeleton />
       ) : (
         <>
+          {detailError && (
+            <Alert
+              className="mx-3 mb-3"
+              type="error"
+              showIcon
+              message="Unable to load hotel details"
+              description={detailError}
+            />
+          )}
           <div className="mx-auto w-full max-w-md rounded-b-[24px] bg-white shadow-sm">
             {/* Top Overlay Icons */}
 
@@ -339,6 +352,7 @@ function HotelDetailsMobile({
                 <ViewHotelPriceCard
                   supplierData={supplierData}
                   ratePlans={ratePlans}
+                  hotelDetailId={payload?.hotelDetailId || ""}
                 />
               </div>
 
@@ -407,7 +421,12 @@ function HotelDetailsMobile({
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
                 <h2 className="mb-1! text-2xl leading-none font-bold text-white">
-                  ₹{Number(FirstRoomPrice?.TotalAmount || 0).toLocaleString()}
+                  ₹
+                  {Number(
+                    FirstRoomPrice?.pricing?.totalAmount ||
+                      FirstRoomPrice?.TotalAmount ||
+                      0,
+                  ).toLocaleString()}
                 </h2>
 
                 <span className="text-[10px] leading-none text-white/80">
@@ -421,7 +440,17 @@ function HotelDetailsMobile({
                 open={openDrawer}
                 onClose={() => setOpenDrawer(false)}
               >
-                <SlectRoom ratePlans={ratePlans} supplierData={supplierData} />
+                <RoomOptions
+                  ratePlans={ratePlans}
+                  supplierData={supplierData}
+                  hotelDetailId={payload?.hotelDetailId || ""}
+                />
+                <RoomPagination
+                  currentPage={roomPage}
+                  total={roomPageTotal}
+                  disabled={isFetching}
+                  onChange={onRoomPageChange}
+                />
               </Drawer>
 
               <button

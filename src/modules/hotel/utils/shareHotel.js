@@ -1,12 +1,22 @@
 import { message } from "antd";
 import { buildHotelUrl } from "./buildHotelUrl";
 
-export const shareHotel = async ({ hotelName, cityName, hotelId }) => {
+export const shareHotel = async ({
+  hotelName,
+  cityName,
+  hotelId,
+  searchId,
+  supplierHotelId,
+  hotelDetailId,
+}) => {
   try {
     const hotelUrl = buildHotelUrl({
       hotelName,
       cityName,
       hotelId,
+      searchId,
+      supplierHotelId,
+      hotelDetailId,
     });
 
     if (!hotelUrl) {

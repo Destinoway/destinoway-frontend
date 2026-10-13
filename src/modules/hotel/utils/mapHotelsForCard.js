@@ -15,6 +15,7 @@ export const mapHotelsForCard = ({
   hotels = [],
   currencySymbol = "₹",
   searchKey = "",
+  searchId = "",
 }) => {
   return hotels.map((hotel) => {
     const price = hotel?.price || {};
@@ -52,6 +53,13 @@ export const mapHotelsForCard = ({
       "";
 
     const hotelDetailId = hotel?.hotelDetailId || "";
+    const supplierHotelId =
+      hotel?.supplierHotelId ||
+      hotel?.supplierHotelID ||
+      hotel?.id ||
+      hotel?.hotelId ||
+      hotel?.HotelId ||
+      "";
 
     const hotelName =
       hotel?.name || hotel?.hotelName || hotel?.HotelName || "Hotel Name";
@@ -107,7 +115,9 @@ export const mapHotelsForCard = ({
 
     return {
       id: hotelId,
+      supplierHotelId,
       hotelDetailId,
+      searchId: hotel?.searchId || searchId,
 
       currencySymbol: resolvedCurrencySymbol,
 
