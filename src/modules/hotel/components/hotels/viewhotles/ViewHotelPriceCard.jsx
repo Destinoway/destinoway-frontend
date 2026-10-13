@@ -1,6 +1,12 @@
 "use client";
 
 import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
+import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
+import {
+  CalendarOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { Button } from "antd";
 import { useRouter } from "next/navigation";
 
@@ -11,7 +17,11 @@ const ViewHotelPriceCard = ({
 }) => {
   const router = useRouter();
   const { requireAuth } = useAuthGuard();
+  const { appliedSearchData = {} } = useHotelSearchStore();
+
   const selectedPlan = ratePlans?.[0] || null;
+
+  /* ================= ROOM DETAILS ================= */
 
   const roomName = selectedPlan?.roomType || "Best Available Room";
 
@@ -22,9 +32,10 @@ const ViewHotelPriceCard = ({
   const additionalInfo = selectedPlan?.additionalInfo || "";
 
   const cancellationPolicy = selectedPlan?.cancellationPolicy || null;
-
   const payment = selectedPlan?.payment || {};
   const pricing = selectedPlan?.pricing || {};
+
+  /* ================= PRICE DATA ================= */
 
   const basicPrice = Number(pricing?.basicAmount || 0);
   const tax = Number(pricing?.tax || 0);
@@ -34,44 +45,100 @@ const ViewHotelPriceCard = ({
   const totalPrice = Number(pricing?.totalAmount || 0);
 
   const currency = pricing?.currency || "INR";
-
   const currencySymbol =
     currency === "INR" || currency === "₹" ? "₹" : currency;
+
+  /* ================= CHECK-IN / CHECK-OUT ================= */
 
   const checkIn = supplierData?.CheckIn || {};
   const checkOut = supplierData?.CheckOut || {};
 
-  /* ================= DATE ================= */
+  const checkInDate = checkIn?.date || appliedSearchData?.checkIn || "";
+  const checkOutDate = checkOut?.date || appliedSearchData?.checkOut || "";
 
-  const formatDate = (date) => {
-    if (!date) return "";
+  /* ================= GUEST DETAILS ================= */
 
-    const parsedDate = new Date(date);
+  const roomCount = Math.max(
+    1,
+    Number(
+      appliedSearchData?.rooms ??
+        appliedSearchData?.roomCount ??
+        supplierData?.rooms ??
+        1,
+    ) || 1,
+  );
 
-    if (Number.isNaN(parsedDate.getTime())) {
-      return date;
+  const adultCount = Math.max(
+    0,
+    Number(
+      appliedSearchData?.adults ??
+        appliedSearchData?.adultCount ??
+        supplierData?.adults ??
+        2,
+    ) || 0,
+  );
+
+  const childrenCount = Math.max(
+    0,
+    Number(
+      appliedSearchData?.children ??
+        appliedSearchData?.childCount ??
+        supplierData?.children ??
+        0,
+    ) || 0,
+  );
+
+  /* ================= DATE FORMAT ================= */
+
+  const formatDate = (value) => {
+    if (!value) return "";
+
+    const dateString = String(value);
+    const dateOnlyMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+    // Prevent timezone shifts for YYYY-MM-DD values.
+    if (dateOnlyMatch) {
+      const [, year, month, day] = dateOnlyMatch;
+
+      const date = new Date(Number(year), Number(month) - 1, Number(day));
+
+      return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
     }
 
-    return parsedDate.toLocaleDateString("en-IN", {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return dateString;
+    }
+
+    return date.toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
   };
 
-  /* ================= TIME ================= */
+  /* ================= TIME FORMAT ================= */
 
-  const formatTime = (time) => {
-    if (!time) return "";
+  const formatTime = (value) => {
+    if (!value) return "";
 
-    const [hours, minutes] = String(time).split(":").map(Number);
+    const match = String(value).match(/^(\d{1,2}):(\d{2})/);
 
-    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
-      return time;
+    if (!match) return String(value);
+
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+      return String(value);
     }
 
     const date = new Date();
-
     date.setHours(hours, minutes, 0, 0);
 
     return date.toLocaleTimeString("en-IN", {
@@ -81,7 +148,7 @@ const ViewHotelPriceCard = ({
     });
   };
 
-  /* ================= PRICE ================= */
+  /* ================= PRICE FORMAT ================= */
 
   const formatPrice = (value) =>
     Number(value || 0).toLocaleString("en-IN", {
@@ -89,11 +156,17 @@ const ViewHotelPriceCard = ({
       maximumFractionDigits: 2,
     });
 
-  /* ================= LIST ================= */
+  /* ================= LIST HELPER ================= */
 
   const getList = (value) => {
     if (Array.isArray(value)) {
-      return value.map((item) => String(item).trim()).filter(Boolean);
+      return value
+        .map((item) =>
+          typeof item === "string"
+            ? item.trim()
+            : String(item?.name || item?.description || "").trim(),
+        )
+        .filter(Boolean);
     }
 
     if (typeof value === "string") {
@@ -138,88 +211,123 @@ const ViewHotelPriceCard = ({
   const handleRoomScroll = () => {
     const section = document.getElementById("rooms-section");
 
-    if (!section) return;
-
-    section.scrollIntoView({
+    section?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
   };
 
   return (
-    <div
-      className="w-full rounded-xl border border-gray-200 bg-white p-2 font-sans shadow-sm"
-      style={{
-        fontFamily:
-          "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
-      }}
-    >
-      {/* ================= ROOM ================= */}
+    <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 font-sans shadow-sm sm:p-5">
+      {/* ================= ROOM DETAILS ================= */}
 
-      <div>
-        <h3 className="line-clamp-2 p-2 pb-auto text-[21px] leading-[1.25] font-bold tracking-[-0.02em] text-[#111827]">
+      <div className="mb-4">
+        <h3 className="text-xl leading-7 font-bold tracking-tight text-gray-900">
           {roomName}
         </h3>
 
         {roomDescription && (
-          <p className="line-clamp-2 text-[14px] leading-[1.45] font-medium text-gray-500">
+          <p className="mt-1 text-sm leading-5 text-gray-500">
             {roomDescription}
           </p>
         )}
       </div>
 
-      {/* ================= CHECK IN / OUT ================= */}
+      {/* ================= STAY DETAILS ================= */}
 
-      {(checkIn?.date || checkOut?.date) && (
-        <div className="bg-gray-50m relative grid grid-cols-2 overflow-hidden rounded-lg border border-gray-100">
-          <div className="border-r border-gray-200 px-3 py-1">
-            <p className="!m-0 text-[13px] leading-tight tracking-wide text-gray-400 uppercase">
-              Check-in
+      <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50">
+        {/* CHECK-IN / CHECK-OUT */}
+
+        <div className="grid grid-cols-2">
+          <div className="border-r border-gray-200 p-3">
+            <div className="flex items-center gap-1.5">
+              <CalendarOutlined className="text-sm text-blue-600" />
+
+              <p className="!m-0 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                Check-in
+              </p>
+            </div>
+
+            <p className="!m-0 text-base leading-6 font-medium text-gray-900">
+              {formatDate(checkInDate) || "Date not available"}
             </p>
 
-            {checkIn?.date && (
-              <p className="!m-0 mt-1! text-[18px] leading-tight font-semibold text-gray-800">
-                {formatDate(checkIn.date)}
-              </p>
-            )}
-
             {checkIn?.time && (
-              <p className="!m-0 mt-1! text-[12px] leading-tight font-medium text-gray-500">
+              <p className="!m-0 mt-1! text-xs font-medium text-gray-500">
                 {formatTime(checkIn.time)}
               </p>
             )}
           </div>
-          <div className="px-3 py-1">
-            <p className="!m-0 text-[13px] leading-tight tracking-wide text-gray-400 uppercase">
-              Check-out
+
+          <div className="p-3">
+            <div className="flex items-center gap-1.5">
+              <CalendarOutlined className="text-sm text-blue-600" />
+
+              <p className="!m-0 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                Check-out
+              </p>
+            </div>
+
+            <p className="!m-0 text-base leading-6 font-medium text-gray-900">
+              {formatDate(checkOutDate) || "Date not available"}
             </p>
 
-            {checkOut?.date && (
-              <p className="!m-0 mt-1! text-[18px] leading-tight font-semibold text-gray-800">
-                {formatDate(checkOut.date)}
-              </p>
-            )}
-
             {checkOut?.time && (
-              <p className="!m-0 mt-1! text-[13px] leading-tight font-medium !text-gray-500">
+              <p className="!m-0 text-xs font-medium text-gray-500">
                 {formatTime(checkOut.time)}
               </p>
             )}
           </div>
         </div>
-      )}
 
-      {/* ================= ADDITIONAL INFO ================= */}
+        {/* GUEST DETAILS */}
+
+        <div className="border-t border-gray-200 px-3 py-3">
+          <div className="mb-2 flex items-center gap-2">
+            <TeamOutlined className="text-base text-blue-600" />
+
+            <h4 className="!m-0 text-xs font-semibold tracking-wide text-gray-600 uppercase">
+              Guest Details
+            </h4>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+            <div className="flex items-center gap-1.5 text-gray-700">
+              <span className="font-semibold">{roomCount}</span>
+              <span>{roomCount === 1 ? "Room" : "Rooms"}</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-gray-700">
+              <UserOutlined className="text-gray-500" />
+
+              <span className="font-semibold">{adultCount}</span>
+              <span>{adultCount === 1 ? "Adult" : "Adults"}</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-gray-700">
+              <UserOutlined className="text-gray-500" />
+
+              <span className="font-semibold">{childrenCount}</span>
+              <span>{childrenCount === 1 ? "Child" : "Children"}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= ADDITIONAL INFORMATION ================= */}
 
       {additionalInfoList.length > 0 && (
-        <div className="rounded-2 mt-2 bg-gray-50 px-3 py-1">
-          <p className="!m-0 text-[13px] leading-[18px] font-bold tracking-wide text-gray-600 uppercase">
+        <div className="mb-3 rounded-xl bg-gray-50 p-3">
+          <h4 className="text-xs font-bold tracking-wide text-gray-700 uppercase">
             Additional Information
-          </p>
+          </h4>
 
-          <ul className="!m-0 !mt-2 text-[14px] leading-[18px] font-medium text-gray-500">
+          <ul className="mt-2 space-y-1.5">
             {additionalInfoList.map((item, index) => (
-              <li key={index} className="!m-0 flex items-start gap-1">
+              <li
+                key={`${item}-${index}`}
+                className="flex items-start gap-2 text-sm leading-5 text-gray-600"
+              >
                 <span className="text-gray-400">•</span>
                 <span>{item}</span>
               </li>
@@ -228,56 +336,40 @@ const ViewHotelPriceCard = ({
         </div>
       )}
 
-      {/* ================= INCLUDED ================= */}
-
-      {inclusionList.length > 0 && (
-        <div className="rounded-2 mt-2 bg-gray-50 px-3 py-1">
-          <p className="!m-0 text-[13px] leading-[18px] font-bold tracking-wide text-gray-600 uppercase">
-            Included
-          </p>
-
-          <ul className="!m-0 !mt-2 text-[14px] leading-[18px] font-medium text-green-600">
-            {inclusionList.map((item, index) => (
-              <li key={index} className="flex items-start gap-1">
-                <span>✓</span>
-
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* ================= CANCELLATION ================= */}
+      {/* ================= CANCELLATION POLICY ================= */}
 
       {cancellationPolicy && (
-        <div className="mt-2 rounded-lg bg-gray-50 px-3 py-2.5">
-          <p className="text-[11px] font-bold tracking-wide text-gray-400 uppercase">
+        <div className="mb-3 rounded-xl bg-gray-50 p-3">
+          <h4 className="text-xs font-bold tracking-wide text-gray-500 uppercase">
             Cancellation Policy
-          </p>
+          </h4>
 
-          <p className="mt-1 text-[12px] font-medium text-gray-600">
-            Cancellation policy available
+          <p className="mt-1 text-sm leading-5 font-medium text-gray-700">
+            {typeof cancellationPolicy === "string"
+              ? cancellationPolicy
+              : cancellationPolicy?.description ||
+                cancellationPolicy?.policy ||
+                "Cancellation policy available"}
           </p>
         </div>
       )}
 
-      {/* ================= PAYMENT ================= */}
+      {/* ================= PAYMENT REQUIREMENTS ================= */}
 
       {(payment?.creditCardRequired || payment?.panMandatory) && (
-        <div className="mt-2 rounded-lg bg-gray-50 px-3 py-2.5">
-          <p className="text-[11px] font-bold tracking-wide text-gray-400 uppercase">
+        <div className="mb-3 rounded-xl bg-gray-50 p-3">
+          <h4 className="text-xs font-bold tracking-wide text-gray-500 uppercase">
             Payment Requirements
-          </p>
+          </h4>
 
           {payment?.creditCardRequired && (
-            <p className="mt-1 text-[12px] font-medium text-gray-600">
+            <p className="mt-2 text-sm font-medium text-gray-700">
               Credit card required
             </p>
           )}
 
           {payment?.panMandatory && (
-            <p className="mt-1 text-[12px] font-medium text-gray-600">
+            <p className="mt-1 text-sm font-medium text-gray-700">
               PAN required
             </p>
           )}
@@ -286,83 +378,67 @@ const ViewHotelPriceCard = ({
 
       {/* ================= PRICE DETAILS ================= */}
 
-      <div className="rounded-4 mt-2 bg-gray-50 px-3 py-1">
-        <h4 className="!m-0 text-[13px] leading-[18px] font-bold tracking-wide text-gray-600 uppercase">
+      <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 sm:p-4">
+        <h4 className="text-sm font-bold tracking-wide text-gray-800 uppercase">
           Price Details
         </h4>
 
-        <div className="mt-2 space-y-1.5 text-[15px]">
-          {/* BASIC */}
+        <div className="mt-3 space-y-3 text-sm">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-gray-600">Basic Price</span>
 
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-gray-500">Basic Price</span>
-
-            <span className="font-semibold text-gray-700">
+            <span className="text-right font-semibold text-gray-800">
               {currencySymbol} {formatPrice(basicPrice)}
             </span>
           </div>
 
-          {/* TAX */}
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-gray-600">Taxes</span>
 
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-gray-500">Taxes</span>
-
-            <span className="font-semibold text-gray-700">
+            <span className="text-right font-semibold text-gray-800">
               {currencySymbol} {formatPrice(tax)}
             </span>
           </div>
 
-          {/* SERVICE */}
-
           {serviceFee > 0 && (
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-500">Service Fee</span>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-gray-600">Service Fee</span>
 
-              <span className="font-semibold text-gray-700">
+              <span className="text-right font-semibold text-gray-800">
                 {currencySymbol} {formatPrice(serviceFee)}
               </span>
             </div>
           )}
 
-          {/* MARKUP */}
-
           {markup > 0 && (
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-500">Markup</span>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-gray-600">Markup</span>
 
-              <span className="font-semibold text-gray-700">
+              <span className="text-right font-semibold text-gray-800">
                 {currencySymbol} {formatPrice(markup)}
               </span>
             </div>
           )}
 
-          {/* GST */}
-
           {gst > 0 && (
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-500">GST</span>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-gray-600">GST</span>
 
-              <span className="font-semibold text-gray-700">
+              <span className="text-right font-semibold text-gray-800">
                 {currencySymbol} {formatPrice(gst)}
               </span>
             </div>
           )}
 
-          {/* TOTAL */}
-
-          <div className="mt-2 border-t border-dashed border-gray-200 pt-2.5">
+          <div className="mt-2 border-t border-dashed border-gray-300 pt-3">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-[15px] font-bold text-gray-900">
-                  Total Price
-                </p>
+                <p className="text-base font-bold text-gray-900">Total Price</p>
 
-                <p className="text-[11px] font-medium text-gray-400">
-                  Inclusive of taxes
-                </p>
+                <p className="mt-1 text-xs text-gray-500">Inclusive of taxes</p>
               </div>
 
-              <p className="text-[22px] leading-none font-extrabold tracking-tight text-[#ef1b1b]">
+              <p className="text-xl leading-tight font-extrabold text-red-600 sm:text-2xl">
                 {currencySymbol} {formatPrice(totalPrice)}
               </p>
             </div>
@@ -372,12 +448,12 @@ const ViewHotelPriceCard = ({
 
       {/* ================= BUTTONS ================= */}
 
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="mt-4 grid grid-cols-2 gap-3">
         <Button
           type="primary"
           size="large"
           onClick={() => requireAuth(handleBookNow)}
-          className="buttion-background-color !h-[42px] w-full rounded-lg! !border-0 text-[15px] !font-bold text-white!"
+          className="buttion-background-color !h-11 w-full !rounded-lg !border-0 !text-sm !font-bold !text-white"
         >
           Book Now
         </Button>
@@ -385,7 +461,7 @@ const ViewHotelPriceCard = ({
         <Button
           size="large"
           onClick={handleRoomScroll}
-          className="most-text-color !h-[42px] w-full rounded-lg! px-3 text-[15px] !font-semibold"
+          className="most-text-color !h-11 w-full !rounded-lg !px-3 !text-sm !font-semibold"
         >
           View All
         </Button>
