@@ -4,6 +4,7 @@ import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
 import { Button } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import HotelDataFieldTree from "../HotelDataFieldTree";
 
 const RoomOptions = ({
   ratePlans = [],
@@ -73,7 +74,17 @@ const RoomOptions = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {supplierData?.RoomResponseFields?.status && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3">
+          <h2 className="!m-0 text-lg font-bold text-gray-900">
+            Available room options
+          </h2>
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium capitalize text-emerald-700">
+            {supplierData.RoomResponseFields.status}
+          </span>
+        </div>
+      )}
       {ratePlans.map((plan, index) => {
         const pricing = plan?.pricing || {};
         const payment = plan?.payment || {};
@@ -338,6 +349,17 @@ const RoomOptions = ({
                   )}
                 </div>
               </div>
+            )}
+
+            {plan?.rawRecommendation && (
+              <details className="mx-5 mb-5 overflow-hidden rounded-xl border border-gray-200 bg-white">
+                <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-[var(--theme-primary)] marker:hidden">
+                  View all room and rate details
+                </summary>
+                <div className="border-t border-gray-100 bg-gray-50/70 p-3 sm:p-4">
+                  <HotelDataFieldTree data={plan.rawRecommendation} />
+                </div>
+              </details>
             )}
           </div>
         );

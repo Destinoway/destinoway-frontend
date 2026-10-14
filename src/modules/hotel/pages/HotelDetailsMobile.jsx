@@ -3,19 +3,19 @@ import HotelDetailsSkeleton from "@/components/common/loder/HotelDetailsSkeleton
 import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
 import {
   ArrowLeftOutlined,
-  CalendarFilled,
-  FieldTimeOutlined,
   HeartFilled,
-  HeartOutlined, SendOutlined, ShareAltOutlined,
-  TeamOutlined
+  HeartOutlined,
+  SendOutlined,
+  ShareAltOutlined,
 } from "@ant-design/icons";
 import { Alert, Drawer } from "antd";
-import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 
 import ViewHotelInfo from "../components/hotels/viewhotles/ViewHotelInfo";
 import ViewHotelModal from "../components/hotels/viewhotles/ViewHotelModal";
 import ViewHotelPriceCard from "../components/hotels/viewhotles/ViewHotelPriceCard";
+import HotelContentOverview from "../components/hotels/viewhotles/HotelContentOverview";
+import HotelTopSummary from "../components/hotels/viewhotles/HotelTopSummary";
 
 import HotelCmsSection from "../sections/HotelCmsSection";
 import RelatedHotels from "../sections/RelatedHotels";
@@ -75,7 +75,6 @@ function HotelDetailsMobile({
     : [];
 
   const hotelDetails = supplierData || [];
-
   const handleReloadHotels = async () => {
     await refetch();
   };
@@ -182,48 +181,20 @@ function HotelDetailsMobile({
             {/* Hotel Card */}
             <div className="!bg- -mt-5 rounded-t-[28px] px-2 pt-5">
               <div className="rounded-2xl bg-white p-2 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
-                <h1 className="basicDetailHeadingText text-[22px] font-bold text-[#222]">
-                  {supplierData?.HotelName}
-                </h1>
-
-                {/* Star */}
-                <div className="!-mt-4 flex items-center gap-1">
-                  {Array.from({
-                    length: Number(supplierData?.StarRating || 5),
-                  }).map((_, i) => (
-                    <span key={i} className="!text-[17px] text-yellow-500">
-                      ★
-                    </span>
-                  ))}
-                </div>
-
-                {/* Rating */}
-                <div className="flex items-center gap-2">
-                  {/* Rating Box */}
-                  <span className="bg-[#0B5CB5] text-white text-[14px] font-bold 
-                   px-3 py-2 rounded-[10px]">
-                    4.4
-                  </span>
-
-                  {/* Review Text */}
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-1">
-                      <span className="text-[14px] font-bold most-text-color">
-                        Very Good
-                      </span>
-
-                      <span className="text-gray-500 text-[14px] font-medium">
-                        ({supplierData?.ReviewCount || "1200"} Ratings)
-                      </span>
-                    </div>
-
-                    <span className="text-[13px] text-gray-600">
-                      85% guests rated this property 4 and above
-                    </span>
-                  </div>
-                </div>
-
-
+                <HotelTopSummary
+                  name={supplierData?.HotelName}
+                  starRating={supplierData?.StarCategory}
+                  reviews={supplierData?.HotelContentFields?.hotel?.reviews}
+                  stayPeriod={supplierData?.StayPeriodFields}
+                  checkinInfo={supplierData?.CheckIn}
+                  checkoutInfo={supplierData?.CheckOut}
+                  occupancies={supplierData?.Occupancies}
+                  fallbackGuests={
+                    (Number(appliedSearchData?.adults) || 0) +
+                    (Number(appliedSearchData?.children) || 0)
+                  }
+                  fallbackRooms={appliedSearchData?.rooms || 1}
+                />
 
                 <div className="mt-3 flex items-center justify-between rounded-xl border border-gray-200 bg-white p-0 shadow-sm px-1">
                   {/* Left */}
@@ -261,91 +232,6 @@ function HotelDetailsMobile({
                   </button>
                 </div>
 
-                {/* Travel Dates & Guests */}
-                {/* Travel Dates & Guests */}
-                <div className="mt-4 border-t border-gray-300 pt-4">
-                  {/* Heading */}
-                  <div className="flex items-center justify-between ">
-                    <h3 className="text-[18px] font-bold text-black">
-                      Travel Dates & Guests
-                    </h3>
-
-                    <button
-                      type="button"
-                      className="text-[16px] font-medium most-text-color"
-                    >
-                      View Calendar
-                    </button>
-                  </div>
-
-                  {/* Check-in / Check-out */}
-                  <div className="flex items-center gap-5 mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-gray-400"></span>
-
-                      <span className="text-[16px] text-black">
-                        <span className="font-medium">Check-in:</span>{" "}
-                        <span className="text-gray-600">2 PM</span>
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-gray-400"></span>
-
-                      <span className="text-[16px] text-black">
-                        <span className="font-medium">Check-out:</span>{" "}
-                        <span className="text-gray-600">12 PM</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Date + Guests */}
-                  <div className="flex gap-3">
-                    {/* Travel Dates */}
-                    <div className="flex-1">
-                      <div className="flex h-[43px] items-center gap-3 rounded-[9px] border border-gray-300 px-3">
-                        {/* Calendar Icon */}
-                        <CalendarFilled className="text-[20px] text-gray-900 " />
-
-                        <span className="text-[14px] font-medium most-text-color">
-                          {appliedSearchData?.checkIn
-                            ? dayjs(appliedSearchData.checkIn).format("DD MMM, ddd")
-                            : "30 Jul, Thu"}
-                          {" - "}
-                          {appliedSearchData?.checkOut
-                            ? dayjs(appliedSearchData.checkOut).format("DD MMM, ddd")
-                            : "31 Jul, Fri"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Guests */}
-                    <div className="w-[200px]">
-                      <div className="flex h-[43px] items-center gap-3 rounded-[9px] border border-gray-300 px-3">
-                        {/* User Icon */}
-                        <TeamOutlined className="text-[20px] text-gray-900" />
-
-                        <span className="text-[14px] font-medium most-text-color">
-                          {appliedSearchData?.guests || 2} Guests/
-                          {appliedSearchData?.rooms || 1} Room
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Checkout Information */}
-                  <div className="mt-4 flex items-start gap-2">
-                    <FieldTimeOutlined className="text-[18px] text-black" />
-
-                    <p className="m-0 text-[15px] leading-5 text-black">
-                      Allows to extend guaranteed check-out as late as 3 PM at
-                      <br className="hidden sm:block" />
-                      extra charges
-                    </p>
-                  </div>
-                </div>
-
-
               </div>
               {/* Price Card */}
               <div className="mt-6">
@@ -361,6 +247,12 @@ function HotelDetailsMobile({
                 <ViewHotelInfo supplierData={supplierData} />
               </div>
             </div>
+          </div>
+
+          <div className="mx-auto mt-5 w-full max-w-md px-3">
+            <HotelContentOverview
+              hotelContent={supplierData?.HotelContentFields}
+            />
           </div>
 
           {/* Hotel Sections */}

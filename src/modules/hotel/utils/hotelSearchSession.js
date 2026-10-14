@@ -1,6 +1,6 @@
 const STORAGE_KEY = "hotel-search-session-expires-at";
 export const HOTEL_SEARCH_SESSION_EVENT = "hotel-search-session-activity";
-export const HOTEL_SEARCH_SESSION_DURATION = 60 * 60 * 1000;
+export const HOTEL_SEARCH_SESSION_DURATION = 25 * 60 * 1000;
 
 export const getHotelSearchSessionExpiry = () => {
   if (typeof window === "undefined") {
@@ -21,8 +21,23 @@ export const recordHotelSearchActivity = () => {
     return;
   }
 
-  const expiresAt = Date.now() + HOTEL_SEARCH_SESSION_DURATION;
+  saveHotelSearchSessionExpiry(Date.now() + HOTEL_SEARCH_SESSION_DURATION);
+};
 
+export const refreshHotelSearchActivity = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const currentExpiry = getHotelSearchSessionExpiry();
+  if (!currentExpiry || currentExpiry <= Date.now()) {
+    return;
+  }
+
+  saveHotelSearchSessionExpiry(Date.now() + HOTEL_SEARCH_SESSION_DURATION);
+};
+
+const saveHotelSearchSessionExpiry = (expiresAt) => {
   try {
     window.localStorage.setItem(STORAGE_KEY, String(expiresAt));
   } catch (error) {

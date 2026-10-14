@@ -1,9 +1,29 @@
-const getPageData = (response) => response?.data?.content?.data || {};
+const getContentData = (response) => response?.data?.content?.data || {};
 
-const getRoomPageData = (response) =>
-  response?.data?.rooms?.data?.rooms ||
-  getPageData(response)?.rooms?.data?.rooms ||
-  {};
+const getRoomPageData = (response) => response?.data?.rooms || {};
+
+const normalizeDate = (value) => {
+  if (typeof value !== "string") {
+    return value || "";
+  }
+
+  const dateMatch = value.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+  if (!dateMatch) {
+    return value;
+  }
+
+  const [, month, day, year] = dateMatch;
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+};
+
+const getOccupancies = (contentResponse, contentData, hotel) => {
+  const occupancies =
+    contentResponse?.data?.occupancies ??
+    contentData?.occupancies ??
+    hotel?.occupancies;
+
+  return Array.isArray(occupancies) ? occupancies : [];
+};
 
 const mapRatePlan = (recommendation = {}) => {
   const roomGroup = recommendation?.roomGroup?.[0] || {};
@@ -45,7 +65,8 @@ const mapRatePlan = (recommendation = {}) => {
 };
 
 export const mapHotelDetailsResponse = (hotelResponse, roomResponse) => {
-  const hotel = getPageData(hotelResponse)?.hotel || {};
+  const contentData = getContentData(hotelResponse);
+  const hotel = contentData?.hotel || {};
   const pageData = getRoomPageData(roomResponse);
   const recommendations = Array.isArray(pageData?.recommendations)
     ? pageData.recommendations
@@ -61,6 +82,22 @@ export const mapHotelDetailsResponse = (hotelResponse, roomResponse) => {
   const hotelId = hotel?.id || "";
   const searchId = hotelResponse?.data?.searchId || "";
   const roomPlans = recommendations.map(mapRatePlan);
+  const stayPeriod = {
+    checkIn: normalizeDate(hotelResponse?.data?.stayPeriod?.checkIn ??
+      hotelResponse?.data?.stayPeriod?.start),
+    checkOut: normalizeDate(hotelResponse?.data?.stayPeriod?.checkOut ??
+      hotelResponse?.data?.stayPeriod?.end),
+  };
+  const occupancies = getOccupancies(hotelResponse, contentData, hotel);
+  const guestDetails = occupancies.reduce(
+    (totals, occupancy) => ({
+      roomCount: totals.roomCount + 1,
+      adultCount: totals.adultCount + (Number(occupancy?.numOfAdults) || 0),
+      childrenCount:
+        totals.childrenCount + (Number(occupancy?.numOfChildren) || 0),
+    }),
+    { roomCount: 0, adultCount: 0, childrenCount: 0 },
+  );
 
   return {
     searchKey: searchId,
@@ -86,6 +123,9 @@ export const mapHotelDetailsResponse = (hotelResponse, roomResponse) => {
       pricing: roomPlans[0]?.pricing || {},
       checkIn: hotel?.checkinInfo || {},
       checkOut: hotel?.checkoutInfo || {},
+      stayPeriod,
+      occupancies,
+      guestDetails,
       supplier: hotelResponse?.data?.supplier || "",
       facilities: Array.isArray(hotel?.facilities) ? hotel.facilities : [],
     },
@@ -100,7 +140,12 @@ export const mapHotelDetailsResponse = (hotelResponse, roomResponse) => {
         policies: hotel?.policies || [],
       },
       rooms: roomPlans,
+      stayPeriod,
+      occupancies,
     },
+    rawContent: contentData,
+    rawRooms: pageData,
+    rawStayPeriod: hotelResponse?.data?.stayPeriod || {},
     pagination: pageData?.pagination || {
       page: 1,
       limit: 20,

@@ -8,7 +8,11 @@ import {
   getHotelSearchSessionExpiry,
   HOTEL_SEARCH_SESSION_DURATION,
   HOTEL_SEARCH_SESSION_EVENT,
+  refreshHotelSearchActivity,
 } from "../utils/hotelSearchSession";
+import { useHotelSearchStore } from "../store/serchData.store";
+import { buildHotelPayload } from "../utils/buildHotelPayload";
+import { buildHotelsUrl } from "../utils/hotelNavigation";
 
 const clearSessionTimeout = (timeoutRef) =>
   window.clearTimeout(timeoutRef.current);
@@ -30,6 +34,7 @@ const scheduleExpiryCheck = (
   if (remainingTime <= 0) {
     if (lastNotifiedExpiryRef.current !== expiresAt) {
       lastNotifiedExpiryRef.current = expiresAt;
+      clearHotelSearchSessionExpiry();
       setIsExpired(true);
     }
     return;
@@ -51,8 +56,14 @@ const scheduleExpiryCheck = (
 
 export default function HotelSearchSessionExpiry() {
   const [isExpired, setIsExpired] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState("");
   const timeoutRef = useRef(null);
   const lastNotifiedExpiryRef = useRef(null);
+  const lastUserActivityRef = useRef(0);
+  const appliedSearchData = useHotelSearchStore(
+    (state) => state.appliedSearchData,
+  );
 
   useEffect(() => {
     const checkExpiry = (expiresAt = getHotelSearchSessionExpiry()) =>
@@ -65,6 +76,16 @@ export default function HotelSearchSessionExpiry() {
 
     const handleActivity = (event) => {
       checkExpiry(event.detail?.expiresAt);
+    };
+
+    const handleUserActivity = () => {
+      const now = Date.now();
+      if (now - lastUserActivityRef.current < 1000) {
+        return;
+      }
+
+      lastUserActivityRef.current = now;
+      refreshHotelSearchActivity();
     };
 
     const handleStorage = (event) => {
@@ -82,19 +103,52 @@ export default function HotelSearchSessionExpiry() {
     checkExpiry();
     window.addEventListener(HOTEL_SEARCH_SESSION_EVENT, handleActivity);
     window.addEventListener("storage", handleStorage);
+    window.addEventListener("pointermove", handleUserActivity, {
+      passive: true,
+    });
+    window.addEventListener("pointerdown", handleUserActivity, {
+      passive: true,
+    });
+    window.addEventListener("keydown", handleUserActivity);
+    window.addEventListener("scroll", handleUserActivity, { passive: true });
+    window.addEventListener("touchstart", handleUserActivity, {
+      passive: true,
+    });
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       clearSessionTimeout(timeoutRef);
       window.removeEventListener(HOTEL_SEARCH_SESSION_EVENT, handleActivity);
       window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("pointermove", handleUserActivity);
+      window.removeEventListener("pointerdown", handleUserActivity);
+      window.removeEventListener("keydown", handleUserActivity);
+      window.removeEventListener("scroll", handleUserActivity);
+      window.removeEventListener("touchstart", handleUserActivity);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
-  const handleClose = () => {
-    setIsExpired(false);
+  const handleSearchAgain = () => {
+    const payload = buildHotelPayload({ searchData: appliedSearchData });
+
+    if (
+      !payload ||
+      !payload.checkIn ||
+      !payload.checkOut ||
+      payload.checkIn === "Invalid Date" ||
+      payload.checkOut === "Invalid Date"
+    ) {
+      setSearchError(
+        "Your saved search details are unavailable. Please start a new search from the hotel search form.",
+      );
+      return;
+    }
+
+    setIsSearching(true);
+    setSearchError("");
     clearHotelSearchSessionExpiry();
+    window.location.assign(buildHotelsUrl(appliedSearchData));
   };
 
   return (
@@ -133,10 +187,16 @@ export default function HotelSearchSessionExpiry() {
             Your hotel search session has expired. Please start a new search to
             continue.
           </p>
+          {searchError && (
+            <p className="mb-4 text-sm text-red-600" role="alert">
+              {searchError}
+            </p>
+          )}
           <Button
             type="primary"
             size="large"
-            onClick={handleClose}
+            onClick={handleSearchAgain}
+            loading={isSearching}
             className="min-w-32 font-medium"
             style={{
               backgroundColor: "var(--theme-primary)",
@@ -144,7 +204,7 @@ export default function HotelSearchSessionExpiry() {
               color: "var(--theme-white)",
             }}
           >
-            Got it
+            Search again
           </Button>
         </div>
       </div>

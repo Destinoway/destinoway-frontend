@@ -2,25 +2,35 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { HotelDetailApi } from "../services/hotelDetail.service";
+import { HotelContentApi, HotelRoomsApi } from "../services/hotelDetail.service";
 
-export const useHotelDetails = (payload, page = 1, enabled = true) => {
-  return useQuery({
+const isValidPayload = (payload) =>
+  Boolean(payload?.searchId && payload?.supplierHotelId);
+
+const queryOptions = {
+  staleTime: 5 * 60 * 1000,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+};
+
+export const useHotelContent = (payload, enabled = true) =>
+  useQuery({
+    queryKey: ["hotel-content", payload?.searchId, payload?.supplierHotelId],
+    queryFn: () => HotelContentApi(payload),
+    enabled: enabled && isValidPayload(payload),
+    ...queryOptions,
+  });
+
+export const useHotelRooms = (payload, page = 1, enabled = true) =>
+  useQuery({
     queryKey: [
-      "hotel-details",
+      "hotel-rooms",
       payload?.searchId,
       payload?.supplierHotelId,
       page,
     ],
-
-    queryFn: () => HotelDetailApi({ ...payload, page, limit: 20 }),
-
-    enabled:
-      enabled && Boolean(payload?.searchId) && Boolean(payload?.supplierHotelId),
-
+    queryFn: () => HotelRoomsApi({ ...payload, page, limit: 20 }),
+    enabled: enabled && isValidPayload(payload),
     placeholderData: (previousData) => previousData,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    ...queryOptions,
   });
-};

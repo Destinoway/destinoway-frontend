@@ -42,6 +42,7 @@ const HotelSectionsContent = ({
       <section id="about-section" className="scroll-mt-36">
         <AboutHotel about={supplierData?.AboutHotel} />
       </section>
+
     </div>
   );
 };

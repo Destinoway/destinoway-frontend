@@ -12,7 +12,10 @@ import HotelDetailsSkeleton from "@/components/common/loder/HotelDetailsSkeleton
 import useIsMobile from "@/hooks/useIsMobile";
 import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
 import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
-import { useHotelDetails } from "@/modules/hotel/hooks/useHotelDetails";
+import {
+  useHotelContent,
+  useHotelRooms,
+} from "@/modules/hotel/hooks/useHotelDetails";
 import { useHotelBookingStore } from "@/modules/hotel/store/booking.store";
 import { useSelectedHotelStore } from "@/modules/hotel/store/selectedHotel.store";
 import { useToggleWishlist } from "@/modules/wishlist/hooks/useToggleWishlist";
@@ -24,6 +27,8 @@ import HotelSectionsContent from "../components/hotels/viewhotles/HotelSectionsC
 import HotelSectionsTabs from "../components/hotels/viewhotles/HotelSectionsTabs";
 import ViewHotelGallery from "../components/hotels/viewhotles/ViewHotelGallery";
 import ViewHotelInfo from "../components/hotels/viewhotles/ViewHotelInfo";
+import HotelContentOverview from "../components/hotels/viewhotles/HotelContentOverview";
+import HotelTopSummary from "../components/hotels/viewhotles/HotelTopSummary";
 import ViewHotelLocation from "../components/hotels/viewhotles/ViewHotelLocation";
 import ViewHotelModal from "../components/hotels/viewhotles/ViewHotelModal";
 import ViewHotelPriceCard from "../components/hotels/viewhotles/ViewHotelPriceCard";
@@ -85,49 +90,27 @@ function HotelDetails({ initialPayload = null, cms = null }) {
 
   const isValidPayload = Boolean(payload?.searchId && payload?.supplierHotelId);
 
-  const firstPageQuery = useHotelDetails(payload, 1, isValidPayload);
-  const roomPageQuery = useHotelDetails(
-    payload,
-    roomPage,
-    isValidPayload && roomPage > 1,
-  );
-  const activePageQuery = roomPage === 1 ? firstPageQuery : roomPageQuery;
-
-  const hotelResponseData = useMemo(() => {
-    if (!firstPageQuery.data) {
-      return null;
-    }
-
-    return mapHotelDetailsResponse(firstPageQuery.data, firstPageQuery.data);
-  }, [firstPageQuery.data]);
-
-  const roomResponseData = useMemo(() => {
-    if (!firstPageQuery.data) {
-      return null;
-    }
-
-    return mapHotelDetailsResponse(
-      firstPageQuery.data,
-      activePageQuery.data || firstPageQuery.data,
-    );
-  }, [firstPageQuery.data, activePageQuery.data]);
+  const contentQuery = useHotelContent(payload, isValidPayload);
+  const roomQuery = useHotelRooms(payload, roomPage, isValidPayload);
+  const refetchContent = contentQuery.refetch;
+  const refetchRooms = roomQuery.refetch;
 
   const data = useMemo(() => {
-    if (!roomResponseData) {
+    if (!contentQuery.data) {
       return null;
     }
 
-    return {
-      ...roomResponseData,
-      hotel: hotelResponseData?.hotel || EMPTY_OBJECT,
-    };
-  }, [hotelResponseData, roomResponseData]);
+    return mapHotelDetailsResponse(contentQuery.data, roomQuery.data);
+  }, [contentQuery.data, roomQuery.data]);
 
-  const isLoading = firstPageQuery.isLoading;
-  const isFetching = activePageQuery.isFetching;
-  const refetch = activePageQuery.refetch;
-  const detailError =
-    activePageQuery.error || firstPageQuery.error || null;
+  const isLoading =
+    contentQuery.isLoading || (roomPage === 1 && roomQuery.isLoading);
+  const isFetching = roomQuery.isFetching;
+  const refetch = useCallback(
+    () => Promise.all([refetchContent(), refetchRooms()]),
+    [refetchContent, refetchRooms],
+  );
+  const detailError = contentQuery.error || roomQuery.error || null;
 
   const showSkeleton = isValidPayload && isLoading && !data;
 
@@ -190,6 +173,21 @@ function HotelDetails({ initialPayload = null, cms = null }) {
       checkIn,
       CheckOut: checkOut,
       checkOut,
+      CheckInDate: hotel?.stayPeriod?.checkIn || "",
+      checkInDate: hotel?.stayPeriod?.checkIn || "",
+      CheckOutDate: hotel?.stayPeriod?.checkOut || "",
+      checkOutDate: hotel?.stayPeriod?.checkOut || "",
+      Occupancies: hotel?.occupancies || [],
+      occupancies: hotel?.occupancies || [],
+      RoomCount: hotel?.guestDetails?.roomCount || 0,
+      AdultCount: hotel?.guestDetails?.adultCount || 0,
+      ChildrenCount: hotel?.guestDetails?.childrenCount || 0,
+      GuestCount:
+        (hotel?.guestDetails?.adultCount || 0) +
+        (hotel?.guestDetails?.childrenCount || 0),
+      HotelContentFields: hotelData?.rawContent || {},
+      RoomResponseFields: hotelData?.rawRooms || {},
+      StayPeriodFields: hotelData?.rawStayPeriod || {},
       Policy: policy,
       policy,
       Supplier: hotel?.supplier || "",
@@ -208,7 +206,20 @@ function HotelDetails({ initialPayload = null, cms = null }) {
         ? details.rooms
         : [],
     };
-  }, [hotel, hotelId, location, contact, pricing, checkIn, checkOut, policy, details]);
+  }, [
+    hotel,
+    hotelId,
+    location,
+    contact,
+    pricing,
+    checkIn,
+    checkOut,
+    policy,
+    details,
+    hotelData?.rawContent,
+    hotelData?.rawRooms,
+    hotelData?.rawStayPeriod,
+  ]);
 
   const handleRoomPageChange = useCallback(
     (page) => {
@@ -488,19 +499,23 @@ function HotelDetails({ initialPayload = null, cms = null }) {
             >
               <div className="flex min-w-0 items-start justify-between gap-3 lg:gap-4">
                 <div className="min-w-0 flex-1">
-                  <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-                    <h1 className="min-w-0 truncate text-[20px] leading-tight font-semibold text-[#303030] lg:text-[23px] xl:text-[26px]">
-                      {hotel?.name || "Hotel Name"}
-                    </h1>
-
-                    {(location?.city || location?.country) && (
-                      <span className="most-text-color max-w-full shrink-0 rounded-full bg-[#eef8fd] px-2 py-1 text-[11px] font-medium lg:px-3 lg:text-xs xl:text-sm">
-                        {[location?.city, location?.country]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </span>
-                    )}
-                  </div>
+                  <HotelTopSummary
+                    name={hotel?.name}
+                    location={[location?.city, location?.country]
+                      .filter(Boolean)
+                      .join(", ")}
+                    starRating={hotel?.starCategory}
+                    reviews={hotelData?.rawContent?.hotel?.reviews}
+                    stayPeriod={hotelData?.rawStayPeriod}
+                    checkinInfo={hotel?.checkIn}
+                    checkoutInfo={hotel?.checkOut}
+                    occupancies={hotel?.occupancies}
+                    fallbackGuests={
+                      (Number(appliedSearchData?.adults) || 0) +
+                      (Number(appliedSearchData?.children) || 0)
+                    }
+                    fallbackRooms={appliedSearchData?.rooms || 1}
+                  />
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2 lg:gap-2.5">
@@ -570,6 +585,9 @@ function HotelDetails({ initialPayload = null, cms = null }) {
                   </div>
                 </div>
               </div>
+              <HotelContentOverview
+                hotelContent={hotelData?.rawContent}
+              />
             </Card>
           )}
         </div>

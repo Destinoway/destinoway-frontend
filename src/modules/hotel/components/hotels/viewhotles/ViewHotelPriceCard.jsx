@@ -53,15 +53,26 @@ const ViewHotelPriceCard = ({
   const checkIn = supplierData?.CheckIn || {};
   const checkOut = supplierData?.CheckOut || {};
 
-  const checkInDate = checkIn?.date || appliedSearchData?.checkIn || "";
-  const checkOutDate = checkOut?.date || appliedSearchData?.checkOut || "";
+  const checkInDate =
+    supplierData?.CheckInDate ||
+    checkIn?.date ||
+    appliedSearchData?.checkIn ||
+    "";
+  const checkOutDate =
+    supplierData?.CheckOutDate ||
+    checkOut?.date ||
+    appliedSearchData?.checkOut ||
+    "";
 
   /* ================= GUEST DETAILS ================= */
+
+  const hasContentOccupancies = supplierData?.Occupancies?.length > 0;
 
   const roomCount = Math.max(
     1,
     Number(
-      appliedSearchData?.rooms ??
+      (hasContentOccupancies ? supplierData?.RoomCount : null) ??
+        appliedSearchData?.rooms ??
         appliedSearchData?.roomCount ??
         supplierData?.rooms ??
         1,
@@ -71,7 +82,8 @@ const ViewHotelPriceCard = ({
   const adultCount = Math.max(
     0,
     Number(
-      appliedSearchData?.adults ??
+      (hasContentOccupancies ? supplierData?.AdultCount : null) ??
+        appliedSearchData?.adults ??
         appliedSearchData?.adultCount ??
         supplierData?.adults ??
         2,
@@ -81,7 +93,8 @@ const ViewHotelPriceCard = ({
   const childrenCount = Math.max(
     0,
     Number(
-      appliedSearchData?.children ??
+      (hasContentOccupancies ? supplierData?.ChildrenCount : null) ??
+        appliedSearchData?.children ??
         appliedSearchData?.childCount ??
         supplierData?.children ??
         0,

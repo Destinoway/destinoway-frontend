@@ -8,7 +8,7 @@ const createSlug = (value = "") => {
     .replace(/-+/g, "-");
 };
 
-export const navigateToHotels = (router, searchData) => {
+export const buildHotelsUrl = (searchData) => {
   const cityData = searchData?.cityData || {};
   const destinationType = cityData?.type?.toLowerCase() || "";
   const destinationId = cityData?.id || "";
@@ -59,5 +59,9 @@ export const navigateToHotels = (router, searchData) => {
     query.set("longitude", String(longitude));
   }
 
-  router.push(`/hotels?${query.toString()}`);
+  return `/hotels?${query.toString()}`;
+};
+
+export const navigateToHotels = (router, searchData) => {
+  router.push(buildHotelsUrl(searchData));
 };
