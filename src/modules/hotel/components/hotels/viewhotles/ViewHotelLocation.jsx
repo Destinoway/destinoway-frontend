@@ -3,6 +3,7 @@
 import { CompassOutlined, EnvironmentOutlined } from "@ant-design/icons";
 
 const ViewHotelLocation = ({ supplierData = {} }) => {
+  console.log("supplierData", supplierData);
   const { Address, City, State, Country, Latitude, Longitude } = supplierData;
 
   const mapQuery =

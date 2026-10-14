@@ -341,7 +341,6 @@ function HotelDetailsMobile({
               >
                 <RoomOptions
                   ratePlans={ratePlans}
-                  supplierData={supplierData}
                   hotelDetailId={payload?.hotelDetailId || ""}
                   hasMore={hasMore}
                   isLoadingMore={isFetchingNextPage}

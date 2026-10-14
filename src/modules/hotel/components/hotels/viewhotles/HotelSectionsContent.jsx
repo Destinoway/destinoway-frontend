@@ -22,7 +22,6 @@ const HotelSectionsContent = ({
       <section id="rooms-section" className="scroll-mt-36">
         <RoomOptions
           ratePlans={ratePlans}
-          supplierData={supplierData}
           hotelDetailId={hotelDetailId}
           hasMore={hasMore}
           isLoadingMore={isLoadingMore}

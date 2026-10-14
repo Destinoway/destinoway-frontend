@@ -16,31 +16,6 @@ const normalizeDate = (value) => {
 
 const asArray = (value) => (Array.isArray(value) ? value : value ? [value] : []);
 
-const asStringList = (value) => {
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => {
-        if (typeof item === "string") {
-          return item.trim();
-        }
-        if (item && typeof item === "object") {
-          return item?.description || item?.name || item?.title || item?.value || "";
-        }
-        return "";
-      })
-      .filter(Boolean);
-  }
-
-  if (typeof value === "string") {
-    return value
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-  }
-
-  return [];
-};
-
 const normalizeImage = (value) => {
   if (typeof value === "string") {
     return value;
@@ -52,6 +27,23 @@ const normalizeImage = (value) => {
 
   return "";
 };
+
+const getOptionalBoolean = (value) => {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "true") return true;
+    if (normalized === "false") return false;
+  }
+
+  return null;
+};
+
+const getField = (room, roomGroup, recommendation, field) =>
+  room?.[field] ?? roomGroup?.[field] ?? recommendation?.[field] ?? null;
 
 const getOccupancies = (contentResponse, contentData, hotel) => {
   const occupancies =
@@ -108,81 +100,68 @@ const getRoomRecommendationList = (roomResponse) => {
   });
 };
 
-const mapRatePlan = (recommendation = {}) => {
-  const roomGroup = Array.isArray(recommendation?.roomGroup)
-    ? recommendation.roomGroup[0] || {}
-    : recommendation?.roomGroup || {};
+const mapRatePlan = (recommendation = {}, roomGroup = {}) => {
   const room = roomGroup?.room || {};
   const recommendationId = recommendation?.id || roomGroup?.id || "";
   const roomGroupId = roomGroup?.id || "";
-  const baseAmount = Number(
-    roomGroup?.baseRate ?? roomGroup?.minSellingRate ?? recommendation?.baseRate ?? 0,
-  );
-  const totalAmount = Number(
-    recommendation?.total ??
-      roomGroup?.totalRate ??
-      roomGroup?.minSellingRate ??
-      roomGroup?.baseRate ??
-      0,
-  );
+  const baseRate = Number(roomGroup?.baseRate ?? recommendation?.baseRate ?? 0);
+  const totalRate = Number(roomGroup?.totalRate ?? recommendation?.totalRate ?? 0);
+  const tax = Number(roomGroup?.tax ?? recommendation?.tax ?? 0);
   const roomImages = Array.isArray(room?.images)
     ? room.images
         .map((item) => normalizeImage(item))
         .filter(Boolean)
     : [];
-
-  const inclusionValues = asArray(roomGroup?.includes)
-    .concat(asArray(roomGroup?.boardBasis))
-    .concat(asArray(roomGroup?.mealPlan))
-    .concat(asStringList(roomGroup?.boardBasis?.description));
-
-  const additionalInfo = asArray(roomGroup?.additionalCharges)
-    .concat(asArray(recommendation?.additionalCharges))
-    .concat(asStringList(roomGroup?.policies))
-    .concat(asStringList(roomGroup?.notes));
-
-  const cancellationPolicy =
-    roomGroup?.cancellationPolicies ??
-    roomGroup?.policies ??
-    recommendation?.cancellationPolicy ??
-    null;
+  const roomName =
+    room?.standardRoomName || room?.name || roomGroup?.standardRoomName || roomGroup?.name || "";
+  const optionalBoolean = (field) =>
+    getOptionalBoolean(getField(room, roomGroup, recommendation, field));
 
   return {
     id: recommendationId,
     recommendationId,
     roomGroupId,
     roomId: recommendationId || roomGroupId || "",
-    roomType:
-      room?.name ||
-      room?.standardRoomName ||
-      roomGroup?.name ||
-      roomGroup?.description ||
-      "Room option",
+    roomType: roomName || "Room option",
     roomDescription: room?.description || roomGroup?.description || "",
     description: room?.description || roomGroup?.description || "",
     images: roomImages,
-    inclusion: inclusionValues.length ? inclusionValues : asStringList(roomGroup?.boardBasis?.description),
-    additionalInfo: additionalInfo.length ? additionalInfo : [],
-    cancellationPolicy,
-    payment: {
-      creditCardRequired: Boolean(roomGroup?.cardRequired || roomGroup?.creditCardRequired),
-      panMandatory: Boolean(
-        recommendation?.isPANRequired ||
-          roomGroup?.isPANRequired ||
-          roomGroup?.panMandatory ||
-          roomGroup?.panRequired,
-      ),
-    },
-    refundable: Boolean(roomGroup?.refundable ?? roomGroup?.refundability),
-    availability: roomGroup?.availability ?? recommendation?.availability ?? null,
+    isHold: optionalBoolean("isHold"),
+    isGSTInvoiceAvailable: optionalBoolean("isGSTInvoiceAvailable"),
+    isPANRequired: optionalBoolean("isPANRequired"),
+    isPreffered: optionalBoolean("isPreffered"),
+    roomCount: getField(room, roomGroup, recommendation, "roomCount"),
+    availability:
+      getField(room, roomGroup, recommendation, "availability") ??
+      getField(room, roomGroup, recommendation, "availableRooms"),
+    refundability: getField(room, roomGroup, recommendation, "refundability"),
+    refundable: optionalBoolean("refundable"),
+    allGuestsInfoRequired: optionalBoolean("allGuestsInfoRequired"),
+    onlineCancellable: optionalBoolean("onlineCancellable"),
+    payAtHotel: optionalBoolean("payAtHotel"),
+    cardRequired: optionalBoolean("cardRequired"),
+    guaranteeRequired: optionalBoolean("guaranteeRequired"),
+    bookNowPayLaterDate: getField(room, roomGroup, recommendation, "bookNowPayLaterDate"),
+    policies: getField(room, roomGroup, recommendation, "policies"),
+    boardBasis: getField(room, roomGroup, recommendation, "boardBasis"),
+    includes: getField(room, roomGroup, recommendation, "includes"),
+    smokingAllowed: optionalBoolean("smokingAllowed"),
+    maxGuestAllowed: getField(room, roomGroup, recommendation, "maxGuestAllowed"),
+    maxAdultAllowed: getField(room, roomGroup, recommendation, "maxAdultAllowed"),
+    maxChildrenAllowed: getField(room, roomGroup, recommendation, "maxChildrenAllowed"),
+    area: getField(room, roomGroup, recommendation, "area"),
+    views: getField(room, roomGroup, recommendation, "views"),
+    type: getField(room, roomGroup, recommendation, "type"),
+    beds: asArray(getField(room, roomGroup, recommendation, "beds")),
+    facilities: asArray(getField(room, roomGroup, recommendation, "facilities")),
     pricing: {
-      basicAmount: baseAmount || totalAmount || 0,
-      tax: totalAmount > baseAmount ? totalAmount - baseAmount : 0,
-      totalAmount,
+      basicAmount: baseRate,
+      baseRate,
+      tax,
+      totalRate,
+      totalAmount: totalRate,
       currency: roomGroup?.currency || recommendation?.currency || "INR",
     },
-    rawRecommendation: recommendation,
-    rawRoomGroup: roomGroup,
   };
 };
 
@@ -191,7 +170,15 @@ export const mapHotelDetailsResponse = (hotelResponse, roomResponse) => {
   const hotel = contentData?.hotel || {};
   const pageData = getRoomPageData(roomResponse);
   const recommendations = getRoomRecommendationList(roomResponse);
-  const roomPlans = recommendations.map(mapRatePlan);
+  const roomPlans = recommendations.flatMap((recommendation) => {
+    const roomGroups = Array.isArray(recommendation?.roomGroup)
+      ? recommendation.roomGroup
+      : recommendation?.roomGroup
+        ? [recommendation.roomGroup]
+        : [];
+
+    return roomGroups.map((roomGroup) => mapRatePlan(recommendation, roomGroup));
+  });
 
   const address = hotel?.contact?.address || {};
   const descriptions = Array.isArray(hotel?.descriptions)

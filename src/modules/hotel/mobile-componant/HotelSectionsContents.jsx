@@ -29,7 +29,6 @@ const HotelSectionsContents = ({
         <div className="hidden md:block">
           <RoomOptions
             ratePlans={ratePlans}
-            supplierData={supplierData}
             hasMore={hasMore}
             isLoadingMore={isLoadingMore}
             onLoadMore={onLoadMore}

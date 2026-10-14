@@ -2,13 +2,8 @@
 
 import { EnvironmentOutlined } from "@ant-design/icons";
 
-import HotelDataFieldTree from "./HotelDataFieldTree";
-
 const contentSections = [
-  {
-    title: "Policies and fees",
-    fields: ["policies"],
-  },
+  { title: "Policies and fees", fields: ["policies"] },
   {
     title: "Facilities and amenities",
     fields: ["facilityGroups", "facilities"],
@@ -23,19 +18,46 @@ const contentSections = [
   },
 ];
 
+const getDisplayValues = (value) => {
+  if (typeof value === "string" || typeof value === "number") {
+    return [String(value).trim()].filter(Boolean);
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap(getDisplayValues);
+  }
+
+  if (value && typeof value === "object") {
+    const selectedValue =
+      value.text ||
+      value.description ||
+      value.name ||
+      value.title ||
+      value.address ||
+      value.city ||
+      value.country ||
+      "";
+    return getDisplayValues(selectedValue);
+  }
+
+  return [];
+};
+
 export default function HotelContentOverview({ hotelContent = {} }) {
   const hotel = hotelContent?.hotel || {};
 
   return (
     <section className="space-y-3">
       {contentSections.map(({ title, fields }) => {
-        const sectionData = Object.fromEntries(
-          fields
-            .filter((field) => hotel?.[field] !== undefined)
-            .map((field) => [field, hotel[field]]),
-        );
+        const sectionData = fields
+          .filter((field) => hotel?.[field] !== undefined)
+          .map((field) => ({
+            label: field.replace(/([a-z])([A-Z])/g, "$1 $2"),
+            values: getDisplayValues(hotel[field]),
+          }))
+          .filter(({ values }) => values.length);
 
-        if (Object.keys(sectionData).length === 0) {
+        if (sectionData.length === 0) {
           return null;
         }
 
@@ -57,7 +79,23 @@ export default function HotelContentOverview({ hotelContent = {} }) {
               </span>
             </summary>
             <div className="border-t border-gray-100 bg-gray-50/70 p-3 sm:p-4">
-              <HotelDataFieldTree data={sectionData} />
+              <div className="grid gap-3 sm:grid-cols-2">
+                {sectionData.map(({ label, values }) => (
+                  <div
+                    key={label}
+                    className="rounded-lg border border-gray-100 bg-white p-3"
+                  >
+                    <h3 className="mb-1 text-xs font-semibold tracking-wide text-gray-500 capitalize">
+                      {label}
+                    </h3>
+                    <ul className="m-0 list-inside list-disc space-y-1 p-0 text-sm leading-6 text-gray-800">
+                      {values.map((value, index) => (
+                        <li key={`${label}-${index}`}>{value}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             </div>
           </details>
         );
