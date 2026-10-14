@@ -23,8 +23,7 @@ const getReviewSummary = (reviews = []) => {
   );
   const weightedRating = reviews.reduce(
     (total, review) =>
-      total +
-      (Number(review?.rating) || 0) * (Number(review?.count) || 0),
+      total + (Number(review?.rating) || 0) * (Number(review?.count) || 0),
     0,
   );
 
@@ -76,7 +75,7 @@ export default function HotelTopSummary({
             {Array.from({ length: stars }, (_, index) => (
               <StarFilled
                 key={index}
-                className="text-xs text-amber-500 sm:text-sm"
+                className="teb-text-color text-xs sm:text-sm"
               />
             ))}
           </span>
@@ -92,9 +91,11 @@ export default function HotelTopSummary({
         )}
         {reviewSummary && (
           <span className="inline-flex items-center gap-1">
-            <StarFilled className="text-amber-500" />
+            <StarFilled className="teb-text-color" />
             {reviewSummary.rating && (
-              <strong className="text-gray-800">{reviewSummary.rating}/5</strong>
+              <strong className="teb-text-color">
+                {reviewSummary.rating}/5
+              </strong>
             )}
             {reviewSummary.count > 0
               ? `${reviewSummary.count} reviews`
@@ -103,40 +104,7 @@ export default function HotelTopSummary({
         )}
       </div>
 
-      {(checkInDate || checkOutDate || checkinInfo?.beginTime || checkoutInfo?.time) && (
-        <div className="mt-3 grid gap-2 rounded-xl border border-gray-200 bg-gray-50/80 p-3 text-sm sm:grid-cols-2">
-          <div className="flex min-w-0 items-start gap-2">
-            <CalendarOutlined className="mt-0.5 text-[var(--theme-primary)]" />
-            <div className="min-w-0">
-              <p className="mb-0 font-semibold text-gray-800">
-                Check-in{checkInDate ? ` · ${checkInDate}` : ""}
-              </p>
-              <p className="mb-0 text-xs text-gray-600">
-                {checkinInfo?.beginTime || "Time unavailable"}
-                {checkinInfo?.endTime ? ` – ${checkinInfo.endTime}` : ""}
-              </p>
-            </div>
-          </div>
-          <div className="flex min-w-0 items-start gap-2">
-            <CalendarOutlined className="mt-0.5 text-[var(--theme-primary)]" />
-            <div className="min-w-0">
-              <p className="mb-0 font-semibold text-gray-800">
-                Check-out{checkOutDate ? ` · ${checkOutDate}` : ""}
-              </p>
-              <p className="mb-0 text-xs text-gray-600">
-                {checkoutInfo?.time || "Time unavailable"}
-              </p>
-            </div>
-          </div>
-          {(guestCount > 0 || roomCount > 0) && (
-            <div className="flex items-center gap-2 text-xs text-gray-600 sm:col-span-2">
-              <TeamOutlined className="text-[var(--theme-primary)]" />
-              {guestCount} guests · {roomCount}{" "}
-              {roomCount === 1 ? "room" : "rooms"}
-            </div>
-          )}
-        </div>
-      )}
+     
     </div>
   );
 }

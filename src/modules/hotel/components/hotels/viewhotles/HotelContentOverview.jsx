@@ -1,28 +1,13 @@
 "use client";
 
-import {
-  EnvironmentOutlined,
-} from "@ant-design/icons";
+import { EnvironmentOutlined } from "@ant-design/icons";
 
 import HotelDataFieldTree from "./HotelDataFieldTree";
 
 const contentSections = [
   {
-    title: "Property details",
-    fields: [
-      "id",
-      "type",
-      "category",
-      "starRating",
-      "chainName",
-      "distance",
-      "locationName",
-      "neighbourhoods",
-    ],
-  },
-  {
     title: "Policies and fees",
-    fields: ["policies", "fees"],
+    fields: ["policies"],
   },
   {
     title: "Facilities and amenities",
