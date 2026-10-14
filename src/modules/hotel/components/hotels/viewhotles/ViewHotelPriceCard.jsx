@@ -100,7 +100,11 @@ const ViewHotelPriceCard = ({
         0,
     ) || 0,
   );
-
+console.log("HOTEL CHECK-IN API DATA:", {
+  CheckIn: supplierData?.CheckIn,
+  CheckOut: supplierData?.CheckOut,
+  supplierData,
+});
   /* ================= DATE FORMAT ================= */
 
   const formatDate = (value) => {
