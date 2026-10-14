@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import { HotelContentApi, HotelRoomsApi } from "../services/hotelDetail.service";
 
@@ -21,16 +21,27 @@ export const useHotelContent = (payload, enabled = true) =>
     ...queryOptions,
   });
 
-export const useHotelRooms = (payload, page = 1, enabled = true) =>
-  useQuery({
-    queryKey: [
-      "hotel-rooms",
-      payload?.searchId,
-      payload?.supplierHotelId,
-      page,
-    ],
-    queryFn: () => HotelRoomsApi({ ...payload, page, limit: 20 }),
+export const useHotelRooms = (payload, enabled = true) =>
+  useInfiniteQuery({
+    queryKey: ["hotel-rooms", payload?.searchId, payload?.supplierHotelId],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      HotelRoomsApi({
+        ...payload,
+        page: pageParam,
+        limit: 20,
+      }),
+    getNextPageParam: (lastPage) => {
+      const pagination = lastPage?.data?.rooms?.pagination || {};
+      const currentPage = Number(pagination.page || 1);
+      const hasMore = Boolean(pagination.hasMore);
+
+      if (!hasMore) {
+        return undefined;
+      }
+
+      return currentPage + 1;
+    },
     enabled: enabled && isValidPayload(payload),
-    placeholderData: (previousData) => previousData,
     ...queryOptions,
   });

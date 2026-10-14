@@ -22,7 +22,6 @@ import RelatedHotels from "../sections/RelatedHotels";
 import DynamicHotelSeoFallback from "../seo/DynamicHotelSeoFallback";
 
 import ViewHotelGalleryMobile from "../components/hotels/viewhotles/ViewHotelGalleryMobile";
-import RoomPagination from "../components/hotels/RoomPagination";
 import RoomOptions from "../components/hotels/viewhotles/HotelSections/RoomOptions";
 import HotelSectionsContents from "../mobile-componant/HotelSectionsContents";
 import HotelSectionsTabss from "../mobile-componant/HotelSectionsTabss";
@@ -41,10 +40,14 @@ function HotelDetailsMobile({
   roomPageTotal,
   onRoomPageChange,
   detailError,
-
   isWishlisted,
   onWishlist,
   onShare,
+  ratePlans: roomList = [],
+  hasMore = false,
+  isFetchingNextPage = false,
+  loadMoreRooms,
+  onRetry,
 }) {
   const { appliedSearchData } = useHotelSearchStore();
   const { setBookingData } = useHotelBookingStore();
@@ -57,7 +60,7 @@ function HotelDetailsMobile({
 
   const showSkeleton = isLoading;
 
-  const ratePlans = supplierData?.RatePlanRecommendations || [];
+  const ratePlans = roomList.length ? roomList : supplierData?.RatePlanRecommendations || [];
 
   const FirstRoomPrice = ratePlans?.[0];
 
@@ -269,6 +272,10 @@ function HotelDetailsMobile({
                 ratePlans={ratePlans}
                 amenities={amenities}
                 hotelDetails={hotelDetails}
+                hasMore={hasMore}
+                isLoadingMore={isFetchingNextPage}
+                onLoadMore={loadMoreRooms}
+                onRetry={onRetry}
               />
             </div>
           </div>
@@ -336,12 +343,10 @@ function HotelDetailsMobile({
                   ratePlans={ratePlans}
                   supplierData={supplierData}
                   hotelDetailId={payload?.hotelDetailId || ""}
-                />
-                <RoomPagination
-                  currentPage={roomPage}
-                  total={roomPageTotal}
-                  disabled={isFetching}
-                  onChange={onRoomPageChange}
+                  hasMore={hasMore}
+                  isLoadingMore={isFetchingNextPage}
+                  onLoadMore={loadMoreRooms}
+                  onRetry={onRetry}
                 />
               </Drawer>
 

@@ -4,16 +4,51 @@ import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
 import { Button } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 import HotelDataFieldTree from "../HotelDataFieldTree";
 
 const RoomOptions = ({
   ratePlans = [],
   supplierData = {},
   hotelDetailId = "",
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
+  onRetry,
 }) => {
   const router = useRouter();
+  const loadMoreRef = useRef(null);
 
   const { requireAuth } = useAuthGuard();
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+
+    if (!target || !hasMore || typeof onLoadMore !== "function") {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+
+        if (entry?.isIntersecting && !isLoadingMore) {
+          onLoadMore();
+        }
+      },
+      {
+        rootMargin: "300px 0px",
+        threshold: 0,
+      },
+    );
+
+    observer.observe(target);
+
+    return () => {
+      observer.unobserve(target);
+      observer.disconnect();
+    };
+  }, [hasMore, isLoadingMore, onLoadMore]);
 
   const galleryImages = Array.isArray(supplierData?.HotelGallery)
     ? supplierData.HotelGallery.map((item) => {
@@ -365,9 +400,33 @@ const RoomOptions = ({
         );
       })}
 
-      {!ratePlans.length && (
+      {hasMore && (
+        <div ref={loadMoreRef} className="flex justify-center py-4">
+          {isLoadingMore ? (
+            <span className="text-sm text-gray-500">Loading more rooms...</span>
+          ) : (
+            <span className="text-sm text-gray-400">Scroll for more rooms</span>
+          )}
+        </div>
+      )}
+
+      {!hasMore && !!ratePlans.length && (
+        <div className="flex justify-center py-4 text-sm text-gray-400">
+          End of room options
+        </div>
+      )}
+
+      {!ratePlans.length && !isLoadingMore && (
         <div className="rounded border border-dashed p-8 text-center text-gray-500">
           No rooms available
+        </div>
+      )}
+
+      {!ratePlans.length && typeof onRetry === "function" && (
+        <div className="mt-4 text-center">
+          <Button type="link" onClick={onRetry}>
+            Retry loading rooms
+          </Button>
         </div>
       )}
     </div>

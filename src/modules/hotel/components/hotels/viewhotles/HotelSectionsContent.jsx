@@ -12,6 +12,10 @@ const HotelSectionsContent = ({
   ratePlans = [],
   amenities = [],
   hotelDetailId = "",
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
+  onRetry,
 }) => {
   return (
     <div className="space-y-6">
@@ -20,6 +24,10 @@ const HotelSectionsContent = ({
           ratePlans={ratePlans}
           supplierData={supplierData}
           hotelDetailId={hotelDetailId}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={onLoadMore}
+          onRetry={onRetry}
         />
       </section>
 

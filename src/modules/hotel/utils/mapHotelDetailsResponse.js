@@ -1,7 +1,5 @@
 const getContentData = (response) => response?.data?.content?.data || {};
 
-const getRoomPageData = (response) => response?.data?.rooms || {};
-
 const normalizeDate = (value) => {
   if (typeof value !== "string") {
     return value || "";
@@ -16,6 +14,45 @@ const normalizeDate = (value) => {
   return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 };
 
+const asArray = (value) => (Array.isArray(value) ? value : value ? [value] : []);
+
+const asStringList = (value) => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (typeof item === "string") {
+          return item.trim();
+        }
+        if (item && typeof item === "object") {
+          return item?.description || item?.name || item?.title || item?.value || "";
+        }
+        return "";
+      })
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
+
+const normalizeImage = (value) => {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (value && typeof value === "object") {
+    return value.url || value.image || value.ImageURL || value.src || "";
+  }
+
+  return "";
+};
+
 const getOccupancies = (contentResponse, contentData, hotel) => {
   const occupancies =
     contentResponse?.data?.occupancies ??
@@ -25,42 +62,127 @@ const getOccupancies = (contentResponse, contentData, hotel) => {
   return Array.isArray(occupancies) ? occupancies : [];
 };
 
-const mapRatePlan = (recommendation = {}) => {
-  const roomGroup = recommendation?.roomGroup?.[0] || {};
-  const room = roomGroup?.room || {};
-  const totalAmount = Number(recommendation?.total ?? roomGroup?.totalRate) || 0;
-  const basicAmount = Number(roomGroup?.baseRate) || totalAmount;
-  const images = Array.isArray(room?.images) ? room.images : [];
+const getRoomRecommendationPages = (roomResponse) => {
+  if (Array.isArray(roomResponse?.pages)) {
+    return roomResponse.pages;
+  }
+
+  if (roomResponse && (roomResponse?.data?.rooms || roomResponse?.rooms)) {
+    return [roomResponse];
+  }
+
+  return [];
+};
+
+const getRoomPageData = (roomResponse) => {
+  const pages = getRoomRecommendationPages(roomResponse);
+
+  if (!pages.length) {
+    return { recommendations: [], pagination: { page: 1, limit: 20, total: 0, hasMore: false } };
+  }
+
+  const lastPage = pages[pages.length - 1];
+  const pageData = lastPage?.data?.rooms || lastPage?.rooms || {};
+  const recommendations = Array.isArray(pageData?.recommendations)
+    ? pageData.recommendations
+    : [];
 
   return {
-    id: recommendation?.id || "",
-    roomId: recommendation?.id || roomGroup?.id || "",
+    ...pageData,
+    recommendations,
+    pagination: pageData?.pagination || {
+      page: 1,
+      limit: 20,
+      total: recommendations.length,
+      hasMore: false,
+    },
+  };
+};
+
+const getRoomRecommendationList = (roomResponse) => {
+  const pages = getRoomRecommendationPages(roomResponse);
+
+  return pages.flatMap((page) => {
+    const roomPage = page?.data?.rooms || page?.rooms || {};
+    return Array.isArray(roomPage?.recommendations) ? roomPage.recommendations : [];
+  });
+};
+
+const mapRatePlan = (recommendation = {}) => {
+  const roomGroup = Array.isArray(recommendation?.roomGroup)
+    ? recommendation.roomGroup[0] || {}
+    : recommendation?.roomGroup || {};
+  const room = roomGroup?.room || {};
+  const recommendationId = recommendation?.id || roomGroup?.id || "";
+  const roomGroupId = roomGroup?.id || "";
+  const baseAmount = Number(
+    roomGroup?.baseRate ?? roomGroup?.minSellingRate ?? recommendation?.baseRate ?? 0,
+  );
+  const totalAmount = Number(
+    recommendation?.total ??
+      roomGroup?.totalRate ??
+      roomGroup?.minSellingRate ??
+      roomGroup?.baseRate ??
+      0,
+  );
+  const roomImages = Array.isArray(room?.images)
+    ? room.images
+        .map((item) => normalizeImage(item))
+        .filter(Boolean)
+    : [];
+
+  const inclusionValues = asArray(roomGroup?.includes)
+    .concat(asArray(roomGroup?.boardBasis))
+    .concat(asArray(roomGroup?.mealPlan))
+    .concat(asStringList(roomGroup?.boardBasis?.description));
+
+  const additionalInfo = asArray(roomGroup?.additionalCharges)
+    .concat(asArray(recommendation?.additionalCharges))
+    .concat(asStringList(roomGroup?.policies))
+    .concat(asStringList(roomGroup?.notes));
+
+  const cancellationPolicy =
+    roomGroup?.cancellationPolicies ??
+    roomGroup?.policies ??
+    recommendation?.cancellationPolicy ??
+    null;
+
+  return {
+    id: recommendationId,
+    recommendationId,
+    roomGroupId,
+    roomId: recommendationId || roomGroupId || "",
     roomType:
       room?.name ||
       room?.standardRoomName ||
+      roomGroup?.name ||
       roomGroup?.description ||
       "Room option",
     roomDescription: room?.description || roomGroup?.description || "",
     description: room?.description || roomGroup?.description || "",
-    images,
-    inclusion:
-      roomGroup?.boardBasis?.description ||
-      (Array.isArray(roomGroup?.includes) ? roomGroup.includes : ""),
-    additionalInfo: roomGroup?.additionalCharges || "",
-    cancellationPolicy:
-      roomGroup?.cancellationPolicies || roomGroup?.policies || null,
+    images: roomImages,
+    inclusion: inclusionValues.length ? inclusionValues : asStringList(roomGroup?.boardBasis?.description),
+    additionalInfo: additionalInfo.length ? additionalInfo : [],
+    cancellationPolicy,
     payment: {
-      creditCardRequired: Boolean(roomGroup?.cardRequired),
-      panMandatory: Boolean(recommendation?.isPANRequired),
+      creditCardRequired: Boolean(roomGroup?.cardRequired || roomGroup?.creditCardRequired),
+      panMandatory: Boolean(
+        recommendation?.isPANRequired ||
+          roomGroup?.isPANRequired ||
+          roomGroup?.panMandatory ||
+          roomGroup?.panRequired,
+      ),
     },
-    refundable: Boolean(roomGroup?.refundable),
+    refundable: Boolean(roomGroup?.refundable ?? roomGroup?.refundability),
+    availability: roomGroup?.availability ?? recommendation?.availability ?? null,
     pricing: {
-      basicAmount,
-      tax: Math.max(0, totalAmount - basicAmount),
+      basicAmount: baseAmount || totalAmount || 0,
+      tax: totalAmount > baseAmount ? totalAmount - baseAmount : 0,
       totalAmount,
-      currency: "INR",
+      currency: roomGroup?.currency || recommendation?.currency || "INR",
     },
     rawRecommendation: recommendation,
+    rawRoomGroup: roomGroup,
   };
 };
 
@@ -68,25 +190,31 @@ export const mapHotelDetailsResponse = (hotelResponse, roomResponse) => {
   const contentData = getContentData(hotelResponse);
   const hotel = contentData?.hotel || {};
   const pageData = getRoomPageData(roomResponse);
-  const recommendations = Array.isArray(pageData?.recommendations)
-    ? pageData.recommendations
-    : [];
+  const recommendations = getRoomRecommendationList(roomResponse);
+  const roomPlans = recommendations.map(mapRatePlan);
 
   const address = hotel?.contact?.address || {};
   const descriptions = Array.isArray(hotel?.descriptions)
     ? hotel.descriptions.map((item) => item?.text).filter(Boolean)
     : [];
   const images = Array.isArray(hotel?.images)
-    ? hotel.images.map((item) => item?.url).filter(Boolean)
+    ? hotel.images
+        .map((item) => normalizeImage(item))
+        .filter(Boolean)
     : [];
   const hotelId = hotel?.id || "";
   const searchId = hotelResponse?.data?.searchId || "";
-  const roomPlans = recommendations.map(mapRatePlan);
   const stayPeriod = {
-    checkIn: normalizeDate(hotelResponse?.data?.stayPeriod?.checkIn ??
-      hotelResponse?.data?.stayPeriod?.start),
-    checkOut: normalizeDate(hotelResponse?.data?.stayPeriod?.checkOut ??
-      hotelResponse?.data?.stayPeriod?.end),
+    checkIn: normalizeDate(
+      hotelResponse?.data?.stayPeriod?.checkIn ??
+        hotelResponse?.data?.stayPeriod?.start ??
+        "",
+    ),
+    checkOut: normalizeDate(
+      hotelResponse?.data?.stayPeriod?.checkOut ??
+        hotelResponse?.data?.stayPeriod?.end ??
+        "",
+    ),
   };
   const occupancies = getOccupancies(hotelResponse, contentData, hotel);
   const guestDetails = occupancies.reduce(
@@ -149,7 +277,7 @@ export const mapHotelDetailsResponse = (hotelResponse, roomResponse) => {
     pagination: pageData?.pagination || {
       page: 1,
       limit: 20,
-      total: recommendations.length,
+      total: roomPlans.length,
       hasMore: false,
     },
     rawHotel: hotel,
