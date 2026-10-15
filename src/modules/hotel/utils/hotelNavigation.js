@@ -52,6 +52,7 @@ export const buildHotelsUrl = (searchData) => {
       : "",
 
     pets: searchData?.pets ? "true" : "false",
+    roomGuests: JSON.stringify(searchData?.roomGuests || []),
   });
 
   if (latitude != null && longitude != null) {

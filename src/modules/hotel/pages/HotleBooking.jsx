@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import HotelBookingContent from "../components/hotel-booking/HotelBookingContent";
 import { useRoomPricing } from "../hooks/useRoomPricing";
 import { useSelectedHotelStore } from "../store/selectedHotel.store";
+import { useHotelBookingStore } from "../store/booking.store";
 
 export default function HotleBooking() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function HotleBooking() {
   const supplierHotelId = searchParams.get("supplierHotelId") || "";
   const recommendationId = searchParams.get("recommendationId") || roomId;
   const { selectedHotel } = useSelectedHotelStore();
+  const selectedRatePlan = useHotelBookingStore((state) => state.bookingData?.selectedRatePlan);
   const selectedHotelMeta = selectedHotel?.hotelMeta || {};
 
   const {
@@ -78,6 +80,19 @@ export default function HotleBooking() {
 
   const bookingData = {
     ...roomPricingData,
+    rooms: (roomPricingData?.rooms || []).map((room) => ({
+      ...selectedRatePlan,
+      ...room,
+      roomType: selectedRatePlan?.roomType && selectedRatePlan.roomType !== "Room option"
+        ? selectedRatePlan.roomType
+        : room?.name || room?.roomName || room?.roomType || selectedRatePlan?.standardRoomName || selectedRatePlan?.name || "Selected Room",
+      roomDescription: room?.roomDescription || selectedRatePlan?.roomDescription || selectedRatePlan?.description || "",
+      description: room?.description || selectedRatePlan?.description || selectedRatePlan?.roomDescription || "",
+      boardBasis: room?.boardBasis || selectedRatePlan?.boardBasis || selectedRatePlan?.includes || "",
+      beds: room?.beds?.length ? room.beds : selectedRatePlan?.beds || [],
+      facilities: room?.facilities?.length ? room.facilities : selectedRatePlan?.facilities || [],
+      policies: room?.policies || selectedRatePlan?.policies || [],
+    })),
     image:
       selectedHotelMeta?.image ||
       selectedHotel?.hotelImage ||

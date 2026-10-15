@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Col, Row } from "antd";
+import { Button, Col, message, Row } from "antd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -47,6 +47,7 @@ export default function HotelBookingContent({
   );
   const [agreement, setAgreement] = useState(false);
   const guestFormRef = useRef(null);
+  const bookingSubmissionRef = useRef(false);
   const { mutate: bookHotel, isPending } = useHotelBooking();
   const router = useRouter();
   const { data: session } = useSession();
@@ -65,6 +66,13 @@ export default function HotelBookingContent({
   );
 
   const occupancy = useMemo(() => {
+    if (Array.isArray(searchData?.roomGuests) && searchData.roomGuests.length) {
+      return searchData.roomGuests.map((room, index) => ({
+        roomNo: index + 1,
+        adults: Math.max(Number(room?.adults) || 1, 1),
+        children: Array.isArray(room?.children) ? room.children.length : Math.max(Number(room?.children) || 0, 0),
+      }));
+    }
     const responseRooms = Array.isArray(hotelBookingData?.rooms)
       ? hotelBookingData.rooms
       : [];
@@ -157,12 +165,15 @@ export default function HotelBookingContent({
   };
 
   const handleBooking = async () => {
+    if (isPending || bookingSubmissionRef.current) return;
+    bookingSubmissionRef.current = true;
     let latestGuestData;
 
     try {
       latestGuestData = await guestFormRef.current.submitForm();
-    } catch (errors) {
-      console.log("GUEST FORM ERRORS:", errors);
+    } catch {
+      bookingSubmissionRef.current = false;
+      message.error("Please complete the required guest and contact details.");
       return;
     }
 
@@ -181,13 +192,16 @@ export default function HotelBookingContent({
     bookHotel(payload, {
       onSuccess: (response) => {
         const bookingRefNo =
+          response?.data?.data?.BookingRefNo ||
+          response?.data?.data?.bookingRefNo ||
           response?.data?.BookingRefNo ||
           response?.data?.bookingRefNo ||
           response?.BookingRefNo ||
           response?.bookingRefNo;
 
         if (!bookingRefNo) {
-          console.error("BOOKING REF NO NOT FOUND:", response);
+          bookingSubmissionRef.current = false;
+          message.error("Booking was submitted, but no booking reference was returned.");
           return;
         }
 
@@ -198,6 +212,10 @@ export default function HotelBookingContent({
         router.push(
           `/hotel-checkout?bookingRefNo=${encodeURIComponent(bookingRefNo)}`,
         );
+      },
+      onError: (error) => {
+        bookingSubmissionRef.current = false;
+        message.error(error?.message || "Unable to continue with booking.");
       },
     });
   };

@@ -317,6 +317,14 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
         .map(Number)
         .filter(Number.isFinite),
       pets: queryParams.get("pets") === "true",
+      roomGuests: (() => {
+        try {
+          const parsed = JSON.parse(queryParams.get("roomGuests") || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      })(),
     };
 
     const matchesSearchData = (searchData) =>
@@ -328,6 +336,8 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
       urlData.adults === searchData?.adults &&
       urlData.children === searchData?.children &&
       urlData.pets === searchData?.pets &&
+      JSON.stringify(urlData.roomGuests) ===
+        JSON.stringify(searchData?.roomGuests || []) &&
       JSON.stringify(urlData.childAges) ===
         JSON.stringify(searchData?.childAges || []) &&
       String(urlData.cityData.coordinates?.lat ?? "") ===

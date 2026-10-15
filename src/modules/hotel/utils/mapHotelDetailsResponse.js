@@ -130,7 +130,11 @@ const mapRatePlan = (recommendation = {}, roomGroup = {}) => {
         .filter(Boolean)
     : [];
   const roomName =
-    room?.standardRoomName || room?.name || roomGroup?.standardRoomName || roomGroup?.name || "";
+    room?.standardRoomName || room?.roomName || room?.roomType || room?.name ||
+    room?.GroupName || room?.HotelRoomTypeDesc || roomGroup?.standardRoomName ||
+    roomGroup?.roomName || roomGroup?.roomType || roomGroup?.name ||
+    roomGroup?.GroupName || roomGroup?.HotelRoomTypeDesc || recommendation?.roomName ||
+    recommendation?.roomType || "";
   const optionalBoolean = (field) =>
     getOptionalBoolean(getField(room, roomGroup, recommendation, field));
 

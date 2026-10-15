@@ -2,6 +2,7 @@
 
 import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
 import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
+import { useHotelBookingStore } from "@/modules/hotel/store/booking.store";
 import { buildRoomBookingUrl } from "@/modules/hotel/utils/buildRoomBookingUrl";
 import { selectFeaturedRoomPlan } from "@/modules/hotel/utils/selectFeaturedRoomPlan";
 import {
@@ -21,6 +22,7 @@ const ViewHotelPriceCard = ({
   const router = useRouter();
   const { requireAuth } = useAuthGuard();
   const { appliedSearchData = {} } = useHotelSearchStore();
+  const { setBookingData } = useHotelBookingStore();
 
   const { plan: selectedPlan, isRecommended: isRecommendedPlan } =
     selectFeaturedRoomPlan(ratePlans);
@@ -224,6 +226,7 @@ const ViewHotelPriceCard = ({
       return;
     }
 
+    setBookingData({ selectedRatePlan: selectedPlan, selectedRoom: selectedPlan });
     router.push(
       buildRoomBookingUrl({
         hotelDetailId,

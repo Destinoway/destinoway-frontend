@@ -3,6 +3,7 @@
 import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
 import RoomDescription from "@/modules/hotel/components/hotels/viewhotles/RoomDescription";
 import { buildRoomBookingUrl } from "@/modules/hotel/utils/buildRoomBookingUrl";
+import { useHotelBookingStore } from "@/modules/hotel/store/booking.store";
 import { Button, Modal } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -132,6 +133,7 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
   const [showDetails, setShowDetails] = useState(false);
   const router = useRouter();
   const { requireAuth } = useAuthGuard();
+  const { setBookingData } = useHotelBookingStore();
   const images = (Array.isArray(plan?.images) ? plan.images : [])
     .map(getImageUrl)
     .filter(Boolean);
@@ -194,6 +196,7 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
       return;
     }
 
+    setBookingData({ selectedRatePlan: plan, selectedRoom: plan });
     router.push(
       buildRoomBookingUrl({
         hotelDetailId,

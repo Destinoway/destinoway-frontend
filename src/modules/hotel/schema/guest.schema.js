@@ -9,6 +9,8 @@ const guestFieldsSchema = z.object({
 export const primaryGuestSchema = z.object({
   bookingFor: z.string(),
   customerAddress: z.string().trim().min(2, "Address required"),
+  customerState: z.string().trim().min(2, "State required"),
+  customerCity: z.string().trim().min(2, "City required"),
   customerPostalCode: z
     .string()
     .trim()
