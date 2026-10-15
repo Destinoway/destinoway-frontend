@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 const AboutHotelContent = ({ content, isModalOpen, setIsModalOpen }) => {
   const [isLongContent, setIsLongContent] = useState(false);
   const contentRef = useRef(null);
+  
 
   useEffect(() => {
     const checkContentHeight = () => {

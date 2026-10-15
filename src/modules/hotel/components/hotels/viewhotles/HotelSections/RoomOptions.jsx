@@ -302,20 +302,24 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
               )}
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
-            {BOOLEAN_FIELDS.map(([field, label]) =>
-              typeof plan?.[field] === "boolean" ? (
-                <span key={field}>
-                  {label}: {plan[field] ? "Yes" : "No"}
-                </span>
-              ) : null,
-            )}
-            {plan?.refundability !== null &&
-              plan?.refundability !== undefined &&
-              plan?.refundability !== "" && (
-                <span>Refundability: {getText(plan.refundability)}</span>
-              )}
-          </div>
+      
+<div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs">
+  {BOOLEAN_FIELDS.map(([field, label]) =>
+    plan?.[field] === true ? (
+      <span
+        key={field}
+        className="inline-flex items-center gap-1.5 font-medium text-emerald-600"
+      >
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100">
+          <span className="text-xs font-bold text-emerald-600">
+            ✓
+          </span>
+        </span>
+        {label}
+      </span>
+    ) : null,
+  )}
+</div>
 
           {hasAdditionalDetails && (
             <button

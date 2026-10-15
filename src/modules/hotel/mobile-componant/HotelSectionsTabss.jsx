@@ -150,7 +150,7 @@ const HotelSectionsTabss = ({ activeTab = "Amenities", setActiveTab }) => {
         ref={ref}
         className={`z-[8] w-full border border-gray-200 bg-white text-[#0ea5e9] shadow-[0_8px_20px_rgba(14,165,233,0.25)] ${
           isFixed
-            ? "fixed top-[55px] left-0 w-full sm:top-[55px] md:top-[100px] lg:top-[100px] xl:top-[100px]"
+            ? "!lg:top-[55px] fixed top-[55px] left-0 w-full sm:top-[55px]  xl:top-[55px]"
             : "relative"
         }`}
       >
@@ -168,6 +168,7 @@ const HotelSectionsTabss = ({ activeTab = "Amenities", setActiveTab }) => {
                     : "hover:teb-text-color !text-gray-900"
                 }`}
               >
+                
                 {tab}
 
                 {active && (
