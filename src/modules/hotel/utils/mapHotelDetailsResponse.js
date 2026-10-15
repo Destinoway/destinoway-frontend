@@ -102,8 +102,25 @@ const getRoomRecommendationList = (roomResponse) => {
 
 const mapRatePlan = (recommendation = {}, roomGroup = {}) => {
   const room = roomGroup?.room || {};
-  const recommendationId = recommendation?.id || roomGroup?.id || "";
-  const roomGroupId = roomGroup?.id || "";
+  const recommendationId =
+    recommendation?.id ||
+    recommendation?.recommendationId ||
+    recommendation?.recommendationID ||
+    recommendation?.RecommendationId ||
+    recommendation?.RecommendationID ||
+    roomGroup?.id ||
+    roomGroup?.roomGroupId ||
+    roomGroup?.roomGroupID ||
+    roomGroup?.RoomGroupId ||
+    roomGroup?.RoomGroupID ||
+    "";
+  const roomGroupId =
+    roomGroup?.id ||
+    roomGroup?.roomGroupId ||
+    roomGroup?.roomGroupID ||
+    roomGroup?.RoomGroupId ||
+    roomGroup?.RoomGroupID ||
+    "";
   const baseRate = Number(roomGroup?.baseRate ?? recommendation?.baseRate ?? 0);
   const totalRate = Number(roomGroup?.totalRate ?? recommendation?.totalRate ?? 0);
   const tax = Number(roomGroup?.tax ?? recommendation?.tax ?? 0);

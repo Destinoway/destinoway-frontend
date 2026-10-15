@@ -6,6 +6,7 @@ import { useEffect } from "react";
 
 import HotelBookingContent from "../components/hotel-booking/HotelBookingContent";
 import { useRoomPricing } from "../hooks/useRoomPricing";
+import { useSelectedHotelStore } from "../store/selectedHotel.store";
 
 export default function HotleBooking() {
   const router = useRouter();
@@ -13,6 +14,11 @@ export default function HotleBooking() {
 
   const hotelDetailId = searchParams.get("hotelDetailId") || "";
   const roomId = searchParams.get("roomId") || "";
+  const searchId = searchParams.get("searchId") || "";
+  const supplierHotelId = searchParams.get("supplierHotelId") || "";
+  const recommendationId = searchParams.get("recommendationId") || roomId;
+  const { selectedHotel } = useSelectedHotelStore();
+  const selectedHotelMeta = selectedHotel?.hotelMeta || {};
 
   const {
     data: roomPricingData,
@@ -22,23 +28,19 @@ export default function HotleBooking() {
     error,
   } = useRoomPricing({
     hotelDetailId,
-    roomId,
+    searchId,
+    supplierHotelId,
+    recommendationId,
   });
 
   useEffect(() => {
-    if (!hotelDetailId || !roomId) {
+    if (!searchId || !supplierHotelId || !recommendationId) {
       router.replace("/hotels");
     }
-  }, [hotelDetailId, roomId, router]);
-
-  useEffect(() => {
-    if (isError) {
-      console.error("ROOM PRICING FETCH ERROR:", error);
-    }
-  }, [isError, error]);
+  }, [hotelDetailId, searchId, supplierHotelId, recommendationId, router]);
 
   // Missing required params
-  if (!hotelDetailId || !roomId) {
+  if (!searchId || !supplierHotelId || !recommendationId) {
     return null;
   }
 
@@ -60,7 +62,7 @@ export default function HotleBooking() {
         </h2>
 
         <p className="max-w-md text-sm text-gray-500 sm:text-base">
-          Please go back and select the room again.
+          {error?.message || "Please go back and select the room again."}
         </p>
 
         <button
@@ -74,13 +76,35 @@ export default function HotleBooking() {
     );
   }
 
-  console.log("ROOM PRICING DATA:", roomPricingData);
+  const bookingData = {
+    ...roomPricingData,
+    image:
+      selectedHotelMeta?.image ||
+      selectedHotel?.hotelImage ||
+      selectedHotel?.image ||
+      "",
+    location: {
+      ...roomPricingData?.location,
+      city:
+        roomPricingData?.location?.city ||
+        selectedHotelMeta?.city ||
+        selectedHotelMeta?.cityName ||
+        "",
+      state:
+        roomPricingData?.location?.state ||
+        selectedHotelMeta?.state ||
+        selectedHotelMeta?.stateName ||
+        "",
+      country:
+        roomPricingData?.location?.country || selectedHotelMeta?.country || "",
+    },
+  };
 
   return (
     <main className="background-color-bg min-h-screen w-full max-w-full overflow-x-hidden">
       <div className="w-full max-w-full py-0">
         <HotelBookingContent
-          hotelBookingData={roomPricingData}
+          hotelBookingData={bookingData}
           hotelDetailId={hotelDetailId}
           roomId={roomId}
         />

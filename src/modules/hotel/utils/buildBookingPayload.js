@@ -21,6 +21,9 @@ export const buildBookingPayload = ({
   return {
     hotelDetailId: hotelDetailId || bookingData?.hotelDetailId || "",
     roomId: roomId || bookingData?.roomId || "",
+    searchId: bookingData?.searchId || "",
+    supplierHotelId: bookingData?.supplierHotelId || "",
+    recommendationId: bookingData?.recommendationId || roomId || "",
 
     customerAddress: guestData?.customerAddress || "",
     customerMobile: guestData?.customerMobile || primaryGuest?.mobile || "",

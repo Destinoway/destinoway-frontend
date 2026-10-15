@@ -13,6 +13,7 @@ import StaySummaryCard from "../components/hotel-booking/StaySummaryCard";
 
 export default function HotelBookingContents({
   hotelBookingData,
+  occupancy = [],
   guestFormRef,
   agreement,
   setAgreement,
@@ -30,7 +31,11 @@ export default function HotelBookingContents({
         <Col xs={24} lg={8}>
           <div className="-mt-10! space-y-4 px-1 sm:space-y-5 sm:px-0">
             <BookingHeaderCard bookingData={hotelBookingData} />
-            <GuestDetailsForm ref={guestFormRef} onSubmit={handleGuestSubmit} />
+            <GuestDetailsForm
+              ref={guestFormRef}
+              onSubmit={handleGuestSubmit}
+              occupancy={occupancy}
+            />
 
             <StaySummaryCard bookingData={hotelBookingData} />
             <RoomPackageCard bookingData={hotelBookingData} />
@@ -57,7 +62,7 @@ export default function HotelBookingContents({
                   loading={isPending}
                   disabled={!agreement}
                   onClick={handleBooking}
-                  className="!h-[44px] w-full !rounded-lg buttion-background-color !text-sm sm:!h-[48px] sm:w-auto sm:!rounded-xl sm:!text-base"
+                  className="buttion-background-color !h-[44px] w-full !rounded-lg !text-sm sm:!h-[48px] sm:w-auto sm:!rounded-xl sm:!text-base"
                 >
                   Continue To Booking
                 </Button>

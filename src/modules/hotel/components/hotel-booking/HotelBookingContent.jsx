@@ -3,7 +3,13 @@
 import { Button, Col, Row } from "antd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import { useHotelBooking } from "../../hooks/useHotelBooking";
 import { useHotelBookingStore } from "../../store/booking.store";
@@ -21,13 +27,24 @@ import StaySummaryCard from "./StaySummaryCard";
 
 import HotelBookingContents from "../../mobile-componant/HotelBookingContents";
 
+
+
+
+const subscribeToMount = () => () => {};
+const getClientMountSnapshot = () => true;
+const getServerMountSnapshot = () => false;
+
 export default function HotelBookingContent({
   hotelBookingData = {},
   hotelDetailId = "",
   roomId = "",
 }) {
   const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribeToMount,
+    getClientMountSnapshot,
+    getServerMountSnapshot,
+  );
   const [agreement, setAgreement] = useState(false);
   const guestFormRef = useRef(null);
   const { mutate: bookHotel, isPending } = useHotelBooking();
@@ -48,26 +65,32 @@ export default function HotelBookingContent({
   );
 
   const occupancy = useMemo(() => {
-    const apiGuests = Array.isArray(hotelBookingData?.rooms?.guests)
-      ? hotelBookingData.rooms.guests
+    const responseRooms = Array.isArray(hotelBookingData?.rooms)
+      ? hotelBookingData.rooms
       : [];
+    const apiGuests = responseRooms.flatMap((room) =>
+      Array.isArray(room?.occupancies)
+        ? room.occupancies.map((guest) => ({
+            ...guest,
+            roomNo: room?.roomNo,
+          }))
+        : [],
+    );
 
     if (apiGuests.length > 0) {
       return apiGuests.map((room, index) => ({
         roomNo: index + 1,
-        adults: Math.max(Number(room?.adults) || 0, 0),
+        adults: Math.max(Number(room?.adults ?? room?.numOfAdults) || 0, 0),
         children: Array.isArray(room?.children)
           ? room.children.length
-          : Math.max(Number(room?.children) || 0, 0),
+          : Math.max(Number(room?.children ?? room?.numOfChildren) || 0, 0),
       }));
     }
 
     // 2. Old API / existing structure fallback
     const oldApiRooms = Array.isArray(hotelBookingData?.guestDetails?.rooms)
       ? hotelBookingData.guestDetails.rooms
-      : Array.isArray(hotelBookingData?.rooms)
-        ? hotelBookingData.rooms
-        : [];
+      : [];
 
     if (oldApiRooms.length > 0) {
       return oldApiRooms.map((room, index) => ({
@@ -111,7 +134,6 @@ export default function HotelBookingContent({
   }, [hotelBookingData, searchData]);
 
   useEffect(() => {
-    setMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -203,7 +225,7 @@ export default function HotelBookingContent({
   return (
     <>
       {isMobile ? (
-        <HotelBookingContents {...bookingProps} />
+        <HotelBookingContents {...bookingProps} occupancy={occupancy} />
       ) : (
         <div className="w-full">
           <BackgroundSection />

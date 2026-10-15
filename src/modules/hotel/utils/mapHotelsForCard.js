@@ -52,7 +52,12 @@ export const mapHotelsForCard = ({
       hotel?.HotelId ||
       "";
 
-    const hotelDetailId = hotel?.hotelDetailId || "";
+    const hotelDetailId =
+      hotel?.hotelDetailId ||
+      hotel?.hotelDetailID ||
+      hotel?.HotelDetailId ||
+      hotel?.HotelDetailID ||
+      "";
     const supplierHotelId =
       hotel?.supplierHotelId ||
       hotel?.supplierHotelID ||
