@@ -10,23 +10,26 @@ const ViewHotelGalleryMobile = ({
   isWishlisted,
 }) => {
   const getHDImage = (url) => {
-    if (!url) return "https://placehold.co/800x600?text=Hotel";
+    if (!url) return "/images/heroimage.jpg";
     return url.replace("_t.", "_y.").replace("_b.", "_y.");
   };
 
-  const gallery = [
-    getHDImage(images?.[0]?.ImageURL),
-    getHDImage(images?.[1]?.ImageURL || images?.[0]?.ImageURL),
-    getHDImage(images?.[2]?.ImageURL || images?.[0]?.ImageURL),
-    getHDImage(images?.[3]?.ImageURL || images?.[0]?.ImageURL),
-    getHDImage(images?.[4]?.ImageURL || images?.[0]?.ImageURL),
-  ];
+  const imageUrls = (Array.isArray(images) ? images : [])
+    .map((item) =>
+      typeof item === "string"
+        ? item
+        : item?.url || item?.ImageURL || item?.image || item?.src || "",
+    )
+    .filter(Boolean);
+  const fallbackImage = imageUrls[0] || "/images/heroimage.jpg";
+  const gallery = Array.from({ length: 5 }, (_, index) =>
+    getHDImage(imageUrls[index] || fallbackImage),
+  );
 
-  const totalPhotos = images.length;
+  const totalPhotos = imageUrls.length;
 
   return (
     <div className="relative overflow-hidden rounded-b-[28px] bg-white">
-
       <div
         className="grid gap-[3px] p-[6px]"
         style={{
@@ -34,7 +37,6 @@ const ViewHotelGalleryMobile = ({
           gridTemplateRows: "127px 127px",
         }}
       >
-
         {/* Main Image */}
         <div
           className="relative overflow-hidden rounded-tl-xl rounded-bl-xl"
@@ -48,12 +50,10 @@ const ViewHotelGalleryMobile = ({
             priority
             className="object-cover"
           />
-
-
         </div>
 
         {/* Top Center */}
-        <div className="relative overflow-hidden ">
+        <div className="relative overflow-hidden">
           <Image
             src={gallery[1]}
             alt="Hotel"
@@ -64,7 +64,7 @@ const ViewHotelGalleryMobile = ({
         </div>
 
         {/* Top Right */}
-        <div className="relative overflow-hidden  rounded-tr-xl">
+        <div className="relative overflow-hidden rounded-tr-xl">
           <Image
             src={gallery[2]}
             alt="Hotel"
@@ -72,11 +72,9 @@ const ViewHotelGalleryMobile = ({
             unoptimized
             className="object-cover"
           />
-
-
         </div>
         {/* Bottom Center */}
-        <div className="relative overflow-hidden ">
+        <div className="relative overflow-hidden">
           <Image
             src={gallery[3]}
             alt="Hotel"
@@ -99,26 +97,22 @@ const ViewHotelGalleryMobile = ({
             className="object-cover"
           />
 
-          {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
-
-          {/* Wishlist */}
-
-
-          {/* Photos Count */}
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-white">
-            <span className="text-[30px] font-bold leading-none">
-              +{Math.max(totalPhotos - 4, 0)}
-            </span>
-
-            <span className="mt-2 text-center text-[11px] font-medium leading-4">
-              Property &
-              <br />
-              Guest Photos
-            </span>
-          </div>
+          {totalPhotos > 0 && (
+            <>
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/10" />
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-white">
+                <span className="text-[30px] leading-none font-bold">
+                  +{Math.max(totalPhotos - 4, 0)}
+                </span>
+                <span className="mt-2 text-center text-[11px] leading-4 font-medium">
+                  Property &
+                  <br />
+                  Guest Photos
+                </span>
+              </div>
+            </>
+          )}
         </div>
-
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ const ViewHotelGallery = ({ images = [], onOpen }) => {
 
   const getHDImage = (url) => {
     if (!url || typeof url !== "string") {
-      return "https://placehold.co/1000x700?text=Hotel";
+      return "/images/heroimage.jpg";
     }
 
     return url.replace("_t.", "_y.").replace("_b.", "_y.");
@@ -31,7 +31,7 @@ const ViewHotelGallery = ({ images = [], onOpen }) => {
 
   const totalPhotos = imageUrls.length;
 
-  const fallbackImage = "https://placehold.co/1000x700?text=Hotel";
+  const fallbackImage = "/images/heroimage.jpg";
 
   const getImage = (index) => {
     return imageUrls[index] || imageUrls[0] || fallbackImage;

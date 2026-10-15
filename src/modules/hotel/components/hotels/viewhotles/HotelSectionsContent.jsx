@@ -10,8 +10,11 @@ import RoomOptions from "./HotelSections/RoomOptions";
 const HotelSectionsContent = ({
   supplierData = {},
   ratePlans = [],
+  hotelImageFallback = "",
   amenities = [],
   hotelDetailId = "",
+  isRoomsLoading = false,
+  roomError = null,
   hasMore = false,
   isLoadingMore = false,
   onLoadMore,
@@ -23,6 +26,9 @@ const HotelSectionsContent = ({
         <RoomOptions
           ratePlans={ratePlans}
           hotelDetailId={hotelDetailId}
+          hotelImageFallback={hotelImageFallback}
+          isRoomsLoading={isRoomsLoading}
+          roomError={roomError}
           hasMore={hasMore}
           isLoadingMore={isLoadingMore}
           onLoadMore={onLoadMore}
@@ -49,7 +55,6 @@ const HotelSectionsContent = ({
       <section id="about-section" className="scroll-mt-36">
         <AboutHotel about={supplierData?.AboutHotel} />
       </section>
-
     </div>
   );
 };

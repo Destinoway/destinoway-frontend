@@ -32,6 +32,7 @@ function HotelDetails({ initialPayload = null, cms = null }) {
         cms={cms}
         hotelData={page.hotelData}
         supplierData={page.supplierData}
+        hotelImages={page.hotelImages}
         isLoading={page.isLoading}
         isFetching={page.isFetching}
         refetch={page.refetch}
@@ -40,9 +41,16 @@ function HotelDetails({ initialPayload = null, cms = null }) {
         roomPageTotal={page.hotelData?.pagination?.total || 0}
         onRoomPageChange={page.handleRoomPageChange}
         detailError={
-          page.isValidPayload
-            ? page.detailError?.message || String(page.detailError)
-            : "This hotel link is missing its search details. Please open the hotel from search results."
+          !page.isValidPayload
+            ? "This hotel link is missing its search details. Please open the hotel from search results."
+            : page.detailError?.response?.data?.message ||
+              page.detailError?.message ||
+              (typeof page.detailError === "string" ? page.detailError : null)
+        }
+        roomError={
+          page.roomError?.response?.data?.message ||
+          page.roomError?.message ||
+          (typeof page.roomError === "string" ? page.roomError : null)
         }
         onWishlist={page.handleWishlist}
         onShare={page.handleShare}
@@ -50,6 +58,9 @@ function HotelDetails({ initialPayload = null, cms = null }) {
         ratePlans={page.roomPlans}
         hasMore={Boolean(page.roomQuery?.hasNextPage)}
         isFetchingNextPage={page.roomQuery?.isFetchingNextPage}
+        isRoomsLoading={Boolean(
+          page.roomQuery?.isLoading && !page.roomQuery?.data,
+        )}
         loadMoreRooms={page.handleRoomPageChange}
         onRetry={page.roomQuery?.refetch}
       />
@@ -68,6 +79,7 @@ function HotelDetails({ initialPayload = null, cms = null }) {
       isLoading={page.isLoading}
       isValidPayload={page.isValidPayload}
       detailError={page.detailError}
+      roomError={page.roomError}
       activeTab={activeTab}
       setActiveTab={setActiveTab}
       isScrolled={isScrolled}

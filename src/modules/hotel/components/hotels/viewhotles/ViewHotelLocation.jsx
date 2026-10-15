@@ -3,13 +3,17 @@
 import { CompassOutlined, EnvironmentOutlined } from "@ant-design/icons";
 
 const ViewHotelLocation = ({ supplierData = {} }) => {
-  console.log("supplierData", supplierData);
   const { Address, City, State, Country, Latitude, Longitude } = supplierData;
 
-  const mapQuery =
-    Latitude && Longitude
-      ? `${Latitude},${Longitude}`
-      : [Address, City, State, Country].filter(Boolean).join(", ");
+  const hasCoordinates =
+    Latitude !== null &&
+    Latitude !== undefined &&
+    Longitude !== null &&
+    Longitude !== undefined;
+  const mapQuery = hasCoordinates
+    ? `${Latitude},${Longitude}`
+    : [Address, City, State, Country].filter(Boolean).join(", ");
+  const hasLocation = Boolean(mapQuery);
 
   const googleMapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     mapQuery,
@@ -29,26 +33,34 @@ const ViewHotelLocation = ({ supplierData = {} }) => {
         </div>
 
         {/* Directions */}
-        <a
-          href={googleMapLink}
-          target="_blank"
-          rel="noreferrer"
-          className="most-boder-colour most-text-color flex items-center gap-2 rounded border px-3 py-2 text-xs font-medium transition hover:bg-[#eef8fd]"
-        >
-          <CompassOutlined />
-          Directions
-        </a>
+        {hasLocation && (
+          <a
+            href={googleMapLink}
+            target="_blank"
+            rel="noreferrer"
+            className="most-boder-colour most-text-color flex items-center gap-2 rounded border px-3 py-2 text-xs font-medium transition hover:bg-[#eef8fd]"
+          >
+            <CompassOutlined />
+            Directions
+          </a>
+        )}
       </div>
 
       {/* Google Map */}
-      <iframe
-        src={`https://www.google.com/maps?q=${encodeURIComponent(
-          mapQuery,
-        )}&z=16&output=embed`}
-        title="hotel-map"
-        loading="lazy"
-        className="h-[240px] w-full border-0"
-      />
+      {hasLocation ? (
+        <iframe
+          src={`https://www.google.com/maps?q=${encodeURIComponent(
+            mapQuery,
+          )}&z=16&output=embed`}
+          title="hotel-map"
+          loading="lazy"
+          className="h-[240px] w-full border-0"
+        />
+      ) : (
+        <div className="flex h-[240px] items-center justify-center text-sm text-gray-500">
+          Location information unavailable
+        </div>
+      )}
     </div>
   );
 };

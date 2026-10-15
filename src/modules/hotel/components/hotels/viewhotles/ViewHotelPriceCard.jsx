@@ -2,31 +2,31 @@
 
 import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
 import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
+import { selectFeaturedRoomPlan } from "@/modules/hotel/utils/selectFeaturedRoomPlan";
 import {
   CalendarOutlined,
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Button } from "antd";
+import { Button, Skeleton } from "antd";
 import { useRouter } from "next/navigation";
 
 const ViewHotelPriceCard = ({
   ratePlans = [],
   supplierData = {},
   hotelDetailId = "",
+  isRoomsLoading = false,
 }) => {
   const router = useRouter();
   const { requireAuth } = useAuthGuard();
   const { appliedSearchData = {} } = useHotelSearchStore();
 
-  const selectedPlan = ratePlans?.[0] || null;
+  const { plan: selectedPlan, isRecommended: isRecommendedPlan } =
+    selectFeaturedRoomPlan(ratePlans);
 
   /* ================= ROOM DETAILS ================= */
 
   const roomName = selectedPlan?.roomType || "Best Available Room";
-
-  const roomDescription =
-    selectedPlan?.roomDescription || selectedPlan?.description || "";
 
   const inclusion = selectedPlan?.inclusion || "";
   const additionalInfo = selectedPlan?.additionalInfo || "";
@@ -100,11 +100,6 @@ const ViewHotelPriceCard = ({
         0,
     ) || 0,
   );
-console.log("HOTEL CHECK-IN API DATA:", {
-  CheckIn: supplierData?.CheckIn,
-  CheckOut: supplierData?.CheckOut,
-  supplierData,
-});
   /* ================= DATE FORMAT ================= */
 
   const formatDate = (value) => {
@@ -234,20 +229,49 @@ console.log("HOTEL CHECK-IN API DATA:", {
     });
   };
 
+  if (isRoomsLoading) {
+    return (
+      <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 font-sans shadow-sm sm:p-5">
+        <Skeleton active paragraph={{ rows: 7 }} />
+      </div>
+    );
+  }
+
+  if (!selectedPlan) {
+    return (
+      <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 font-sans shadow-sm sm:p-5">
+        <h3 className="m-0 text-base font-semibold text-gray-900">
+          Room rates unavailable
+        </h3>
+        <p className="m-0 mt-2 text-sm leading-5 text-gray-600">
+          Room prices for these dates are not available. Check the room options
+          below for current availability.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 font-sans shadow-sm sm:p-5">
       {/* ================= ROOM DETAILS ================= */}
 
       <div className="mb-4">
-        <h3 className="text-xl leading-7 font-bold tracking-tight text-gray-900">
-          {roomName}
-        </h3>
-
-        {roomDescription && (
-          <p className="mt-1 text-sm leading-5 text-gray-500">
-            {roomDescription}
-          </p>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="m-0 text-xl leading-7 font-bold tracking-tight text-gray-900">
+            {roomName}
+          </h3>
+          {selectedPlan && (
+            <span
+              className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                isRecommendedPlan
+                  ? "bg-emerald-100 text-emerald-800"
+                  : "bg-sky-100 text-sky-800"
+              }`}
+            >
+              {isRecommendedPlan ? "Recommended" : "First room"}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* ================= STAY DETAILS ================= */}

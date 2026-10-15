@@ -62,6 +62,7 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
 
   const hotelData = data || EMPTY_OBJECT;
   const hotel = hotelData?.hotel || EMPTY_OBJECT;
+  const selectedHotelMeta = selectedHotel?.hotelMeta || EMPTY_OBJECT;
   const details = hotelData?.details || EMPTY_OBJECT;
   const location = hotel?.location || EMPTY_OBJECT;
   const contact = hotel?.contact || EMPTY_OBJECT;
@@ -76,18 +77,44 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
       hotelId: hotel?.hotelId || hotelId || "",
       HotelKey: hotel?.hotelKey || "",
       hotelKey: hotel?.hotelKey || "",
-      HotelName: hotel?.name || "",
-      hotelName: hotel?.name || "",
+      HotelName:
+        hotel?.name ||
+        selectedHotelMeta?.hotelName ||
+        initialPayload?.hotelMeta?.hotelName ||
+        selectedHotel?.name ||
+        "",
+      hotelName:
+        hotel?.name ||
+        selectedHotelMeta?.hotelName ||
+        initialPayload?.hotelMeta?.hotelName ||
+        selectedHotel?.name ||
+        "",
       Description: hotel?.description || "",
       description: hotel?.description || "",
-      Address: location?.address || "",
-      address: location?.address || "",
-      City: location?.city || "",
-      city: location?.city || "",
-      State: location?.state || "",
-      state: location?.state || "",
-      Country: location?.country || "",
-      country: location?.country || "",
+      Address: location?.address || selectedHotelMeta?.address || "",
+      address: location?.address || selectedHotelMeta?.address || "",
+      City:
+        location?.city ||
+        selectedHotelMeta?.city ||
+        selectedHotelMeta?.cityName ||
+        "",
+      city:
+        location?.city ||
+        selectedHotelMeta?.city ||
+        selectedHotelMeta?.cityName ||
+        "",
+      State:
+        location?.state ||
+        selectedHotelMeta?.state ||
+        selectedHotelMeta?.stateName ||
+        "",
+      state:
+        location?.state ||
+        selectedHotelMeta?.state ||
+        selectedHotelMeta?.stateName ||
+        "",
+      Country: location?.country || selectedHotelMeta?.country || "",
+      country: location?.country || selectedHotelMeta?.country || "",
       Pincode: location?.pincode || "",
       pincode: location?.pincode || "",
       Latitude: location?.latitude ?? null,
@@ -143,32 +170,27 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
         ? details.rooms
         : [],
     };
-  }, [hotel, hotelId, location, contact, pricing, checkIn, checkOut, policy, details, hotelData]);
+  }, [
+    hotel,
+    hotelId,
+    location,
+    contact,
+    pricing,
+    checkIn,
+    checkOut,
+    policy,
+    details,
+    hotelData,
+    initialPayload?.hotelMeta?.hotelName,
+    selectedHotelMeta,
+    selectedHotel?.name,
+  ]);
 
   const roomPlans = useMemo(() => {
     const rooms = Array.isArray(details?.rooms) ? details.rooms : [];
 
-    if (rooms.length > 0) {
-      return rooms;
-    }
-
-    return [
-      {
-        HotelId: hotel?.hotelId || hotelId || "",
-        HotelKey: hotel?.hotelKey || "",
-        HotelName: hotel?.name || "",
-        pricing: {
-          basicAmount: Number(pricing?.basicAmount || 0),
-          tax: Number(pricing?.tax || 0),
-          totalAmount: Number(pricing?.totalAmount || 0),
-          serviceFee: Number(pricing?.serviceFee || 0),
-          markup: Number(pricing?.markup || 0),
-          gst: Number(pricing?.gst || 0),
-          currency: pricing?.currency || "INR",
-        },
-      },
-    ];
-  }, [details, hotel, hotelId, pricing]);
+    return rooms;
+  }, [details]);
 
   const hotelImages = useMemo(() => {
     const gallery = Array.isArray(details?.gallery) ? details.gallery : [];
@@ -187,8 +209,29 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
       return images;
     }
 
-    return hotel?.image ? [hotel.image] : [];
-  }, [details, hotel]);
+    const selectedImages = (
+      Array.isArray(selectedHotelMeta?.images) ? selectedHotelMeta.images : []
+    )
+      .map((item) =>
+        typeof item === "string"
+          ? item
+          : item?.url || item?.ImageURL || item?.image || item?.src || "",
+      )
+      .filter(Boolean);
+
+    if (selectedImages.length > 0) {
+      return selectedImages;
+    }
+
+    const fallbackImage =
+      hotel?.image ||
+      selectedHotelMeta?.image ||
+      selectedHotel?.hotelImage ||
+      selectedHotel?.image ||
+      "";
+
+    return fallbackImage ? [fallbackImage] : [];
+  }, [details, hotel, selectedHotel, selectedHotelMeta]);
 
   const amenities = useMemo(() => {
     const rawAmenities = details?.amenities;
@@ -237,20 +280,25 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
     });
   }, [appliedSearchData, setBookingData]);
 
-  const isLoading = contentQuery.isLoading || (roomQuery.isLoading && !roomQuery.data);
+  const isLoading = contentQuery.isLoading;
   const isFetching = roomQuery.isFetching;
-  const detailError = contentQuery.error || roomQuery.error || null;
-  const showSkeleton = isValidPayload && isLoading && !data;
+  const detailError = contentQuery.error || null;
+  const roomError = roomQuery.error || null;
+  const showSkeleton =
+    isValidPayload && contentQuery.isLoading && !contentQuery.data;
 
   const firstRatePlan = roomPlans?.[0] || null;
-  const basePrice = Number(firstRatePlan?.pricing?.basicAmount || pricing?.basicAmount || 0);
+  const basePrice = Number(
+    firstRatePlan?.pricing?.basicAmount || pricing?.basicAmount || 0,
+  );
   const platformFeeAndTax = Number(
     firstRatePlan?.pricing?.tax || pricing?.tax || 0,
   );
   const finalPrice = Number(
     firstRatePlan?.pricing?.totalAmount || pricing?.totalAmount || 0,
   );
-  const currencySymbol = firstRatePlan?.pricing?.currency || pricing?.currency || "₹";
+  const currencySymbol =
+    firstRatePlan?.pricing?.currency || pricing?.currency || "₹";
 
   const refetch = useCallback(
     () => Promise.all([contentQuery.refetch(), roomQuery.refetch()]),
@@ -325,6 +373,7 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
     isFetching,
     showSkeleton,
     detailError,
+    roomError,
     refetch,
     handleWishlist,
     handleShare,

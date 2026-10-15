@@ -9,6 +9,7 @@ import { Alert, Card } from "antd";
 import { useState } from "react";
 
 import HotelDetailsSkeleton from "@/components/common/loder/HotelDetailsSkeleton";
+import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
 import SearchBar from "../components/hotels/SearchBar";
 import HotelContentOverview from "../components/hotels/viewhotles/HotelContentOverview";
 import HotelSectionsContent from "../components/hotels/viewhotles/HotelSectionsContent";
@@ -23,7 +24,6 @@ import ViewHotelTabs from "../components/hotels/viewhotles/ViewHotelTabs";
 import HotelCmsSection from "../sections/HotelCmsSection";
 import RelatedHotels from "../sections/RelatedHotels";
 import DynamicHotelSeoFallback from "../seo/DynamicHotelSeoFallback";
-import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
 
 export default function HotelDetailsDesktop({
   cms,
@@ -36,6 +36,7 @@ export default function HotelDetailsDesktop({
   isLoading,
   isValidPayload,
   detailError,
+  roomError,
   activeTab,
   setActiveTab,
   isScrolled,
@@ -68,7 +69,7 @@ export default function HotelDetailsDesktop({
             className="mb-4"
             type="error"
             showIcon
-            message="Hotel search details are missing"
+            title="Hotel search details are missing"
             description="Please open this hotel from the search results so we can load its rooms."
           />
         ) : (
@@ -77,7 +78,7 @@ export default function HotelDetailsDesktop({
               className="mb-4"
               type="error"
               showIcon
-              message="Unable to load hotel details"
+              title="Unable to load hotel details"
               description={detailError.message || String(detailError)}
             />
           )
@@ -94,8 +95,13 @@ export default function HotelDetailsDesktop({
               <div className="flex min-w-0 items-start justify-between gap-3 lg:gap-4">
                 <div className="min-w-0 flex-1">
                   <HotelTopSummary
-                    name={hotel?.name}
-                    location={[location?.city, location?.country].filter(Boolean).join(", ")}
+                    name={hotel?.name || supplierData?.HotelName}
+                    location={[
+                      location?.city || supplierData?.City,
+                      location?.country || supplierData?.Country,
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
                     starRating={hotel?.starCategory}
                     reviews={hotelData?.rawContent?.hotel?.reviews}
                     stayPeriod={hotelData?.rawStayPeriod}
@@ -119,7 +125,9 @@ export default function HotelDetailsDesktop({
                   >
                     <span
                       className={`inline-flex items-center justify-center transition-all duration-300 ${
-                        isWishlisted ? "scale-110 text-red-500" : "text-gray-700 group-hover:scale-110"
+                        isWishlisted
+                          ? "scale-110 text-red-500"
+                          : "text-gray-700 group-hover:scale-110"
                       }`}
                     >
                       {isWishlisted ? (
@@ -165,6 +173,9 @@ export default function HotelDetailsDesktop({
                       ratePlans={roomPlans}
                       supplierData={supplierData}
                       hotelDetailId={payload?.hotelDetailId || ""}
+                      isRoomsLoading={Boolean(
+                        roomQuery?.isLoading && !roomQuery?.data,
+                      )}
                     />
                   </div>
 
@@ -182,7 +193,10 @@ export default function HotelDetailsDesktop({
         {!showSkeleton && (
           <>
             <div className="mt-3 lg:mt-6">
-              <HotelSectionsTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+              <HotelSectionsTabs
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
             </div>
 
             <div className="mt-0">
@@ -190,10 +204,15 @@ export default function HotelDetailsDesktop({
                 activeTab={activeTab}
                 supplierData={supplierData}
                 ratePlans={roomPlans}
+                hotelImageFallback={hotelImages?.[0]}
                 amenities={amenities}
                 hotelDetails={hotelData?.details || {}}
                 hotelDetailId={payload?.hotelDetailId || ""}
                 hasMore={Boolean(roomQuery?.hasNextPage)}
+                roomError={roomError?.message || roomError || null}
+                isRoomsLoading={Boolean(
+                  roomQuery?.isLoading && !roomQuery?.data,
+                )}
                 isLoadingMore={Boolean(roomQuery?.isFetchingNextPage)}
                 onLoadMore={roomQuery?.fetchNextPage}
                 onRetry={roomQuery?.refetch}
