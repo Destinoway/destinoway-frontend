@@ -178,7 +178,7 @@ function HotelDetailsMobile({
               description={detailError}
             />
           )}
-          <div className="mx-auto w-full max-w-md rounded-b-[24px] bg-white shadow-sm">
+          <div className="mx-auto w-full rounded-b-[24px] bg-white shadow-sm">
             {/* Top Overlay Icons */}
 
             {/* Gallery */}
@@ -281,14 +281,14 @@ function HotelDetailsMobile({
             </div>
           </div>
 
-          <div className="mx-auto mt-5 w-full max-w-md px-3">
+          <div className="mx-auto mt-5 w-full px-3">
             <HotelContentOverview
               hotelContent={supplierData?.HotelContentFields}
             />
           </div>
 
           {/* Hotel Sections */}
-          <div className="mx-auto mt-6 w-full max-w-md px-3">
+          <div className="mx-auto mt-6 w-full px-3">
             <HotelSectionsTabss
               activeTab={activeTab}
               setActiveTab={setActiveTab}
@@ -307,7 +307,7 @@ function HotelDetailsMobile({
 
           {/* CMS Section */}
 
-          <div className="mx-auto mt-8 w-full max-w-md px-3">
+          <div className="mx-auto mt-8 w-full px-3">
             <HotelCmsSection>
               {cms ? (
                 <CMSContentRenderer cms={cms} />
