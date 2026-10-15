@@ -84,7 +84,16 @@ function HotelList({
       data?.pages?.flatMap((page) => {
         return (page?.data?.items || []).map((hotel) => ({
           ...hotel,
-          hotelDetailId: page?.data?.hotelDetailId || "",
+          hotelDetailId:
+            page?.data?.hotelDetailId ||
+            page?.data?.hotelDetailID ||
+            page?.data?.HotelDetailId ||
+            page?.data?.HotelDetailID ||
+            hotel?.hotelDetailId ||
+            hotel?.hotelDetailID ||
+            hotel?.HotelDetailId ||
+            hotel?.HotelDetailID ||
+            "",
         }));
       }) || [];
 

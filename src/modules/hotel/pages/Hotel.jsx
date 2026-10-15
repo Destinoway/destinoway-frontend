@@ -1,5 +1,6 @@
 "use client";
 
+import BookingWebsiteLoader from "@/components/common/loder/BookingWebsiteLoader";
 import useIsMobile from "@/hooks/useIsMobile";
 import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
 import { CloseOutlined } from "@ant-design/icons";
@@ -7,7 +8,14 @@ import { Modal } from "antd";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import SidebarFilters from "../cards/SidebarFilters";
 import HotelList from "../components/hotels/HotelList";
@@ -33,6 +41,9 @@ const defaultFilters = {
 
 const CMS_TRIGGER_OFFSET = 520;
 const STICKY_OFFSET = 108;
+const subscribeToMount = () => () => {};
+const getClientMountSnapshot = () => true;
+const getServerMountSnapshot = () => false;
 
 const HotelMap = dynamic(() => import("../components/map/HotelMap"), {
   ssr: false,
@@ -40,6 +51,11 @@ const HotelMap = dynamic(() => import("../components/map/HotelMap"), {
 
 export default function HotelContent({ initialSearchData = null, cms = null }) {
   const isMobile = useIsMobile();
+  const mounted = useSyncExternalStore(
+    subscribeToMount,
+    getClientMountSnapshot,
+    getServerMountSnapshot,
+  );
 
   const {
     draftSearchData,
@@ -55,7 +71,6 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
   const cmsTriggerRef = useRef(null);
   const scrollFrameRef = useRef(null);
   const sidebarZ0Ref = useRef(false);
-  const [mounted, setMounted] = useState(false);
   const [filters, setFilters] = useState(defaultFilters);
   const [hotelsLoading, setHotelsLoading] = useState(true);
   const [hasHotels, setHasHotels] = useState(false);
@@ -63,10 +78,6 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
   const [mapOpen, setMapOpen] = useState(false);
   const [hotelsForMap, setHotelsForMap] = useState([]);
   const [sidebarZ0, setSidebarZ0] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const updateSidebarZIndex = useCallback((value) => {
     if (sidebarZ0Ref.current === value) {
@@ -306,6 +317,14 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
         .map(Number)
         .filter(Number.isFinite),
       pets: queryParams.get("pets") === "true",
+      roomGuests: (() => {
+        try {
+          const parsed = JSON.parse(queryParams.get("roomGuests") || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      })(),
     };
 
     const matchesSearchData = (searchData) =>
@@ -317,6 +336,8 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
       urlData.adults === searchData?.adults &&
       urlData.children === searchData?.children &&
       urlData.pets === searchData?.pets &&
+      JSON.stringify(urlData.roomGuests) ===
+        JSON.stringify(searchData?.roomGuests || []) &&
       JSON.stringify(urlData.childAges) ===
         JSON.stringify(searchData?.childAges || []) &&
       String(urlData.cityData.coordinates?.lat ?? "") ===
@@ -398,7 +419,7 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
     return activeFilters.some(([_, value]) => isFilterActive(value));
   }, [activeFilters, isFilterActive]);
 
-  if (!mounted) return null;
+  if (!mounted) return <BookingWebsiteLoader />;
 
   return (
     <>

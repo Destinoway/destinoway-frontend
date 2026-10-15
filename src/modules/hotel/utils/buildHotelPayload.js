@@ -82,7 +82,7 @@ export const buildHotelPayload = ({
       8,
       Math.max(
         Number(searchData?.rooms) || 1,
-        Math.ceil((adults + childrenCount) / 4),
+        Math.ceil(adults / 8),
         Math.ceil(childrenCount / 2),
         Math.ceil(adults / 4),
       ),
@@ -96,7 +96,7 @@ export const buildHotelPayload = ({
 
     rooms = Array.from({ length: actualRoomCount }, (_, index) => {
       const roomAdults = baseAdults + (index < extraAdults ? 1 : 0);
-      const maxChildren = Math.min(2, 4 - roomAdults);
+      const maxChildren = 2;
       const roomChildAges = [];
 
       while (roomChildAges.length < maxChildren && ageIndex < childrenCount) {

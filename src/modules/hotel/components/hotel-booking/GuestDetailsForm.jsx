@@ -16,8 +16,6 @@ import {
 import { FormProvider, useForm } from "react-hook-form";
 import { primaryGuestSchema } from "../../schema/guest.schema";
 
-const MAX_GUESTS_PER_ROOM = 4;
-
 const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
   const [roomOccupancy, setRoomOccupancy] = useState([]);
   const [expandedRooms, setExpandedRooms] = useState({});
@@ -34,25 +32,7 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
       };
     });
 
-    setRoomOccupancy((previous) => {
-      if (!previous.length) {
-        return normalized;
-      }
-
-      return normalized.map((room, index) => {
-        const oldRoom = previous[index];
-
-        if (!oldRoom) {
-          return room;
-        }
-
-        return {
-          roomNo: room.roomNo,
-          adults: oldRoom.adults,
-          children: oldRoom.children,
-        };
-      });
-    });
+    setRoomOccupancy(normalized);
 
     setExpandedRooms((previous) => {
       const next = {};
@@ -109,6 +89,8 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
     const values = {
       bookingFor: "myself",
       customerAddress: "",
+      customerState: "",
+      customerCity: "",
       customerPostalCode: "",
       panNumber: "",
       customerEmail: "",
@@ -134,7 +116,7 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
     mode: "onSubmit",
   });
 
-  const { handleSubmit, setValue, watch, reset } = methods;
+  const { handleSubmit, reset } = methods;
 
   useEffect(() => {
     reset(defaultValues);
@@ -145,56 +127,6 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
       ...previous,
       [roomNo]: !previous[roomNo],
     }));
-  };
-
-  const updateRoomGuests = (roomNo, type, change) => {
-    setRoomOccupancy((previous) =>
-      previous.map((room) => {
-        if (room.roomNo !== roomNo) {
-          return room;
-        }
-
-        const currentAdults = Number(room.adults) || 0;
-        const currentChildren = Number(room.children) || 0;
-        const currentTotal = currentAdults + currentChildren;
-
-        if (type === "child" && change > 0 && currentChildren >= 2) {
-          return room;
-        }
-
-        if (change > 0 && currentTotal >= MAX_GUESTS_PER_ROOM) {
-          return room;
-        }
-
-        if (change < 0 && currentTotal <= 1) {
-          return room;
-        }
-
-        if (type === "adult") {
-          const nextAdults = Math.max(currentAdults + change, 0);
-
-          if (change < 0 && nextAdults + currentChildren < 1) {
-            return room;
-          }
-
-          return {
-            ...room,
-            adults: nextAdults,
-          };
-        }
-
-        const nextChildren = Math.max(currentChildren + change, 0);
-
-        if (change < 0 && currentAdults + nextChildren < 1) {
-          return room;
-        }
-
-        return {
-          ...room,
-          children: nextChildren,
-        };
-      }),
-    );
   };
 
   useImperativeHandle(ref, () => ({
@@ -217,10 +149,13 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
 
             const guestData = {
               customerAddress: data?.customerAddress || "",
+              customerState: data?.customerState || "",
+              customerCity: data?.customerCity || "",
               customerPostalCode: data?.customerPostalCode || "",
               panNumber: data?.panNumber || "",
 
               customerMobile: data?.customerMobile || "",
+              customerEmail: data?.customerEmail || "",
               passengerEmail: data?.customerEmail || "",
               passengerMobile: data?.customerMobile || "",
 
@@ -263,7 +198,7 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
                 </div>
 
                 <div className="mt-1 text-sm text-[#666]">
-                  Add up to 4 guests in each room.
+                  Enter the names for the guests selected in each room.
                 </div>
               </div>
 
@@ -306,9 +241,7 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
                                 childCount === 1 ? "Child" : "Children"
                               }`
                             : ""}
-                          <span className="ml-2 text-[#999]">
-                            ({totalRoomGuests}/4)
-                          </span>
+                          <span className="ml-2 text-[#999]">({totalRoomGuests} guests)</span>
                         </div>
                       </div>
 
@@ -322,103 +255,6 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
                     </button>
 
                     <div className={isExpanded ? "block" : "hidden"}>
-                      <div className="border-b border-[#e5e7eb] p-5">
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div className="flex items-center justify-between rounded-xl border border-[#e5e7eb] px-4 py-3">
-                            <div>
-                              <div className="text-sm font-semibold text-[#222]">
-                                Adults
-                              </div>
-
-                              <div className="text-xs text-[#777]">
-                                Adult travellers
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  updateRoomGuests(roomNo, "adult", -1)
-                                }
-                                disabled={adultCount + childCount <= 1}
-                                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#d9dde3] text-lg text-[#333] disabled:cursor-not-allowed disabled:opacity-40"
-                              >
-                                −
-                              </button>
-
-                              <span className="w-5 text-center text-sm font-semibold">
-                                {adultCount}
-                              </span>
-
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  updateRoomGuests(roomNo, "adult", 1)
-                                }
-                                disabled={
-                                  adultCount + childCount >= MAX_GUESTS_PER_ROOM
-                                }
-                                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#d9dde3] text-lg text-[#333] disabled:cursor-not-allowed disabled:opacity-40"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between rounded-xl border border-[#e5e7eb] px-4 py-3">
-                            <div>
-                              <div className="text-sm font-semibold text-[#222]">
-                                Children
-                              </div>
-
-                              <div className="text-xs text-[#777]">
-                                Child travellers
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  updateRoomGuests(roomNo, "child", -1)
-                                }
-                                disabled={
-                                  childCount <= 0 ||
-                                  adultCount + childCount <= 1
-                                }
-                                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#d9dde3] text-lg text-[#333] disabled:cursor-not-allowed disabled:opacity-40"
-                              >
-                                −
-                              </button>
-
-                              <span className="w-5 text-center text-sm font-semibold">
-                                {childCount}
-                              </span>
-
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  updateRoomGuests(roomNo, "child", 1)
-                                }
-                                disabled={
-                                  childCount >= 2 ||
-                                  adultCount + childCount >= MAX_GUESTS_PER_ROOM
-                                }
-                                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#d9dde3] text-lg text-[#333] disabled:cursor-not-allowed disabled:opacity-40"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mt-3 text-xs text-[#777]">
-                          Minimum 1 guest and maximum 4 guests per room. Adults
-                          and children together cannot exceed 4.
-                        </div>
-                      </div>
-
                       <div className="space-y-5 p-5">
                         {roomGuests.map((guest) => (
                           <div key={guest.key}>
@@ -488,6 +324,8 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
 
             <div className="grid gap-5 p-5 md:grid-cols-2">
               <RHFInput name="customerAddress" label="Address" />
+              <RHFInput name="customerState" label="State" />
+              <RHFInput name="customerCity" label="City" />
               <RHFInput name="customerPostalCode" label="Postal Code" />
               <RHFInput name="panNumber" label="PAN Number" />
               <RHFInput name="customerEmail" label="Email" />

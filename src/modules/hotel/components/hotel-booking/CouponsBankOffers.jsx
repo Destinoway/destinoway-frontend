@@ -157,8 +157,8 @@ const CouponsBankOffers = () => {
           COUPON INPUT
       ====================================================== */}
 
-      <div className="mt-4 flex h-[50px] items-center rounded-[8px] border-2 border-dashed border-[#d1d7df] bg-white px-2.5">
-        <TagOutlined className="mr-3 ml-1 shrink-0 text-[18px] text-[#a5afbd]" />
+      <div className="mt-4 grid h-[50px] grid-cols-[20px_minmax(0,1fr)_88px] items-center gap-2 rounded-[8px] border-2 border-dashed border-[#d1d7df] bg-white px-3">
+        <TagOutlined className="text-[18px] text-[#a5afbd]" />
 
         <input
           type="text"
@@ -170,14 +170,14 @@ const CouponsBankOffers = () => {
             }
           }}
           placeholder="ENTER COUPON CODE"
-          className="h-full min-w-0 flex-1 border-none bg-transparent text-[14px] font-bold tracking-wide text-[#172033] outline-none placeholder:text-[#a1aab7]"
+          className="h-full w-full min-w-0 border-none bg-transparent p-0 text-[14px] leading-normal font-bold tracking-wide text-[#172033] outline-none placeholder:text-[#a1aab7]"
         />
 
         <button
           type="button"
           onClick={handleApplyCoupon}
           disabled={!couponCode.trim()}
-          className="h-[38px] min-w-[88px] rounded-[7px] bg-[#c6571d] px-4 text-[13px] font-bold text-white transition-all duration-200 hover:bg-[#ad4715] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-[38px] w-[88px] items-center justify-center rounded-[7px] bg-[#c6571d] px-3 text-[13px] leading-none font-bold text-white transition-all duration-200 hover:bg-[#ad4715] disabled:cursor-not-allowed disabled:opacity-60"
         >
           APPLY
         </button>
@@ -188,7 +188,7 @@ const CouponsBankOffers = () => {
       ====================================================== */}
 
       {appliedCoupon && (
-        <div className="flex h-[70px] items-center justify-between gap-3 rounded-b-[10px] border border-t-0 border-[#62e6b3] bg-[#effff8] px-4 sm:px-[18px]">
+        <div className="mt-2 flex min-h-[70px] items-center justify-between gap-3 rounded-[10px] border border-[#62e6b3] bg-[#effff8] px-4 py-3 sm:px-[18px]">
           {/* LEFT */}
 
           <div className="flex min-w-0 items-center gap-3">
@@ -200,9 +200,9 @@ const CouponsBankOffers = () => {
 
             {/* TEXT */}
 
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="m-0 text-[14px] font-bold text-[#075c43]">
+            <div className="min-w-0 flex-1">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <p className="m-0 break-words text-[14px] leading-5 font-bold text-[#075c43]">
                   {appliedCoupon} Applied!
                 </p>
 

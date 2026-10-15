@@ -1,5 +1,3 @@
-export const MAX_ADULTS = 20;
-export const MAX_CHILDREN = 20;
 export const MAX_ROOMS = 8;
 
 export const DEFAULT_GUEST_VALUE = {
@@ -16,4 +14,4 @@ export const DEFAULT_GUEST_VALUE = {
   ],
 };
 
-export const CHILD_AGES = Array.from({ length: 18 }, (_, index) => index + 1);
+export const CHILD_AGES = Array.from({ length: 18 }, (_, index) => index);

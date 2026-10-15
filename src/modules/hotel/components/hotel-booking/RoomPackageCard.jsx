@@ -2,7 +2,9 @@
 import { Card, Typography } from "antd";
 const { Title, Text } = Typography;
 export default function RoomPackageCard({ bookingData }) {
-  const room = bookingData?.rooms || bookingData?.selectedRoom || {};
+  const room = Array.isArray(bookingData?.rooms)
+    ? bookingData.rooms[0] || bookingData?.selectedRoom || {}
+    : bookingData?.rooms || bookingData?.selectedRoom || {};
   const inclusionSource = room?.inclusion || room?.Inclusion || "";
   const inclusion = Array.isArray(inclusionSource)
     ? inclusionSource
@@ -12,6 +14,7 @@ export default function RoomPackageCard({ bookingData }) {
         .filter(Boolean);
   const cancellationPolicy =
     room?.policy?.outPolicyReason || room?.cancellationPolicy || "";
+  const refundable = room?.refundable ?? bookingData?.refundable;
   const payment = room?.payment || {};
   return (
     <Card
@@ -32,9 +35,9 @@ export default function RoomPackageCard({ bookingData }) {
               {room?.roomType || "Selected Room"}
             </Title>
           </div>
-          {cancellationPolicy && (
+          {(cancellationPolicy || refundable === true) && (
             <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-medium text-emerald-600 sm:text-[11px]">
-              Free Cancellation
+              {cancellationPolicy ? "Free Cancellation" : "Refundable"}
             </span>
           )}
         </div>
@@ -43,6 +46,13 @@ export default function RoomPackageCard({ bookingData }) {
           <div className="border-b border-gray-100 py-0">
             <Text className="!block !text-[12px] !leading-5 !text-gray-500">
               {room.additionalInfo}
+            </Text>
+          </div>
+        )}
+        {room?.description && (
+          <div className="border-b border-gray-100 py-3">
+            <Text className="!block !text-[12px] !leading-5 !text-gray-500">
+              {room.description}
             </Text>
           </div>
         )}

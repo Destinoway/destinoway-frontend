@@ -2,6 +2,8 @@
 
 import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
 import RoomDescription from "@/modules/hotel/components/hotels/viewhotles/RoomDescription";
+import { buildRoomBookingUrl } from "@/modules/hotel/utils/buildRoomBookingUrl";
+import { useHotelBookingStore } from "@/modules/hotel/store/booking.store";
 import { Button, Modal } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -131,6 +133,7 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
   const [showDetails, setShowDetails] = useState(false);
   const router = useRouter();
   const { requireAuth } = useAuthGuard();
+  const { setBookingData } = useHotelBookingStore();
   const images = (Array.isArray(plan?.images) ? plan.images : [])
     .map(getImageUrl)
     .filter(Boolean);
@@ -171,21 +174,36 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
     plan?.refundable === true || refundabilityText.includes("refundable");
 
   const selectRoom = () => {
-    const roomId = plan?.roomId || "";
+    const recommendationId = plan?.recommendationId || plan?.roomId || "";
 
-    if (!hotelDetailId || !roomId) {
-      console.error("Hotel detail id or room id not found", {
+    if (
+      !plan?.searchId ||
+      !plan?.supplierHotelId ||
+      !recommendationId
+    ) {
+      console.error("Room selection is missing required search identifiers", {
+        missing: [
+          !plan?.searchId && "searchId",
+          !plan?.supplierHotelId && "supplierHotelId",
+          !recommendationId && "recommendationId",
+        ].filter(Boolean),
         hotelDetailId,
-        roomId,
+        recommendationId,
+        searchId: plan?.searchId,
+        supplierHotelId: plan?.supplierHotelId,
         plan,
       });
       return;
     }
 
+    setBookingData({ selectedRatePlan: plan, selectedRoom: plan });
     router.push(
-      `/hotel-booking?hotelDetailId=${encodeURIComponent(
+      buildRoomBookingUrl({
         hotelDetailId,
-      )}&roomId=${encodeURIComponent(roomId)}`,
+        searchId: plan.searchId,
+        supplierHotelId: plan.supplierHotelId,
+        recommendationId,
+      }),
     );
   };
 

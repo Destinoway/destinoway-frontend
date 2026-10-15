@@ -189,8 +189,13 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
   const roomPlans = useMemo(() => {
     const rooms = Array.isArray(details?.rooms) ? details.rooms : [];
 
-    return rooms;
-  }, [details]);
+    return rooms.map((room) => ({
+      ...room,
+      hotelDetailId: payload?.hotelDetailId || "",
+      searchId: payload?.searchId || "",
+      supplierHotelId: payload?.supplierHotelId || "",
+    }));
+  }, [details, payload]);
 
   const hotelImages = useMemo(() => {
     const gallery = Array.isArray(details?.gallery) ? details.gallery : [];

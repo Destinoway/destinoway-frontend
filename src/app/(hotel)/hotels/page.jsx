@@ -1,3 +1,4 @@
+import BookingWebsiteLoader from "@/components/common/loder/BookingWebsiteLoader";
 import {
   buildHotelDescription,
   buildHotelKeywords,
@@ -87,7 +88,7 @@ export default async function Page({ searchParams }) {
   const cms = citySlug ? await fetchCmsBySlug(citySlug) : null;
 
   return (
-    <Suspense fallback={<div></div>}>
+    <Suspense fallback={<BookingWebsiteLoader />}>
       <HotelContent cms={cms} />
     </Suspense>
   );
