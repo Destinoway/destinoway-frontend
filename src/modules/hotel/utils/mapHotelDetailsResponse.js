@@ -103,16 +103,11 @@ const getRoomRecommendationList = (roomResponse) => {
 const mapRatePlan = (recommendation = {}, roomGroup = {}) => {
   const room = roomGroup?.room || {};
   const recommendationId =
-    recommendation?.id ||
     recommendation?.recommendationId ||
     recommendation?.recommendationID ||
     recommendation?.RecommendationId ||
     recommendation?.RecommendationID ||
-    roomGroup?.id ||
-    roomGroup?.roomGroupId ||
-    roomGroup?.roomGroupID ||
-    roomGroup?.RoomGroupId ||
-    roomGroup?.RoomGroupID ||
+    recommendation?.id ||
     "";
   const roomGroupId =
     roomGroup?.id ||
@@ -142,7 +137,7 @@ const mapRatePlan = (recommendation = {}, roomGroup = {}) => {
     id: recommendationId,
     recommendationId,
     roomGroupId,
-    roomId: recommendationId || roomGroupId || "",
+    roomId: recommendationId,
     roomType: roomName || "Room option",
     roomDescription: room?.description || roomGroup?.description || "",
     description: room?.description || roomGroup?.description || "",

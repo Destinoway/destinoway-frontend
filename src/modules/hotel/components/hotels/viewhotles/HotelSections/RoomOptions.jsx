@@ -174,7 +174,7 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
     plan?.refundable === true || refundabilityText.includes("refundable");
 
   const selectRoom = () => {
-    const recommendationId = plan?.recommendationId || plan?.roomId || "";
+    const recommendationId = plan?.recommendationId || "";
 
     if (
       !plan?.searchId ||

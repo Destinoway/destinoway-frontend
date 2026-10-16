@@ -1,17 +1,14 @@
 "use client";
 import { Card, Typography } from "antd";
+import RoomDescription from "@/modules/hotel/components/hotels/viewhotles/RoomDescription";
 const { Title, Text } = Typography;
 export default function RoomPackageCard({ bookingData }) {
   const room = Array.isArray(bookingData?.rooms)
     ? bookingData.rooms[0] || bookingData?.selectedRoom || {}
     : bookingData?.rooms || bookingData?.selectedRoom || {};
-  const inclusionSource = room?.inclusion || room?.Inclusion || "";
-  const inclusion = Array.isArray(inclusionSource)
-    ? inclusionSource
-    : String(inclusionSource || "")
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
+  const boardBasis = room?.boardBasis || room?.inclusion || room?.Inclusion || "";
+  const beds = Array.isArray(room?.beds) ? room.beds : [];
+  const facilities = Array.isArray(room?.facilities) ? room.facilities : [];
   const cancellationPolicy =
     room?.policy?.outPolicyReason || room?.cancellationPolicy || "";
   const refundable = room?.refundable ?? bookingData?.refundable;
@@ -51,32 +48,57 @@ export default function RoomPackageCard({ bookingData }) {
         )}
         {room?.description && (
           <div className="border-b border-gray-100 py-3">
-            <Text className="!block !text-[12px] !leading-5 !text-gray-500">
-              {room.description}
-            </Text>
+            <RoomDescription
+              html={room.description}
+              className="text-[12px] leading-5 text-gray-600 sm:text-sm sm:leading-6"
+            />
           </div>
         )}
-        {/* ================= INCLUSIONS ================= */}
-        {!!inclusion.length && (
-          <div className="py-4">
-            <Text className="!mb-2.5 !block !text-[12px] !font-semibold !text-[#172033]">
-              Inclusions
-            </Text>
-            <div className="flex flex-wrap gap-x-4 gap-y-2">
-              {inclusion.map((item, index) => (
-                <div
-                  key={`${item}-${index}`}
-                  className="flex items-center gap-1.5 text-[11px] text-gray-600 sm:text-[12px]"
-                >
-                  <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[9px] font-bold text-emerald-600">
-                    ✓
-                  </span>
-                  <span>{item}</span>
-                </div>
-              ))}
+        <div className="space-y-4 py-4">
+          {room?.roomCount !== null && room?.roomCount !== undefined && room?.roomCount !== "" && (
+            <div>
+              <Text className="!mb-1 !block !text-[12px] !font-semibold !text-[#172033]">Room count</Text>
+              <Text className="!text-[12px] !text-gray-600">{room.roomCount}</Text>
             </div>
-          </div>
-        )}
+          )}
+
+          {!!beds.length && (
+            <div>
+              <Text className="!mb-2 !block !text-[12px] !font-semibold !text-[#172033]">Beds</Text>
+              <div className="flex flex-wrap gap-2">
+                {beds.map((bed, index) => {
+                  const bedType = typeof bed === "string"
+                    ? bed
+                    : bed?.description || String(bed?.type || "Bed").replace(/([a-z])([A-Z])/g, "$1 $2");
+                  const count = Number(bed?.count) || 1;
+                  return (
+                    <span key={`${bedType}-${index}`} className="rounded-md bg-slate-50 px-3 py-1.5 text-xs text-gray-700">
+                      {count} × {bedType}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {!!boardBasis && (
+            <div>
+              <Text className="!mb-1 !block !text-[12px] !font-semibold !text-[#172033]">Board basis</Text>
+              <Text className="!text-[12px] !text-gray-600">{Array.isArray(boardBasis) ? boardBasis.join(", ") : boardBasis}</Text>
+            </div>
+          )}
+
+          {!!facilities.length && (
+            <div>
+              <Text className="!mb-2 !block !text-[12px] !font-semibold !text-[#172033]">Room facilities</Text>
+              <ul className="m-0 grid list-disc gap-x-6 gap-y-1 pl-5 text-[11px] text-gray-600 sm:grid-cols-2 sm:text-xs">
+                {facilities.map((facility, index) => (
+                  <li key={`${facility}-${index}`}>{typeof facility === "string" ? facility : facility?.name || facility?.description || String(facility)}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
         {/* ================= CANCELLATION ================= */}
         {cancellationPolicy && (
           <div className="border-t border-gray-100 pt-4">

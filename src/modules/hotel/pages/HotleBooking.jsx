@@ -1,10 +1,10 @@
 "use client";
 
-import { Spin } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import HotelBookingContent from "../components/hotel-booking/HotelBookingContent";
+import HotelBookingSkeleton from "../components/hotel-booking/HotelBookingSkeleton";
 import { useRoomPricing } from "../hooks/useRoomPricing";
 import { useSelectedHotelStore } from "../store/selectedHotel.store";
 import { useHotelBookingStore } from "../store/booking.store";
@@ -17,18 +17,12 @@ export default function HotleBooking() {
   const roomId = searchParams.get("roomId") || "";
   const searchId = searchParams.get("searchId") || "";
   const supplierHotelId = searchParams.get("supplierHotelId") || "";
-  const recommendationId = searchParams.get("recommendationId") || roomId;
+  const recommendationId = searchParams.get("recommendationId") || "";
   const { selectedHotel } = useSelectedHotelStore();
   const selectedRatePlan = useHotelBookingStore((state) => state.bookingData?.selectedRatePlan);
   const selectedHotelMeta = selectedHotel?.hotelMeta || {};
 
-  const {
-    data: roomPricingData,
-    isLoading,
-    isFetching,
-    isError,
-    error,
-  } = useRoomPricing({
+  const { data: roomPricingData, isLoading, isFetching, isError, error } = useRoomPricing({
     hotelDetailId,
     searchId,
     supplierHotelId,
@@ -47,12 +41,8 @@ export default function HotleBooking() {
   }
 
   // Loading state
-  if (isLoading || isFetching) {
-    return (
-      <div className="background-color-bg flex min-h-screen w-full items-center justify-center overflow-x-hidden px-4">
-        <Spin size="large" />
-      </div>
-    );
+  if (!roomPricingData && (isLoading || isFetching)) {
+    return <HotelBookingSkeleton />;
   }
 
   // Error state

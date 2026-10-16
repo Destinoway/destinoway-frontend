@@ -10,12 +10,21 @@ export const createBooking = async (payload) => {
     const response = await api.post(path, bookingPayload);
 
     if (response?.data?.success === false) {
-      throw new Error(response.data.message || "Booking failed");
+      const error = new Error(response.data.message || "Booking failed");
+      error.backendError = response.data.error || null;
+      throw error;
     }
 
     return response.data;
   } catch (error) {
-    console.error("HOTEL BOOKING ERROR:", error);
+    console.error("Hotel itinerary request failed", {
+      searchId,
+      supplierHotelId,
+      recommendationId: bookingPayload?.recommendationId,
+      httpStatus: error?.response?.status,
+      backendStatus: error?.backendError?.statusCode || error?.response?.data?.error?.statusCode,
+      message: error?.response?.data?.message || error?.message || "Booking failed",
+    });
 
     throw new Error(error?.response?.data?.message || error?.message || "Booking failed");
   }

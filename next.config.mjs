@@ -69,6 +69,11 @@ const nextConfig = {
         protocol: "https",
         hostname: "www.tboholidays.com",
       },
+      {
+        protocol: "http",
+        hostname: "cdnh.octanio.com",
+        pathname: "/images/hotels/**",
+      },
     ],
 
     formats: ["image/avif", "image/webp"],

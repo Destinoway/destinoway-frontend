@@ -203,7 +203,7 @@ const ViewHotelPriceCard = ({
     if (!selectedPlan) return;
 
     const recommendationId =
-      selectedPlan?.recommendationId || selectedPlan?.roomId || "";
+      selectedPlan?.recommendationId || "";
 
     if (
       !selectedPlan?.searchId ||
