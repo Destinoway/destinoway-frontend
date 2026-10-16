@@ -4,17 +4,13 @@ import { Drawer } from "antd";
 import { useState } from "react";
 
 import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
-import SidebarFilters from "../cards/SidebarFilters";
+import SidebarFilters, {
+  DEFAULT_HOTEL_FILTERS,
+} from "../cards/SidebarFilters";
 import HotelList from "../components/hotels/HotelList";
 import SearchBar from "../components/hotels/SearchBar";
 import MobileSortBar from "../components/MobileSortBar";
 import HotelsSeoSection from "../seo/HotelsSeoSection";
-
-const defaultFilters = {
-  price: null,
-  rating: null,
-  amenities: [],
-};
 
 export default function HotelMobile({
   filters,
@@ -35,7 +31,7 @@ export default function HotelMobile({
 
   const handleReset = () => {
     setSort(null);
-    setFilters(defaultFilters);
+    setFilters(DEFAULT_HOTEL_FILTERS);
     setShowSort(false);
     setShowFilters(false);
   };

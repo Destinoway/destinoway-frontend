@@ -18,7 +18,6 @@ import ViewHotelModal from "../components/hotels/viewhotles/ViewHotelModal";
 import ViewHotelPriceCard from "../components/hotels/viewhotles/ViewHotelPriceCard";
 
 import HotelCmsSection from "../sections/HotelCmsSection";
-import RelatedHotels from "../sections/RelatedHotels";
 import DynamicHotelSeoFallback from "../seo/DynamicHotelSeoFallback";
 
 import RoomOptions from "../components/hotels/viewhotles/HotelSections/RoomOptions";
@@ -323,12 +322,14 @@ function HotelDetailsMobile({
           {/* Related Hotels */}
 
           <div className="mx-auto mt-8 w-full max-w-md px-3 pb-28">
+            {/* Temporarily disabled to prevent its extra hotel search during testing.
             <RelatedHotels
               cityId={appliedSearchData?.cityData?.id}
               cityName={appliedSearchData?.city}
               searchData={appliedSearchData}
               currentHotelId={payload?.hotelId}
             />
+            */}
           </div>
 
           {/* Gallery Modal */}

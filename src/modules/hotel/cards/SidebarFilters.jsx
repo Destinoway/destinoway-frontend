@@ -63,7 +63,7 @@ const priceRanges = [
   { label: "₹ 10000+", min: 10000, max: 50000 },
 ];
 
-const DEFAULT_FILTERS = {
+export const DEFAULT_HOTEL_FILTERS = {
   search: "",
   minPrice: "",
   maxPrice: "",
@@ -86,7 +86,7 @@ function SidebarFilters({
   hideMapSection = false,
 }) {
   const [tempFilters, setTempFilters] = useState({
-    ...DEFAULT_FILTERS,
+    ...DEFAULT_HOTEL_FILTERS,
     ...filters,
   });
   const [searchInputValue, setSearchInputValue] = useState(
@@ -102,24 +102,35 @@ function SidebarFilters({
   const [showAllProperties, setShowAllProperties] = useState(false);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 778);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  useEffect(() => {
+    const nextFilters = { ...DEFAULT_HOTEL_FILTERS, ...filters };
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync the local form draft after committed filters change externally.
+    setTempFilters(nextFilters);
+    setSearchInputValue(nextFilters.search || "");
+    setCustomPriceDraft({
+      minPrice: nextFilters.minPrice ?? "",
+      maxPrice: nextFilters.maxPrice ?? "",
+    });
+  }, [filters]);
+
   const updateFilters = useCallback(
     (updater) => {
       if (isMobile) {
         setTempFilters((previous) => {
-          const base = { ...DEFAULT_FILTERS, ...previous };
+          const base = { ...DEFAULT_HOTEL_FILTERS, ...previous };
           return typeof updater === "function"
             ? updater(base)
             : { ...base, ...updater };
         });
       } else {
         setFilters?.((previous) => {
-          const base = { ...DEFAULT_FILTERS, ...(previous || {}) };
+          const base = { ...DEFAULT_HOTEL_FILTERS, ...(previous || {}) };
           return typeof updater === "function"
             ? updater(base)
             : { ...base, ...updater };
@@ -160,7 +171,7 @@ function SidebarFilters({
     () =>
       isMobile
         ? {
-            ...DEFAULT_FILTERS,
+            ...DEFAULT_HOTEL_FILTERS,
             ...filters,
             ...tempFilters,
             search: searchInputValue,
@@ -168,7 +179,7 @@ function SidebarFilters({
             maxPrice: customPriceDraft.maxPrice,
           }
         : {
-            ...DEFAULT_FILTERS,
+            ...DEFAULT_HOTEL_FILTERS,
             ...filters,
             search: searchInputValue,
             minPrice: customPriceDraft.minPrice,
@@ -479,7 +490,7 @@ function SidebarFilters({
 
   const resetFilters = useCallback(() => {
     const reset = {
-      ...DEFAULT_FILTERS,
+      ...DEFAULT_HOTEL_FILTERS,
       starRatings: [],
       amenities: [],
       chainProperties: [],
@@ -585,7 +596,9 @@ function SidebarFilters({
               <button
                 type="button"
                 onClick={() => {
-                  setFilters?.(tempFilters);
+                  debouncedSearchUpdate.flush();
+                  debouncedPriceUpdate.flush();
+                  setFilters?.({ ...currentFilters });
                   onClose?.();
                 }}
                 className="h-8 flex-1 rounded bg-[#0B6CFF] text-sm font-semibold text-white! transition hover:bg-[#0953be]"

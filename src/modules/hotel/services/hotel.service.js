@@ -67,7 +67,7 @@ export const getHotelSearchResults = async (
     ...sorting,
   };
 
-  ["starRatings", "amenities", "propertyType"].forEach((key) => {
+  ["starRatings", "amenities", "propertyType", "chainProperties"].forEach((key) => {
     if (Array.isArray(queryParams[key])) {
       queryParams[key] = queryParams[key].join(",");
     }

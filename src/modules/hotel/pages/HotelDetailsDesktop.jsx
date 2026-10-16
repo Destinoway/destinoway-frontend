@@ -22,7 +22,6 @@ import ViewHotelModal from "../components/hotels/viewhotles/ViewHotelModal";
 import ViewHotelPriceCard from "../components/hotels/viewhotles/ViewHotelPriceCard";
 import ViewHotelTabs from "../components/hotels/viewhotles/ViewHotelTabs";
 import HotelCmsSection from "../sections/HotelCmsSection";
-import RelatedHotels from "../sections/RelatedHotels";
 import DynamicHotelSeoFallback from "../seo/DynamicHotelSeoFallback";
 
 export default function HotelDetailsDesktop({
@@ -230,12 +229,14 @@ export default function HotelDetailsDesktop({
               )}
             </HotelCmsSection>
 
+            {/* Temporarily disabled to prevent its extra hotel search during testing.
             <RelatedHotels
               cityId={appliedSearchData?.cityData?.id}
               cityName={appliedSearchData?.city}
               searchData={appliedSearchData}
               currentHotelId={payload?.hotelId}
             />
+            */}
           </>
         )}
       </div>

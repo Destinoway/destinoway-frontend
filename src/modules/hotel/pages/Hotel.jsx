@@ -17,7 +17,9 @@ import {
   useSyncExternalStore,
 } from "react";
 
-import SidebarFilters from "../cards/SidebarFilters";
+import SidebarFilters, {
+  DEFAULT_HOTEL_FILTERS,
+} from "../cards/SidebarFilters";
 import HotelList from "../components/hotels/HotelList";
 import SearchBar from "../components/hotels/SearchBar";
 import SortBar from "../components/SortBar";
@@ -26,18 +28,6 @@ import HotelsSeoSection from "../seo/HotelsSeoSection";
 import { useHotelSearchStore } from "../store/serchData.store";
 import { scrollToHotelList } from "../utils/scrollToHotelList";
 import HotelMobile from "./HotelMobile";
-
-const defaultFilters = {
-  freeCancellation: false,
-  search: "",
-  starCategory: "",
-  minPrice: "",
-  maxPrice: "",
-  suggested: [],
-  propertyType: [],
-  rating: [],
-  locations: [],
-};
 
 const CMS_TRIGGER_OFFSET = 520;
 const STICKY_OFFSET = 108;
@@ -71,7 +61,7 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
   const cmsTriggerRef = useRef(null);
   const scrollFrameRef = useRef(null);
   const sidebarZ0Ref = useRef(false);
-  const [filters, setFilters] = useState(defaultFilters);
+  const [filters, setFilters] = useState(DEFAULT_HOTEL_FILTERS);
   const [hotelsLoading, setHotelsLoading] = useState(true);
   const [hasHotels, setHasHotels] = useState(false);
   const [sort, setSort] = useState(null);
@@ -407,7 +397,7 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
   }, []);
 
   const clearAll = useCallback(() => {
-    setFilters(defaultFilters);
+    setFilters(DEFAULT_HOTEL_FILTERS);
     scrollToHotelList();
   }, []);
 

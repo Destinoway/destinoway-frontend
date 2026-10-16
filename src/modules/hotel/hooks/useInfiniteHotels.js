@@ -62,6 +62,7 @@ export const useInfiniteHotels = (params, filters = {}, sorting = {}) => {
       filters.starRatings ?? params?.starRatings ?? params?.starCategory,
     starRating: filters.starRating ?? params?.starRating,
     amenities: filters.amenities ?? params?.amenities ?? params?.facility,
+    chainProperties: filters.chainProperties,
     minReviewRating: filters.minReviewRating,
     propertyType: filters.propertyType,
     availableOnly: filters.availableOnly,
