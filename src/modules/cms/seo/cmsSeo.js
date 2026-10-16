@@ -17,9 +17,19 @@ CANONICAL
       canonical = `${siteUrl}/hotels/${slug}`;
       break;
 
-    case "hotel":
-      canonical = `${siteUrl}/hotel-details/${slug}`;
+    case "hotel": {
+      const citySlug = String(cms?.data?.cityMeta?.destination || "")
+        .split(",")[0]
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-");
+
+      canonical = citySlug
+        ? `${siteUrl}/hotel-details/${citySlug}/${slug}`
+        : `${siteUrl}/hotel-details/${slug}`;
       break;
+    }
 
     case "city":
       canonical = `${siteUrl}/hotels/${slug}`;

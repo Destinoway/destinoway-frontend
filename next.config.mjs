@@ -39,6 +39,10 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "hotel-extranet-new.s3.amazonaws.com",
+      },
+      {
+        protocol: "https",
         hostname: "rukmini-ct.flixcart.com",
       },
       {

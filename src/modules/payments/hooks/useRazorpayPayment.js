@@ -27,6 +27,7 @@ export const useRazorpayPayment = () => {
       prefill: {
         name: customer?.name || "",
         contact: customer?.mobile || "",
+        email: customer?.email || "",
       },
 
       theme: {
@@ -74,7 +75,9 @@ export const useRazorpayPayment = () => {
           console.log("Booking Ref:", bookingRefNo);
 
           // Redirect to success page
-          router.replace(`/hotel-booking-success?bookingRefNo=${bookingRefNo}`);
+          router.replace(
+            `/hotel-checkout?bookingRefNo=${encodeURIComponent(bookingRefNo)}`,
+          );
         } catch (error) {
           console.error("Payment Verification Error:", error);
           console.error("Error Message:", error?.message);

@@ -27,9 +27,6 @@ import StaySummaryCard from "./StaySummaryCard";
 
 import HotelBookingContents from "../../mobile-componant/HotelBookingContents";
 
-
-
-
 const subscribeToMount = () => () => {};
 const getClientMountSnapshot = () => true;
 const getServerMountSnapshot = () => false;
@@ -51,8 +48,11 @@ export default function HotelBookingContent({
   const { mutate: bookHotel, isPending } = useHotelBooking();
   const router = useRouter();
   const { data: session } = useSession();
-  const { bookingData: storeBookingData, setBookingData } =
-    useHotelBookingStore();
+  const {
+    bookingData: storeBookingData,
+    setBookingData,
+    setItineraryData,
+  } = useHotelBookingStore();
   const searchData = storeBookingData?.searchData || null;
   const bookingData = useMemo(
     () => ({
@@ -70,7 +70,9 @@ export default function HotelBookingContent({
       return searchData.roomGuests.map((room, index) => ({
         roomNo: index + 1,
         adults: Math.max(Number(room?.adults) || 1, 1),
-        children: Array.isArray(room?.children) ? room.children.length : Math.max(Number(room?.children) || 0, 0),
+        children: Array.isArray(room?.children)
+          ? room.children.length
+          : Math.max(Number(room?.children) || 0, 0),
       }));
     }
     const responseRooms = Array.isArray(hotelBookingData?.rooms)
@@ -191,26 +193,21 @@ export default function HotelBookingContent({
 
     bookHotel(payload, {
       onSuccess: (response) => {
-        const bookingRefNo =
-          response?.data?.data?.BookingRefNo ||
-          response?.data?.data?.bookingRefNo ||
-          response?.data?.BookingRefNo ||
-          response?.data?.bookingRefNo ||
-          response?.BookingRefNo ||
-          response?.bookingRefNo;
+        const itinerary = response?.data;
+        const bookingId = itinerary?.bookingId;
 
-        if (!bookingRefNo) {
+        if (!bookingId) {
           bookingSubmissionRef.current = false;
-          message.error("Booking was submitted, but no booking reference was returned.");
+          message.error(
+            "Booking was submitted, but no booking reference was returned.",
+          );
           return;
         }
 
-        setBookingData({
-          bookingRefNo,
-        });
+        setItineraryData(itinerary);
 
         router.push(
-          `/hotel-checkout?bookingRefNo=${encodeURIComponent(bookingRefNo)}`,
+          `/hotel-itinerary?bookingId=${encodeURIComponent(bookingId)}`,
         );
       },
       onError: (error) => {

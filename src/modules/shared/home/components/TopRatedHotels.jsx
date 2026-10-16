@@ -6,8 +6,7 @@ import { Card, Rate } from "antd";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
-import { buildSearchData } from "@/modules/hotel/utils/buildSearchData";
-import { navigateToHotels } from "@/modules/hotel/utils/hotelNavigation";
+import { searchHotelsFromCard } from "@/modules/hotel/utils/searchFromCard";
 import { useRouter } from "next/navigation";
 
 export default function TopRatedHotels({ hotels }) {
@@ -109,16 +108,12 @@ export default function TopRatedHotels({ hotels }) {
     }
   };
 
-  const handleSearch = (hotel) => {
-    const searchData = buildSearchData({
+  const handleSearch = (hotel) =>
+    searchHotelsFromCard({
+      router,
+      item: hotel,
       baseSearchData: draftSearchData,
-      city: hotel.city,
-      cityId: hotel.cityId,
-      destinationData: hotel,
     });
-
-    navigateToHotels(router, searchData);
-  };
 
   // CARD
   const renderCard = (hotel, idx) => (

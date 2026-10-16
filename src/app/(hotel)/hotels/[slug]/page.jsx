@@ -4,7 +4,7 @@ import {
   buildHotelTitle,
 } from "@/modules/cms/seo/cmsDynamicSeo";
 import { buildCmsMetadata } from "@/modules/cms/seo/cmsSeo";
-import { fetchCmsBySlug } from "@/modules/cms/services/cmsFetch";
+import { fetchCityCms } from "@/modules/cms/services/cmsFetch";
 import HotelContent from "@/modules/hotel/pages/Hotel";
 import { searchDestinationServer } from "@/modules/hotel/services/search.server";
 import dayjs from "dayjs";
@@ -18,13 +18,39 @@ const formatCityName = (value = "") => {
   );
 };
 
+const normalizePlaceName = (value = "") =>
+  String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+const getCoordinates = (place = {}) => {
+  const latitude =
+    place?.coordinates?.lat ??
+    place?.geoCode?.lat ??
+    place?.latitude ??
+    place?.lat;
+  const longitude =
+    place?.coordinates?.long ??
+    place?.coordinates?.lng ??
+    place?.geoCode?.long ??
+    place?.geoCode?.lng ??
+    place?.longitude ??
+    place?.lng ??
+    place?.long;
+
+  if (latitude == null || longitude == null) return null;
+  return { lat: latitude, long: longitude };
+};
+
 export async function generateMetadata({ params, searchParams }) {
   const { slug } = await params;
   const query = await searchParams;
 
   const preview = query?.preview === "true";
 
-  const cms = await fetchCmsBySlug(slug, preview);
+  const cms = await fetchCityCms(slug, preview);
 
   if (cms) {
     const metadata = buildCmsMetadata(cms);
@@ -100,71 +126,69 @@ export default async function Page({ params, searchParams }) {
   const query = await searchParams;
   const preview = query?.preview === "true";
   const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-  const cms = await fetchCmsBySlug(slug, preview);
+  const cms = await fetchCityCms(slug, preview);
 
   let cityName = formatCityName(slug);
   let cityData = null;
+  const cityMeta = cms?.data?.cityMeta || {};
+  const cmsCityName = cityMeta?.destination || cityName;
+  const cmsCoordinates = getCoordinates(cityMeta);
+  let matchedCity = null;
 
-  if (cms && cms?.data?.cityMeta?.destinationId) {
-    const cityMeta = cms?.data?.cityMeta || {};
+  // CMS city metadata can contain an ID without the coordinates required by
+  // the hotel-search payload. Resolve the destination when coordinates are
+  // missing, even when the CMS already supplied destinationId.
+  if (!cmsCoordinates || !cityMeta?.destinationId) {
+    const destinations = await searchDestinationServer(cmsCityName);
+    const expectedName = normalizePlaceName(cmsCityName);
+    const expectedId = String(cityMeta?.destinationId || "");
+    const cityDestinations = Array.isArray(destinations)
+      ? destinations.filter(
+          (item) => String(item?.type || "").toLowerCase() === "city",
+        )
+      : [];
 
-    cityName = cityMeta?.destination || cityName;
-    cityData = {
-      id: cityMeta?.destinationId || "",
-      name: cityName || "",
-      type: "city",
-      city: cityName || "",
-      state: cityMeta?.stateName || "",
-      stateName: cityMeta?.stateName || "",
-      country: cityMeta?.country || "",
-      countryCode: cityMeta?.countryCode || "",
-      displayName: [cityName, cityMeta?.stateName, cityMeta?.country]
+    matchedCity =
+      cityDestinations.find(
+        (item) => expectedId && String(item?.id || "") === expectedId,
+      ) ||
+      cityDestinations.find(
+        (item) => normalizePlaceName(item?.city || item?.name) === expectedName,
+      ) ||
+      cityDestinations[0] ||
+      null;
+  }
+
+  if (!cityMeta?.destinationId && !matchedCity) {
+    notFound();
+  }
+
+  const coordinates = cmsCoordinates || getCoordinates(matchedCity);
+  cityName = cmsCityName || matchedCity?.city || matchedCity?.name || cityName;
+  cityData = {
+    id: cityMeta?.destinationId || matchedCity?.id || "",
+    name: cityMeta?.destination || matchedCity?.name || cityName,
+    type: matchedCity?.type || "city",
+    city: matchedCity?.city || cityName,
+    state: cityMeta?.stateName || matchedCity?.state || "",
+    stateName: cityMeta?.stateName || matchedCity?.state || "",
+    country: cityMeta?.country || matchedCity?.country || "",
+    countryCode: cityMeta?.countryCode || matchedCity?.countryCode || "",
+    displayName:
+      matchedCity?.displayName ||
+      [
+        cityMeta?.destination || matchedCity?.name || cityName,
+        cityMeta?.stateName || matchedCity?.state,
+        cityMeta?.country || matchedCity?.country,
+      ]
         .filter(Boolean)
         .join(","),
+    normalizedCity: matchedCity?.city || cityName,
+    ...(coordinates ? { coordinates, geoCode: coordinates } : {}),
+  };
 
-      normalizedCity: cityName || "",
-    };
-  } else {
-    const destinations = await searchDestinationServer(cityName);
-    const matchedCity =
-      destinations?.find(
-        (item) =>
-          item?.type?.toLowerCase() === "city" &&
-          item?.city?.toLowerCase() === cityName?.toLowerCase(),
-      ) ||
-      destinations?.find((item) => item?.type?.toLowerCase() === "city") ||
-      destinations?.[0];
-
-    if (!matchedCity) {
-      notFound();
-    }
-
-    cityName = matchedCity?.city || matchedCity?.name || cityName;
-    cityData = {
-      id: matchedCity?.id || "",
-      name: matchedCity?.name || cityName,
-      type: matchedCity?.type || "city",
-      city: matchedCity?.city || cityName,
-      state: matchedCity?.state || "",
-      stateName: matchedCity?.state || "",
-      country: matchedCity?.country || "",
-      countryCode: matchedCity?.countryCode || "",
-      displayName:
-        matchedCity?.displayName ||
-        [
-          matchedCity?.name || cityName,
-          matchedCity?.state,
-          matchedCity?.country,
-        ]
-          .filter(Boolean)
-          .join(","),
-
-      normalizedCity: matchedCity?.city || matchedCity?.name || cityName,
-    };
-
-    if (!cityData?.id) {
-      notFound();
-    }
+  if (!cityData.id || !coordinates) {
+    notFound();
   }
 
   const initialSearchData = {
@@ -180,6 +204,8 @@ export default async function Page({ params, searchParams }) {
       countryCode: cityData?.countryCode || "",
       displayName: cityData?.displayName || cityName || "",
       normalizedCity: cityData?.normalizedCity || cityName || "",
+      ...(cityData?.coordinates ? { coordinates: cityData.coordinates } : {}),
+      ...(cityData?.geoCode ? { geoCode: cityData.geoCode } : {}),
     },
 
     checkIn: dayjs().format("YYYY-MM-DD"),

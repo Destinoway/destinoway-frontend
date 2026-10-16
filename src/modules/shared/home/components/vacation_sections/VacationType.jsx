@@ -6,8 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
-import { buildSearchData } from "@/modules/hotel/utils/buildSearchData";
-import { navigateToHotels } from "@/modules/hotel/utils/hotelNavigation";
+import { searchHotelsFromCard } from "@/modules/hotel/utils/searchFromCard";
 
 export default function VacationType({ activeTab, vibes = [] }) {
   const [index, setIndex] = useState(0);
@@ -60,16 +59,8 @@ export default function VacationType({ activeTab, vibes = [] }) {
   const visibleData =
     perPage === data.length ? data : data.slice(index, index + perPage);
 
-  const handleSearch = (item) => {
-    const searchData = buildSearchData({
-      baseSearchData: draftSearchData,
-      city: item.city,
-      cityId: item.cityId,
-      destinationData: item,
-    });
-
-    navigateToHotels(router, searchData);
-  };
+  const handleSearch = (item) =>
+    searchHotelsFromCard({ router, item, baseSearchData: draftSearchData });
   return (
     <div className="xs:px-1 !sm:-mt-[50px] -mt-7 px-0 py-2 sm:px-1 md:mt-[2px] md:px-2 lg:mt-[2px] lg:px-4 xl:px-4">
       <div className="flex items-center gap-2 sm:gap-3">

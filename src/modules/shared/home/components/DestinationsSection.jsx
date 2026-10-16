@@ -2,8 +2,7 @@
 
 import SectionHeading from "@/components/common/SectionHeading";
 import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
-import { buildSearchData } from "@/modules/hotel/utils/buildSearchData";
-import { navigateToHotels } from "@/modules/hotel/utils/hotelNavigation";
+import { searchHotelsFromCard } from "@/modules/hotel/utils/searchFromCard";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -98,16 +97,8 @@ function DestinationCard({ item }) {
   const router = useRouter();
   const { draftSearchData } = useHotelSearchStore();
 
-  const handleSearch = () => {
-    const searchData = buildSearchData({
-      baseSearchData: draftSearchData,
-      city: item.city,
-      cityId: item.cityId,
-      destinationData: item,
-    });
-
-    navigateToHotels(router, searchData);
-  };
+  const handleSearch = () =>
+    searchHotelsFromCard({ router, item, baseSearchData: draftSearchData });
 
   return (
     <div

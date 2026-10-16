@@ -3,7 +3,7 @@ import {
   buildHotelDescription,
   buildHotelTitle,
 } from "@/modules/cms/seo/hotelSeo";
-import { fetchCmsBySlug } from "@/modules/cms/services/cmsFetch";
+import { fetchHotelCms } from "@/modules/cms/services/cmsFetch";
 import HotelDetails from "@/modules/hotel/pages/hotelDetails";
 
 export async function generateMetadata({ params, searchParams }) {
@@ -13,7 +13,7 @@ export async function generateMetadata({ params, searchParams }) {
 
   const preview = query?.preview === "true";
 
-  const cms = await fetchCmsBySlug(slug, preview);
+  const cms = await fetchHotelCms(city, slug, preview);
 
   if (cms) {
     const metadata = buildCmsMetadata(cms);
@@ -86,7 +86,7 @@ export default async function Page({ params, searchParams }) {
   const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
   const preview = query?.preview === "true";
 
-  const cms = await fetchCmsBySlug(slug, preview);
+  const cms = await fetchHotelCms(city, slug, preview);
   const hotelName =
     cms?.data?.hotelMeta?.hotelName ||
     slug?.replace(/-/g, " ")?.replace(/\b\w/g, (l) => l.toUpperCase());
