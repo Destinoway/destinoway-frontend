@@ -11,6 +11,7 @@ import {
 const PAGE_SIZE = 20;
 
 const FILTER_KEYS = [
+  "hotelId",
   "hotelName",
   "minPrice",
   "maxPrice",

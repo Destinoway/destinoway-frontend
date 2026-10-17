@@ -1,6 +1,7 @@
 export const buildHotelDetailsPayload = ({ selectedHotel, initialPayload }) => {
-  const selectedHotelMeta = selectedHotel?.hotelMeta || {};
-
+  const hasInitialPayload = initialPayload != null;
+  const fallbackSelectedHotel = hasInitialPayload ? {} : selectedHotel || {};
+  const selectedHotelMeta = fallbackSelectedHotel?.hotelMeta || {};
   const initialHotelMeta = initialPayload?.hotelMeta || {};
 
   const hotelId = initialPayload?.hotelId || selectedHotelMeta?.hotelId || "";
@@ -9,17 +10,17 @@ export const buildHotelDetailsPayload = ({ selectedHotel, initialPayload }) => {
     initialPayload?.hotelDetailId ||
     initialHotelMeta?.hotelDetailId ||
     selectedHotelMeta?.hotelDetailId ||
-    selectedHotel?.hotelDetailId ||
+    fallbackSelectedHotel?.hotelDetailId ||
     "";
   const searchId =
     initialPayload?.searchId ||
     selectedHotelMeta?.searchId ||
-    selectedHotel?.searchId ||
+    fallbackSelectedHotel?.searchId ||
     "";
   const supplierHotelId =
     initialPayload?.supplierHotelId ||
     selectedHotelMeta?.supplierHotelId ||
-    selectedHotel?.supplierHotelId ||
+    fallbackSelectedHotel?.supplierHotelId ||
     "";
 
   const payload = {

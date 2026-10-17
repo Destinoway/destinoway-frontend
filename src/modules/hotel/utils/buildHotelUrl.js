@@ -8,7 +8,7 @@ export const buildHotelUrl = ({
   supplierHotelId = "",
   hotelDetailId = "",
 }) => {
-  if (!hotelName || !hotelId) {
+  if (!hotelName || !hotelId || !searchId || !supplierHotelId) {
     return "";
   }
 
