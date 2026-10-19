@@ -53,17 +53,17 @@ export default function ContactMapSection() {
             {/* Stats */}
             <div className="mb-8 grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-[24px] font-bold most-text-color">24h</p>
+                <p className="most-text-color text-[24px] font-bold">24h</p>
                 <p className="text-xs text-gray-500">Response Time</p>
               </div>
 
               <div>
-                <p className="text-[24px] font-bold most-text-color">24/7</p>
+                <p className="most-text-color text-[24px] font-bold">24/7</p>
                 <p className="text-xs text-gray-500">Support</p>
               </div>
 
               <div>
-                <p className="text-[24px] font-bold most-text-color">98%</p>
+                <p className="most-text-color text-[24px] font-bold">98%</p>
                 <p className="text-xs text-gray-500">Satisfaction</p>
               </div>
             </div>
@@ -86,10 +86,10 @@ export default function ContactMapSection() {
                   <p>
                     <span className="font-medium text-gray-500">Email:</span>{" "}
                     <a
-                      href="mailto:support@panjourney.com"
+                      href="mailto:support@destinoway.com"
                       className="font-semibold text-[#0f6b78]"
                     >
-                      support@panjourney.com
+                      support@destinoway.com
                     </a>
                   </p>
                 </div>
@@ -102,7 +102,7 @@ export default function ContactMapSection() {
 
                   <div className="flex flex-wrap items-center gap-3">
                     <a
-                      href="https://instagram.com/panjourney"
+                      href="https://instagram.com/destinoway"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[3px] hover:shadow-lg"
@@ -117,7 +117,7 @@ export default function ContactMapSection() {
                     </a>
 
                     <a
-                      href="https://facebook.com/panjourney"
+                      href="https://facebook.com/destinoway"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[3px] hover:shadow-lg"
@@ -132,7 +132,7 @@ export default function ContactMapSection() {
                     </a>
 
                     <a
-                      href="https://www.linkedin.com/panjourney"
+                      href="https://www.linkedin.com/destinoway"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[3px] hover:shadow-lg"
@@ -147,7 +147,7 @@ export default function ContactMapSection() {
                     </a>
 
                     <a
-                      href="https://www.whatsapp.com/panjourney"
+                      href="https://www.whatsapp.com/destinoway"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[3px] hover:shadow-lg"

@@ -63,10 +63,10 @@ export default function FooterLinks() {
         {/* Contact */}
         <div className="footer-backgound-color mt-6 space-y-2 text-sm">
           <a
-            href="mailto:support@panjourney.com"
+            href="mailto:support@destinoway.com"
             className="!most-text-color footer-hover-most-text-color block font-medium transition-colors"
           >
-            support@panjourney.com
+            support@destinoway.com
           </a>
 
           <a

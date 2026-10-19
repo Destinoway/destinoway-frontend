@@ -19,13 +19,13 @@ export async function generateMetadata({ params }) {
     keywords: Array.isArray(blog.keywords) ? blog.keywords : undefined,
 
     alternates: {
-      canonical: `https://panjourney.com/blog/${blog.slug}`,
+      canonical: `https://destinoway.com/blog/${blog.slug}`,
     },
 
     openGraph: {
       title: blog.metaTitle || blog.title,
       description: blog.metaDescription || blog.description,
-      url: `https://panjourney.com/blog/${blog.slug}`,
+      url: `https://destinoway.com/blog/${blog.slug}`,
 
       ...(blog.featuredImage
         ? {

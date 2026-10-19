@@ -126,7 +126,7 @@ export default function GrievanceOfficerAndFormSection() {
               </span>
             </div>
 
-            <h2 className="mb-3 text-[28px] font-bold most-text-color">
+            <h2 className="most-text-color mb-3 text-[28px] font-bold">
               Grievance Officer
             </h2>
 
@@ -159,10 +159,10 @@ export default function GrievanceOfficerAndFormSection() {
                 </p>
 
                 <a
-                  href="mailto:grievance@panjourney.com"
+                  href="mailto:grievance@destinoway.com"
                   className="mt-1 block text-[14px] font-semibold text-[#0f6b78] hover:underline"
                 >
-                  grievance@panjourney.com
+                  grievance@destinoway.com
                 </a>
               </div>
 
@@ -272,7 +272,7 @@ export default function GrievanceOfficerAndFormSection() {
 
                 <button
                   type="submit"
-                  className="w-full rounded-lg buttion-background-color px-8 py-3.5 font-medium text-white! transition-all duration-300 hover:shadow-lg"
+                  className="buttion-background-color w-full rounded-lg px-8 py-3.5 font-medium text-white! transition-all duration-300 hover:shadow-lg"
                 >
                   Submit Grievance
                 </button>

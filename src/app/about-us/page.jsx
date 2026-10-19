@@ -30,7 +30,7 @@ export async function generateMetadata() {
 
   const keywords = cms?.keywords || [];
 
-  const canonical = `https://panjourney.com/${cms?.slug || PAGE_SLUG}`;
+  const canonical = `https://destinoway.com/${cms?.slug || PAGE_SLUG}`;
 
   return {
     title,

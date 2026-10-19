@@ -35,7 +35,7 @@ const grievanceCards = [
   {
     icon: MailFilled,
     title: "Grievance Officer",
-    value: "grievance@panjourney.com",
+    value: "grievance@destinoway.com",
     subText: "Official escalation support",
     badge: "Official",
     badgeColor: "bg-orange-100 text-orange-700",
