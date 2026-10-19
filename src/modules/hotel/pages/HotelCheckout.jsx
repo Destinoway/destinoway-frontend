@@ -71,6 +71,7 @@ export default function HotelCheckout() {
     customer: bookingDetails?.customer || {
       name: guestInfo?.customerName,
       mobile: guestInfo?.customerMobile,
+      email: guestInfo?.customerEmail,
       address: guestInfo?.customerAddress,
       postalCode: guestInfo?.customerPostalCode,
     },

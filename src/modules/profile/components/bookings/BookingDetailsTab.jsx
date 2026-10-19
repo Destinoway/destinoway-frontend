@@ -2,846 +2,616 @@
 
 import {
   ArrowLeftOutlined,
-  ArrowRightOutlined,
-  CarOutlined,
+  CalendarOutlined,
   CheckCircleFilled,
-  CoffeeOutlined,
+  ClockCircleOutlined,
   DownloadOutlined,
   EnvironmentOutlined,
   HomeOutlined,
-  SafetyOutlined,
+  PhoneOutlined,
+  SafetyCertificateFilled,
   ShareAltOutlined,
-  ShopOutlined,
-  WifiOutlined,
+  StarFilled,
+  TeamOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-
 import { useQueryClient } from "@tanstack/react-query";
-import { message } from "antd";
+import { message, Skeleton } from "antd";
 import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useBookingDetails } from "../../hooks/useBookingDetails";
 import { useCancelBooking } from "../../hooks/useCancelBooking";
 import { useDownloadInvoice } from "../../hooks/useDownloadInvoice";
+import {
+  getBookingStatusMeta,
+  STATUS_TONE_CLASSES,
+} from "../../utils/bookingStatus";
 import CancelBookingModal from "./CancelBookingModal";
 import ShareBookingModal from "./ShareBookingModal";
-dayjs.extend(customParseFormat);
+
+const cardClass =
+  "overflow-hidden rounded-2xl border border-[#E5EEF7] bg-white shadow-[0_10px_35px_rgba(5,20,75,0.08)]";
+
+const formatDate = (value, pattern = "DD MMM YYYY") => {
+  const date = dayjs(value);
+  return date.isValid() ? date.format(pattern) : "--";
+};
+
+function SectionHeader({ icon, title, subtitle }) {
+  return (
+    <div className="flex items-center gap-3 border-b border-[#E5EEF7] px-5 py-4">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff4de] text-[16px] text-[#05144b]">
+        {icon}
+      </div>
+      <div>
+        <h2 className="font-roboto mb-0! text-[17px] leading-tight font-bold text-[#05144b]">
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="mb-0! text-[13px] text-gray-500">{subtitle}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function InfoTile({ label, value }) {
+  return (
+    <div className="rounded-lg border border-gray-100 bg-[#FAFCFF] p-3">
+      <p className="mb-1 text-[11px] tracking-wide text-gray-500 uppercase">
+        {label}
+      </p>
+      <p className="mb-0! text-[14px] font-semibold break-all text-[#05144b]">
+        {value || "--"}
+      </p>
+    </div>
+  );
+}
+
+function PriceRow({ label, value, valueClass = "text-gray-900" }) {
+  return (
+    <div className="flex items-center justify-between border-b border-gray-100 py-2 last:border-0">
+      <span className="text-[14px] text-gray-600">{label}</span>
+      <span className={`text-[15px] font-semibold ${valueClass}`}>{value}</span>
+    </div>
+  );
+}
 
 export default function BookingDetailsTab({ bookingRefNo }) {
   const router = useRouter();
-  const { mutate: downloadInvoice } = useDownloadInvoice();
   const queryClient = useQueryClient();
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const { mutate: cancelBooking, isPending: cancelling } = useCancelBooking();
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const { data, isLoading } = useBookingDetails(bookingRefNo);
+
+  const { mutate: downloadInvoice, isPending: downloading } =
+    useDownloadInvoice();
+  const { mutate: cancelBooking, isPending: cancelling } = useCancelBooking();
+  const { data, isLoading, isError, refetch } = useBookingDetails(bookingRefNo);
+
+  const goBack = () => router.push("/profile?tab=BookingHistory");
 
   if (isLoading) {
     return (
-      <div className="rounded-xl bg-white p-8">Loading booking details...</div>
+      <div className={`${cardClass} p-6`}>
+        <Skeleton active paragraph={{ rows: 10 }} />
+      </div>
     );
   }
 
-  const bookingData = data || {};
+  if (isError || !data) {
+    return (
+      <div className={`${cardClass} py-14 text-center`}>
+        <p className="text-[18px] font-semibold text-[#05144b]">
+          Booking not found
+        </p>
+        <div className="mt-4 flex justify-center gap-3">
+          <button
+            type="button"
+            onClick={goBack}
+            className="h-10 rounded-lg border border-gray-300 px-5 text-[14px] font-semibold text-gray-700"
+          >
+            Back
+          </button>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="buttion-background-color h-10 rounded-lg px-5 text-[14px] font-semibold text-white!"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  console.log("bookingData in history details", bookingData);
+  const booking = data;
+  const supplier = booking.supplierResponse || {};
+  const hotel = supplier.HotelDetails || {};
+  const rooms = supplier.HotelRoomDetail || [];
+  const supplierBooking = booking.supplierBookingDetails || {};
+  const pricing = booking.pricing || {};
+  const offer = booking.offer || {};
+  const contact = booking.guestDetails || {};
 
-  // Supplier Response
-  const supplier = bookingData?.supplierResponse || {};
-  const hotel = supplier?.HotelDetails || {};
-  const room = supplier?.HotelRoomDetail?.[0] || {};
-  const ratePlan = hotel?.HotelRatePlanDetails || {};
-  const pricing = bookingData?.pricing || {};
-  const offer = bookingData?.offer || {};
-  const roomCharges = Number(pricing?.baseAmount || 0);
-  const platformFee = Number(pricing?.platformFeeAndTax || 0);
-  const finalPrice = Number(pricing?.finalPrice || 0);
-  const autoDiscount = Number(offer?.autoDiscount || 0);
-  const couponDiscount = Number(offer?.couponDiscount || 0);
+  const hotelName = hotel.name || hotel.HotelName || "Hotel";
+  const address = hotel.address || hotel.Address || "";
+  const rating = Math.max(
+    Number(hotel.starRating ?? hotel.StarCategoryId) || 0,
+    0,
+  );
+  const facilities = (hotel.HotelFacilities || [])
+    .map((item) => item.FacilityName)
+    .filter(Boolean);
+
+  const status = getBookingStatusMeta(
+    booking.supplierBookingStatus ||
+      booking.ticketStatusDesc ||
+      booking.itineraryStatus,
+  );
+  const isPaid = booking.paymentStatus?.toLowerCase() === "paid";
+  const canCancel = status.group === "confirmed" && isPaid;
+
+  const currency = pricing.currency || "INR";
+  const formatPrice = (value) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+    }).format(Number(value) || 0);
+
+  const checkIn = dayjs(booking.checkInDate);
+  const checkOut = dayjs(booking.checkOutDate);
+  const nights =
+    checkIn.isValid() && checkOut.isValid()
+      ? Math.max(checkOut.diff(checkIn, "day"), 1)
+      : 0;
+
+  const roomOccupants = rooms.flatMap((room, index) => [
+    ...(room.adults || []).map((guest) => ({
+      ...guest,
+      occupantType: "adult",
+      roomNumber: room.occupancyId ?? index + 1,
+    })),
+    ...(room.children || []).map((guest) => ({
+      ...guest,
+      occupantType: "child",
+      roomNumber: room.occupancyId ?? index + 1,
+    })),
+  ]);
+  const guests = contact.occupants?.length ? contact.occupants : roomOccupants;
+
+  const confirmationNo =
+    supplierBooking.confirmationNumber ||
+    supplierBooking.bookingConfirmationId ||
+    supplierBooking.crsPnr ||
+    booking.voucherNumber;
+
+  const autoDiscount = Number(offer.autoDiscount || 0);
+  const couponDiscount = Number(offer.couponDiscount || 0);
   const totalDiscount = autoDiscount + couponDiscount;
-  const payableAmount = Number(bookingData?.payableAmount || 0);
+  const payableAmount = booking.payableAmount ?? pricing.finalPrice;
 
-  const facilities = hotel?.HotelFacilities || [];
-
-  const topFacilities = facilities.slice(0, 6);
-
-  const roomType = ratePlan?.HotelRoomTypeDesc?.replace(/,\s*$/, "")
-    ?.replace("TwinXLBed", "")
-    ?.replace("BunkBed", "")
-    ?.trim();
-
-  const inclusions = ratePlan?.Inclusion?.split(",")
-    ?.map((i) => i.trim())
-    ?.filter(Boolean)
-    ?.map((i) => (i === "RoomOnly" ? "Room Only" : i));
-
-  const roomSummary = [];
-  const amenities =
-    hotel?.HotelFacilities?.map((item) => item.FacilityName) || [];
-
-  const getAmenityIcon = (name) => {
-    const value = name.toLowerCase();
-
-    if (value.includes("wifi")) return <WifiOutlined />;
-    if (value.includes("parking")) return <CarOutlined />;
-    if (value.includes("breakfast")) return <CoffeeOutlined />;
-    if (value.includes("garden")) return <EnvironmentOutlined />;
-    if (value.includes("laundry")) return <ShopOutlined />;
-    if (value.includes("safe")) return <SafetyOutlined />;
-
-    return <HomeOutlined />;
-  };
-
-  if (room?.Adult_Count) {
-    roomSummary.push(`${room.Adult_Count} Adult`);
-  }
-
-  if (Number(room?.Child_Count) > 0) {
-    roomSummary.push(`${room.Child_Count} Child`);
-  }
-
-  // Cancellation Policy
-  const cancellationPolicies =
-    supplier?.CancellationPolicy?.replaceAll("<br>", "\n")
+  const policies =
+    supplier.CancellationPolicy?.replaceAll("<br>", "\n")
       ?.split("\n")
+      ?.map((item) => item.trim())
       ?.filter(Boolean) || [];
 
-  // Room Inclusions
-  const policies = ratePlan?.Inclusion
-    ? ratePlan.Inclusion.split(",")
-      .map((item) => item.trim())
-      .filter(Boolean)
-    : [];
+  const shareText = `
+🏨 *${hotelName}*
+📌 Booking Ref: ${booking.bookingRefNo}
+📅 Check In: ${formatDate(booking.checkInDate)}
+📅 Check Out: ${formatDate(booking.checkOutDate)}
+✅ Status: ${status.label}
+🌐 Booked via PAN Journey
+`;
 
-  // Guest Details 
-  const guest = bookingData?.guestDetails?.occupants || [];
-
-
-  console.log("guest in ", guest);
-
-  // Nights
-  const nights = dayjs(bookingData?.checkOutDate, "DD/MM/YYYY").diff(
-    dayjs(bookingData?.checkInDate, "DD/MM/YYYY"),
-    "day",
-  );
   const handleConfirmCancellation = () => {
-    cancelBooking(bookingData?.bookingRefNo, {
+    cancelBooking(booking.bookingRefNo, {
       onSuccess: (response) => {
         message.success(response?.message || "Booking cancelled successfully");
 
-        queryClient.invalidateQueries({
-          queryKey: ["my-bookings"],
-        });
-
-        queryClient.invalidateQueries({
-          queryKey: ["booking-details"],
-        });
+        queryClient.invalidateQueries({ queryKey: ["my-bookings"] });
+        queryClient.invalidateQueries({ queryKey: ["booking-details"] });
 
         setCancelModalOpen(false);
-
-        setTimeout(() => {
-          router.push("/profile?tab=BookingHistory");
-        }, 1000);
+        setTimeout(goBack, 1000);
       },
-
       onError: (error) => {
         message.error(error?.response?.data?.message || "Cancellation failed");
       },
     });
   };
 
-  const shareText = `
-🏨 *${hotel?.HotelName}*
-📌 Booking Ref: ${bookingData?.bookingRefNo}
-📅 Check In: ${bookingData?.checkInDate}
-📅 Check Out: ${bookingData?.checkOutDate}
-✅ Status: ${bookingData?.ticketStatusDesc}
-🌐 Booked via PAN Journey
-`;
   const handleDownloadInvoice = () => {
-    downloadInvoice(bookingData?.bookingRefNo, {
+    downloadInvoice(booking.bookingRefNo, {
       onSuccess: (blob) => {
         const url = window.URL.createObjectURL(blob);
-
         const link = document.createElement("a");
         link.href = url;
-        link.download = `invoice-${bookingData?.bookingRefNo}.pdf`;
-
+        link.download = `invoice-${booking.bookingRefNo}.pdf`;
         document.body.appendChild(link);
         link.click();
         link.remove();
-
         window.URL.revokeObjectURL(url);
       },
-
-      onError: (error) => {
-        console.error(error);
-        message.error("Unable to download invoice");
-      },
+      onError: () => message.error("Unable to download invoice"),
     });
   };
 
-  const PriceRow = ({ label, value, last = false, valueClass = "" }) => (
-    <div
-      className={`flex items-center justify-between py-1 ${!last ? "border-b border-gray-100" : ""
-        }`}
-    >
-      <p className="font-roboto! mb-0! text-[14px] text-gray-600">{label}</p>
-
-      <p
-        className={`font-roboto! mb-0! text-[15px] font-semibold ${valueClass || "text-gray-900"
-          }`}
-      >
-        {value}
-      </p>
-    </div>
-  );
-
-  const formattedPolicies = cancellationPolicies?.map((item) => {
-    const match = item.match(
-      /between date (.*?) - (.*?) deduct the amount is-(\d+\.?\d*)/i,
-    );
-
-    if (!match) return item;
-
-    const [, fromDate, toDate, amount] = match;
-
-    return {
-      fromDate,
-      toDate,
-      amount: Number(amount),
-    };
-  });
-
   return (
-    <>
-      <div className="font-roboto! flex items-center justify-between border-b border-gray-200 bg-white px-4! py-4! text-gray-900">
-        <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between rounded-2xl border border-[#E5EEF7] bg-white px-5 py-4 shadow-[0_10px_35px_rgba(5,20,75,0.08)]">
+        <h2 className="font-roboto mb-0! text-[20px] font-semibold text-[#05144b]">
           Booking Details
         </h2>
         <button
-          onClick={() => router.push("/profile?tab=BookingHistory")}
-          className="flex items-center gap-2 text-[15px] font-semibold most-text-color!"
+          type="button"
+          onClick={goBack}
+          className="flex items-center gap-2 text-[15px] font-semibold text-[#05144b]"
         >
           <ArrowLeftOutlined />
           Back
         </button>
       </div>
 
-      <div className="my-2 space-y-3">
-        <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-[1px_4px_4px_4px_#00000014]">
-          <div className="p-3">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-              {/* LEFT */}
-              <div className="flex gap-5">
+      {/* Hero */}
+      <div className={cardClass}>
+        <div className="bg-linear-to-r from-[#05144b] to-[#0c2fb1] p-5 text-white">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="flex min-w-0 items-start gap-4">
+              {hotel.HotelImage ? (
                 <img
-                  src={hotel?.HotelImage}
-                  alt="hotel"
-                  className="h-[120px] w-[140px] shrink-0 rounded object-cover"
+                  src={hotel.HotelImage}
+                  alt={hotelName}
+                  className="h-[88px] w-[104px] shrink-0 rounded-xl object-cover"
                 />
-                <div>
-                  <h3 className="font-roboto! truncate text-[20px] leading-tight font-semibold! text-gray-900">
-                    {hotel?.HotelName}
-                  </h3>
-                  <p className="mt-2 text-[15px] font-medium text-gray-700">
-                    {roomType}
-                  </p>
+              ) : (
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/15 text-[26px] text-[#fda20f]">
+                  <HomeOutlined />
+                </div>
+              )}
 
-                  <div className="mt-4">
-                    <p className="mb-2 text-[13px] font-semibold text-gray-500 uppercase">
-                      Included
-                    </p>
-
-                    <div className="flex flex-wrap gap-2">
-                      {inclusions?.map((item, index) => (
-                        <span
-                          key={index}
-                          className="rounded-full border border-green-200 bg-green-50 px-3 py-1 text-[12px] text-green-700"
-                        >
-                          ✓ {item}
-                        </span>
-                      ))}
-                    </div>
+              <div className="min-w-0">
+                {rating > 0 && (
+                  <div className="mb-1 flex gap-0.5 text-[#fda20f]">
+                    {Array.from({ length: rating }).map((_, i) => (
+                      <StarFilled key={i} />
+                    ))}
                   </div>
-                  <p className="font-roboto ml-5 text-[13px] text-gray-500">
-                    {bookingData?.Origin}
-                  </p>
+                )}
+                <h3 className="font-roboto! mb-1! text-[22px] leading-tight font-semibold text-white!">
+                  {hotelName}
+                </h3>
+                <div className="flex items-start gap-2 text-white/80">
+                  <EnvironmentOutlined className="mt-1" />
+                  <span className="text-[14px]">{address || "--"}</span>
                 </div>
               </div>
-
-              {/* STATUS */}
-              <div className="h-fit rounded-full border most-boder-colour  px-4 py-1 text-[13px] font-semibold most-text-colour">
-                {bookingData?.ticketStatusDesc}
-              </div>
-            </div>
-          </div>
-
-          {/* CHECKIN SECTION */}
-          <div className="grid grid-cols-1 border-t border-gray-200 md:grid-cols-3">
-            {/* CHECK IN */}
-            <div className="flex flex-col justify-center p-4">
-              <p className="font-roboto text-[12px] font-medium tracking-wide text-gray-500 uppercase">
-                Check-in
-              </p>
-
-              <h3 className="font-roboto mt-1 text-[18px] font-semibold text-gray-900">
-                {bookingData?.checkInDate || "-"}
-              </h3>
-
-              <p className="font-roboto mb-0! text-[14px] text-gray-700">
-                From{" "}
-                {hotel?.CheckInTime?.trim()
-                  ? hotel.CheckInTime
-                  : "As per hotel policy"}
-              </p>
             </div>
 
-            {/* CENTER */}
-            <div className="flex flex-col items-center justify-center border-y border-gray-200 px-6 py-6 md:border-x md:border-y-0">
-              <div className="relative flex w-full max-w-[120px] items-center justify-center">
-                <div className="h-[1px] w-full bg-gray-300" />
-
-                <span className="absolute bg-white px-3 text-[#72C0F0]">
-                  <ArrowRightOutlined className="text-[24px]" />
-                </span>
-              </div>
-
-              <div className="mt-4 rounded-full border border-[#d9ecf8] bg-[#edf7ff] px-4 py-2">
-                <span className="font-roboto text-[13px] font-medium text-[#3b82b6]">
-                  🌙 {Math.max(nights, 1)} Night
-                  {Math.max(nights, 1) > 1 ? "s" : ""}
-                </span>
-              </div>
-            </div>
-
-            {/* CHECK OUT */}
-            <div className="flex flex-col justify-center p-4">
-              <p className="font-roboto text-[12px] font-medium tracking-wide text-gray-500 uppercase">
-                Check-out
-              </p>
-
-              <h3 className="font-roboto mt-1 text-[18px] font-semibold text-gray-900">
-                {bookingData?.checkOutDate || "-"}
-              </h3>
-
-              <p className="font-roboto mb-0! text-[14px] text-gray-700">
-                By{" "}
-                {hotel?.CheckOutTime?.trim()
-                  ? hotel.CheckOutTime
-                  : "As per hotel policy"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ROOM INFO */}
-        <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-[1px_4px_4px_4px_#00000014]">
-          {/* HEADER */}
-          <div className="border-b border-gray-200 px-3 py-4 md:px-3">
-            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
-              Room & Booking Info
-            </h2>
-          </div>
-
-          {/* BODY */}
-          <div className="p-3 md:p-3">
-            {/* PACKAGE */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#f4d38a] bg-[#fff8e8] px-4 py-2">
-              <span className="h-2 w-2 rounded-full bg-[#d89a00]" />
-
-              <span className="font-roboto text-[13px] font-semibold text-[#b77900]">
-                {ratePlan?.Inclusion?.includes("RoomOnly")
-                  ? "Room Only"
-                  : "Included Package"}
+            <div className="flex flex-wrap gap-2 md:justify-end">
+              <span
+                className={`rounded-full border px-3 py-1 text-[12px] font-semibold ${STATUS_TONE_CLASSES[status.tone]}`}
+              >
+                {status.label}
+              </span>
+              <span
+                className={`rounded-full border px-3 py-1 text-[12px] font-semibold ${
+                  isPaid
+                    ? STATUS_TONE_CLASSES.green
+                    : STATUS_TONE_CLASSES.orange
+                }`}
+              >
+                Payment {isPaid ? "Paid" : "Pending"}
               </span>
             </div>
-
-            <div className="mt-5 md:mt-5">
-              {/* ROOM TYPE */}
-              <h3 className="font-roboto mt-4 text-[18px] leading-[30px] font-semibold text-gray-900">
-                {ratePlan?.HotelRoomTypeDesc}
-              </h3>
-
-              {/* POLICIES */}
-              <div className="mt-2 flex flex-wrap gap-2">
-                {policies?.map((item, index) => (
-                  <div
-                    key={index}
-                    className="rounded-full border most-boder-colour  px-4 py-1"
-                  >
-                    <span className="font-roboto text-[13px] font-medium most-text-color">
-                      {item}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-8 border-t border-gray-200 pt-2"></div>
-              {/* DETAILS */}
-              <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {/* Guests */}
-                <div className="rounded border border-[#d9ecf8] bg-[#fafcff] p-2 transition hover:border-[#72C0F0] hover:shadow-md">
-                  <p className="font-roboto text-[12px] font-medium tracking-wide text-gray-500 uppercase">
-                    Guests
-                  </p>
-
-                  <h4 className="font-roboto mt-2 text-[16px] font-semibold text-gray-900">
-                    {room?.Adult_Count} Adult
-                    {Number(room?.Child_Count) > 0
-                      ? `, ${room?.Child_Count} Child`
-                      : ""}
-                  </h4>
-
-                  <p className="mb-0! text-[13px] text-gray-500">
-                    Room {guest?.RoomNo || 1}
-                  </p>
-                </div>
-
-                {/* Booking ID */}
-                <div className="rounded border border-[#d9ecf8] bg-[#fafcff] p-2 transition hover:border-[#72C0F0] hover:shadow-md">
-                  <p className="font-roboto text-[12px] font-medium tracking-wide text-gray-500 uppercase">
-                    Booking ID
-                  </p>
-
-                  <h4 className="font-roboto mt-2 text-[16px] font-semibold break-all text-gray-900">
-                    {bookingData?.bookingRefNo}
-                  </h4>
-                </div>
-
-                {/* Confirmation */}
-                <div className="rounded border border-[#d9ecf8] bg-[#fafcff] p-2 transition hover:border-[#72C0F0] hover:shadow-md">
-                  <p className="font-roboto text-[12px] font-medium tracking-wide text-gray-500 uppercase">
-                    Confirmation No.
-                  </p>
-
-                  <h4 className="font-roboto mt-2 text-[16px] font-semibold break-all text-gray-900">
-                    {bookingData?.voucherNumber}
-                  </h4>
-                </div>
-
-                {/* Meal Plan */}
-                <div className="rounded border border-[#d9ecf8] bg-[#fafcff] p-2 transition hover:border-[#72C0F0] hover:shadow-md">
-                  <p className="font-roboto text-[12px] font-medium tracking-wide text-gray-500 uppercase">
-                    Meal Plan
-                  </p>
-
-                  <h4 className="font-roboto mt-2 text-[16px] font-semibold text-gray-900">
-                    {ratePlan?.Inclusion?.includes("RoomOnly")
-                      ? "Room Only"
-                      : "Included Package"}
-                  </h4>
-                </div>
-
-                {/* Booked On */}
-                <div className="rounded border border-[#d9ecf8] bg-[#fafcff] p-2 transition hover:border-[#72C0F0] hover:shadow-md">
-                  <p className="font-roboto text-[12px] font-medium tracking-wide text-gray-500 uppercase">
-                    Booked On
-                  </p>
-
-                  <h4 className="font-roboto mt-2 text-[16px] font-semibold text-gray-900">
-                    {dayjs(bookingData?.createdAt).format(
-                      "DD MMM YYYY, hh:mm A",
-                    )}
-                  </h4>
-
-                  <p className="mb-0! text-[13px] text-[#72C0F0]">
-                    via PAN Journey
-                  </p>
-                </div>
-
-                {/* Invoice */}
-                <div className="rounded border border-[#d9ecf8] bg-[#fafcff] p-2 transition hover:border-[#72C0F0] hover:shadow-md">
-                  <p className="font-roboto text-[12px] font-medium tracking-wide text-gray-500 uppercase">
-                    Invoice Number
-                  </p>
-
-                  <h4 className="font-roboto mt-2 text-[16px] font-semibold break-all text-gray-900">
-                    {bookingData?.InvoiceNumber}
-                  </h4>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* GUEST DETAILS */}
-        <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-[1px_4px_4px_4px_#00000014]">
-          <div className="border-b border-gray-200 px-3 py-4 md:px-3">
-            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
-              Guest Details
-            </h2>
+        <div className="p-5">
+          <div className="rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] px-3 py-5 sm:p-5">
+            <div className="flex items-center justify-between gap-3 sm:gap-6">
+              <div className="flex-1 text-center">
+                <p className="mb-1 text-[12px] text-gray-500">Check-in</p>
+                <p className="mb-0! text-[15px] leading-tight font-semibold text-[#05144b] sm:text-[22px]">
+                  {formatDate(booking.checkInDate)}
+                </p>
+                <p className="mb-0! text-[12px] text-gray-500">
+                  {formatDate(booking.checkInDate, "dddd")}
+                </p>
+              </div>
+
+              <div className="flex shrink-0 flex-col items-center">
+                <div className="rounded-full border border-[#fda20f] px-3 py-1 text-[12px] font-medium whitespace-nowrap text-[#05144b]">
+                  <ClockCircleOutlined className="mr-1" />
+                  {nights} Night{nights > 1 ? "s" : ""}
+                </div>
+                <p className="mt-2 mb-0! text-[12px] whitespace-nowrap text-gray-500">
+                  {rooms.length || 1} Room • {guests.length} Guest
+                  {guests.length !== 1 ? "s" : ""}
+                </p>
+              </div>
+
+              <div className="flex-1 text-center">
+                <p className="mb-1 text-[12px] text-gray-500">Check-out</p>
+                <p className="mb-0! text-[15px] leading-tight font-semibold text-[#05144b] sm:text-[22px]">
+                  {formatDate(booking.checkOutDate)}
+                </p>
+                <p className="mb-0! text-[12px] text-gray-500">
+                  {formatDate(booking.checkOutDate, "dddd")}
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* GUEST LIST */}
-          <div>
-            {guest.map((guest, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-4 border-b border-gray-200 px-5 py-5 last:border-0 md:px-6"
-              >
-                {/* Avatar */}
-                <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[#d9ecf8] bg-[#edf7ff] text-[15px] font-bold text-[#3b82b6] md:h-[56px] md:w-[56px] md:text-[16px]">
-                  {`${guest?.firstName?.[0] || ""}${guest?.lastName?.[0] || ""}`}
-                </div>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <InfoTile label="Booking ID" value={booking.bookingRefNo} />
+            <InfoTile label="Confirmation No." value={confirmationNo} />
+            <InfoTile
+              label="Booked On"
+              value={formatDate(booking.createdAt, "DD MMM YYYY, hh:mm A")}
+            />
+            <InfoTile
+              label="Supplier Status"
+              value={supplierBooking.bookingStatus || booking.ticketStatusDesc}
+            />
+          </div>
+        </div>
+      </div>
 
-                {/* Content */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-col sm:flex-row sm:items-center">
-                    <h3 className="text-[17px] font-bold break-words text-gray-900 md:text-[16px]">
-                      {guest?.title} {guest?.firstName} {guest?.lastName}
-                    </h3>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="flex min-w-0 flex-col gap-4">
+          {/* Guests */}
+          <div className={cardClass}>
+            <SectionHeader
+              icon={<TeamOutlined />}
+              title="Guest Details"
+              subtitle={`${guests.length} guest${guests.length !== 1 ? "s" : ""}`}
+            />
 
-                    <span className="ml-[25px] w-fit rounded-full bg-[#edf7ff] px-2.5 py-[3px] text-[11px] font-medium text-[#3b82b6]">
-                      {guest?.occupantType}
-                    </span>
+            <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2">
+              {guests.map((guest, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] p-3"
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#fff4de] text-[14px] font-bold text-[#05144b]">
+                    {`${guest.firstName?.[0] || ""}${guest.lastName?.[0] || ""}`}
                   </div>
-
-                  <div className="mt-2 flex flex-wrap items-center gap-4">
-                    <p className="text-[13px] text-gray-600 md:text-[14px]">
-                      Room No: {guest?.RoomNo}
+                  <div className="min-w-0">
+                    <p className="mb-0! truncate text-[14px] font-semibold text-[#05144b]">
+                      {[guest.title, guest.firstName, guest.lastName]
+                        .filter(Boolean)
+                        .join(" ")}
                     </p>
-
-                    <p className="text-[13px] text-gray-600 md:text-[14px]">
-                      Guest Type: {guest?.occupantType}
+                    <p className="mb-0! text-[12px] text-gray-500 capitalize">
+                      {guest.occupantType}
+                      {guest.roomNumber ? ` • Room ${guest.roomNumber}` : ""}
                     </p>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
 
-        {/* PRICE */}
-        <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-[1px_4px_4px_4px_#00000014]">
-          {/* HEADER */}
-          <div className="px- border-b border-gray-200 py-4 md:px-3">
-            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
-              Price Breakup
-            </h2>
-          </div>
-
-          {/* BODY */}
-          <div className="p-6">
-            {/* BREAKUP */}
-            <div className="rounded-xl border border-[#d9ecf8] bg-[#fafcff] p-4">
-              <PriceRow
-                label="Room Charges"
-                value={`₹${roomCharges.toFixed(2)}`}
-              />
-
-              <PriceRow
-                label="Platform Fee & Taxes"
-                value={`₹${platformFee.toFixed(2)}`}
-                valueClass="text-orange-600"
-              />
-
-              <PriceRow
-                label="final Price"
-                value={`₹${finalPrice.toFixed(2)}`}
-              />
-
-              {autoDiscount > 0 && (
-                <PriceRow
-                  label={`Auto Discount (${offer?.autoCouponCode})`}
-                  value={`-₹${autoDiscount.toFixed(2)}`}
-                  valueClass="text-green-600"
-                />
+              {guests.length === 0 && (
+                <p className="mb-0! text-gray-500">No guest details</p>
               )}
-
-              {couponDiscount > 0 && (
-                <PriceRow
-                  label={`Coupon Discount (${offer?.couponCode})`}
-                  value={`-₹${couponDiscount.toFixed(2)}`}
-                  valueClass="text-green-600"
-                />
-              )}
-
-              <PriceRow
-                label="Payment Status"
-                value={bookingData?.paymentStatus?.toUpperCase() || "PENDING"}
-                last
-                valueClass={
-                  bookingData?.paymentStatus === "paid"
-                    ? "text-green-600"
-                    : "text-orange-600"
-                }
-              />
             </div>
+          </div>
 
-            {/* TOTAL */}
-            <div className="mt-5 rounded-xl border border-[#d9ecf8] bg-[#edf7ff] p-5">
-              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <p className="font-roboto mb-1 text-[12px] font-semibold tracking-wider text-[#3b82b6] uppercase">
-                    Payment Summary
-                  </p>
-
-                  <h3 className="font-roboto mb-3 text-[20px] font-bold text-gray-900">
-                    Total Paid
-                  </h3>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[13px] text-gray-500">
-                        Booking Ref:
-                      </span>
-
-                      <span className="text-[13px] font-medium text-gray-900">
-                        {bookingData?.bookingRefNo}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="text-[13px] text-gray-500">Status:</span>
-
-                      <span
-                        className={`rounded-full px-2 py-[2px] text-[12px] font-medium ${bookingData?.paymentStatus === "paid"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-orange-100 text-orange-700"
-                          }`}
-                      >
-                        {bookingData?.paymentStatus === "paid"
-                          ? "Paid"
-                          : "Pending"}
-                      </span>
-                    </div>
-
-                    {totalDiscount > 0 && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-[13px] text-gray-500">
-                          You Saved:
-                        </span>
-
-                        <span className="text-[13px] font-semibold text-green-600">
-                          ₹{totalDiscount.toFixed(2)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="border-t border-[#c7e7f8] pt-4 text-left md:border-0 md:pt-0 md:text-right">
-                  <p className="font-roboto mb-1 text-[13px] text-gray-500">
-                    Amount Paid
-                  </p>
-
-                  <h2 className="font-roboto text-[32px] leading-none font-bold text-[#3b82b6]">
-                    ₹{payableAmount.toFixed(2)}
-                  </h2>
-
-                  <p className="mt-2 text-[12px] text-gray-500">INR</p>
-                </div>
+          {/* Contact */}
+          <div className={cardClass}>
+            <SectionHeader
+              icon={<UserOutlined />}
+              title="Contact Details"
+              subtitle="Primary contact for this booking"
+            />
+            <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2">
+              <InfoTile label="Name" value={contact.customerName} />
+              <InfoTile label="Mobile" value={contact.customerMobile} />
+              <div className="sm:col-span-2">
+                <InfoTile
+                  label="Address"
+                  value={[contact.customerAddress, contact.customerPostalCode]
+                    .filter(Boolean)
+                    .join(", ")}
+                />
               </div>
             </div>
           </div>
-        </div>
-        {/* MAP */}
-        <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-[1px_4px_4px_4px_#00000014]">
-          {/* HEADER */}
 
-          <div className="border-b border-gray-200 px-3 py-4 md:px-3">
-            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
-              Hotel Location
-            </h2>
-          </div>
-
-          {/* MAP */}
-          <div className="p-3 md:p-3">
-            <div className="overflow-hidden rounded border border-gray-200">
-              <iframe
-                title="hotel-location"
-                width="100%"
-                height="320"
-                loading="lazy"
-                className="border-0"
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(
-                  hotel?.Address || hotel?.HotelName,
-                )}&z=15&output=embed`}
-              />
-            </div>
-
-            <div className="mt-4">
-              <p className="text-[18px] font-medium text-gray-700 md:text-[18px]">
-                Address
-              </p>
-
-              <p className="mt-1 text-[14px] leading-relaxed text-gray-700 md:text-[15px]">
-                {hotel?.Address}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* CANCELLATION */}
-        <div className="overflow-hidden rounded bg-white shadow-[1px_4px_4px_4px_#00000014]">
-          {/* HEADER */}
-          <div className="border-b border-gray-200 px-3 py-4 md:px-3">
-            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
-              Cancellation Policy
-            </h2>
-          </div>
-
-          {/* POLICY LIST */}
-          <div className="p-4 md:p-5">
-            <div className="space-y-3">
-              {formattedPolicies?.length > 0 ? (
-                formattedPolicies.map((item, index) => {
-                  if (typeof item === "string") {
-                    return (
-                      <div
-                        key={index}
-                        className="rounded-xl border border-[#d9ecf8] bg-[#fafcff] p-4"
-                      >
-                        <div className="flex items-start gap-3">
-                          <CheckCircleFilled className="mt-0.5 !text-[18px] !text-[#22c55e]" />
-
-                          <p className="font-roboto! mb-0! text-[14px] leading-6 font-medium text-gray-800 md:text-[15px]">
-                            {item}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  }
+          {/* Cancellation */}
+          <div className={cardClass}>
+            <SectionHeader
+              icon={<SafetyCertificateFilled />}
+              title="Cancellation Policy"
+            />
+            <div className="space-y-3 p-5">
+              {policies.length > 0 ? (
+                policies.map((item, index) => {
+                  const match = item.match(
+                    /between date (.*?) - (.*?) deduct the amount is-(\d+\.?\d*)/i,
+                  );
 
                   return (
                     <div
                       key={index}
-                      className="rounded-xl border border-[#d9ecf8] bg-[#fafcff] p-4 transition hover:border-[#72C0F0]"
+                      className="flex items-start gap-3 rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] p-4"
                     >
-                      <div className="flex items-start gap-3">
-                        <CheckCircleFilled className="mt-0.5 shrink-0 !text-[18px] !text-[#22c55e]" />
-
-                        <div className="min-w-0 flex-1 space-y-2">
-                          <div>
-                            <p className="font-roboto! mb-1! text-[13px] font-semibold tracking-wide text-gray-500 uppercase">
-                              Cancellation Period
-                            </p>
-
-                            <p className="font-roboto! mb-0! text-[15px] font-medium text-gray-800">
-                              {item.fromDate} - {item.toDate}
-                            </p>
-                          </div>
-
-                          <div>
-                            <p className="font-roboto! mb-1! text-[13px] font-semibold tracking-wide text-gray-500 uppercase">
-                              Cancellation Charge
-                            </p>
-
-                            <p className="font-roboto! mb-0! text-[16px] font-semibold text-red-600">
-                              ₹
-                              {item.amount.toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
-                            </p>
-                          </div>
+                      <CheckCircleFilled className="mt-0.5 shrink-0 !text-[18px] !text-[#22c55e]" />
+                      {match ? (
+                        <div>
+                          <p className="mb-1! text-[14px] font-medium text-gray-800">
+                            {match[1]} - {match[2]}
+                          </p>
+                          <p className="mb-0! text-[15px] font-semibold text-red-600">
+                            Charge: {formatPrice(match[3])}
+                          </p>
                         </div>
-                      </div>
+                      ) : (
+                        <p className="mb-0! text-[14px] leading-6 text-gray-800">
+                          {item}
+                        </p>
+                      )}
                     </div>
                   );
                 })
               ) : (
-                <div className="rounded-xl border border-green-200 bg-green-50 p-4">
-                  <div className="flex items-start gap-3">
-                    <CheckCircleFilled className="mt-0.5 !text-[18px] !text-green-600" />
-
-                    <p className="font-roboto! mb-0! text-[15px] font-medium text-green-700">
-                      No cancellation policy available.
-                    </p>
-                  </div>
+                <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-[14px] font-medium text-green-700">
+                  No cancellation policy available.
                 </div>
               )}
-            </div>
 
-            <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
-              <p className="font-roboto! mb-0! text-[13px] text-amber-800">
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-[13px] text-amber-800">
                 Cancellation charges may vary depending on the cancellation
-                date, supplier rules, and hotel policy. Please review the policy
-                carefully before cancelling your booking.
-              </p>
+                date, supplier rules, and hotel policy.
+              </div>
             </div>
           </div>
 
-          <div className="mt-6 rounded border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-5 text-xl font-semibold text-gray-800">
-              Hotel Facilities
-            </h2>
-
-            {amenities.length ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {amenities.map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all hover:border-[#72C0F0] hover:bg-[#f8fcff]"
+          {facilities.length > 0 && (
+            <div className={cardClass}>
+              <SectionHeader icon={<HomeOutlined />} title="Hotel Facilities" />
+              <div className="flex flex-wrap gap-2 p-5">
+                {facilities.map((item, index) => (
+                  <span
+                    key={index}
+                    className="rounded-full border border-[#E5EEF7] bg-[#FAFCFF] px-3 py-1 text-[13px] text-gray-700"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full boder most-boder-colour text-[18px] most-text-color">
-                      {getAmenityIcon(item)}
-                    </div>
-
-                    <span className="text-sm font-medium text-gray-700">
-                      {item}
-                    </span>
-                  </div>
+                    {item}
+                  </span>
                 ))}
               </div>
-            ) : (
-              <div className="text-gray-500">
-                No hotel facilities available.
+            </div>
+          )}
+
+          {/* Map */}
+          <div className={cardClass}>
+            <SectionHeader icon={<EnvironmentOutlined />} title="Hotel Location" />
+            <div className="p-5">
+              <div className="overflow-hidden rounded-xl border border-gray-200">
+                <iframe
+                  title="hotel-location"
+                  width="100%"
+                  height="300"
+                  loading="lazy"
+                  className="border-0"
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                    address || hotelName,
+                  )}&z=15&output=embed`}
+                />
               </div>
-            )}
+              <p className="mt-3 mb-0! text-[14px] text-gray-700">{address}</p>
+            </div>
           </div>
         </div>
 
-        {/* ACTIONS */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {/* DOWNLOAD */}
-          <button
-            onClick={handleDownloadInvoice}
-            type="button"
-            className="flex h-[45px] items-center justify-center gap-2 rounded border border-[#72C0F0] bg-[#edf7ff] text-[16px]! font-semibold !text-[#3b82b6] shadow-sm transition-all duration-200  hover:!text-white active:scale-[0.98] md:text-[15px]"
-          >
-            <DownloadOutlined className="text-[16px]" />
+        {/* Sidebar */}
+        <div className="flex flex-col gap-4 xl:sticky xl:top-5 xl:self-start">
+          <div className={cardClass}>
+            <SectionHeader icon={<CalendarOutlined />} title="Price Breakup" />
+            <div className="p-5">
+              <PriceRow
+                label="Room Charges"
+                value={formatPrice(pricing.baseAmount)}
+              />
+              {Number(pricing.serviceCharge) > 0 && (
+                <PriceRow
+                  label="Service Charge"
+                  value={formatPrice(pricing.serviceCharge)}
+                />
+              )}
+              <PriceRow
+                label="Platform Fee & Taxes"
+                value={formatPrice(pricing.platformFeeAndTax)}
+                valueClass="text-orange-600"
+              />
+              {autoDiscount > 0 && (
+                <PriceRow
+                  label={`Auto Discount (${offer.autoCouponCode})`}
+                  value={`-${formatPrice(autoDiscount)}`}
+                  valueClass="text-green-600"
+                />
+              )}
+              {couponDiscount > 0 && (
+                <PriceRow
+                  label={`Coupon (${offer.couponCode})`}
+                  value={`-${formatPrice(couponDiscount)}`}
+                  valueClass="text-green-600"
+                />
+              )}
 
-            <span>Download Invoice</span>
-          </button>
+              <div className="mt-4 rounded-xl bg-linear-to-r from-[#05144b] to-[#0c2fb1] p-4 text-white">
+                <p className="mb-1 text-[12px] tracking-wide text-white/70 uppercase">
+                  {isPaid ? "Total Paid" : "Total Payable"}
+                </p>
+                <p className="mb-0! text-[28px] leading-none font-bold text-white">
+                  {formatPrice(payableAmount)}
+                </p>
+                {totalDiscount > 0 && (
+                  <p className="mt-2 mb-0! text-[12px] text-[#7dffb0]">
+                    You saved {formatPrice(totalDiscount)}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
 
-          {/* SHARE */}
-          <button
-            onClick={() => setShareModalOpen(true)}
-            type="button"
-            className="flex h-[45px] items-center justify-center gap-2 rounded border border-[#72C0F0] bg-[#edf7ff] text-[16px]! font-semibold text-[#3b82b6]! shadow-sm transition-all duration-200 hover:bg-[#72C0F0]! hover:text-white! active:scale-[0.98] md:text-[15px]"
-          >
-            <ShareAltOutlined className="text-[16px]" />
+          <div className={`${cardClass} flex flex-col gap-3 p-5`}>
+            {isPaid && (
+              <button
+                type="button"
+                onClick={handleDownloadInvoice}
+                disabled={downloading}
+                className="flex h-11 items-center justify-center gap-2 rounded-lg border border-[#05144b] bg-white text-[15px] font-semibold text-[#05144b] transition-all hover:bg-[#05144b] hover:text-white disabled:opacity-60"
+              >
+                <DownloadOutlined />
+                {downloading ? "Downloading..." : "Download Invoice"}
+              </button>
+            )}
 
-            <span>Share Details</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setShareModalOpen(true)}
+              className="flex h-11 items-center justify-center gap-2 rounded-lg border border-[#E5EEF7] bg-[#FAFCFF] text-[15px] font-semibold text-[#05144b] transition-all hover:border-[#05144b]"
+            >
+              <ShareAltOutlined />
+              Share Details
+            </button>
 
-          {/* CANCEL */}
+            {canCancel && (
+              <button
+                type="button"
+                onClick={() => setCancelModalOpen(true)}
+                disabled={cancelling}
+                className="flex h-11 items-center justify-center rounded-lg border border-red-300 bg-red-50 text-[15px] font-semibold text-red-500 transition-all hover:bg-red-500 hover:text-white disabled:opacity-60"
+              >
+                {cancelling ? "Cancelling..." : "Cancel Booking"}
+              </button>
+            )}
 
-          <button
-            type="button"
-            onClick={() => setCancelModalOpen(true)}
-            disabled={cancelling}
-            className="flex h-[45px] items-center justify-center gap-2 rounded border border-red-300 bg-red-50 text-[16px]! font-semibold !text-red-500 shadow-sm transition-all duration-200 hover:bg-red-500 hover:!text-white active:scale-[0.98] md:text-[15px]"
-          >
-            <span>{cancelling ? "Cancelling..." : "Cancel Booking"}</span>
-          </button>
+            <p className="mt-1 mb-0! flex items-center justify-center gap-2 text-[12px] text-gray-500">
+              <PhoneOutlined /> Need help? Contact support from the Help tab.
+            </p>
+          </div>
         </div>
-        <CancelBookingModal
-          open={cancelModalOpen}
-          onCancel={() => setCancelModalOpen(false)}
-          onConfirm={handleConfirmCancellation}
-          loading={cancelling}
-          bookingRefNo={bookingData?.BookingRefNo}
-          hotelName={hotel?.HotelName}
-          cancellationCharge={0}
-        />
-        <ShareBookingModal
-          open={shareModalOpen}
-          onClose={() => setShareModalOpen(false)}
-          shareText={shareText}
-        />
       </div>
-    </>
+
+      <CancelBookingModal
+        open={cancelModalOpen}
+        onCancel={() => setCancelModalOpen(false)}
+        onConfirm={handleConfirmCancellation}
+        loading={cancelling}
+        bookingRefNo={booking.bookingRefNo}
+        hotelName={hotelName}
+        cancellationCharge={0}
+      />
+      <ShareBookingModal
+        open={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        shareText={shareText}
+      />
+    </div>
   );
 }

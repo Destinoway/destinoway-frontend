@@ -1,13 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getMyBookingsApi } from "../api/booking.api";
+import { getBookingByIdApi } from "../api/booking.api";
 
 export const useBookingDetails = (bookingRefNo) => {
   return useQuery({
     queryKey: ["booking-details", bookingRefNo],
 
-    queryFn: () => getMyBookingsApi(bookingRefNo),
+    queryFn: () => getBookingByIdApi(bookingRefNo),
 
     enabled: !!bookingRefNo,
 

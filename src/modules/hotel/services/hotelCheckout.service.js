@@ -1,9 +1,13 @@
 import { api } from "@/services/axios";
+import { normalizeBooking } from "@/modules/profile/utils/normalizeBooking";
 
 export const getBookingDetails = async (bookingRefNo) => {
   const response = await api.get(`/get-booking-details/${bookingRefNo}`);
 
-  return response.data;
+  return {
+    ...response.data,
+    data: normalizeBooking(response.data?.data),
+  };
 };
 
 /**

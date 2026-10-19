@@ -1,244 +1,299 @@
 "use client";
 
 import {
+  ArrowRightOutlined,
   CalendarOutlined,
   CheckCircleFilled,
-  DownloadOutlined,
+  ClockCircleOutlined,
+  EnvironmentOutlined,
+  HomeOutlined,
+  SearchOutlined,
   StarFilled,
 } from "@ant-design/icons";
-import { Input } from "antd";
+import { Input, Skeleton } from "antd";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useMyBookings } from "../../hooks/useMyBookings";
-export default function BookingHistoryTab({ setSelectedBooking }) {
-  const [activeFilter, setActiveFilter] = useState("Confirmed");
-  const router = useRouter();
-  const [search, setSearch] = useState("");
-  const { data: bookings = [], isLoading, isError } = useMyBookings();
-  const mappedBookings = useMemo(() => {
-    return bookings.map((item, index) => {
-      const hotel = item.supplierResponse?.HotelDetails;
+import {
+  getBookingStatusMeta,
+  STATUS_TONE_CLASSES,
+} from "../../utils/bookingStatus";
 
-      const nights = dayjs(item.checkOutDate, "DD/MM/YYYY").diff(
-        dayjs(item.checkInDate, "DD/MM/YYYY"),
-        "day",
-      );
+const FILTERS = [
+  { key: "all", label: "All", icon: <CalendarOutlined /> },
+  { key: "confirmed", label: "Confirmed", icon: <CheckCircleFilled /> },
+  { key: "pending", label: "Awaiting Payment", icon: <ClockCircleOutlined /> },
+];
+
+const formatDate = (value) => {
+  const date = dayjs(value);
+  return date.isValid() ? date.format("DD MMM YYYY") : "--";
+};
+
+export default function BookingHistoryTab() {
+  const router = useRouter();
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [search, setSearch] = useState("");
+
+  const { data, isLoading, isError, refetch } = useMyBookings();
+
+  const bookings = useMemo(() => {
+    const list = Array.isArray(data) ? data : [];
+
+    return list.map((item, index) => {
+      const checkIn = dayjs(item.checkInDate);
+      const checkOut = dayjs(item.checkOutDate);
+      const nights =
+        checkIn.isValid() && checkOut.isValid()
+          ? Math.max(checkOut.diff(checkIn, "day"), 1)
+          : 0;
 
       return {
-        id: index + 1,
-        hotelName: hotel?.HotelName ?? "",
-        status: item.ticketStatusDesc ?? "",
-        bookingId: item.bookingRefNo ?? "",
-        voucherNumber: item.voucherNumber ?? "",
-        checkIn: item.checkInDate,
-        checkOut: item.checkOutDate,
-        city: hotel?.Address ?? "",
-        confirmation: item.voucherNumber ?? "",
-        nights: `${nights} Night${nights > 1 ? "s" : ""}`,
-        rating: Number(hotel?.StarCategoryId) || 5,
+        key: `${item.bookingRefNo}-${index}`,
+        hotelName: item.hotelName || "Hotel",
+        address: item.address || "",
+        rating: Math.max(Number(item.starRating) || 0, 0),
+        bookingRefNo: item.bookingRefNo || "",
+        confirmationNumber: item.confirmationNumber || "",
+        checkIn: formatDate(item.checkInDate),
+        checkOut: formatDate(item.checkOutDate),
+        checkInDay: checkIn.isValid() ? checkIn.format("ddd") : "",
+        checkOutDay: checkOut.isValid() ? checkOut.format("ddd") : "",
+        nights,
+        status: getBookingStatusMeta(item.status),
       };
     });
-  }, [bookings]);
+  }, [data]);
+
+  const counts = useMemo(
+    () => ({
+      all: bookings.length,
+      confirmed: bookings.filter((b) => b.status.group === "confirmed").length,
+      pending: bookings.filter((b) => b.status.group === "pending").length,
+    }),
+    [bookings],
+  );
+
   const filteredBookings = useMemo(() => {
-    return mappedBookings.filter((item) => {
+    const term = search.trim().toLowerCase();
+
+    return bookings.filter((item) => {
       const matchesFilter =
-        activeFilter === "All" ? true : item.status === activeFilter;
+        activeFilter === "all" || item.status.group === activeFilter;
 
       const matchesSearch =
-        item.hotelName?.toLowerCase().includes(search.toLowerCase()) ||
-        item.bookingId?.toLowerCase().includes(search.toLowerCase()) ||
-        item.voucherNumber?.toLowerCase().includes(search.toLowerCase());
+        !term ||
+        item.hotelName.toLowerCase().includes(term) ||
+        item.bookingRefNo.toLowerCase().includes(term) ||
+        item.address.toLowerCase().includes(term);
+
       return matchesFilter && matchesSearch;
     });
-  }, [mappedBookings, activeFilter, search]);
+  }, [bookings, activeFilter, search]);
 
-  const tabs = [
-    {
-      label: "All",
-      icon: <CalendarOutlined />,
-    },
-    {
-      label: "Confirmed",
-      icon: <CheckCircleFilled />,
-    },
-  ];
   if (isLoading) {
     return (
-      <div className="rounded-xl bg-white p-8 text-center">
-        Loading bookings...
+      <div className="rounded-2xl bg-white p-6 shadow-[0_10px_35px_rgba(5,20,75,0.08)]">
+        <Skeleton active paragraph={{ rows: 8 }} />
       </div>
     );
   }
-  return (
-    <>
-      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-4 text-gray-900">
-        <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
-          Booking History
-        </h2>
-      </div>
 
-      <div className="px-6 py-3 text-gray-900">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap items-center gap-3">
-            {tabs.map((tab) => {
-              const active = activeFilter === tab.label;
+  if (isError) {
+    return (
+      <div className="rounded-2xl bg-white py-14 text-center shadow-[0_10px_35px_rgba(5,20,75,0.08)]">
+        <p className="text-[18px] font-semibold text-[#05144b]">
+          Unable to load your bookings
+        </p>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="buttion-background-color mt-4 h-10 rounded-lg px-6 text-[14px] font-semibold text-white!"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="overflow-hidden rounded-2xl border border-[#E5EEF7] bg-white shadow-[0_10px_35px_rgba(5,20,75,0.08)]">
+        <div className="flex flex-col gap-1 bg-linear-to-r from-[#05144b] to-[#0c2fb1] px-5 py-5 text-white">
+          <h2 className="font-roboto mb-0! text-[22px] leading-tight font-semibold text-white!">
+            My Bookings
+          </h2>
+          <p className="mb-0! text-[13px] text-white/75">
+            {counts.all} booking{counts.all !== 1 ? "s" : ""} • {counts.confirmed}{" "}
+            confirmed • {counts.pending} awaiting payment
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            {FILTERS.map((tab) => {
+              const active = activeFilter === tab.key;
 
               return (
                 <button
-                  key={tab.label}
-                  onClick={() => setActiveFilter(tab.label)}
-                  className={`flex items-center gap-2 text-[16px] font-medium transition-all ${
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setActiveFilter(tab.key)}
+                  className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-[14px] font-medium transition-all ${
                     active
-                      ? "text-[#4A9BB5]"
-                      : "text-gray-700 hover:text-[#4A9BB5]"
+                      ? "border-[#05144b] bg-[#05144b] text-white"
+                      : "border-gray-200 bg-white text-gray-700 hover:border-[#05144b]"
                   }`}
                 >
-                  <span className="text-[15px]">{tab.icon}</span>
-
+                  {tab.icon}
                   {tab.label}
+                  <span
+                    className={`rounded-full px-2 text-[12px] ${
+                      active ? "bg-white/20" : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {counts[tab.key]}
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          {/* SEARCH */}
-
           <div className="w-full lg:w-[320px]">
             <Input
+              allowClear
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search For Bookings"
-              variant="outlined"
-              className="h-8 rounded"
+              prefix={<SearchOutlined className="text-gray-400" />}
+              placeholder="Search hotel, city or booking ID"
+              className="h-10 rounded-lg"
             />
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 bg-[#edf7ff]">
-        {filteredBookings.length === 0 ? (
-          <div className="rounded border border-gray-200 bg-white py-14 text-center">
-            <p className="text-[18px] font-semibold text-gray-700">
-              No Bookings Found
-            </p>
+      {filteredBookings.length === 0 ? (
+        <div className="rounded-2xl border border-[#E5EEF7] bg-white py-14 text-center shadow-[0_10px_35px_rgba(5,20,75,0.08)]">
+          <p className="text-[18px] font-semibold text-[#05144b]">
+            No Bookings Found
+          </p>
+          <p className="mt-2 text-[14px] text-gray-500">
+            Try changing filters or search
+          </p>
+        </div>
+      ) : (
+        filteredBookings.map((item) => (
+          <div
+            key={item.key}
+            className="group overflow-hidden rounded-2xl border border-[#E5EEF7] bg-white shadow-[0_10px_35px_rgba(5,20,75,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(5,20,75,0.14)]"
+          >
+            <div className="flex flex-col gap-4 p-5 md:flex-row md:items-start md:justify-between">
+              <div className="flex min-w-0 flex-1 items-start gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#05144b] to-[#0c2fb1] text-[26px] text-[#fda20f]">
+                  <HomeOutlined />
+                </div>
 
-            <p className="mt-2 text-[14px] text-gray-500">
-              Try changing filters or search
-            </p>
-          </div>
-        ) : (
-          filteredBookings.map((item) => (
-            <div
-              key={item?.id}
-              className="overflow-hidden rounded border border-gray-200 bg-white shadow-[1px_4px_4px_4px_#00000010]"
-            >
-              <div className="flex flex-col gap-5 p-5 xl:flex-row xl:items-center xl:justify-between">
-                <div className="flex min-w-0 flex-1 items-start gap-4">
-                  <div className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded bg-[#edf7ff]">
-                    <CalendarOutlined className="most-text-color text-[28px]" />
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-roboto! mb-0! truncate text-[19px] leading-tight font-semibold! text-[#05144b]">
+                      {item.hotelName}
+                    </h3>
+                    <span
+                      className={`rounded-full border px-3 py-[2px] text-[12px] font-semibold ${STATUS_TONE_CLASSES[item.status.tone]}`}
+                    >
+                      {item.status.label}
+                    </span>
                   </div>
 
-                  <div className="min-w-0">
-                    <h3 className="font-roboto! truncate text-[20px] leading-tight font-semibold! text-gray-900">
-                      {item?.hotelName}
-                    </h3>
+                  {item.rating > 0 && (
+                    <div className="mt-1 flex items-center gap-1">
+                      {Array.from({ length: item.rating }).map((_, i) => (
+                        <StarFilled
+                          key={i}
+                          className="text-[13px] !text-[#fda20f]"
+                        />
+                      ))}
+                    </div>
+                  )}
 
-                    <div className="mt-2 flex flex-wrap items-center gap-3">
-                      <div className="most-boder-colour most-text-color rounded-full border px-3 py-[3px] text-[12px] font-medium">
-                        {item?.status}
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        {[...Array(item?.rating)].map((_, i) => (
-                          <StarFilled
-                            key={i}
-                            className="text-[14px] !text-[#ffb400]"
-                          />
-                        ))}
-                      </div>
-
-                      <span className="text-[15px] font-medium text-gray-700">
-                        {item?.room}
-                      </span>
-
-                      <span className="text-[14px] font-semibold text-gray-500">
-                        <span> bookingRefNo: </span>
-                        <span className="font-roboto! text-[14px] font-bold font-medium text-gray-800">
-                          {item?.bookingId}
-                        </span>
+                  {item.address && (
+                    <div className="mt-2 flex items-start gap-2 text-gray-500">
+                      <EnvironmentOutlined className="mt-1" />
+                      <span className="text-[13px] leading-5">
+                        {item.address}
                       </span>
                     </div>
-                  </div>
+                  )}
                 </div>
-
-                <button
-                  onClick={() => {
-                    router.push(
-                      `/profile?tab=booking-details&bookingRefNo=${item.bookingId}`,
-                    );
-                  }}
-                  className="buttion-background-color h-10 cursor-pointer rounded text-[14px]! font-semibold text-white! transition-all md:w-[120px] md:text-[14px] lg:w-[150px]"
-                >
-                  View Booking
-                </button>
               </div>
 
-              <div className="grid grid-cols-1 border-t border-gray-200 md:grid-cols-4">
-                <div className="border-b border-gray-200 p-5 md:border-r md:border-b-0">
-                  <p className="font-roboto mb-2 text-[14px] text-gray-500">
-                    Check-in
+              <button
+                type="button"
+                onClick={() =>
+                  router.push(
+                    `/profile?tab=booking-details&bookingRefNo=${encodeURIComponent(item.bookingRefNo)}`,
+                  )
+                }
+                className="buttion-background-color flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg px-5 text-[14px]! font-semibold text-white! transition-all md:w-[150px]"
+              >
+                View Booking
+                <ArrowRightOutlined />
+              </button>
+            </div>
+
+            <div className="mx-5 mb-5 grid grid-cols-1 gap-3 rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] p-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <p className="mb-1 text-[11px] tracking-wide text-gray-500 uppercase">
+                  Check-in
+                </p>
+                <p className="mb-0! text-[15px] font-semibold text-[#05144b]">
+                  {item.checkIn}
+                </p>
+                <p className="mb-0! text-[12px] text-gray-500">
+                  {item.checkInDay}
+                </p>
+              </div>
+
+              <div>
+                <p className="mb-1 text-[11px] tracking-wide text-gray-500 uppercase">
+                  Check-out
+                </p>
+                <p className="mb-0! text-[15px] font-semibold text-[#05144b]">
+                  {item.checkOut}
+                </p>
+                <p className="mb-0! text-[12px] text-gray-500">
+                  {item.checkOutDay}
+                </p>
+              </div>
+
+              <div>
+                <p className="mb-1 text-[11px] tracking-wide text-gray-500 uppercase">
+                  Duration
+                </p>
+                <span className="inline-flex items-center gap-1 rounded-full border border-[#fda20f] px-3 py-[2px] text-[13px] font-medium text-[#05144b]">
+                  <ClockCircleOutlined />
+                  {item.nights} Night{item.nights > 1 ? "s" : ""}
+                </span>
+              </div>
+
+              <div className="min-w-0">
+                <p className="mb-1 text-[11px] tracking-wide text-gray-500 uppercase">
+                  Booking ID
+                </p>
+                <p className="mb-0! truncate text-[15px] font-semibold text-[#05144b]">
+                  {item.bookingRefNo}
+                </p>
+                {item.confirmationNumber && (
+                  <p className="mb-0! truncate text-[12px] text-gray-500">
+                    CNF {item.confirmationNumber}
                   </p>
-
-                  <h4 className="text-[14px] font-semibold! text-gray-900">
-                    {item?.checkIn}
-                  </h4>
-                  <p className="font-roboto mt-1 text-[14px] font-semibold text-gray-700">
-                    {item?.city}
-                  </p>
-                </div>
-
-                {/* CHECK OUT */}
-
-                <div className="border-b border-gray-200 p-5 md:border-r md:border-b-0">
-                  <p className="font-roboto mb-2 text-[14px] text-gray-500">
-                    Check-out
-                  </p>
-
-                  <h4 className="text-[14px] font-semibold! text-gray-900">
-                    {item?.checkOut}
-                  </h4>
-
-                  <div className="font-roboto mt-3 inline-flex items-center gap-1 rounded-full border border-gray-300 px-3 py-[3px] text-[13px] font-semibold text-gray-700">
-                    🌙 {item?.nights}
-                  </div>
-                </div>
-
-                {/* CONFIRMATION */}
-
-                <div className="border-b border-gray-200 p-5 md:border-r md:border-b-0">
-                  <p className="font-roboto mb-2 text-[14px] text-gray-500">
-                    Confirmation No.
-                  </p>
-
-                  <h4 className="text-[14px] font-semibold! text-gray-900">
-                    CNF {item?.confirmation}
-                  </h4>
-                </div>
-
-                {/* DOWNLOAD */}
-
-                <div className="flex items-center justify-center p-5">
-                  <button className="most-text-color background-color !buttion-border-color flex h-10 min-w-[190px] items-center justify-center gap-2 rounded border px-4 text-[14px]! font-medium transition-all hover:text-white!">
-                    <DownloadOutlined />
-                    Download Invoice
-                  </button>
-                </div>
+                )}
               </div>
             </div>
-          ))
-        )}
-      </div>
-    </>
+          </div>
+        ))
+      )}
+    </div>
   );
 }
