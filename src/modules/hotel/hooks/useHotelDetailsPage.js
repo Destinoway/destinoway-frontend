@@ -28,12 +28,29 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
   const { data: wishlistData } = useWishlistIds();
   const isMobile = useIsMobile();
 
+  const selectedHotelForRoute = useMemo(() => {
+    const routeHotelId = initialPayload?.hotelId;
+    if (!routeHotelId) {
+      return selectedHotel;
+    }
+
+    const selectedHotelId =
+      selectedHotel?.hotelMeta?.hotelId ||
+      selectedHotel?.hotelId ||
+      selectedHotel?.id;
+
+    return selectedHotelId &&
+      String(selectedHotelId) === String(routeHotelId)
+      ? selectedHotel
+      : null;
+  }, [initialPayload?.hotelId, selectedHotel]);
+
   const payload = useMemo(() => {
     return buildHotelDetailsPayload({
-      selectedHotel,
+      selectedHotel: selectedHotelForRoute,
       initialPayload,
     });
-  }, [selectedHotel, initialPayload]);
+  }, [selectedHotelForRoute, initialPayload]);
 
   const wishlistIds = useMemo(
     () =>
@@ -62,7 +79,8 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
 
   const hotelData = data || EMPTY_OBJECT;
   const hotel = hotelData?.hotel || EMPTY_OBJECT;
-  const selectedHotelMeta = selectedHotel?.hotelMeta || EMPTY_OBJECT;
+  const selectedHotelMeta =
+    selectedHotelForRoute?.hotelMeta || EMPTY_OBJECT;
   const details = hotelData?.details || EMPTY_OBJECT;
   const location = hotel?.location || EMPTY_OBJECT;
   const contact = hotel?.contact || EMPTY_OBJECT;
@@ -81,13 +99,13 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
         hotel?.name ||
         selectedHotelMeta?.hotelName ||
         initialPayload?.hotelMeta?.hotelName ||
-        selectedHotel?.name ||
+        selectedHotelForRoute?.name ||
         "",
       hotelName:
         hotel?.name ||
         selectedHotelMeta?.hotelName ||
         initialPayload?.hotelMeta?.hotelName ||
-        selectedHotel?.name ||
+        selectedHotelForRoute?.name ||
         "",
       Description: hotel?.description || "",
       description: hotel?.description || "",
@@ -183,7 +201,7 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
     hotelData,
     initialPayload?.hotelMeta?.hotelName,
     selectedHotelMeta,
-    selectedHotel?.name,
+    selectedHotelForRoute?.name,
   ]);
 
   const roomPlans = useMemo(() => {
@@ -231,12 +249,11 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
     const fallbackImage =
       hotel?.image ||
       selectedHotelMeta?.image ||
-      selectedHotel?.hotelImage ||
-      selectedHotel?.image ||
+      selectedHotelForRoute?.hotelImage ||
+      selectedHotelForRoute?.image ||
       "";
-
     return fallbackImage ? [fallbackImage] : [];
-  }, [details, hotel, selectedHotel, selectedHotelMeta]);
+  }, [details, hotel, selectedHotelForRoute, selectedHotelMeta]);
 
   const amenities = useMemo(() => {
     const rawAmenities = details?.amenities;

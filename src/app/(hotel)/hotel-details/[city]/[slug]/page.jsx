@@ -186,7 +186,7 @@ export default async function Page({ params, searchParams }) {
       },
     ],
   };
-  const hotelId = cms?.entityId || query?.hid;
+  const hotelId = query?.hid || cms?.entityId;
   return (
     <>
       <script
