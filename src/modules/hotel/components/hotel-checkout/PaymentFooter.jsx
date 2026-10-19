@@ -61,7 +61,7 @@ export default function PaymentFooter({
           });
 
           payNow({
-            tempBookingId: booking.tempBookingId,
+            bookingId: booking.tempBookingId,
             customer: booking.customer,
           });
         }}

@@ -93,7 +93,7 @@ export default function ItineraryContent({ itinerary }) {
 
   const handlePay = () =>
     payNow({
-      tempBookingId: itinerary.bookingId,
+      bookingId: itinerary.bookingId,
       customer: {
         name: fullName({
           firstName: contactInfo.firstName,

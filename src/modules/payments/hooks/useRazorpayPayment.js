@@ -16,12 +16,13 @@ export const useRazorpayPayment = () => {
   const createOrderMutation = useCreateBookingOrder();
   const verifyMutation = useVerifyBookingPayment();
 
-  const openRazorpay = ({ order, customer, tempBookingId }) => {
+  const openRazorpay = ({ order, customer, bookingId }) => {
+    const { transactionId, gateway, paymentData } = order;
     const options = {
-      key: order.key,
-      amount: order.amount,
-      currency: order.currency,
-      order_id: order.orderId,
+      key: paymentData.keyId,
+      amount: paymentData.amount,
+      currency: paymentData.currency,
+      order_id: paymentData.orderId,
       name: "PAN Journey",
       description: "Hotel Booking",
       prefill: {
@@ -45,16 +46,14 @@ export const useRazorpayPayment = () => {
           });
 
           const verifyResponse = await verifyMutation.mutateAsync({
-            tempBookingId,
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
+            transactionId,
+            gateway,
+            gatewayOrderId: response.razorpay_order_id,
+            paymentId: response.razorpay_payment_id,
+            signature: response.razorpay_signature,
           });
 
-          console.log("Verify Response:", verifyResponse);
-
-          // Verify response
-          if (!verifyResponse?.success || !verifyResponse?.paymentVerified) {
+          if (!verifyResponse?.success) {
             message.error({
               key: "payment",
               content:
@@ -70,11 +69,8 @@ export const useRazorpayPayment = () => {
             content: "Payment verified successfully.",
           });
 
-          const bookingRefNo = verifyResponse.bookingRefNo;
+          const bookingRefNo = verifyResponse?.data?.bookingRefNo || bookingId;
 
-          console.log("Booking Ref:", bookingRefNo);
-
-          // Redirect to success page
           router.replace(
             `/hotel-checkout?bookingRefNo=${encodeURIComponent(bookingRefNo)}`,
           );
@@ -105,10 +101,6 @@ export const useRazorpayPayment = () => {
 
     const razorpay = new window.Razorpay(options);
 
-    // ============================
-    // Payment Failed Event
-    // ============================
-
     razorpay.on("payment.failed", function (response) {
       console.error("Payment Failed :", response);
       message.error(response?.error?.description || "Payment failed.");
@@ -118,7 +110,7 @@ export const useRazorpayPayment = () => {
     razorpay.open();
   };
 
-  const payNow = async ({ tempBookingId, customer }) => {
+  const payNow = async ({ bookingId, customer }) => {
     if (processing) return;
     setProcessing(true);
     try {
@@ -127,10 +119,6 @@ export const useRazorpayPayment = () => {
         content: "Preparing secure payment...",
         duration: 0,
       });
-
-      // ============================
-      // Load Razorpay SDK
-      // ============================
 
       const isLoaded = await loadRazorpay();
 
@@ -143,23 +131,12 @@ export const useRazorpayPayment = () => {
         return;
       }
 
-      // ============================
-      // Create Razorpay Order
-      // ============================
-
-      const order = await createOrderMutation.mutateAsync({
-        tempBookingId,
-      });
-      console.log("Order Created :", order);
-
-      // ============================
-      // Open Razorpay Checkout
-      // ============================
+      const order = await createOrderMutation.mutateAsync({ bookingId });
 
       openRazorpay({
         order,
         customer,
-        tempBookingId,
+        bookingId,
       });
     } catch (error) {
       console.error(error);
@@ -172,9 +149,6 @@ export const useRazorpayPayment = () => {
 
       setProcessing(false);
     }
-
-    // ❌ finally intentionally removed
-    // Processing verify/cancel/fail ke baad hi false hoga.
   };
 
   return {
