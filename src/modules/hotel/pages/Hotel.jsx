@@ -17,9 +17,7 @@ import {
   useSyncExternalStore,
 } from "react";
 
-import SidebarFilters, {
-  DEFAULT_HOTEL_FILTERS,
-} from "../cards/SidebarFilters";
+import SidebarFilters, { DEFAULT_HOTEL_FILTERS } from "../cards/SidebarFilters";
 import HotelList from "../components/hotels/HotelList";
 import SearchBar from "../components/hotels/SearchBar";
 import SortBar from "../components/SortBar";
@@ -91,15 +89,15 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
     [setDraftSearchData, setAppliedSearchData, updateSidebarZIndex],
   );
 
-  const handleFilterChange = useCallback((updater) => {
-    setFilters(updater);
-    scrollToHotelList();
-  }, []);
 
-  const handleSortChange = useCallback((value) => {
-    setSort(value);
-    scrollToHotelList();
-  }, []);
+const handleFilterChange = useCallback((updater) => {
+  setFilters(updater);
+}, []);
+
+const handleSortChange = useCallback((value) => {
+  setSort(value);
+}, []);
+
 
   useEffect(() => {
     if (!mounted || isMobile) return;
@@ -460,11 +458,11 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
 
               {hasActiveFilters && (
                 <div
-                  className={`sticky top-[138px] min-[700px]:max-[850px]:top-[155px] ${
+                  className={`sticky top-[163px] min-[700px]:max-[850px]:top-[155px] ${
                     sidebarZ0 ? "!-z-10" : "z-12"
-                  } background-color-bg !pt-[5px]`}
+                  } background-color-bg !pt-[8px]`}
                 >
-                  <div className="!mb-4 flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 pb-1">
                     {activeFilters.map(([key, value]) => {
                       if (!isFilterActive(value)) {
                         return null;
@@ -542,7 +540,7 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
                 </div>
               )}
 
-              <div id="hotel-list-section" ref={hotelListRef} className="pt-3">
+              <div id="hotel-list-section" ref={hotelListRef} className="pt-1">
                 <HotelList
                   searchData={appliedSearchData}
                   filters={filters}
