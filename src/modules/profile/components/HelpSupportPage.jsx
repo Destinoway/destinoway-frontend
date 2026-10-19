@@ -120,7 +120,7 @@ export default function HelpSupportPage() {
               </p>
 
               <h4 className="font-roboto! mb-0! text-[16px] font-semibold break-all text-gray-900">
-                support@panjourney.com
+                support@destinoway.com
               </h4>
             </div>
 
