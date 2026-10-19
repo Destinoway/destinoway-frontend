@@ -63,7 +63,15 @@ export default function HotelDetailsDesktop({
           isScrolled ? "z-0" : "z-[820]"
         }`}
       >
-        {!isValidPayload ? (
+        {detailError ? (
+          <Alert
+            className="mb-4"
+            type="error"
+            showIcon
+            title="Unable to load hotel details"
+            description={detailError.message || String(detailError)}
+          />
+        ) : !isValidPayload ? (
           <Alert
             className="mb-4"
             type="error"
@@ -71,17 +79,7 @@ export default function HotelDetailsDesktop({
             title="Hotel search details are missing"
             description="Please open this hotel from the search results so we can load its rooms."
           />
-        ) : (
-          detailError && (
-            <Alert
-              className="mb-4"
-              type="error"
-              showIcon
-              title="Unable to load hotel details"
-              description={detailError.message || String(detailError)}
-            />
-          )
-        )}
+        ) : null}
 
         <div className="-mt-6">
           {showSkeleton ? (

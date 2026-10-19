@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { slugify } from "@/utils/slug/slugify";
 import { getCmsBySlug } from "./cms.service";
 
 export const fetchCmsBySlug = cache(async (slug, preview = false) => {
@@ -16,15 +17,16 @@ export const fetchCmsBySlug = cache(async (slug, preview = false) => {
   }
 });
 
-const CITY_TYPES = ["hotelCity", "city"];
-
 // /hotels/[slug] must never render a hotel-type CMS entry.
 export const fetchCityCms = async (slug, preview = false) => {
   const cms = await fetchCmsBySlug(slug, preview);
   return cms && cms.entityType === "hotel" ? null : cms;
 };
 
-// Admin hotel slug may be either "<hotel>" or "<hotel>-<city>"; city entries are rejected.
+const getCitySlug = (value) =>
+  slugify(String(value || "").split(",")[0].trim());
+
+// Admin hotel slug may be either "<hotel>" or "<hotel>-<city>".
 export const fetchHotelCms = async (city, slug, preview = false) => {
   const candidates = [slug, city ? `${slug}-${city}` : null].filter(Boolean);
   const results = await Promise.all(
@@ -32,6 +34,13 @@ export const fetchHotelCms = async (city, slug, preview = false) => {
   );
 
   return (
-    results.find((cms) => cms && !CITY_TYPES.includes(cms.entityType)) || null
+    results.find((cms) => {
+      if (!cms || cms.entityType !== "hotel") {
+        return false;
+      }
+
+      const cmsCity = cms?.data?.cityMeta?.destination;
+      return !city || !cmsCity || getCitySlug(cmsCity) === getCitySlug(city);
+    }) || null
   );
 };

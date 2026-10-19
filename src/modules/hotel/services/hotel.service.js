@@ -3,6 +3,7 @@ import { api } from "@/services/axios";
 const PAGE_SIZE = 20;
 
 const FILTER_KEYS = [
+  "hotelId",
   "hotelName",
   "search",
   "minPrice",

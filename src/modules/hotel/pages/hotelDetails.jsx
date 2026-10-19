@@ -41,11 +41,12 @@ function HotelDetails({ initialPayload = null, cms = null }) {
         roomPageTotal={page.hotelData?.pagination?.total || 0}
         onRoomPageChange={page.handleRoomPageChange}
         detailError={
-          !page.isValidPayload
-            ? "This hotel link is missing its search details. Please open the hotel from search results."
-            : page.detailError?.response?.data?.message ||
+          page.detailError?.response?.data?.message ||
               page.detailError?.message ||
-              (typeof page.detailError === "string" ? page.detailError : null)
+              (typeof page.detailError === "string" ? page.detailError : null) ||
+              (!page.isValidPayload
+                ? "Hotel search details are missing. Search for the destination again."
+                : null)
         }
         roomError={
           page.roomError?.response?.data?.message ||

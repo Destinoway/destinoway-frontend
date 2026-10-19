@@ -1,56 +1,155 @@
 "use client";
 
 import { message } from "antd";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo } from "react";
 
 import useIsMobile from "@/hooks/useIsMobile";
 import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
+import { useCurrencyStore } from "@/modules/shared/store/currency.store";
 import { useToggleWishlist } from "@/modules/wishlist/hooks/useToggleWishlist";
 import { useWishlistIds } from "@/modules/wishlist/hooks/useWishlistIds";
 
+import {
+  getHotelSearchResults,
+  startHotelSearch,
+} from "../services/hotel.service";
 import { useHotelBookingStore } from "../store/booking.store";
 import { useSelectedHotelStore } from "../store/selectedHotel.store";
 import { useHotelSearchStore } from "../store/serchData.store";
+import { buildHotelPayload } from "../utils/buildHotelPayload";
 import { buildHotelDetailsPayload } from "../utils/buildHotelDetailsPayload";
 import { buildWishlistPayload } from "../utils/buildWishlistPayload";
 import { mapHotelDetailsResponse } from "../utils/mapHotelDetailsResponse";
 import { shareHotel } from "../utils/shareHotel";
+import { slugify } from "@/utils/slug/slugify";
 import { useHotelContent, useHotelRooms } from "./useHotelDetails";
 
 const EMPTY_OBJECT = {};
+const HOTEL_SEARCH_POLL_INTERVAL_MS = 400;
+const HOTEL_SEARCH_TIMEOUT_MS = 30000;
 
 export const useHotelDetailsPage = ({ initialPayload = null }) => {
   const { selectedHotel } = useSelectedHotelStore();
   const { appliedSearchData } = useHotelSearchStore();
+  const currency = useCurrencyStore((state) => state.selectedCurrency.code);
   const { setBookingData } = useHotelBookingStore();
   const { requireAuth } = useAuthGuard();
   const { mutateAsync } = useToggleWishlist();
   const { data: wishlistData } = useWishlistIds();
   const isMobile = useIsMobile();
 
-  const selectedHotelForRoute = useMemo(() => {
-    const routeHotelId = initialPayload?.hotelId;
-    if (!routeHotelId) {
-      return selectedHotel;
-    }
-
-    const selectedHotelId =
-      selectedHotel?.hotelMeta?.hotelId ||
-      selectedHotel?.hotelId ||
-      selectedHotel?.id;
-
-    return selectedHotelId &&
-      String(selectedHotelId) === String(routeHotelId)
-      ? selectedHotel
-      : null;
-  }, [initialPayload?.hotelId, selectedHotel]);
-
-  const payload = useMemo(() => {
+  const routePayload = useMemo(() => {
     return buildHotelDetailsPayload({
       selectedHotel: selectedHotelForRoute,
       initialPayload,
     });
   }, [selectedHotelForRoute, initialPayload]);
+
+  const shouldResolveRoute = Boolean(
+    initialPayload &&
+      routePayload?.hotelId &&
+      (!routePayload?.searchId || !routePayload?.supplierHotelId) &&
+      appliedSearchData?.city,
+  );
+
+  const routeQuery = useQuery({
+    queryKey: [
+      "resolve-hotel-detail-route",
+      routePayload?.hotelId,
+      appliedSearchData,
+      currency,
+    ],
+    enabled: shouldResolveRoute,
+    retry: false,
+    queryFn: async () => {
+      const searchPayload = buildHotelPayload({
+        searchData: appliedSearchData,
+      });
+
+      if (!searchPayload) {
+        throw new Error(
+          "Hotel search details are unavailable. Search for the destination again.",
+        );
+      }
+
+      const search = await startHotelSearch({
+        ...searchPayload,
+        currency,
+      });
+      const expectedHotelSlug =
+        initialPayload?.hotelMeta?.hotelSlug || "";
+      const deadline = Date.now() + HOTEL_SEARCH_TIMEOUT_MS;
+      let matchedHotel = null;
+      let searchStatus = "";
+
+      while (Date.now() < deadline) {
+        const result = await getHotelSearchResults(
+          search.searchId,
+          1,
+          1,
+          { hotelId: routePayload.hotelId },
+        );
+        matchedHotel = result?.data?.items?.[0] || null;
+        searchStatus = result?.data?.status || "";
+
+        if (matchedHotel || ["completed", "failed"].includes(searchStatus)) {
+          break;
+        }
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, HOTEL_SEARCH_POLL_INTERVAL_MS),
+        );
+      }
+
+      if (!matchedHotel && expectedHotelSlug) {
+        const nameResult = await getHotelSearchResults(
+          search.searchId,
+          1,
+          100,
+          { hotelName: expectedHotelSlug.replace(/-/g, " ") },
+        );
+        const nameMatches = (nameResult?.data?.items || []).filter(
+          (item) => slugify(item?.name || "") === slugify(expectedHotelSlug),
+        );
+
+        if (nameMatches.length === 1) {
+          matchedHotel = nameMatches[0];
+        }
+      }
+
+      if (!matchedHotel) {
+        throw new Error(
+          "The hotel could not be matched to the current search. Please open it from the hotel search results.",
+        );
+      }
+
+      const supplierHotelId =
+        matchedHotel?.supplierHotelId ||
+        matchedHotel?.supplierHotelID ||
+        matchedHotel?.hotelId ||
+        matchedHotel?.HotelId ||
+        matchedHotel?.id ||
+        "";
+
+      if (!supplierHotelId) {
+        throw new Error("The hotel search result is missing its supplier ID.");
+      }
+
+      return {
+        ...routePayload,
+        searchId: search.searchId,
+        supplierHotelId: String(supplierHotelId),
+        hotelMeta: {
+          ...initialPayload?.hotelMeta,
+          hotelName:
+            matchedHotel?.name || initialPayload?.hotelMeta?.hotelName || "",
+        },
+      };
+    },
+  });
+
+  const payload = routeQuery.data || routePayload;
 
   const wishlistIds = useMemo(
     () =>
@@ -79,8 +178,23 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
 
   const hotelData = data || EMPTY_OBJECT;
   const hotel = hotelData?.hotel || EMPTY_OBJECT;
-  const selectedHotelMeta =
-    selectedHotelForRoute?.hotelMeta || EMPTY_OBJECT;
+  const hasInitialPayload = initialPayload != null;
+  const storedSearchId =
+    selectedHotel?.hotelMeta?.searchId || selectedHotel?.searchId || "";
+  const storedSupplierHotelId =
+    selectedHotel?.hotelMeta?.supplierHotelId ||
+    selectedHotel?.supplierHotelId ||
+    "";
+  const isStoredHotelForRoute =
+    !hasInitialPayload ||
+    (payload?.searchId &&
+      payload?.supplierHotelId &&
+      String(storedSearchId) === String(payload.searchId) &&
+      String(storedSupplierHotelId) === String(payload.supplierHotelId));
+  const fallbackSelectedHotel = isStoredHotelForRoute
+    ? selectedHotel
+    : EMPTY_OBJECT;
+  const selectedHotelMeta = fallbackSelectedHotel?.hotelMeta || EMPTY_OBJECT;
   const details = hotelData?.details || EMPTY_OBJECT;
   const location = hotel?.location || EMPTY_OBJECT;
   const contact = hotel?.contact || EMPTY_OBJECT;
@@ -97,15 +211,15 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
       hotelKey: hotel?.hotelKey || "",
       HotelName:
         hotel?.name ||
-        selectedHotelMeta?.hotelName ||
         initialPayload?.hotelMeta?.hotelName ||
-        selectedHotelForRoute?.name ||
+        selectedHotelMeta?.hotelName ||
+        fallbackSelectedHotel?.name ||
         "",
       hotelName:
         hotel?.name ||
-        selectedHotelMeta?.hotelName ||
         initialPayload?.hotelMeta?.hotelName ||
-        selectedHotelForRoute?.name ||
+        selectedHotelMeta?.hotelName ||
+        fallbackSelectedHotel?.name ||
         "",
       Description: hotel?.description || "",
       description: hotel?.description || "",
@@ -201,7 +315,7 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
     hotelData,
     initialPayload?.hotelMeta?.hotelName,
     selectedHotelMeta,
-    selectedHotelForRoute?.name,
+    fallbackSelectedHotel?.name,
   ]);
 
   const roomPlans = useMemo(() => {
@@ -249,11 +363,11 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
     const fallbackImage =
       hotel?.image ||
       selectedHotelMeta?.image ||
-      selectedHotelForRoute?.hotelImage ||
-      selectedHotelForRoute?.image ||
+      fallbackSelectedHotel?.hotelImage ||
+      fallbackSelectedHotel?.image ||
       "";
     return fallbackImage ? [fallbackImage] : [];
-  }, [details, hotel, selectedHotelForRoute, selectedHotelMeta]);
+  }, [details, hotel, fallbackSelectedHotel, selectedHotelMeta]);
 
   const amenities = useMemo(() => {
     const rawAmenities = details?.amenities;
@@ -302,12 +416,13 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
     });
   }, [appliedSearchData, setBookingData]);
 
-  const isLoading = contentQuery.isLoading;
+  const isLoading = routeQuery.isFetching || contentQuery.isLoading;
   const isFetching = roomQuery.isFetching;
-  const detailError = contentQuery.error || null;
+  const detailError = routeQuery.error || contentQuery.error || null;
   const roomError = roomQuery.error || null;
   const showSkeleton =
-    isValidPayload && contentQuery.isLoading && !contentQuery.data;
+    routeQuery.isFetching ||
+    (isValidPayload && contentQuery.isLoading && !contentQuery.data);
 
   const firstRatePlan = roomPlans?.[0] || null;
   const basePrice = Number(
