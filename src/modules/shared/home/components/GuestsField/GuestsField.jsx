@@ -231,8 +231,13 @@ function GuestsField({
             </Button>
           )}
         </div>
-        <Button type="primary" disabled={!agesValid} onClick={apply}>
-          Apply
+        <Button
+          type="primary"
+          disabled={!agesValid}
+          onClick={apply}
+          className="buttion-background-color"
+        >
+          Done
         </Button>
       </div>
       {!agesValid && (
