@@ -23,10 +23,10 @@ export async function generateMetadata() {
 
   const title =
     cms?.metaTitle ||
-    "About PAN Journey | Trusted Travel & Hotel Booking Platform";
+    "About Destonoway | Trusted Travel & Hotel Booking Platform";
 
   const description =
-    cms?.metaDescription || "Learn about PAN Journey and our travel mission.";
+    cms?.metaDescription || "Learn about Destonoway and our travel mission.";
 
   const keywords = cms?.keywords || [];
 
@@ -58,7 +58,7 @@ export async function generateMetadata() {
       description,
       url: canonical,
       type: "website",
-      siteName: "PAN Journey",
+      siteName: "Destonoway",
     },
 
     twitter: {

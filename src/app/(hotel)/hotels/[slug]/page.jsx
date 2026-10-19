@@ -98,18 +98,18 @@ export async function generateMetadata({ params, searchParams }) {
 
     authors: [
       {
-        name: "PAN Journey",
+        name: "Destonoway",
       },
     ],
 
-    creator: "PAN Journey",
-    publisher: "PAN Journey",
+    creator: "Destonoway",
+    publisher: "Destonoway",
 
     openGraph: {
       title: buildHotelTitle(cityName),
       description: buildHotelDescription(cityName),
       url: canonical,
-      siteName: "PAN Journey",
+      siteName: "Destonoway",
       type: "website",
     },
 
@@ -253,12 +253,12 @@ export default async function Page({ params, searchParams }) {
         url: `${siteUrl}/hotels/${slug}`,
         description:
           cms?.metaDescription ||
-          `Find hotels in ${cityName} with best prices on PAN Journey.`,
+          `Find hotels in ${cityName} with best prices on Destonoway.`,
       },
 
       {
         "@type": "Organization",
-        name: "PAN Journey",
+        name: "Destonoway",
         url: siteUrl,
       },
     ],

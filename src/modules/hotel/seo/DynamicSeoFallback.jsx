@@ -1,6 +1,5 @@
 import RelatedDestinations from "../sections/RelatedDestinations";
 
-
 export default function DynamicSeoFallback({ cityName }) {
   if (!cityName) return null;
 
@@ -13,7 +12,7 @@ export default function DynamicSeoFallback({ cityName }) {
         </h2>
 
         <p className="leading-6 text-[#5f6b76]">
-          Looking for hotels in {cityName}? PAN Journey helps you compare hotel
+          Looking for hotels in {cityName}? Destonoway helps you compare hotel
           prices, explore verified stays and find accommodation that matches
           your travel plans. Whether you are planning a business trip, family
           vacation or weekend getaway, discover hotel options with an easy
@@ -24,7 +23,7 @@ export default function DynamicSeoFallback({ cityName }) {
       {/* WHY BOOK */}
       <div>
         <h3 className="mb-5 text-[18px] font-semibold text-[#303030]">
-          Why Book Hotels with PAN Journey
+          Why Book Hotels with Destonoway
         </h3>
 
         <div className="grid gap-4 md:grid-cols-3">

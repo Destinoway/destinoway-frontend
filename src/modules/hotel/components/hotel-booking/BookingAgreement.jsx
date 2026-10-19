@@ -30,7 +30,7 @@ export default function BookingAgreement({ checked, onChange, bookingData }) {
             className="agreement-checkbox"
           >
             <span className="font-roboto! text-[14px]! leading-6! font-medium! text-[#555]">
-              I agree to PAN Journey terms, cancellation policy and booking
+              I agree to Destonoway terms, cancellation policy and booking
               conditions.
             </span>
           </Checkbox>

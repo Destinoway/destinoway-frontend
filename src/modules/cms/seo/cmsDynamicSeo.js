@@ -1,9 +1,9 @@
 export const buildHotelTitle = (cityName) => {
-  return `Best Hotels in ${cityName} | Budget, Luxury & Family Stays | PAN Journey`;
+  return `Best Hotels in ${cityName} | Budget, Luxury & Family Stays | Destonoway`;
 };
 
 export const buildHotelDescription = (cityName) => {
-  return `Explore hotels in ${cityName} with PAN Journey. Compare budget, luxury and family stays with verified hotel listings and easy booking experience.`;
+  return `Explore hotels in ${cityName} with Destonoway. Compare budget, luxury and family stays with verified hotel listings and easy booking experience.`;
 };
 
 export const buildHotelKeywords = (cityName) => {
@@ -15,6 +15,6 @@ export const buildHotelKeywords = (cityName) => {
     `${cityName} luxury hotels`,
     `${cityName} family hotels`,
     "hotel booking",
-    "PAN Journey",
+    "Destonoway",
   ];
 };

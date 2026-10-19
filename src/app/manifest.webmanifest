@@ -1,6 +1,6 @@
 {
-  "name": "PAN Journey",
-  "short_name": "PAN Journey",
+  "name": "Destonoway",
+  "short_name": "Destonoway",
   "description": "Booking platform",
   "start_url": "/",
   "display": "standalone",

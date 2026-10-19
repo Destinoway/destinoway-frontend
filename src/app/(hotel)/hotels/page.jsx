@@ -71,7 +71,7 @@ export async function generateMetadata({ searchParams }) {
       title: buildHotelTitle(cityName),
       description: buildHotelDescription(cityName),
       url: canonical,
-      siteName: "PAN Journey",
+      siteName: "Destonoway",
       type: "website",
     },
   };

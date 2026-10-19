@@ -169,7 +169,7 @@ export default function ContactMapSection() {
           {/* Google Map */}
           <div className="overflow-hidden rounded-xl bg-white shadow-[0_8px_40px_rgba(0,0,0,0.08)]">
             <iframe
-              title="PAN Journey Office Location"
+              title="Destonoway Office Location"
               src="https://www.google.com/maps?q=Jaipur,Rajasthan,India&output=embed"
               width="100%"
               height="100%"

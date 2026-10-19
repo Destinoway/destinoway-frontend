@@ -51,7 +51,7 @@ export default function Hero({ banner }) {
               ? "/images/heromobile.png"
               : bannerItem.image || "/images/homepage/Banner-1.webp"
           }
-          alt={bannerItem.alt || "PAN Journey"}
+          alt={bannerItem.alt || "Destonoway"}
           fill
           priority
           quality={90}

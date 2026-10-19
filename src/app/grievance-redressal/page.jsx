@@ -5,9 +5,9 @@ import GrievanceProcessSection from "@/modules/shared/pages/grievance/grievanceP
 import ResolutionTimelineSection from "@/modules/shared/pages/grievance/ResolutionTimelineSection";
 
 export const metadata = {
-  title: "Grievance Redressal | PAN Journey",
+  title: "Grievance Redressal | Destonoway",
   description:
-    "Submit and track grievances related to bookings, refunds, payments, and customer support. PAN Journey grievance redressal process.",
+    "Submit and track grievances related to bookings, refunds, payments, and customer support. Destonoway grievance redressal process.",
 };
 
 export default function GrievancePage() {

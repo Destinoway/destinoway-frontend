@@ -405,7 +405,7 @@ export default function HotelBookingSuccess() {
                   </h4>
 
                   <p className="mb-0! text-[13px] text-[#72C0F0]">
-                    via PAN Journey
+                    via Destonoway
                   </p>
                 </div>
 

@@ -55,7 +55,7 @@ export default function FooterLinks() {
       {/* About */}
       <div className="max-w-[340px]">
         <p className="footer-backgound-color text-[15px] leading-7 !text-white/90">
-          PAN Journey helps travelers discover and book hotels with ease,
+          Destonoway helps travelers discover and book hotels with ease,
           offering secure payments, verified stays, and dedicated customer
           support.
         </p>

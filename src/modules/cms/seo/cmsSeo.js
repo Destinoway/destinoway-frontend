@@ -49,11 +49,11 @@ CANONICAL
   /*
   BASIC
   */
-  const title = cms?.metaTitle || cms?.title || "PAN Journey";
+  const title = cms?.metaTitle || cms?.title || "Destonoway";
 
   const description =
     cms?.metaDescription ||
-    "Find hotels, destinations and travel experiences on PAN Journey.";
+    "Find hotels, destinations and travel experiences on Destonoway.";
 
   const keywords = Array.isArray(cms?.keywords) ? cms.keywords : [];
 
@@ -106,13 +106,13 @@ CANONICAL
     */
     authors: [
       {
-        name: "PAN Journey",
+        name: "Destonoway",
       },
     ],
 
-    creator: "PAN Journey",
+    creator: "Destonoway",
 
-    publisher: "PAN Journey",
+    publisher: "Destonoway",
 
     category: "travel",
 
@@ -123,7 +123,7 @@ CANONICAL
       title,
       description,
       url: canonical,
-      siteName: "PAN Journey",
+      siteName: "Destonoway",
       type: "website",
       locale: "en_IN",
 

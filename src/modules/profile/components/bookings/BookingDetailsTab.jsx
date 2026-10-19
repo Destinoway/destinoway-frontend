@@ -204,7 +204,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
 📅 Check In: ${formatDate(booking.checkInDate)}
 📅 Check Out: ${formatDate(booking.checkOutDate)}
 ✅ Status: ${status.label}
-🌐 Booked via PAN Journey
+🌐 Booked via Destinoway
 `;
 
   const handleConfirmCancellation = () => {
