@@ -11,6 +11,7 @@ export default function PaymentFooter({
   loading = false,
   booking = {},
   onPay,
+  isPaid = false,
 }) {
   const payableAmount = Number(
     priceSummary?.totalPayableAmountAfterDiscount ??
@@ -20,8 +21,6 @@ export default function PaymentFooter({
 
   const currencySymbol = priceSummary?.currencySymbol || "₹";
 
-  console.log("priceSummary in payment page", currencySymbol);
-
   const { payNow, loading: paymentLoading } = useRazorpayPayment();
   const formatPrice = (value) =>
     Number(value).toLocaleString("en-IN", {
@@ -29,14 +28,36 @@ export default function PaymentFooter({
       maximumFractionDigits: 2,
     });
 
+  if (isPaid) {
+    return (
+      <Card
+        className="rounded-xl border border-[#E5EEF7] bg-white shadow-[0_10px_35px_rgba(5,20,75,0.08)]"
+        styles={{
+          body: {
+            padding: 20,
+          },
+        }}
+        variant="borderless"
+      >
+        <div className="flex items-center justify-center gap-2 text-[#15803d]">
+          <SafetyCertificateFilled />
+          <Text className="!font-medium !text-[#15803d]">
+            Payment completed successfully
+          </Text>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card
-      className="rounded border-0 shadow-[0_4px_16px_rgba(0,0,0,0.12)]"
+      className="rounded-xl border border-[#E5EEF7] bg-white shadow-[0_10px_35px_rgba(5,20,75,0.08)]"
       styles={{
         body: {
-          padding: 18,
+          padding: 20,
         },
       }}
+      variant="borderless"
     >
       {/* Security */}
 
@@ -55,18 +76,14 @@ export default function PaymentFooter({
         size="large"
         loading={loading || paymentLoading}
         onClick={() => {
-          console.log("Sending To payNow", {
-            tempBookingId: booking.tempBookingId,
-            customer: booking.customer,
-          });
-
           payNow({
-            bookingId: booking.tempBookingId,
+            bookingId:
+              booking.tempBookingId || booking.bookingId || booking._id,
             customer: booking.customer,
           });
         }}
         icon={<LockOutlined />}
-        className="!h-[54px] w-full !rounded buttion-background-color !text-[16px] !font-semibold "
+        className="buttion-background-color !h-[52px] w-full !rounded-lg !text-[16px] !font-semibold"
       >
         Pay {currencySymbol} {formatPrice(payableAmount)}
       </Button>

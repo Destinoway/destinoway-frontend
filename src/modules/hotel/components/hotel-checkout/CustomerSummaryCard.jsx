@@ -1,6 +1,11 @@
 "use client";
 
-import { PhoneOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  EnvironmentOutlined,
+  PhoneOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { Card, Divider, Tag, Typography } from "antd";
 
 const { Title, Text } = Typography;
@@ -11,23 +16,24 @@ export default function CustomerSummaryCard({
 }) {
   return (
     <Card
-      className="rounded-xl border-0 shadow-[0_4px_16px_rgba(0,0,0,0.12)]"
+      className="rounded-xl border border-[#E5EEF7] bg-white shadow-[0_10px_35px_rgba(5,20,75,0.08)]"
       styles={{
         body: {
-          padding: 18,
+          padding: 20,
         },
       }}
+      variant="borderless"
     >
       {/* Header */}
       <div className="mb-5 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#eef8fd]">
-          <UserOutlined className="text-[14px] text-[#0f766e]" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff4de]">
+          <UserOutlined className="text-[16px] text-[#05144b]" />
         </div>
 
         <div>
           <Title
             level={5}
-            className="font-roboto! !mb-0 !text-[16px] font-bold!"
+            className="font-roboto! !mb-0 !text-[16px] !font-bold !text-[#05144b]"
           >
             Customer Details
           </Title>
@@ -57,6 +63,21 @@ export default function CustomerSummaryCard({
 
           <Text strong>{customer?.mobile || "--"}</Text>
         </div>
+
+        {(customer?.address || customer?.postalCode) && (
+          <div className="flex items-start justify-between gap-3">
+            <Text className="flex shrink-0 items-center gap-2">
+              <EnvironmentOutlined />
+              Address
+            </Text>
+
+            <Text className="text-right" strong>
+              {[customer?.address, customer?.postalCode]
+                .filter(Boolean)
+                .join(", ")}
+            </Text>
+          </div>
+        )}
       </div>
 
       <Divider />
@@ -86,12 +107,14 @@ export default function CustomerSummaryCard({
                 <div className="mt-1">
                   <Tag color="blue">{guest?.occupantType}</Tag>
 
-                  <Tag color="purple">Room {guest?.roomNumber}</Tag>
+                  {guest?.roomNumber && (
+                    <Tag color="purple">Room {guest.roomNumber}</Tag>
+                  )}
                 </div>
               </div>
 
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#eef8fd]">
-                <UserOutlined className="text-[#0f766e]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff4de]">
+                <UserOutlined className="text-[#05144b]" />
               </div>
             </div>
           </div>

@@ -27,7 +27,71 @@ export default function HotelCheckout() {
   const { data, isLoading, isError, error, refetch } =
     useBookingDetails(bookingRefNo);
 
-  const booking = data?.data ?? {};
+  const bookingDetails = data?.data ?? {};
+  const pricing = bookingDetails?.pricing ?? {};
+  const guestInfo = bookingDetails?.guestDetails ?? {};
+  const supplierOccupants = (
+    bookingDetails?.supplierResponse?.HotelRoomDetail ?? []
+  ).flatMap((room) => [
+    ...(room?.adults ?? []).map((guest) => ({
+      ...guest,
+      occupantType: "adult",
+    })),
+    ...(room?.children ?? []).map((guest) => ({
+      ...guest,
+      occupantType: "child",
+    })),
+  ]);
+  const responseOccupants = Array.isArray(guestInfo)
+    ? guestInfo
+    : guestInfo?.occupants;
+  const occupants =
+    responseOccupants?.length > 0
+      ? responseOccupants
+      : supplierOccupants.length > 0
+        ? supplierOccupants
+        : (responseOccupants ?? []);
+  const currency = pricing?.currency || "INR";
+  const currencySymbol =
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency,
+    })
+      .formatToParts(0)
+      .find((part) => part.type === "currency")?.value || currency;
+
+  const booking = {
+    ...bookingDetails,
+    bookingReference:
+      bookingDetails?.bookingRefNo || bookingDetails?.bookingReference,
+    tempBookingId:
+      bookingDetails?.tempBookingId ||
+      bookingDetails?.bookingId ||
+      bookingDetails?._id,
+    customer: bookingDetails?.customer || {
+      name: guestInfo?.customerName,
+      mobile: guestInfo?.customerMobile,
+      address: guestInfo?.customerAddress,
+      postalCode: guestInfo?.customerPostalCode,
+    },
+    guestDetails: occupants,
+    bookingStatus: bookingDetails?.bookingStatus || {
+      reservationStatus:
+        bookingDetails?.supplierBookingStatus ||
+        bookingDetails?.itineraryStatus,
+      paymentStatus: bookingDetails?.paymentStatus,
+    },
+    priceSummary: bookingDetails?.priceSummary || {
+      baseAmount: pricing?.baseAmount ?? 0,
+      platformChargeandTax:
+        (pricing?.serviceCharge ?? 0) + (pricing?.platformFeeAndTax ?? 0),
+      totalAmount:
+        pricing?.finalPrice ?? bookingDetails?.payableAmount ?? 0,
+      totalPayableAmountAfterDiscount:
+        bookingDetails?.payableAmount ?? pricing?.finalPrice ?? 0,
+      currencySymbol,
+    },
+  };
 
   const { mutate: applyCoupon, isPending: isApplyCouponLoading } =
     useApplyCoupon({
@@ -65,14 +129,14 @@ export default function HotelCheckout() {
 
   const handleApplyCoupon = (coupon) => {
     applyCoupon({
-      tempBookingId: booking.tempBookingId || booking.bookingId,
+      tempBookingId: booking.tempBookingId,
       couponCode: coupon.code,
     });
   };
 
   const handleRemoveCoupon = () => {
     removeCoupon({
-      tempBookingId: booking.tempBookingId || booking.bookingId,
+      tempBookingId: booking.tempBookingId,
     });
   };
 

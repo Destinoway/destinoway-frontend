@@ -4,6 +4,8 @@ import {
   CheckCircleFilled,
   ClockCircleOutlined,
   EnvironmentOutlined,
+  HomeOutlined,
+  StarFilled,
 } from "@ant-design/icons";
 import { Card, Tag, Typography } from "antd";
 import dayjs from "dayjs";
@@ -17,186 +19,165 @@ export default function BookingSummaryCard({
   room = {},
   search = {},
 }) {
-  const hotelImage =
-    booking?.hotel?.image ||
-    hotel?.HotelImage?.replace("_b.", "_z.")?.replace("_t.", "_z.") ||
-    "/no-room.jpg";
- 
-  const hotelName = hotel?.HotelName || "Hotel";
- 
-  const roomName = room?.GroupName || "Room";
- 
-  const address = [hotel?.Address, hotel?.City, hotel?.Country]
-    .filter(Boolean)
-    .join(", ");
+  const hotelName = hotel?.HotelName || hotel?.name || "Hotel";
+
+  const roomName = room?.GroupName || room?.RoomName || "Room 1";
+
+  const address =
+    hotel?.Address ||
+    hotel?.address ||
+    [hotel?.City, hotel?.Country].filter(Boolean).join(", ");
  
   const bookingDate = booking?.createdAt
     ? dayjs(booking.createdAt).format("DD MMM YYYY, hh:mm A")
     : "--";
  
-  const checkIn = search?.checkIn
+  const checkIn = search?.checkIn && dayjs(search.checkIn).isValid()
     ? dayjs(search.checkIn).format("DD MMM YYYY")
     : "--";
- 
-  const checkOut = search?.checkOut
+
+  const checkOut = search?.checkOut && dayjs(search.checkOut).isValid()
     ? dayjs(search.checkOut).format("DD MMM YYYY")
     : "--";
- 
+
   const nights =
-    search?.checkIn && search?.checkOut
-      ? dayjs(search.checkOut).diff(dayjs(search.checkIn), "day")
+    search?.checkIn &&
+    search?.checkOut &&
+    dayjs(search.checkIn).isValid() &&
+    dayjs(search.checkOut).isValid()
+      ? Math.max(dayjs(search.checkOut).diff(dayjs(search.checkIn), "day"), 0)
       : 0;
- 
+
   const reservationStatus =
     booking?.bookingStatus?.reservationStatus || "Pending";
- 
+
   const paymentStatus = booking?.bookingStatus?.paymentStatus || "Pending";
+  const formatStatus = (status) =>
+    String(status)
+      .replace(/[_-]+/g, " ")
+      .replace(/\b\w/g, (character) => character.toUpperCase());
  
   return (
     <Card
-      variant={false}
-      className="overflow-hidden rounded-xl border border-[#EAF2F8] bg-white shadow-[0_10px_35px_rgba(0,0,0,0.08)]"
-      styles={{
-        body: {
-          padding: 24,
-        },
-      }}
+      className="overflow-hidden rounded-xl border border-[#E5EEF7] bg-white shadow-[0_10px_35px_rgba(5,20,75,0.08)]"
+      styles={{ body: { padding: 0 } }}
+      variant="borderless"
     >
-      {/* Image */}
-      <div className="flex flex-col gap-4 sm:flex-row">
-        {/* Hotel Image */}
-        <div className="relative !h-[200px] overflow-hidden rounded-xl sm:h-[190px] sm:w-[290px]">
-          <Image
-            src={hotelImage}
-            fill
-            alt={hotelName}
-            className="object-cover duration-500 group-hover:scale-110"
-          />
- 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
- 
-          <div className="absolute bottom-4 left-4">
-            <Tag color="blue" className="rounded-full px-2">
-              {roomName}
-            </Tag>
+      <div className="bg-linear-to-r from-[#05144b] to-[#0c2fb1] p-5 text-white">
+        <div className="flex items-start gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/15 text-[26px] text-[#fda20f]">
+            <HomeOutlined />
           </div>
-        </div>
- 
-        {/* Hotel Details */}
-        <div className="flex min-w-0 flex-1 flex-col justify-between">
-          <div>
+          <div className="min-w-0">
+            <div className="mb-1 flex gap-0.5 text-[#fda20f]">
+              {Array.from({ length: Math.max(Number(hotel?.starRating) || 0, 0) }).map(
+                (_, index) => (
+                  <StarFilled key={index} />
+                ),
+              )}
+            </div>
             <Title
               level={3}
-              className="font-roboto !mb-2 !text-[22px] !font-semibold !text-[#1D2939]"
+              className="font-roboto !mb-1 !text-[22px] !font-semibold !text-white"
             >
               {hotelName}
             </Title>
- 
-            <div className="mt-2 flex items-start gap-2">
-              <EnvironmentOutlined className="mt-1 most-text-color" />
- 
-              <Text className=" font-roboto text-[15px] most-text-color">
-                {address}
+            <div className="flex items-start gap-2 text-white/80">
+              <EnvironmentOutlined className="mt-1" />
+              <Text className="!text-[14px] !text-white/80">{address || "--"}</Text>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Tag color="green" className="!m-0 rounded-full">
+                Reservation {formatStatus(reservationStatus)}
+              </Tag>
+              <Tag color="processing" className="!m-0 rounded-full">
+                Payment {formatStatus(paymentStatus)}
+              </Tag>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-5">
+        <Tag color="blue" className="!mb-3 rounded-full">
+          {roomName}
+        </Tag>
+        <div className="rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] px-3 py-5 sm:p-5">
+          <div className="flex items-center justify-between gap-3 sm:gap-6">
+            <div className="flex-1 text-center">
+              <Text className="block text-[12px] text-gray-500">Check-in</Text>
+              <Text strong className="block text-[15px] leading-tight text-[#05144b] sm:text-[22px]">
+                {checkIn}
+              </Text>
+              {search?.checkIn && dayjs(search.checkIn).isValid() && (
+                <Text className="text-[12px] text-gray-500">
+                  {dayjs(search.checkIn).format("dddd")}
+                </Text>
+              )}
+            </div>
+
+            <div className="flex shrink-0 flex-col items-center">
+              <div className="rounded-full border border-[#fda20f] px-3 py-1 text-[12px] font-medium whitespace-nowrap text-[#05144b]">
+                <ClockCircleOutlined className="mr-1" />
+                {nights} Night{nights > 1 ? "s" : ""}
+              </div>
+              <Text className="mt-2 text-center text-[11px] whitespace-nowrap text-gray-500 sm:text-[13px]">
+                {search?.rooms?.length || 1} Room
+                {search?.adults
+                  ? ` • ${search.adults} Adult${search.adults > 1 ? "s" : ""}`
+                  : ""}
+                {search?.children
+                  ? ` • ${search.children} Child${search.children > 1 ? "ren" : ""}`
+                  : ""}
               </Text>
             </div>
-            <div className="mt-2 flex flex-wrap gap-3">
-              <Tag color="green" className="rounded-full px-4 py-1">
-                Reservation Confirmed
-              </Tag>
- 
-              <Tag color="processing" className="rounded-full px-4 py-1">
-                Payment Success
-              </Tag>
+
+            <div className="flex-1 text-center">
+              <Text className="block text-[12px] text-gray-500">Check-out</Text>
+              <Text strong className="block text-[15px] leading-tight text-[#05144b] sm:text-[22px]">
+                {checkOut}
+              </Text>
+              {search?.checkOut && dayjs(search.checkOut).isValid() && (
+                <Text className="text-[12px] text-gray-500">
+                  {dayjs(search.checkOut).format("dddd")}
+                </Text>
+              )}
             </div>
-            <div className="my-5 border-t border-dashed" />
- 
-            {/* Booking Details */}
- 
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="rounded-lg border border-gray-200 bg-white p-3">
-                <Text className="block text-[12px] tracking-wide text-gray-500 uppercase">
-                  Booking Reference
-                </Text>
- 
-                <Text strong className="text-[15px]">
-                  {booking?.bookingReference}
-                </Text>
-              </div>
- 
-              <div className="rounded-lg border border-gray-200 bg-white p-3">
-                <Text className="block text-[12px] tracking-wide text-gray-500 uppercase">
-                  Booking Date
-                </Text>
- 
-                <Text strong className="text-[15px]">
-                  {bookingDate}
-                </Text>
-              </div>
-            </div>
- 
           </div>
         </div>
-      </div>
- 
-      {/* Divider */}
- 
- 
-      <div className="mt-5 rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] px-3 py-6 sm:p-4">
-        <div className="flex items-center justify-between gap-3 sm:gap-6">
-          {/* Check-in */}
-          <div className="flex-1 text-center">
-            <Text className="block text-[11px] text-gray-500 sm:text-[13px]">
-              Check-in
+
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-gray-100 bg-[#FAFCFF] p-3">
+            <Text className="block text-[11px] tracking-wide text-gray-500 uppercase">
+              Booking Reference
             </Text>
- 
-            <Text
-              strong
-              className="block text-[14px] leading-none sm:text-[22px]"
-            >
-              {dayjs(search?.checkIn).format("DD MMM YYYY")}
+            <Text strong className="text-[14px] break-all text-[#05144b]">
+              {booking?.bookingReference || "--"}
             </Text>
           </div>
- 
-          {/* Stay Info */}
-          <div className="flex shrink-0 flex-col items-center">
-            <div className="whitespace-nowrap rounded-full border border-[#76B7E5] px-2 py-1 text-[11px] font-medium text-[#2D8BC8] sm:px-4 sm:py-1 sm:text-[13px]">
-              <ClockCircleOutlined className="mr-1" />
-              {nights} Night{nights > 1 ? "s" : ""}
-            </div>
- 
-            <Text className="mt-2 whitespace-nowrap text-center text-[10px] text-gray-500 sm:text-[13px]">
-              {search?.rooms?.length || 1} Room • {search?.adults || 2} Adult
-              {search?.adults > 1 ? "s" : ""}
+          <div className="rounded-lg border border-gray-100 bg-[#FAFCFF] p-3">
+            <Text className="block text-[11px] tracking-wide text-gray-500 uppercase">
+              Booking Date
             </Text>
-          </div>
- 
-          {/* Check-out */}
-          <div className="flex-1 text-center">
-            <Text className="block text-[11px] text-gray-500 sm:text-[13px]">
-              Check-out
-            </Text>
- 
-            <Text
-              strong
-              className="block text-[14px] leading-none sm:text-[22px]"
-            >
-              {dayjs(search?.checkOut).format("DD MMM YYYY")}
+            <Text strong className="text-[14px] text-[#05144b]">
+              {bookingDate}
             </Text>
           </div>
         </div>
       </div>
-      {/* Footer */}
- 
-      <div className="mt-4 flex gap-3 rounded-xl border border-[#d8edf9] bg-[#f8fcff] px-4 py-3">
+
+      <div className="mx-5 mb-5 flex gap-3 rounded-xl border border-[#d8e4f5] bg-[#FAFCFF] px-4 py-3">
         <CheckCircleFilled className="mt-0.5 flex-shrink-0 text-[18px] text-[#0f766e]" />
- 
         <div>
-          <Text strong className="block text-[#0f766e]">
-            Reservation Created Successfully
+          <Text strong className="block text-[#05144b]">
+            {String(reservationStatus).toLowerCase() === "confirmed"
+              ? "Reservation Confirmed"
+              : `Reservation ${formatStatus(reservationStatus)}`}
           </Text>
- 
           <Text className="text-[13px] text-gray-500">
-            Complete your payment to confirm your booking.
+            {String(paymentStatus).toLowerCase() === "paid"
+              ? "Your payment has been received."
+              : "Complete your payment to confirm your booking."}
           </Text>
         </div>
       </div>

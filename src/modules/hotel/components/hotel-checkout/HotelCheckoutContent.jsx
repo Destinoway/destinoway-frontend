@@ -1,8 +1,7 @@
 "use client";
 
-import { Col, Row, Typography } from "antd";
+import { Col, Row, Tag, Typography } from "antd";
 
-import { ClockCircleOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BackgroundSection from "../hotel-booking/BackgroundSection";
@@ -24,24 +23,46 @@ export default function HotelCheckoutContent({
   onRemoveCoupon,
   couponLoading,
 }) {
-  const hotel = bookingData?.supplierData;
-  const room = bookingData?.selectedRoom;
-  const search = bookingData?.searchData;
+  const supplierResponse = booking?.supplierResponse || {};
+  const supplierRooms = supplierResponse?.HotelRoomDetail || [];
+  const hotel =
+    bookingData?.supplierData || supplierResponse?.HotelDetails || {};
+  const room = bookingData?.selectedRoom || supplierRooms[0] || {};
+  const occupants = booking?.guestDetails || [];
+  const search = bookingData?.searchData || {
+    checkIn: booking?.checkInDate,
+    checkOut: booking?.checkOutDate,
+    rooms: supplierRooms,
+    adults:
+      occupants.filter(
+        (guest) => guest?.occupantType?.toLowerCase() === "adult",
+      ).length || 2,
+    children: occupants.filter(
+      (guest) => guest?.occupantType?.toLowerCase() === "child",
+    ).length,
+  };
 
   const router = useRouter();
 
-  // 20 Minutes = 1200 Seconds
   const [timeLeft, setTimeLeft] = useState(20 * 60);
 
+  const isPaid = booking?.bookingStatus?.paymentStatus?.toLowerCase() === "paid";
+  const reservationStatus =
+    booking?.bookingStatus?.reservationStatus || "Pending";
+  const paymentStatus = booking?.bookingStatus?.paymentStatus || "Pending";
   const customer = booking?.customer;
-  const guestDetails = booking?.guestDetails || [];
+  const guestDetails = occupants;
 
   const coupons = booking?.availableCoupons || [];
   const priceSummary = booking?.priceSummary || {};
 
   useEffect(() => {
-    if (timeLeft <= 0) {
+    if (!isPaid && timeLeft <= 0) {
       router.push("/");
+      return;
+    }
+
+    if (isPaid) {
       return;
     }
 
@@ -50,67 +71,52 @@ export default function HotelCheckoutContent({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, router]);
+  }, [isPaid, timeLeft, router]);
 
   const minutes = String(Math.floor(timeLeft / 60)).padStart(2, "0");
   const seconds = String(timeLeft % 60).padStart(2, "0");
 
   return (
-    <div className="min-h-screen background-color-bg">
-      {/* Top Background */}
-      <div className="relative overflow-hidden">
-        <BackgroundSection />
-      </div>
+    <div className="background-color-bg min-h-screen pb-10">
+      <BackgroundSection />
 
-      {/* Main Content */}
-      <div className="relative z-20 mx-auto !-mt-10 max-w-[1320px] px-3 md:!-mt-12 md:px-5">
-        {/* HEADER */}
-        <div className="mb-4 rounded-[5px] border border-[#d8edf9] background-color-bg px-5 py-4 shadow-md">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div>
-              <Title
-                level={2}
-                className="font-roboto !mb-0 !text-[22px] !font-semibold"
-              >
-                Secure Checkout
-              </Title>
+      <div className="relative z-20 mx-auto -mt-10 max-w-[1250px] px-3 md:px-5">
+        <div className="mb-5 flex flex-col gap-3 rounded-xl border border-[#d8e4f5] bg-white px-5 py-4 shadow-md md:flex-row md:items-center md:justify-between">
+          <div>
+            <Title
+              level={2}
+              className="font-roboto !mb-0 !text-[22px] !font-semibold !text-[#05144b]"
+            >
+              Review & Pay
+            </Title>
+            <Text className="font-roboto text-[14px] text-gray-500">
+              {isPaid
+                ? "Your payment has been received for this hotel booking."
+                : "Complete your payment to confirm your hotel booking."}
+            </Text>
+          </div>
 
-              <Text className="font-roboto block text-[14px] text-gray-500">
-                Complete your payment to confirm your hotel booking.
-              </Text>
-            </div>
-
-            <div className="flex justify-center md:flex-1">
-              <div className="flex items-center gap-2 rounded-lg bg-[#fdf2ee] px-5 py-2">
-                <span className="text-[14px] text-gray-700">
-                  This price is guaranteed for...
-                </span>
-
-                <ClockCircleOutlined className="text-[18px] text-red-500" />
-
-                <span className="text-[20px] font-semibold text-red-500">
-                  {minutes}:{seconds}
-                </span>
-              </div>
-            </div>
-            <div className="mt-3 md:mt-0">
-              <div className="rounded-lg bg-[#f0f9ff] px-4 py-2">
-                <Text className="block text-[11px] tracking-wide text-gray-500 uppercase">
-                  Booking Reference
-                </Text>
-
-                <Text className="text-[16px] font-semibold text-[#0f766e]">
-                  {booking?.bookingReference}
-                </Text>
-              </div>
-            </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Tag color="green" className="!m-0 rounded-full px-3 py-1">
+              Reservation {reservationStatus}
+            </Tag>
+            <Tag
+              color={isPaid ? "green" : "orange"}
+              className="!m-0 rounded-full px-3 py-1"
+            >
+              Payment {paymentStatus}
+            </Tag>
+            {!isPaid && (
+              <Tag color="blue" className="!m-0 rounded-full px-3 py-1">
+                Guaranteed for {minutes}:{seconds}
+              </Tag>
+            )}
           </div>
         </div>
 
         <Row gutter={[24, 24]} align="top">
-          {/* LEFT */}
-          <Col xs={24} xl={16}>
-            <div className="flex flex-col gap-4">
+          <Col xs={24} lg={16}>
+            <div className="flex flex-col gap-5">
               <BookingSummaryCard
                 booking={booking}
                 hotel={hotel}
@@ -118,46 +124,39 @@ export default function HotelCheckoutContent({
                 search={search}
               />
 
-              {/* Coupon Mobile */}
-              <div className="xl:hidden">
-                <CouponCard
-                  coupons={coupons}
-                  priceSummary={priceSummary}
-                  onApplyCoupon={onApplyCoupon}
-                  loading={couponLoading}
-                />
-              </div>
+              <CustomerSummaryCard
+                customer={customer}
+                guestDetails={guestDetails}
+              />
+            </div>
+          </Col>
 
-              <PaymentMethodCard />
-
+          <Col xs={24} lg={8}>
+            <div className="flex flex-col gap-5 lg:sticky lg:top-24">
               <PriceSummaryCard
                 priceSummary={priceSummary}
                 onRemoveCoupon={onRemoveCoupon}
                 loading={couponLoading}
               />
 
+              {!isPaid && (
+                <>
+                  <CouponCard
+                    coupons={coupons}
+                    priceSummary={priceSummary}
+                    onApplyCoupon={onApplyCoupon}
+                    loading={couponLoading}
+                  />
+                  <PaymentMethodCard />
+                </>
+              )}
+
               <PaymentFooter
                 booking={booking}
                 priceSummary={priceSummary}
                 loading={loading}
                 onPay={onPay}
-              />
-            </div>
-          </Col>
-
-          {/* RIGHT */}
-          <Col xs={24} xl={8}>
-            <div className="xl:sticky xl:top-24">
-              <CustomerSummaryCard
-                customer={customer}
-                guestDetails={guestDetails}
-              />
-
-              <CouponCard
-                coupons={coupons}
-                priceSummary={priceSummary}
-                onApplyCoupon={onApplyCoupon}
-                loading={couponLoading}
+                isPaid={isPaid}
               />
             </div>
           </Col>
