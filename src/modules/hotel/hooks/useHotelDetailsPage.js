@@ -41,10 +41,10 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
 
   const routePayload = useMemo(() => {
     return buildHotelDetailsPayload({
-      selectedHotel: selectedHotelForRoute,
+      selectedHotel,
       initialPayload,
     });
-  }, [selectedHotelForRoute, initialPayload]);
+  }, [selectedHotel, initialPayload]);
 
   const shouldResolveRoute = Boolean(
     initialPayload &&
