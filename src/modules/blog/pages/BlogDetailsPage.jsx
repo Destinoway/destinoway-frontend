@@ -41,7 +41,7 @@ const BlogDetailsPage = ({ blog }) => {
       })
     : "";
 
-  const authorName = blog?.createdByName || "Pan Journey";
+  const authorName = blog?.createdByName || "Destonoway";
 
   return (
     <>

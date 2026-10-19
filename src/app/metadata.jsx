@@ -6,15 +6,15 @@ export const metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default: "PAN Journey",
-    template: "%s | PAN Journey",
+    default: "Destonoway",
+    template: "%s | Destonoway",
   },
 
   description:
-    "Book hotels, flights and buses easily with PAN Journey. Find the best travel deals and destinations.",
+    "Book hotels, flights and buses easily with Destonoway. Find the best travel deals and destinations.",
 
   keywords: [
-    "PAN Journey",
+    "Destonoway",
     "hotels",
     "flights",
     "bus booking",
@@ -27,10 +27,10 @@ export const metadata = {
   },
 
   openGraph: {
-    title: "PAN Journey - Travel & Booking",
-    description: "Book hotels, flights and travel packages with PAN Journey.",
+    title: "Destonoway - Travel & Booking",
+    description: "Book hotels, flights and travel packages with Destonoway.",
     url: "/",
-    siteName: "PAN Journey",
+    siteName: "Destonoway",
     locale: "en_IN",
     type: "website",
 
@@ -39,15 +39,15 @@ export const metadata = {
         url: OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: "PAN Journey - Travel & Booking",
+        alt: "Destonoway - Travel & Booking",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "PAN Journey - Travel & Booking",
-    description: "Book hotels, flights and travel packages with PAN Journey.",
+    title: "Destonoway - Travel & Booking",
+    description: "Book hotels, flights and travel packages with Destonoway.",
     images: [OG_IMAGE],
   },
 
@@ -82,7 +82,7 @@ export const metadata = {
 
   /*
    * IMPORTANT:
-   * Currently PAN Journey should NOT be indexed by search engines.
+   * Currently Destonoway should NOT be indexed by search engines.
    */
   robots: {
     index: false,

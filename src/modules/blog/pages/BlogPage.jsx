@@ -160,7 +160,7 @@ const BlogPage = () => {
           {/* HERO CONTENT */}
           <div className="relative mx-auto flex min-h-[300px] w-full max-w-7xl flex-col items-start justify-center px-4 py-10 text-left sm:px-6 lg:px-8">
             <span className="rounded-full bg-white/8 px-4 py-2 text-[12px] font-semibold tracking-wider text-white uppercase backdrop-blur-sm">
-              PAN JOURNEY TRAVEL BLOG
+              Destonoway TRAVEL BLOG
             </span>
 
             <h1 className="!mt-4 max-w-4xl !text-[30px] leading-[1.12] font-bold tracking-tight text-white sm:text-[44px] lg:text-[52px]">
@@ -214,7 +214,7 @@ const BlogPage = () => {
                       setSearch("");
                       setPage(1);
                     }}
-                    className="mr-2 cursor-pointer flex shrink-0 items-center justify-center border-0 bg-transparent p-0 text-gray-400 transition-colors hover:text-gray-600"
+                    className="mr-2 flex shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-gray-400 transition-colors hover:text-gray-600"
                     aria-label="Clear search"
                   >
                     <CloseCircleFilled className="text-[18px]" />

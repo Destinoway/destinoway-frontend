@@ -12,7 +12,6 @@ import { fetchCmsBySlug } from "@/modules/cms/services/cmsFetch";
 
 import ScrollToTopButton from "@/modules/hotel/ScrollToTopButton";
 
-import GiftCardSlider from "@/modules/shared/home/components/hero_section/GiftCardSlider";
 import Hero from "@/modules/shared/home/components/hero_section/Hero";
 import TrustSection from "@/modules/shared/home/components/hero_section/TrustSection";
 
@@ -25,10 +24,10 @@ export async function generateMetadata() {
   const homeCms = await fetchCmsBySlug("home");
   const title =
     homeCms?.metaTitle ||
-    "PAN Journey – Book Hotels, Flights & Travel Deals Online";
+    "Destinoway – Book Hotels, Flights & Travel Deals Online";
   const description =
     homeCms?.metaDescription ||
-    "Book hotels, flights and travel packages with PAN Journey.";
+    "Book hotels, flights and travel packages with Destinoway.";
   const keywords = Array.isArray(homeCms?.keywords)
     ? homeCms.keywords.join(", ")
     : homeCms?.keywords || undefined;
@@ -59,7 +58,7 @@ export async function generateMetadata() {
       title,
       description,
       url: SITE_URL,
-      siteName: "PAN Journey",
+      siteName: "Destinoway",
       type: "website",
       locale: "en_IN",
 
@@ -68,7 +67,7 @@ export async function generateMetadata() {
           url: OG_IMAGE,
           width: 1200,
           height: 630,
-          alt: "PAN Journey - Travel & Booking",
+          alt: "Destinoway - Travel & Booking",
         },
       ],
     },
@@ -115,7 +114,7 @@ export default async function Page() {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "PAN Journey",
+    name: "Destinoway",
     url: SITE_URL,
     potentialAction: {
       "@type": "SearchAction",
@@ -127,7 +126,7 @@ export default async function Page() {
   const orgSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "PAN Journey",
+    name: "Destinoway",
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
   };

@@ -28,7 +28,7 @@ export const shareHotel = async ({
       title: hotelName,
       text: `Check out ${hotelName}${
         cityName ? ` in ${cityName}` : ""
-      } on PAN Journey.`,
+      } on Destonoway.`,
       url: hotelUrl,
     };
 

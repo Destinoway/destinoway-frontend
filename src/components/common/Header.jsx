@@ -74,7 +74,7 @@ const navigationItems = [
   {
     id: "about",
     label: "About Us",
-    subtitle: "Know PAN Journey",
+    subtitle: "Know Destonoway",
     href: "/about-us",
     icon: Info,
     desktop: true,
@@ -203,7 +203,7 @@ export default function Header() {
           <Link href="/" className="flex items-center">
             <Image
               src="/images/LOGO-DW.png"
-              alt="PAN Journey"
+              alt="Destonoway"
               width={400}
               height={970}
               priority
@@ -333,7 +333,7 @@ export default function Header() {
           <div className="flex items-center gap-2">
             <Image
               src="/images/LOGO-DW-Symbol.png"
-              alt="PAN Journey"
+              alt="Destonoway"
               width={48}
               height={48}
             />

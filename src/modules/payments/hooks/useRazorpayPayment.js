@@ -23,7 +23,7 @@ export const useRazorpayPayment = () => {
       amount: paymentData.amount,
       currency: paymentData.currency,
       order_id: paymentData.orderId,
-      name: "PAN Journey",
+      name: "Destonoway",
       description: "Hotel Booking",
       prefill: {
         name: customer?.name || "",
