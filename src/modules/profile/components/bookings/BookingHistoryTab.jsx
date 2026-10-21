@@ -124,9 +124,9 @@ export default function BookingHistoryTab() {
           <h2 className="font-roboto mb-0! text-[22px] leading-tight font-semibold text-white!">
             My Bookings
           </h2>
-          <p className="mb-0! text-[13px] text-white/75">
-            {counts.all} booking{counts.all !== 1 ? "s" : ""} • {counts.confirmed}{" "}
-            confirmed • {counts.pending} awaiting payment
+          <p className="mb-0! text-[13px] !text-white/75">
+            {counts.all} booking{counts.all !== 1 ? "s" : ""} •{" "}
+            {counts.confirmed} confirmed • {counts.pending} awaiting payment
           </p>
         </div>
 
@@ -142,7 +142,7 @@ export default function BookingHistoryTab() {
                   onClick={() => setActiveFilter(tab.key)}
                   className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-[14px] font-medium transition-all ${
                     active
-                      ? "border-[#05144b] bg-[#05144b] text-white"
+                      ? "border-[#05144b] bg-[#05144b] text-white!"
                       : "border-gray-200 bg-white text-gray-700 hover:border-[#05144b]"
                   }`}
                 >
@@ -167,7 +167,7 @@ export default function BookingHistoryTab() {
               onChange={(e) => setSearch(e.target.value)}
               prefix={<SearchOutlined className="text-gray-400" />}
               placeholder="Search hotel, city or booking ID"
-              className="h-10 rounded-lg"
+              className="h-10 rounded-lg [&_.ant-input]:!border-0 [&_.ant-input]:!shadow-none [&_.ant-input]:focus:!shadow-none"
             />
           </div>
         </div>

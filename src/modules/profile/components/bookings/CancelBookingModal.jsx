@@ -1,7 +1,20 @@
 "use client";
 
 import { ExclamationCircleFilled, InfoCircleOutlined } from "@ant-design/icons";
+import { Input, Select } from "antd";
 import { Modal } from "antd";
+import { useState } from "react";
+
+const CANCEL_REASONS = [
+  "Change of travel plans",
+  "Found a better price elsewhere",
+  "Booked by mistake",
+  "Personal or medical emergency",
+  "Dates changed",
+  "Hotel issue or poor reviews",
+  "Payment or booking issue",
+  "Other",
+];
 
 export default function CancelBookingModal({
   open,
@@ -12,6 +25,12 @@ export default function CancelBookingModal({
   hotelName,
   cancellationCharge = 0,
 }) {
+  const [reason, setReason] = useState();
+  const [otherText, setOtherText] = useState("");
+
+  const isOther = reason === "Other";
+  const remarks = isOther ? otherText.trim() : reason;
+
   return (
     <Modal open={open} onCancel={onCancel} footer={null} width={520} centered>
       <div className="p-5">
@@ -53,6 +72,35 @@ export default function CancelBookingModal({
           </div>
         </div>
 
+        <div className="mt-4">
+          <label className="mb-1 block text-[14px] font-medium text-gray-700">
+            Reason for cancellation <span className="text-red-500">*</span>
+          </label>
+
+          <Select
+            className="w-full"
+            size="large"
+            placeholder="Select a reason"
+            value={reason}
+            onChange={setReason}
+            options={CANCEL_REASONS.map((item) => ({
+              label: item,
+              value: item,
+            }))}
+          />
+
+          {isOther && (
+            <Input.TextArea
+              className="mt-2"
+              rows={3}
+              maxLength={250}
+              placeholder="Please tell us the reason"
+              value={otherText}
+              onChange={(e) => setOtherText(e.target.value)}
+            />
+          )}
+        </div>
+
         <div className="mt-4 flex gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
           <InfoCircleOutlined className="mt-[2px] text-amber-500" />
 
@@ -70,8 +118,8 @@ export default function CancelBookingModal({
           </button>
 
           <button
-            onClick={onConfirm}
-            disabled={loading}
+            onClick={() => onConfirm(remarks)}
+            disabled={loading || !remarks}
             className="h-11 flex-1 rounded-xl bg-red-500 font-semibold text-white! transition hover:bg-red-600 disabled:opacity-60"
           >
             {loading ? "Cancelling..." : "Cancel Booking"}

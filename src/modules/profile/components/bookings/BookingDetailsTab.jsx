@@ -207,8 +207,8 @@ export default function BookingDetailsTab({ bookingRefNo }) {
 🌐 Booked via Destinoway
 `;
 
-  const handleConfirmCancellation = () => {
-    cancelBooking(booking.bookingRefNo, {
+  const handleConfirmCancellation = (remarks) => {
+    cancelBooking({ bookingRefNo: booking.bookingRefNo, remarks }, {
       onSuccess: (response) => {
         message.success(response?.message || "Booking cancelled successfully");
 
@@ -249,7 +249,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
         <button
           type="button"
           onClick={goBack}
-          className="flex items-center gap-2 text-[15px] font-semibold text-[#05144b]"
+          className="flex items-center gap-2 text-[15px] font-semibold text-[#05144b] cursor-pointer"
         >
           <ArrowLeftOutlined />
           Back
@@ -381,7 +381,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                     {`${guest.firstName?.[0] || ""}${guest.lastName?.[0] || ""}`}
                   </div>
                   <div className="min-w-0">
-                    <p className="mb-0! truncate text-[14px] font-semibold text-[#05144b]">
+                    <p className="mb-0! truncate text-[14px] font-semibold text-[rgb(5,20,75)]">
                       {[guest.title, guest.firstName, guest.lastName]
                         .filter(Boolean)
                         .join(" ")}
@@ -564,7 +564,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                 type="button"
                 onClick={handleDownloadInvoice}
                 disabled={downloading}
-                className="flex h-11 items-center justify-center gap-2 rounded-lg border border-[#05144b] bg-white text-[15px] font-semibold text-[#05144b] transition-all hover:bg-[#05144b] hover:text-white disabled:opacity-60"
+                className="flex h-11 items-center justify-center gap-2 rounded-lg border border-[#05144b] bg-white text-[15px] font-semibold text-[#05144b] transition-all hover:bg-[#05144b] hover:text-white! disabled:opacity-60"
               >
                 <DownloadOutlined />
                 {downloading ? "Downloading..." : "Download Invoice"}
@@ -585,7 +585,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                 type="button"
                 onClick={() => setCancelModalOpen(true)}
                 disabled={cancelling}
-                className="flex h-11 items-center justify-center rounded-lg border border-red-300 bg-red-50 text-[15px] font-semibold text-red-500 transition-all hover:bg-red-500 hover:text-white disabled:opacity-60"
+                className="flex h-11 items-center justify-center rounded-lg border border-red-300 bg-red-50 text-[15px] font-semibold text-red-500 transition-all hover:bg-red-500 hover:text-white! disabled:opacity-60"
               >
                 {cancelling ? "Cancelling..." : "Cancel Booking"}
               </button>

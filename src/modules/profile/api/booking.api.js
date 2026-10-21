@@ -23,10 +23,14 @@ export const downloadInvoiceApi = async (bookingRefNo) => {
   return response.data;
 };
 
-export const cancelBookingApi = async (bookingRefNo) => {
-  const response = await api.post("/hotel/cancel", {
-    bookingRefNo,
-  });
+export const cancelBookingApi = async ({ bookingRefNo, remarks }) => {
+  const response = await api.post(
+    `/cancel-booking/${encodeURIComponent(bookingRefNo)}`,
+    {
+      confirmCancellation: true,
+      remarks,
+    },
+  );
 
   return response.data;
 };
