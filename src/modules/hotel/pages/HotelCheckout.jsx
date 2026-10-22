@@ -66,6 +66,7 @@ export default function HotelCheckout() {
       bookingDetails?.bookingRefNo || bookingDetails?.bookingReference,
     tempBookingId:
       bookingDetails?.tempBookingId ||
+      bookingDetails?.bookingRefNo ||
       bookingDetails?.bookingId ||
       bookingDetails?._id,
     customer: bookingDetails?.customer || {

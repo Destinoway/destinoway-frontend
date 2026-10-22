@@ -24,7 +24,7 @@ export default function HotelItinerary() {
 
   if (!mounted) return null;
 
-  if (!itinerary || (bookingId && itinerary.bookingId !== bookingId)) {
+  if (!itinerary || (bookingId && (itinerary.bookingRefNo || itinerary.bookingId) !== bookingId)) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-4 text-center">
         <h2 className="text-xl font-semibold text-[#05144b]">

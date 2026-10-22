@@ -93,7 +93,7 @@ export default function ItineraryContent({ itinerary }) {
 
   const handlePay = () =>
     payNow({
-      bookingId: itinerary.bookingId,
+      bookingId: itinerary.bookingRefNo || itinerary.bookingId,
       customer: {
         name: fullName({
           firstName: contactInfo.firstName,
@@ -344,7 +344,7 @@ export default function ItineraryContent({ itinerary }) {
                   <div className="flex justify-between">
                     <Text className="text-gray-500">Booking ID</Text>
                     <Text strong className="max-w-[180px] truncate">
-                      {itinerary.bookingId}
+                      {itinerary.bookingRefNo || itinerary.bookingId}
                     </Text>
                   </div>
                   <div className="flex justify-between">

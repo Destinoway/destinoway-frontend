@@ -194,7 +194,7 @@ export default function HotelBookingContent({
     bookHotel(payload, {
       onSuccess: (response) => {
         const itinerary = response?.data;
-        const bookingId = itinerary?.bookingId;
+        const bookingId = itinerary?.bookingRefNo || itinerary?.bookingId;
 
         if (!bookingId) {
           bookingSubmissionRef.current = false;
