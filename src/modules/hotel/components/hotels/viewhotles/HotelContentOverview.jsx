@@ -169,7 +169,7 @@ export default function HotelContentOverview({ hotelContent = {} }) {
 
       {/* Location and Nearby Places */}
       {nearbyPlaces.length > 0 && (
-        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <section className="mt-4 overflow-hidden !rounded-xl border border-gray-200 bg-white shadow-sm">
           {/* Header */}
           <header className="flex items-center gap-3 border-b border-gray-100 bg-gray-50 px-4 py-5 sm:px-5">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-xl text-sky-700">
