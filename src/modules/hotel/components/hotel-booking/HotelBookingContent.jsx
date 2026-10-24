@@ -26,6 +26,7 @@ import SpecialRequestCard from "./SpecialRequestCard";
 import StaySummaryCard from "./StaySummaryCard";
 
 import HotelBookingContents from "../../mobile-componant/HotelBookingContents";
+import PriceBreakupCard from "./PriceBreakupCard";
 
 const subscribeToMount = () => () => {};
 const getClientMountSnapshot = () => true;
@@ -249,6 +250,12 @@ export default function HotelBookingContent({
             <Row gutter={[14, 23]}>
               <Col xs={24} lg={15}>
                 <div className="-mt-10! space-y-4 px-1 sm:space-y-5 sm:px-0">
+                  <BookingHeaderCard bookingData={bookingData} />
+                  <StaySummaryCard
+                    bookingData={bookingData}
+                    occupancy={occupancy}
+                  />
+                  <RoomPackageCard bookingData={bookingData} />
                   <GuestDetailsForm
                     ref={guestFormRef}
                     onSubmit={handleGuestSubmit}
@@ -285,12 +292,8 @@ export default function HotelBookingContent({
 
               <Col xs={24} lg={8}>
                 <div className="-mt-10! space-y-4 px-1 sm:space-y-5 sm:px-0">
-                  <BookingHeaderCard bookingData={bookingData} />
-                  <StaySummaryCard
-                    bookingData={bookingData}
-                    occupancy={occupancy}
-                  />
-                  <RoomPackageCard bookingData={bookingData} />
+                  <PriceBreakupCard bookingData={bookingData} />
+                  
                   <CouponsBankOffers bookingData={bookingData} />
                 </div>
               </Col>

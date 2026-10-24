@@ -47,7 +47,7 @@ export default function PriceBreakupCard({ bookingData }) {
 
   return (
     <Card
-      className="rounded border-0 shadow-[0_4px_12px_rgba(0,0,0,0.12)]"
+      className="!mb-3 rounded border-0 shadow-[0_4px_6px_rgba(0,0,0,0.12)]"
       styles={{
         body: {
           padding: 16,

@@ -17,7 +17,7 @@ export default function BookingAgreement({ checked, onChange, bookingData }) {
             PRICE BREAKUP
             ================================================== */}
 
-        <PriceBreakupCard bookingData={bookingData} />
+       
 
         {/* ==================================================
             AGREEMENT
