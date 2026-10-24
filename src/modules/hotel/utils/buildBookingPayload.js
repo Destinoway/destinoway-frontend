@@ -19,10 +19,16 @@ export const buildBookingPayload = ({ bookingData = {}, guestData = {}, requestD
     requestData?.other || "",
   ].filter(Boolean).join(", ");
 
+  const itineraryId =
+    bookingData?.itineraryId ||
+    bookingData?.selectedRoom?.itineraryId ||
+    bookingData?.rooms?.[0]?.itineraryId;
+
   return {
     searchId: bookingData?.searchId || "",
     supplierHotelId: bookingData?.supplierHotelId || "",
     recommendationId: bookingData?.recommendationId || "",
+    ...(itineraryId ? { itineraryId } : {}),
     contactInfo: {
       title: primaryGuest?.title || "Mr",
       firstName: primaryGuest?.firstName || "",

@@ -16,6 +16,7 @@ import {
   HeartOutlined,
   ShareAltOutlined,
   StarFilled,
+  TagsFilled,
 } from "@ant-design/icons";
 
 import { message } from "antd";
@@ -87,17 +88,34 @@ function MobileHotelCard({ hotel, wishlistIds }) {
     return images;
   }, [hotel?.image, hotel?.heroImage, hotel?.images]);
 
-  const price = useMemo(() => {
-    return Number(hotel.price || 0);
-  }, [hotel.price]);
+  const priceDetails = hotel?.priceDetails || hotel?.rawHotel?.price || {};
 
-  const tax = useMemo(() => {
-    return Number(hotel.tax || 0);
-  }, [hotel.tax]);
+  const price = Number(priceDetails?.basePrice ?? hotel?.price ?? 0) || 0;
 
-  const oldPrice = useMemo(() => {
-    return Number(price + price * 0.1);
-  }, [price]);
+  const tax =
+    Number(
+      priceDetails?.["platform&servicetax"] ?? hotel?.tax ?? 0,
+    ) || 0;
+
+  const beforeCouponPrice =
+    Number(priceDetails?.totalPriceBeforeCoupon ?? hotel?.oldPrice) ||
+    (price ? Math.round(price + price * 0.1) : 0);
+
+  const couponDiscountPercent = Number(
+    priceDetails?.couponDiscountPercent,
+  );
+  const discountPercent = Number.isFinite(couponDiscountPercent)
+    ? couponDiscountPercent
+    : 8;
+  const couponCode = priceDetails?.appliedCouponCode || "";
+  const couponDiscount = Number(priceDetails?.couponDiscount);
+  const couponLabel = couponCode
+    ? `${couponCode} applied${
+        Number.isFinite(couponDiscount) && couponDiscount > 0
+          ? ` - ${hotel?.currencySymbol || "₹"}${couponDiscount.toLocaleString("en-IN", { maximumFractionDigits: 2 })} off!`
+          : ""
+      }`
+    : hotel?.couponText || "Coupon applicable";
 
   const stars = useMemo(() => {
     return Math.min(Number(hotel.starRating || 0), 5);
@@ -360,25 +378,43 @@ function MobileHotelCard({ hotel, wishlistIds }) {
                     : `+${facilities.length - 4} More`}
                 </button>
               )}
+
+              {(couponCode || hotel?.couponText) && (
+                <div className="mt-2 flex items-center gap-1.5 text-left text-xs font-medium text-green-700">
+                  <TagsFilled className="shrink-0" />
+                  <span>{couponLabel}</span>
+                </div>
+              )}
             </div>
 
             {/* Right Side Price */}
             <div className="shrink-0 text-right">
-              <p className="!mb-0 text-[13px] text-gray-400 line-through">
-                <span>{hotel.currencySymbol || "₹"}</span>
-                {oldPrice.toLocaleString("en-IN")}
-              </p>
+              <div className="flex items-center justify-end gap-1">
+                <p className="!mb-0 text-[13px] text-gray-400 line-through">
+                  <span>{hotel.currencySymbol || "₹"}</span>
+                  {beforeCouponPrice.toLocaleString("en-IN", {
+                    maximumFractionDigits: 2,
+                  })}
+                </p>
+                <span className="text-[11px] font-medium text-red-600">
+                  -{discountPercent.toLocaleString("en-IN", {
+                    maximumFractionDigits: 2,
+                  })}
+                  %
+                </span>
+              </div>
 
               <h2 className="font-jost! mt-1 mb-0! truncate text-[18px]! font-bold!">
                 <span className="mr-1 text-[12px]">
                   {hotel.currencySymbol || "₹"}
                 </span>
-                {price.toLocaleString("en-IN")}
+                {price.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
               </h2>
 
               <p className="mt-1 text-[11px] leading-4 text-gray-500">
                 + {hotel.currencySymbol || "₹"}
-                {tax.toLocaleString("en-IN")} taxes & fees
+                {tax.toLocaleString("en-IN", { maximumFractionDigits: 2 })}{" "}
+                taxes & fees
               </p>
 
               <p className="most-text-color text-[14px]">Per Night</p>

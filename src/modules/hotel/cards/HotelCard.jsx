@@ -181,18 +181,34 @@ const isMobile = useIsMobile(700);
     }
   }, [currentImage, hotelImages.length]);
 
-  const price = useMemo(() => {
-    return Number(hotel?.price || 0);
-  }, [hotel?.price]);
+  const priceDetails = hotel?.priceDetails || hotel?.rawHotel?.price || {};
 
-  const tax = useMemo(() => {
-    return Number(hotel?.tax || 0);
-  }, [hotel?.tax]);
+  const price = Number(priceDetails?.basePrice ?? hotel?.price ?? 0) || 0;
 
-  const oldPrice = useMemo(() => {
-    if (!price) return 0;
-    return Math.round(price + price * 0.1);
-  }, [price]);
+  const tax =
+    Number(
+      priceDetails?.["platform&servicetax"] ?? hotel?.tax ?? 0,
+    ) || 0;
+
+  const beforeCouponPrice =
+    Number(priceDetails?.totalPriceBeforeCoupon ?? hotel?.oldPrice) ||
+    (price ? Math.round(price + price * 0.1) : 0);
+
+  const couponDiscountPercent = Number(
+    priceDetails?.couponDiscountPercent,
+  );
+  const discountPercent = Number.isFinite(couponDiscountPercent)
+    ? couponDiscountPercent
+    : 8;
+  const couponCode = priceDetails?.appliedCouponCode || "";
+  const couponDiscount = Number(priceDetails?.couponDiscount);
+  const couponLabel = couponCode
+    ? `${couponCode} applied${
+        Number.isFinite(couponDiscount) && couponDiscount > 0
+          ? ` - ${hotel?.currencySymbol || "₹"}${couponDiscount.toLocaleString("en-IN", { maximumFractionDigits: 2 })} off!`
+          : ""
+      }`
+    : hotel?.couponText || "Coupon applicable";
 
   const stars = useMemo(() => {
     return Math.min(Number(hotel?.starRating || 0), 5);
@@ -488,8 +504,8 @@ const isMobile = useIsMobile(700);
               {/* COUPON */}
             </div>
 
-            {facilities.length > 0 && (
-              <div className="mt-0">
+            <div className="mt-0">
+              {facilities.length > 0 && (
                 <div className="flex max-w-full flex-wrap items-center gap-1 overflow-hidden min-[1200px]:gap-1.5">
                   {visibleFacilities.map((tag, i) => (
                     <span
@@ -518,31 +534,35 @@ const isMobile = useIsMobile(700);
                     </button>
                   )}
                 </div>
-                {hotelBenefits.length > 0 && (
-                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                    {hotelBenefits.map((benefit) => (
-                      <div
-                        key={benefit.key}
-                        className="flex items-center gap-1 text-[11px] font-medium text-green-700 min-[1200px]:text-[12px]"
-                      >
-                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100">
-                          <span className="text-[11px] font-bold text-green-700">
-                            ✓
-                          </span>
+              )}
+              {hotelBenefits.length > 0 && (
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                  {hotelBenefits.map((benefit) => (
+                    <div
+                      key={benefit.key}
+                      className="flex items-center gap-1 text-[11px] font-medium text-green-700 min-[1200px]:text-[12px]"
+                    >
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100">
+                        <span className="text-[11px] font-bold text-green-700">
+                          ✓
                         </span>
+                      </span>
 
-                        <span>{benefit.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <TagsFilled className="shrink-0 text-[11px] !text-[rgb(0,126,62)] min-[1200px]:text-[15px]" />
+                      <span>{benefit.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {(couponCode || hotel?.couponText || facilities.length > 0) && (
+                <div className="mt-1 flex items-center gap-1.5">
+                  <TagsFilled className="shrink-0 text-[11px] !text-[rgb(0,126,62)] min-[1200px]:text-[15px]" />
 
-                <span className="truncate pl-2 text-[11px] font-medium !text-[rgb(0,126,62)] min-[1200px]:text-[14px]">
-                  {hotel?.couponText || "Coupon applicable"}
-                </span>
-              </div>
-            )}
+                  <span className="truncate text-[11px] font-medium !text-[rgb(0,126,62)] min-[1200px]:text-[14px]">
+                    {couponLabel}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex w-[185px] shrink-0 flex-col justify-between border-l border-gray-300 px-2.5 py-3 min-[1100px]:w-[200px] min-[1200px]:w-[215px] min-[1300px]:w-[225px] min-[1400px]:w-[235px] min-[1536px]:w-[245px]">
@@ -592,11 +612,16 @@ const isMobile = useIsMobile(700);
               <div className="flex items-center justify-end gap-1">
                 <span className="text-[15px] font-semibold text-gray-500 line-through min-[1200px]:text-[18px]">
                   {hotel?.currencySymbol || "₹"}
-                  {oldPrice.toLocaleString("en-IN")}
+                  {beforeCouponPrice.toLocaleString("en-IN", {
+                    maximumFractionDigits: 2,
+                  })}
                 </span>
 
                 <span className="text-[11px] font-medium text-[#d93025] min-[1200px]:text-[13px]">
-                  -8%
+                  -{discountPercent.toLocaleString("en-IN", {
+                    maximumFractionDigits: 2,
+                  })}
+                  %
                 </span>
               </div>
 
@@ -606,7 +631,7 @@ const isMobile = useIsMobile(700);
                 </span>
 
                 <span className="text-[21px] leading-none font-bold text-[#d93025] min-[1200px]:text-[23px]">
-                  {price.toLocaleString("en-IN")}
+                  {price.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
                 </span>
 
                 <LockFilled className="ml-1 text-[10px] text-gray-600 min-[1200px]:text-[12px]" />
@@ -614,7 +639,8 @@ const isMobile = useIsMobile(700);
 
               <p className="mt-1 text-[9px] text-gray-500 min-[1200px]:text-[11px]">
                 + <span className="mr-1">{hotel?.currencySymbol || "₹"}</span>
-                {tax.toLocaleString("en-IN")} taxes & fees
+                {tax.toLocaleString("en-IN", { maximumFractionDigits: 2 })}{" "}
+                taxes & fees
               </p>
             </div>
           </div>

@@ -39,6 +39,11 @@ export const normalizeRoomPriceCheckResponse = (
 
   return {
     ...responseData,
+    itineraryId:
+      responseData?.itineraryId ??
+      responseData?.pricing?.itineraryId ??
+      selectedRoom?.itineraryId ??
+      "",
     hotelDetailId,
     searchId,
     supplierHotelId,
