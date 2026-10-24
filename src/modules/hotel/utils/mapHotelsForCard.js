@@ -103,7 +103,12 @@ export const mapHotelsForCard = ({
     const basicAmount =
       Number(price?.basePrice ?? hotel?.pricing?.basicAmount) || 0;
 
-    const tax = Number(price?.taxes ?? hotel?.pricing?.tax) || 0;
+    const tax =
+      Number(
+        price?.["platform&servicetax"] ??
+          price?.taxes ??
+          hotel?.pricing?.tax,
+      ) || 0;
 
     const totalAmount =
       Number(price?.totalPrice ?? hotel?.pricing?.totalAmount) ||
@@ -151,6 +156,7 @@ export const mapHotelsForCard = ({
       oldPrice: Number(hotel?.oldPrice) || 0,
       tax,
       totalAmount,
+      priceDetails: price,
 
       facilities,
       tags,

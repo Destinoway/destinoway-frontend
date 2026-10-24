@@ -116,9 +116,35 @@ const mapRatePlan = (recommendation = {}, roomGroup = {}) => {
     roomGroup?.RoomGroupId ||
     roomGroup?.RoomGroupID ||
     "";
-  const baseRate = Number(roomGroup?.baseRate ?? recommendation?.baseRate ?? 0);
-  const totalRate = Number(roomGroup?.totalRate ?? recommendation?.totalRate ?? 0);
-  const tax = Number(roomGroup?.tax ?? recommendation?.tax ?? 0);
+  const priceDetails =
+    roomGroup?.price ||
+    recommendation?.price ||
+    roomGroup?.priceDetails ||
+    recommendation?.priceDetails ||
+    roomGroup?.pricing?.price ||
+    recommendation?.pricing?.price ||
+    roomGroup?.pricing ||
+    recommendation?.pricing ||
+    {};
+  const baseRate = Number(
+    priceDetails?.basePrice ??
+      roomGroup?.baseRate ??
+      recommendation?.baseRate ??
+      0,
+  );
+  const totalRate = Number(
+    priceDetails?.totalPrice ??
+      roomGroup?.totalRate ??
+      recommendation?.totalRate ??
+      0,
+  );
+  const tax = Number(
+    priceDetails?.["platform&servicetax"] ??
+      priceDetails?.taxes ??
+      roomGroup?.tax ??
+      recommendation?.tax ??
+      0,
+  );
   const roomImages = Array.isArray(room?.images)
     ? room.images
         .map((item) => normalizeImage(item))
@@ -171,12 +197,18 @@ const mapRatePlan = (recommendation = {}, roomGroup = {}) => {
     beds: asArray(getField(room, roomGroup, recommendation, "beds")),
     facilities: asArray(getField(room, roomGroup, recommendation, "facilities")),
     pricing: {
+      ...priceDetails,
       basicAmount: baseRate,
       baseRate,
       tax,
       totalRate,
       totalAmount: totalRate,
-      currency: roomGroup?.currency || recommendation?.currency || "INR",
+      currency:
+        priceDetails?.currency ||
+        roomGroup?.currency ||
+        recommendation?.currency ||
+        "INR",
+      priceDetails,
     },
   };
 };

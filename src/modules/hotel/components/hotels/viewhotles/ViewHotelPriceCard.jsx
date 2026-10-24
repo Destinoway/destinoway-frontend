@@ -5,6 +5,7 @@ import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
 import { useHotelBookingStore } from "@/modules/hotel/store/booking.store";
 import { buildRoomBookingUrl } from "@/modules/hotel/utils/buildRoomBookingUrl";
 import { selectFeaturedRoomPlan } from "@/modules/hotel/utils/selectFeaturedRoomPlan";
+import RoomPriceBreakdown from "./RoomPriceBreakdown";
 import {
   CalendarOutlined,
   TeamOutlined,
@@ -39,17 +40,6 @@ const ViewHotelPriceCard = ({
   const pricing = selectedPlan?.pricing || {};
 
   /* ================= PRICE DATA ================= */
-
-  const basicPrice = Number(pricing?.basicAmount || 0);
-  const tax = Number(pricing?.tax || 0);
-  const serviceFee = Number(pricing?.serviceFee || 0);
-  const markup = Number(pricing?.markup || 0);
-  const gst = Number(pricing?.gst || 0);
-  const totalPrice = Number(pricing?.totalAmount || 0);
-
-  const currency = pricing?.currency || "INR";
-  const currencySymbol =
-    currency === "INR" || currency === "₹" ? "₹" : currency;
 
   /* ================= CHECK-IN / CHECK-OUT ================= */
 
@@ -162,14 +152,6 @@ const ViewHotelPriceCard = ({
       hour12: true,
     });
   };
-
-  /* ================= PRICE FORMAT ================= */
-
-  const formatPrice = (value) =>
-    Number(value || 0).toLocaleString("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
 
   /* ================= LIST HELPER ================= */
 
@@ -443,66 +425,8 @@ const ViewHotelPriceCard = ({
           Price Details
         </h4>
 
-        <div className="mt-3 space-y-3 text-sm">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-gray-600">Basic Price</span>
-
-            <span className="text-right font-semibold text-gray-800">
-              {currencySymbol} {formatPrice(basicPrice)}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-gray-600">Taxes</span>
-
-            <span className="text-right font-semibold text-gray-800">
-              {currencySymbol} {formatPrice(tax)}
-            </span>
-          </div>
-
-          {serviceFee > 0 && (
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-gray-600">Service Fee</span>
-
-              <span className="text-right font-semibold text-gray-800">
-                {currencySymbol} {formatPrice(serviceFee)}
-              </span>
-            </div>
-          )}
-
-          {markup > 0 && (
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-gray-600">Markup</span>
-
-              <span className="text-right font-semibold text-gray-800">
-                {currencySymbol} {formatPrice(markup)}
-              </span>
-            </div>
-          )}
-
-          {gst > 0 && (
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-gray-600">GST</span>
-
-              <span className="text-right font-semibold text-gray-800">
-                {currencySymbol} {formatPrice(gst)}
-              </span>
-            </div>
-          )}
-
-          <div className="mt-2 border-t border-dashed border-gray-300 pt-3">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-base font-bold text-gray-900">Total Price</p>
-
-                <p className="mt-1 text-xs text-gray-500">Inclusive of taxes</p>
-              </div>
-
-              <p className="text-xl leading-tight font-extrabold text-red-600 sm:text-2xl">
-                {currencySymbol} {formatPrice(totalPrice)}
-              </p>
-            </div>
-          </div>
+        <div className="mt-3">
+          <RoomPriceBreakdown pricing={pricing} />
         </div>
       </div>
 

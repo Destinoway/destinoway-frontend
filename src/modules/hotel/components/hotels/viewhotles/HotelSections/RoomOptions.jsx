@@ -4,18 +4,11 @@ import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
 import RoomDescription from "@/modules/hotel/components/hotels/viewhotles/RoomDescription";
 import { buildRoomBookingUrl } from "@/modules/hotel/utils/buildRoomBookingUrl";
 import { useHotelBookingStore } from "@/modules/hotel/store/booking.store";
+import RoomPriceBreakdown from "../RoomPriceBreakdown";
 import { Button, Modal } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-
-const formatPrice = (value, currency) =>
-  `${currency === "INR" || currency === "₹" ? "₹" : currency} ${Number(
-    value || 0,
-  ).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
 
 const getText = (value) => {
   if (
@@ -141,7 +134,6 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
   const fallbackImage =
     getImageUrl(hotelImageFallback) || "/images/heroimage.jpg";
   const imageSrc = images[imageIndex] || fallbackImage;
-  const currency = plan?.pricing?.currency || "INR";
   const availability = getAvailabilityLabel(plan?.availability);
   const roomName = plan?.roomType || "Room option";
   const items = [
@@ -351,35 +343,7 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
         </div>
 
         <div className="flex flex-col justify-center rounded-xl bg-slate-50 p-4">
-          <div className="space-y-2 text-sm">
-            {plan?.pricing?.baseRate !== null &&
-              plan?.pricing?.baseRate !== undefined && (
-                <div className="flex justify-between gap-3">
-                  <span className="text-slate-500">Base rate</span>
-                  <span className="font-medium text-slate-800">
-                    {formatPrice(plan.pricing.baseRate, currency)}
-                  </span>
-                </div>
-              )}
-            {plan?.pricing?.tax !== null &&
-              plan?.pricing?.tax !== undefined && (
-                <div className="flex justify-between gap-3">
-                  <span className="text-slate-500">Tax</span>
-                  <span className="font-medium text-slate-800">
-                    {formatPrice(plan.pricing.tax, currency)}
-                  </span>
-                </div>
-              )}
-            {plan?.pricing?.totalRate !== null &&
-              plan?.pricing?.totalRate !== undefined && (
-                <div className="flex justify-between gap-3 border-t border-slate-200 pt-3">
-                  <span className="font-semibold text-slate-700">Total</span>
-                  <span className="text-lg font-bold text-slate-900">
-                    {formatPrice(plan.pricing.totalRate, currency)}
-                  </span>
-                </div>
-              )}
-          </div>
+          <RoomPriceBreakdown pricing={plan?.pricing} />
           <Button
             type="primary"
             size="large"
