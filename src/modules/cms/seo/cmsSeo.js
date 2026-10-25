@@ -1,9 +1,17 @@
+import { resolveSavedCanonical } from "../utils/canonical";
+import {
+  buildPageTitle,
+  joinSiteUrl,
+  normalizeSiteUrl,
+  titleToText,
+} from "../utils/seoUrl";
+
 export const buildCmsMetadata = (cms) => {
   if (!cms) {
     return {};
   }
 
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = normalizeSiteUrl(process.env.NEXTAUTH_URL);
 
   const slug = cms?.slug || "";
 
@@ -14,7 +22,7 @@ CANONICAL
 
   switch (cms?.entityType) {
     case "hotelCity":
-      canonical = `${siteUrl}/hotels/${slug}`;
+      canonical = joinSiteUrl(siteUrl, "hotels", slug);
       break;
 
     case "hotel": {
@@ -26,30 +34,33 @@ CANONICAL
         .replace(/\s+/g, "-");
 
       canonical = citySlug
-        ? `${siteUrl}/hotel-details/${citySlug}/${slug}`
-        : `${siteUrl}/hotel-details/${slug}`;
+        ? joinSiteUrl(siteUrl, "hotel-details", citySlug, slug)
+        : joinSiteUrl(siteUrl, "hotel-details", slug);
       break;
     }
 
     case "city":
-      canonical = `${siteUrl}/hotels/${slug}`;
+      canonical = joinSiteUrl(siteUrl, "hotels", slug);
       break;
 
     case "marketing":
-      canonical = `${siteUrl}/${slug}`;
+      canonical = joinSiteUrl(siteUrl, slug);
       break;
 
     case "static":
-      canonical = `${siteUrl}/${slug}`;
+      canonical = joinSiteUrl(siteUrl, slug);
       break;
 
     default:
-      canonical = `${siteUrl}/${slug}`;
+      canonical = joinSiteUrl(siteUrl, slug);
   }
+  canonical = resolveSavedCanonical(cms?.canonicalUrl, siteUrl) || canonical;
+
   /*
   BASIC
   */
-  const title = cms?.metaTitle || cms?.title || "Destonoway";
+  const title = buildPageTitle(cms?.metaTitle || cms?.title);
+  const titleText = titleToText(title);
 
   const description =
     cms?.metaDescription ||
@@ -93,7 +104,8 @@ CANONICAL
     CANONICAL
     */
     alternates: {
-      canonical: new URL(canonical),
+      // Must stay a string: Next treats a URL instance as a base and swaps in the page pathname.
+      canonical,
     },
 
     /*
@@ -120,7 +132,7 @@ CANONICAL
     OPEN GRAPH
     */
     openGraph: {
-      title,
+      title: titleText,
       description,
       url: canonical,
       siteName: "Destonoway",
@@ -133,7 +145,7 @@ CANONICAL
               url: image,
               width: 1200,
               height: 630,
-              alt: title,
+              alt: titleText,
             },
           ]
         : [],
@@ -144,7 +156,7 @@ CANONICAL
     */
     twitter: {
       card: "summary_large_image",
-      title,
+      title: titleText,
       description,
       images: image ? [image] : [],
     },

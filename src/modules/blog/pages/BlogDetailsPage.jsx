@@ -52,7 +52,7 @@ const BlogDetailsPage = ({ blog }) => {
           {blog?.featuredImage && (
             <img
               src={blog.featuredImage}
-              alt={blog.title}
+              alt={blog.featuredImageAlt || blog.title || ""}
               className="h-full w-full object-cover opacity-50"
             />
           )}

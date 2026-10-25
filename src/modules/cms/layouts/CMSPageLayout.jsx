@@ -1,7 +1,8 @@
 export default function CMSPageLayout({ children, cms }) {
   const blocks = cms?.data?.blocks || [];
 
-  const hasHero = blocks?.some((b) => b?.type === "hero");
+  // The first hero with a title renders the page H1; otherwise the layout supplies it.
+  const hasHero = blocks?.some((b) => b?.type === "hero" && b?.data?.title);
 
   return (
     <div

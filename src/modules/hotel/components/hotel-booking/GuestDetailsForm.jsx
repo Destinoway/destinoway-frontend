@@ -14,9 +14,10 @@ import {
   useState,
 } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { primaryGuestSchema } from "../../schema/guest.schema";
+import { getPrimaryGuestSchema } from "../../schema/guest.schema";
 
-const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
+const GuestDetailsForm = forwardRef(
+  ({ onSubmit, occupancy = [], isPANRequired = false }, ref) => {
   const [roomOccupancy, setRoomOccupancy] = useState([]);
   const [expandedRooms, setExpandedRooms] = useState({});
 
@@ -111,7 +112,7 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
   }, [guestFields]);
 
   const methods = useForm({
-    resolver: zodResolver(primaryGuestSchema),
+    resolver: zodResolver(getPrimaryGuestSchema(isPANRequired)),
     defaultValues,
     mode: "onSubmit",
   });
@@ -152,7 +153,7 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
               customerState: data?.customerState || "",
               customerCity: data?.customerCity || "",
               customerPostalCode: data?.customerPostalCode || "",
-              panNumber: data?.panNumber || "",
+              panNumber: isPANRequired ? data?.panNumber || "" : "",
 
               customerMobile: data?.customerMobile || "",
               customerEmail: data?.customerEmail || "",
@@ -327,7 +328,9 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
               <RHFInput name="customerState" label="State" />
               <RHFInput name="customerCity" label="City" />
               <RHFInput name="customerPostalCode" label="Postal Code" />
-              <RHFInput name="panNumber" label="PAN Number" />
+              {isPANRequired && (
+                <RHFInput name="panNumber" label="PAN Number" />
+              )}
               <RHFInput name="customerEmail" label="Email" />
               <RHFPhoneInput
                 name="customerMobile"
@@ -340,7 +343,8 @@ const GuestDetailsForm = forwardRef(({ onSubmit, occupancy = [] }, ref) => {
       </FormProvider>
     </Card>
   );
-});
+  },
+);
 
 GuestDetailsForm.displayName = "GuestDetailsForm";
 
