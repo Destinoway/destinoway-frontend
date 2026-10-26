@@ -54,7 +54,7 @@ export default function PriceBreakupCard({ bookingData = {} }) {
           type="button"
           aria-expanded={isExpanded}
           onClick={() => setIsExpanded((expanded) => !expanded)}
-          className="flex shrink-0 items-center gap-2 border-0 bg-transparent p-0 text-xs font-semibold text-[#1677ff]!  sm:text-sm"
+          className="flex shrink-0 items-center gap-2 border-0 bg-transparent p-0 text-xs font-semibold text-[#1677ff]!  sm:text-sm cursor-pointer"
         >
           {isExpanded ? "Hide Price Breakup" : "Show Price Breakup"}
           {isExpanded ? (
