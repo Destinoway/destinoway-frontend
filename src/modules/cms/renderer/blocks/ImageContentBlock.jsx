@@ -20,7 +20,7 @@ export default function ImageContentBlock({ data }) {
               <div className="w-full overflow-hidden rounded-[18px] sm:rounded-[22px] lg:rounded-[24px]">
                 <Image
                   src={encodeURI(data.image)}
-                  alt={data?.title || "section"}
+                  alt={data?.imageAlt || data?.title || ""}
                   width={1200}
                   height={700}
                   className="block h-auto max-h-[420px] w-full object-cover shadow-[0_15px_40px_rgba(15,23,42,0.12)] sm:max-h-[460px] lg:max-h-[520px]"

@@ -4,6 +4,7 @@ import { Button, Col, Row } from "antd";
 import BackgroundSection from "../components/hotel-booking/BackgroundSection";
 import BookingAgreement from "../components/hotel-booking/BookingAgreement";
 import BookingHeaderCard from "../components/hotel-booking/BookingHeaderCard";
+import CouponsBankOffers from "../components/hotel-booking/CouponsBankOffers";
 import GuestDetailsForm from "../components/hotel-booking/GuestDetailsForm";
 import ImportantInfoCard from "../components/hotel-booking/ImportantInfoCard";
 import PriceBreakupCard from "../components/hotel-booking/PriceBreakupCard";
@@ -20,6 +21,7 @@ export default function HotelBookingContents({
   storeBookingData,
   handleGuestSubmit,
   handleRequestChange,
+  handleCouponUpdate,
   handleBooking,
   isPending,
 }) {
@@ -35,12 +37,17 @@ export default function HotelBookingContents({
               ref={guestFormRef}
               onSubmit={handleGuestSubmit}
               occupancy={occupancy}
+              isPANRequired={hotelBookingData?.isPANRequired}
             />
 
             <StaySummaryCard bookingData={hotelBookingData} />
             <RoomPackageCard bookingData={hotelBookingData} />
 
             <PriceBreakupCard bookingData={hotelBookingData} />
+            <CouponsBankOffers
+              bookingData={hotelBookingData}
+              onCouponUpdate={handleCouponUpdate}
+            />
           </div>
         </Col>
         <Row gutter={[14, 23]}>

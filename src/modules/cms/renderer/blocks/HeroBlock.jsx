@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function HeroBlock({ data }) {
+export default function HeroBlock({ data, titleAs: TitleTag = "h2" }) {
   if (!data) return null;
 
   const imageUrl = data?.image ? encodeURI(data.image) : null;
@@ -27,6 +27,14 @@ export default function HeroBlock({ data }) {
             : "linear-gradient(135deg,#0f172a,#1e293b)",
         }}
       >
+        {imageUrl && data?.imageAlt && (
+          <span
+            role="img"
+            aria-label={data.imageAlt}
+            className="absolute inset-0"
+          />
+        )}
+
         <div className="absolute inset-0 bg-black/10" />
 
         <div
@@ -39,14 +47,14 @@ export default function HeroBlock({ data }) {
           <div className={`${hasButton ? "max-w-[820px]" : "max-w-[650px]"}`}>
             {/* TITLE */}
             {data?.title && (
-              <h2
+              <TitleTag
                 className="text-[25px] leading-tight font-bold text-white sm:text-[30px] md:text-[40px]"
                 style={{
                   textShadow: "0 3px 12px rgba(0,0,0,.25)",
                 }}
               >
                 {data.title}
-              </h2>
+              </TitleTag>
             )}
 
             {/* SUBTITLE */}

@@ -8,6 +8,8 @@ import { fetchCityCms } from "@/modules/cms/services/cmsFetch";
 import HotelContent from "@/modules/hotel/pages/Hotel";
 import { searchDestinationServer } from "@/modules/hotel/services/search.server";
 import dayjs from "dayjs";
+import { redirectIfCmsMoved } from "@/modules/cms/services/cmsRedirect";
+import { buildRequestedPath } from "@/modules/cms/utils/redirectPath";
 import { notFound } from "next/navigation";
 
 const formatCityName = (value = "") => {
@@ -127,6 +129,10 @@ export default async function Page({ params, searchParams }) {
   const preview = query?.preview === "true";
   const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
   const cms = await fetchCityCms(slug, preview);
+
+  if (!cms) {
+    await redirectIfCmsMoved(buildRequestedPath("hotels", slug));
+  }
 
   let cityName = formatCityName(slug);
   let cityData = null;

@@ -44,6 +44,7 @@ export default function HotelBookingContent({
     getServerMountSnapshot,
   );
   const [agreement, setAgreement] = useState(false);
+  const [couponUpdate, setCouponUpdate] = useState({});
   const guestFormRef = useRef(null);
   const bookingSubmissionRef = useRef(false);
   const { mutate: bookHotel, isPending } = useHotelBooking();
@@ -62,11 +63,19 @@ export default function HotelBookingContent({
       hotelId: hotelBookingData?.hotelId || "",
       roomId: hotelBookingData?.roomId || roomId || "",
       searchData,
+      ...couponUpdate,
     }),
-    [hotelBookingData, hotelDetailId, roomId, searchData],
+    [couponUpdate, hotelBookingData, hotelDetailId, roomId, searchData],
   );
 
   const occupancy = useMemo(() => {
+    if (
+      Array.isArray(hotelBookingData?.occupancies) &&
+      hotelBookingData.occupancies.length
+    ) {
+      return hotelBookingData.occupancies;
+    }
+
     if (Array.isArray(searchData?.roomGuests) && searchData.roomGuests.length) {
       return searchData.roomGuests.map((room, index) => ({
         roomNo: index + 1,
@@ -229,6 +238,7 @@ export default function HotelBookingContent({
     storeBookingData,
     handleGuestSubmit,
     handleRequestChange,
+    handleCouponUpdate: setCouponUpdate,
     handleBooking,
     isPending,
     session,
@@ -260,6 +270,7 @@ export default function HotelBookingContent({
                     ref={guestFormRef}
                     onSubmit={handleGuestSubmit}
                     occupancy={occupancy}
+                    isPANRequired={bookingData?.isPANRequired}
                   />
 
                   <SpecialRequestCard
@@ -294,7 +305,10 @@ export default function HotelBookingContent({
                 <div className="-mt-10! space-y-4 px-1 sm:space-y-5 sm:px-0">
                   <PriceBreakupCard bookingData={bookingData} />
                   
-                  <CouponsBankOffers bookingData={bookingData} />
+                  <CouponsBankOffers
+                    bookingData={bookingData}
+                    onCouponUpdate={setCouponUpdate}
+                  />
                 </div>
               </Col>
             </Row>

@@ -2,6 +2,27 @@
 import { Card, Typography } from "antd";
 import RoomDescription from "@/modules/hotel/components/hotels/viewhotles/RoomDescription";
 const { Title, Text } = Typography;
+
+const formatDetail = (value) => {
+  if (value === null || value === undefined || value === "") return "";
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (Array.isArray(value)) {
+    return value.map(formatDetail).filter(Boolean).join(", ");
+  }
+  return String(
+    value?.description ||
+      value?.name ||
+      value?.title ||
+      value?.text ||
+      value?.value ||
+      value?.reason ||
+      "",
+  );
+};
+
 export default function RoomPackageCard({ bookingData }) {
   const room = Array.isArray(bookingData?.rooms)
     ? bookingData.rooms[0] || bookingData?.selectedRoom || {}
@@ -9,10 +30,35 @@ export default function RoomPackageCard({ bookingData }) {
   const boardBasis = room?.boardBasis || room?.inclusion || room?.Inclusion || "";
   const beds = Array.isArray(room?.beds) ? room.beds : [];
   const facilities = Array.isArray(room?.facilities) ? room.facilities : [];
-  const cancellationPolicy =
-    room?.policy?.outPolicyReason || room?.cancellationPolicy || "";
+  const cancellationPolicy = formatDetail(
+    room?.policy?.outPolicyReason ||
+      room?.cancellationPolicy ||
+      room?.policies,
+  );
   const refundable = room?.refundable ?? bookingData?.refundable;
   const payment = room?.payment || {};
+  const isPANRequired =
+    bookingData?.isPANRequired === true || room?.isPANRequired === true;
+  const occupancies = Array.isArray(room?.occupancies) ? room.occupancies : [];
+  const roomFacts = [
+    ["Area", room?.area],
+    ["View", room?.views],
+    ["Room type", room?.type],
+    ["Maximum guests", room?.maxGuestAllowed],
+    ["Maximum adults", room?.maxAdultAllowed],
+    ["Maximum children", room?.maxChildrenAllowed],
+    [
+      "Smoking",
+      typeof room?.smokingAllowed === "boolean"
+        ? room.smokingAllowed
+          ? "Allowed"
+          : "Not allowed"
+        : "",
+    ],
+  ]
+    .map(([label, value]) => [label, formatDetail(value)])
+    .filter(([, value]) => value);
+
   return (
     <Card
       className="!mb-3 !rounded-xl !border !border-gray-200 !bg-white !shadow-[0_2px_10px_rgba(0,0,0,0.06)]"
@@ -32,9 +78,13 @@ export default function RoomPackageCard({ bookingData }) {
               {room?.roomType || "Selected Room"}
             </Title>
           </div>
-          {(cancellationPolicy || refundable === true) && (
+          {(cancellationPolicy || refundable !== null && refundable !== undefined) && (
             <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-medium text-emerald-600 sm:text-[11px]">
-              {cancellationPolicy ? "Free Cancellation" : "Refundable"}
+              {cancellationPolicy
+                ? "Free Cancellation"
+                : refundable
+                  ? "Refundable"
+                  : "Non-refundable"}
             </span>
           )}
         </div>
@@ -88,6 +138,57 @@ export default function RoomPackageCard({ bookingData }) {
             </div>
           )}
 
+          {!!roomFacts.length && (
+            <dl className="m-0 grid gap-3 sm:grid-cols-2">
+              {roomFacts.map(([label, value]) => (
+                <div key={label}>
+                  <dt className="text-[12px] font-semibold text-[#172033]">
+                    {label}
+                  </dt>
+                  <dd className="m-0 mt-1 text-[12px] text-gray-600">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+
+          {!!occupancies.length && (
+            <div>
+              <Text className="!mb-2 !block !text-[12px] !font-semibold !text-[#172033]">
+                Room occupancy
+              </Text>
+              <div className="flex flex-wrap gap-2">
+                {occupancies.map((occupancy, index) => {
+                  const adults = Number(
+                    occupancy?.numOfAdults ?? occupancy?.adults ?? 0,
+                  );
+                  const children = Number(
+                    occupancy?.numOfChildren ??
+                      occupancy?.children?.length ??
+                      0,
+                  );
+                  const childAges = Array.isArray(occupancy?.childAges)
+                    ? occupancy.childAges
+                    : [];
+
+                  return (
+                    <span
+                      key={occupancy?.occupancyId ?? index}
+                      className="rounded-md bg-slate-50 px-3 py-1.5 text-xs text-gray-700"
+                    >
+                      {adults} {adults === 1 ? "adult" : "adults"}
+                      {children > 0 &&
+                        `, ${children} ${
+                          children === 1 ? "child" : "children"
+                        }`}
+                      {childAges.length > 0 &&
+                        ` (ages ${childAges.join(", ")})`}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {!!facilities.length && (
             <div>
               <Text className="!mb-2 !block !text-[12px] !font-semibold !text-[#172033]">Room facilities</Text>
@@ -113,7 +214,7 @@ export default function RoomPackageCard({ bookingData }) {
           </div>
         )}
         {/* ================= PAYMENT REQUIREMENTS ================= */}
-        {(payment?.creditCardRequired || payment?.panMandatory) && (
+        {(payment?.creditCardRequired || payment?.panMandatory || isPANRequired) && (
           <div className="border-t border-gray-100 pt-4">
             <Text className="!mb-2.5 !block !text-[12px] !font-semibold !text-[#172033]">
               Payment Requirements
@@ -125,7 +226,7 @@ export default function RoomPackageCard({ bookingData }) {
                   <span> Credit card is required for this booking. </span>
                 </div>
               )}
-              {payment?.panMandatory && (
+              {(payment?.panMandatory || isPANRequired) && (
                 <div className="flex items-start gap-2 text-[11px] leading-5 text-gray-600 sm:text-[12px]">
                   <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gray-400" />
                   <span> PAN number is mandatory for this booking. </span>

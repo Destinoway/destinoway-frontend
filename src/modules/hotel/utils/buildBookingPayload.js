@@ -35,6 +35,9 @@ export const buildBookingPayload = ({ bookingData = {}, guestData = {}, requestD
       lastName: primaryGuest?.lastName || "",
       mobile: guestData?.customerMobile || "",
       email: guestData?.customerEmail || "",
+      ...(bookingData?.isPANRequired
+        ? { panNumber: guestData?.panNumber || "" }
+        : {}),
       address: guestData?.customerAddress || "",
       state: guestData?.customerState || "",
       city: guestData?.customerCity || "",

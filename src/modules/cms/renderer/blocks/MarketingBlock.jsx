@@ -13,7 +13,7 @@ export default function MarketingBlock({ data }) {
         {data?.bannerImage && (
           <img
             src={data.bannerImage}
-            alt={data.bannerTitle || "Banner"}
+            alt={data.imageAlt || data.bannerTitle || ""}
             className="mb-6 w-full rounded object-cover"
           />
         )}

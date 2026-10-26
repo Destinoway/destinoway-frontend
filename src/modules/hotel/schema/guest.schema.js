@@ -23,6 +23,16 @@ export const primaryGuestSchema = z.object({
   paxDetails: z.record(guestFieldsSchema),
 });
 
+export const getPrimaryGuestSchema = (isPANRequired) =>
+  isPANRequired
+    ? primaryGuestSchema.extend({
+        panNumber: z
+          .string()
+          .trim()
+          .regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/i, "Enter a valid PAN number"),
+      })
+    : primaryGuestSchema;
+
 export const guestSchema = guestFieldsSchema.extend({
   isChild: z.boolean().optional(),
 });

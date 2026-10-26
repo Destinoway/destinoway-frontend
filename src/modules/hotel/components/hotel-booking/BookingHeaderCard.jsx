@@ -25,6 +25,9 @@ export default function BookingHeaderCard({ bookingData }) {
   const room = bookingData?.rooms?.[0] || bookingData?.selectedRoom || {};
 
   const roomName = room?.roomType || room?.GroupName || "Selected Room";
+  const facilities = Array.isArray(bookingData?.facilities)
+    ? bookingData.facilities
+    : [];
 
   return (
     <Card
@@ -89,6 +92,24 @@ export default function BookingHeaderCard({ bookingData }) {
             <Text className="!block !text-[11px] !leading-[17px] !text-gray-400 sm:!text-[12px] sm:!leading-5">
               {fullLocation}
             </Text>
+          )}
+
+          {facilities.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {facilities.slice(0, 4).map((facility) => (
+                <span
+                  key={facility}
+                  className="rounded-full bg-gray-50 px-2 py-1 text-[10px] font-medium text-gray-600"
+                >
+                  {facility}
+                </span>
+              ))}
+              {facilities.length > 4 && (
+                <span className="rounded-full bg-gray-50 px-2 py-1 text-[10px] font-medium text-gray-500">
+                  +{facilities.length - 4} more
+                </span>
+              )}
+            </div>
           )}
 
           {/* Room Name */}
