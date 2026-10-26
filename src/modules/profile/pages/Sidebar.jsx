@@ -91,7 +91,7 @@ export default function Sidebar({ activeTab, setActiveTab, horizontal }) {
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="font-roboto! mb-0 truncate text-center text-[16px] font-bold text-gray-700 sm:text-left sm:text-[18px]">
+              <p className="font-roboto! mb-0! truncate text-center text-[16px] font-bold text-gray-700 sm:text-left sm:text-[18px]">
                 {user?.name || "User"}
               </p>
               <p className="font-roboto! text-center text-[13px] font-semibold text-gray-500 sm:text-left sm:text-[14px]">

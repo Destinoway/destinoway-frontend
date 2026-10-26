@@ -24,9 +24,7 @@ export default function WishlistDetailTab() {
   const cityId = searchParams.get("cityId");
   const { data, isLoading } = useWishlistCity(cityId);
   const hotels = data?.data || [];
-  const { appliedSearchData, setDraftSearchData } = useHotelSearchStore();
-
-  console.log("hotels in wishlist", hotels);
+  const { appliedSearchData } = useHotelSearchStore();
 
   useEffect(() => {
     if (!isLoading && hotels.length === 0) {
@@ -53,6 +51,7 @@ export default function WishlistDetailTab() {
       fromWishlist: true,
       hotelMeta: {
         hotelId: hotel.hotelId,
+        hotelName: hotel.hotelName,
         cityId: hotel.cityId,
         stateName: hotel.stateName || "",
         countryCode: hotel.countryCode || "",
