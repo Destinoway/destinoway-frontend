@@ -20,13 +20,16 @@ import { message, Skeleton } from "antd";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
 import { useBookingDetails } from "../../hooks/useBookingDetails";
 import { useCancelBooking } from "../../hooks/useCancelBooking";
 import { useDownloadInvoice } from "../../hooks/useDownloadInvoice";
+
 import {
   getBookingStatusMeta,
   STATUS_TONE_CLASSES,
 } from "../../utils/bookingStatus";
+
 import CancelBookingModal from "./CancelBookingModal";
 import ShareBookingModal from "./ShareBookingModal";
 
@@ -34,7 +37,10 @@ const cardClass =
   "overflow-hidden rounded-2xl border border-[#E5EEF7] bg-white shadow-[0_10px_35px_rgba(5,20,75,0.08)]";
 
 const formatDate = (value, pattern = "DD MMM YYYY") => {
+  if (!value) return "--";
+
   const date = dayjs(value);
+
   return date.isValid() ? date.format(pattern) : "--";
 };
 
@@ -44,10 +50,12 @@ function SectionHeader({ icon, title, subtitle }) {
       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff4de] text-[16px] text-[#05144b]">
         {icon}
       </div>
+
       <div>
-        <h2 className="font-roboto mb-0! text-[17px] leading-tight font-bold text-[#05144b]">
+        <h2 className="mb-0! text-[17px] leading-tight font-bold text-[#05144b]">
           {title}
         </h2>
+
         {subtitle && (
           <p className="mb-0! text-[13px] text-gray-500">{subtitle}</p>
         )}
@@ -62,8 +70,9 @@ function InfoTile({ label, value }) {
       <p className="mb-1 text-[11px] tracking-wide text-gray-500 uppercase">
         {label}
       </p>
-      <p className="mb-0! text-[14px] font-semibold break-all text-[#05144b]">
-        {value || "--"}
+
+      <p className="mb-0! text-[14px] font-semibold break-words text-[#05144b]">
+        {value ?? "--"}
       </p>
     </div>
   );
@@ -73,6 +82,7 @@ function PriceRow({ label, value, valueClass = "text-gray-900" }) {
   return (
     <div className="flex items-center justify-between border-b border-gray-100 py-2 last:border-0">
       <span className="text-[14px] text-gray-600">{label}</span>
+
       <span className={`text-[15px] font-semibold ${valueClass}`}>{value}</span>
     </div>
   );
@@ -81,15 +91,20 @@ function PriceRow({ label, value, valueClass = "text-gray-900" }) {
 export default function BookingDetailsTab({ bookingRefNo }) {
   const router = useRouter();
   const queryClient = useQueryClient();
+
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const { mutate: downloadInvoice, isPending: downloading } =
     useDownloadInvoice();
+
   const { mutate: cancelBooking, isPending: cancelling } = useCancelBooking();
+
   const { data, isLoading, isError, refetch } = useBookingDetails(bookingRefNo);
 
-  const goBack = () => router.push("/profile?tab=BookingHistory");
+  const goBack = () => {
+    router.push("/profile?tab=BookingHistory");
+  };
 
   if (isLoading) {
     return (
@@ -105,6 +120,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
         <p className="text-[18px] font-semibold text-[#05144b]">
           Booking not found
         </p>
+
         <div className="mt-4 flex justify-center gap-3">
           <button
             type="button"
@@ -113,10 +129,11 @@ export default function BookingDetailsTab({ bookingRefNo }) {
           >
             Back
           </button>
+
           <button
             type="button"
             onClick={() => refetch()}
-            className="buttion-background-color h-10 rounded-lg px-5 text-[14px] font-semibold text-white!"
+            className="buttion-background-color h-10 rounded-lg px-5 text-[14px] font-semibold text-white"
           >
             Retry
           </button>
@@ -125,7 +142,9 @@ export default function BookingDetailsTab({ bookingRefNo }) {
     );
   }
 
+  // Booking data must be initialized before accessing its properties.
   const booking = data;
+
   const supplier = booking.supplierResponse || {};
   const hotel = supplier.HotelDetails || {};
   const rooms = supplier.HotelRoomDetail || [];
@@ -135,11 +154,14 @@ export default function BookingDetailsTab({ bookingRefNo }) {
   const contact = booking.guestDetails || {};
 
   const hotelName = hotel.name || hotel.HotelName || "Hotel";
+
   const address = hotel.address || hotel.Address || "";
+
   const rating = Math.max(
     Number(hotel.starRating ?? hotel.StarCategoryId) || 0,
     0,
   );
+
   const facilities = (hotel.HotelFacilities || [])
     .map((item) => item.FacilityName)
     .filter(Boolean);
@@ -149,10 +171,33 @@ export default function BookingDetailsTab({ bookingRefNo }) {
       booking.ticketStatusDesc ||
       booking.itineraryStatus,
   );
+
   const isPaid = booking.paymentStatus?.toLowerCase() === "paid";
-  const canCancel = status.group === "confirmed" && isPaid;
+
+  // Cancellation fields from the API response.
+  const cancellationStatus = booking.cancellationStatus || "";
+
+  const cancellationRequestSent = booking.cancellationRequestSent === true;
+
+  const cancellationRemarks = booking.cancellationRemarks || "";
+
+  const cancellationId = booking.cancellationId || "";
+
+  const cancellationError = booking.cancellationError;
+
+  const cancelledAt = booking.cancelledAt || "";
+
+  // Use the cancellationStatus returned by the API.
+  const isCancelled =
+    cancellationStatus.toLowerCase() === "cancelled" ||
+    cancellationStatus.toLowerCase() === "canceled" ||
+    booking.isCancelled === true ||
+    booking.cancelled === true;
+
+  const canCancel = status.group === "confirmed" && isPaid && !isCancelled;
 
   const currency = pricing.currency || "INR";
+
   const formatPrice = (value) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -162,6 +207,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
 
   const checkIn = dayjs(booking.checkInDate);
   const checkOut = dayjs(booking.checkOutDate);
+
   const nights =
     checkIn.isValid() && checkOut.isValid()
       ? Math.max(checkOut.diff(checkIn, "day"), 1)
@@ -173,12 +219,14 @@ export default function BookingDetailsTab({ bookingRefNo }) {
       occupantType: "adult",
       roomNumber: room.occupancyId ?? index + 1,
     })),
+
     ...(room.children || []).map((guest) => ({
       ...guest,
       occupantType: "child",
       roomNumber: room.occupancyId ?? index + 1,
     })),
   ]);
+
   const guests = contact.occupants?.length ? contact.occupants : roomOccupants;
 
   const confirmationNo =
@@ -190,6 +238,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
   const autoDiscount = Number(offer.autoDiscount || 0);
   const couponDiscount = Number(offer.couponDiscount || 0);
   const totalDiscount = autoDiscount + couponDiscount;
+
   const payableAmount = booking.payableAmount ?? pricing.finalPrice;
 
   const policies =
@@ -203,25 +252,46 @@ export default function BookingDetailsTab({ bookingRefNo }) {
 📌 Booking Ref: ${booking.bookingRefNo}
 📅 Check In: ${formatDate(booking.checkInDate)}
 📅 Check Out: ${formatDate(booking.checkOutDate)}
-✅ Status: ${status.label}
+✅ Status: ${isCancelled ? "Cancelled" : status.label}
 🌐 Booked via Destinoway
 `;
 
   const handleConfirmCancellation = (remarks) => {
-    cancelBooking({ bookingRefNo: booking.bookingRefNo, remarks }, {
-      onSuccess: (response) => {
-        message.success(response?.message || "Booking cancelled successfully");
+    if (!canCancel || cancelling) return;
 
-        queryClient.invalidateQueries({ queryKey: ["my-bookings"] });
-        queryClient.invalidateQueries({ queryKey: ["booking-details"] });
+    cancelBooking(
+      {
+        bookingRefNo: booking.bookingRefNo,
+        remarks,
+      },
+      {
+        onSuccess: async (response) => {
+          message.success(
+            response?.message || "Cancellation request submitted successfully",
+          );
 
-        setCancelModalOpen(false);
-        setTimeout(goBack, 1000);
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: ["my-bookings"],
+            }),
+
+            queryClient.invalidateQueries({
+              queryKey: ["booking-details"],
+            }),
+          ]);
+
+          await refetch();
+
+          setCancelModalOpen(false);
+        },
+
+        onError: (error) => {
+          message.error(
+            error?.response?.data?.message || "Cancellation failed",
+          );
+        },
       },
-      onError: (error) => {
-        message.error(error?.response?.data?.message || "Cancellation failed");
-      },
-    });
+    );
   };
 
   const handleDownloadInvoice = () => {
@@ -229,34 +299,42 @@ export default function BookingDetailsTab({ bookingRefNo }) {
       onSuccess: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
+
         link.href = url;
         link.download = `invoice-${booking.bookingRefNo}.pdf`;
+
         document.body.appendChild(link);
         link.click();
         link.remove();
+
         window.URL.revokeObjectURL(url);
       },
-      onError: () => message.error("Unable to download invoice"),
+
+      onError: () => {
+        message.error("Unable to download invoice");
+      },
     });
   };
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Page heading */}
       <div className="flex items-center justify-between rounded-2xl border border-[#E5EEF7] bg-white px-5 py-4 shadow-[0_10px_35px_rgba(5,20,75,0.08)]">
-        <h2 className="font-roboto mb-0! text-[20px] font-semibold text-[#05144b]">
+        <h2 className="mb-0! text-[20px] font-semibold text-[#05144b]">
           Booking Details
         </h2>
+
         <button
           type="button"
           onClick={goBack}
-          className="flex items-center gap-2 text-[15px] font-semibold text-[#05144b] cursor-pointer"
+          className="flex cursor-pointer items-center gap-2 text-[15px] font-semibold text-[#05144b]"
         >
           <ArrowLeftOutlined />
           Back
         </button>
       </div>
 
-      {/* Hero */}
+      {/* Hotel summary */}
       <div className={cardClass}>
         <div className="bg-linear-to-r from-[#05144b] to-[#0c2fb1] p-5 text-white">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -276,14 +354,16 @@ export default function BookingDetailsTab({ bookingRefNo }) {
               <div className="min-w-0">
                 {rating > 0 && (
                   <div className="mb-1 flex gap-0.5 text-[#fda20f]">
-                    {Array.from({ length: rating }).map((_, i) => (
-                      <StarFilled key={i} />
+                    {Array.from({ length: rating }).map((_, index) => (
+                      <StarFilled key={index} />
                     ))}
                   </div>
                 )}
-                <h3 className="font-roboto! mb-1! text-[22px] leading-tight font-semibold text-white!">
+
+                <h3 className="mb-1! text-[22px] leading-tight font-semibold text-white">
                   {hotelName}
                 </h3>
+
                 <div className="flex items-start gap-2 text-white/80">
                   <EnvironmentOutlined className="mt-1" />
                   <span className="text-[14px]">{address || "--"}</span>
@@ -293,10 +373,15 @@ export default function BookingDetailsTab({ bookingRefNo }) {
 
             <div className="flex flex-wrap gap-2 md:justify-end">
               <span
-                className={`rounded-full border px-3 py-1 text-[12px] font-semibold ${STATUS_TONE_CLASSES[status.tone]}`}
+                className={`rounded-full border px-3 py-1 text-[12px] font-semibold ${
+                  isCancelled
+                    ? "border-red-200 bg-red-100 text-red-700"
+                    : STATUS_TONE_CLASSES[status.tone]
+                }`}
               >
-                {status.label}
+                {isCancelled ? "Cancelled" : status.label}
               </span>
+
               <span
                 className={`rounded-full border px-3 py-1 text-[12px] font-semibold ${
                   isPaid
@@ -311,13 +396,16 @@ export default function BookingDetailsTab({ bookingRefNo }) {
         </div>
 
         <div className="p-5">
+          {/* Check-in and check-out */}
           <div className="rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] px-3 py-5 sm:p-5">
             <div className="flex items-center justify-between gap-3 sm:gap-6">
               <div className="flex-1 text-center">
                 <p className="mb-1 text-[12px] text-gray-500">Check-in</p>
+
                 <p className="mb-0! text-[15px] leading-tight font-semibold text-[#05144b] sm:text-[22px]">
                   {formatDate(booking.checkInDate)}
                 </p>
+
                 <p className="mb-0! text-[12px] text-gray-500">
                   {formatDate(booking.checkInDate, "dddd")}
                 </p>
@@ -326,8 +414,9 @@ export default function BookingDetailsTab({ bookingRefNo }) {
               <div className="flex shrink-0 flex-col items-center">
                 <div className="rounded-full border border-[#fda20f] px-3 py-1 text-[12px] font-medium whitespace-nowrap text-[#05144b]">
                   <ClockCircleOutlined className="mr-1" />
-                  {nights} Night{nights > 1 ? "s" : ""}
+                  {nights} Night{nights !== 1 ? "s" : ""}
                 </div>
+
                 <p className="mt-2 mb-0! text-[12px] whitespace-nowrap text-gray-500">
                   {rooms.length || 1} Room • {guests.length} Guest
                   {guests.length !== 1 ? "s" : ""}
@@ -336,9 +425,11 @@ export default function BookingDetailsTab({ bookingRefNo }) {
 
               <div className="flex-1 text-center">
                 <p className="mb-1 text-[12px] text-gray-500">Check-out</p>
+
                 <p className="mb-0! text-[15px] leading-tight font-semibold text-[#05144b] sm:text-[22px]">
                   {formatDate(booking.checkOutDate)}
                 </p>
+
                 <p className="mb-0! text-[12px] text-gray-500">
                   {formatDate(booking.checkOutDate, "dddd")}
                 </p>
@@ -346,24 +437,59 @@ export default function BookingDetailsTab({ bookingRefNo }) {
             </div>
           </div>
 
+          {/* Booking information */}
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <InfoTile label="Booking ID" value={booking.bookingRefNo} />
+
             <InfoTile label="Confirmation No." value={confirmationNo} />
+
             <InfoTile
               label="Booked On"
               value={formatDate(booking.createdAt, "DD MMM YYYY, hh:mm A")}
             />
+
             <InfoTile
               label="Supplier Status"
-              value={supplierBooking.bookingStatus || booking.ticketStatusDesc}
+              value={booking.supplierBookingStatus || "--"}
             />
           </div>
+
+          {/* Cancellation details: only fields supplied by your API */}
+          {isCancelled && (
+            <div className="mt-4 overflow-hidden rounded-xl border border-red-200 bg-red-50">
+              <div className="flex items-center gap-2 border-b border-red-200 px-4 py-3">
+                <CheckCircleFilled className="text-red-600" />
+
+                <h3 className="mb-0! text-[15px] font-bold text-red-700">
+                  Cancellation Details
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+                <InfoTile
+                  label="Cancellation ID"
+                  value={cancellationId || "--"}
+                />
+
+                <InfoTile
+                  label="Cancelled At"
+                  value={formatDate(cancelledAt, "DD MMM YYYY, hh:mm A")}
+                />
+
+                <InfoTile
+                  label="Cancellation Remarks"
+                  value={cancellationRemarks || "--"}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Main content */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="flex min-w-0 flex-col gap-4">
-          {/* Guests */}
+          {/* Guest details */}
           <div className={cardClass}>
             <SectionHeader
               icon={<TeamOutlined />}
@@ -380,14 +506,16 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#fff4de] text-[14px] font-bold text-[#05144b]">
                     {`${guest.firstName?.[0] || ""}${guest.lastName?.[0] || ""}`}
                   </div>
+
                   <div className="min-w-0">
-                    <p className="mb-0! truncate text-[14px] font-semibold text-[rgb(5,20,75)]">
+                    <p className="mb-0! truncate text-[14px] font-semibold text-[#05144b]">
                       {[guest.title, guest.firstName, guest.lastName]
                         .filter(Boolean)
-                        .join(" ")}
+                        .join(" ") || "Guest"}
                     </p>
+
                     <p className="mb-0! text-[12px] text-gray-500 capitalize">
-                      {guest.occupantType}
+                      {guest.occupantType || "Guest"}
                       {guest.roomNumber ? ` • Room ${guest.roomNumber}` : ""}
                     </p>
                   </div>
@@ -395,38 +523,46 @@ export default function BookingDetailsTab({ bookingRefNo }) {
               ))}
 
               {guests.length === 0 && (
-                <p className="mb-0! text-gray-500">No guest details</p>
+                <p className="mb-0! text-gray-500">
+                  No guest details available.
+                </p>
               )}
             </div>
           </div>
 
-          {/* Contact */}
+          {/* Contact details */}
           <div className={cardClass}>
             <SectionHeader
               icon={<UserOutlined />}
               title="Contact Details"
               subtitle="Primary contact for this booking"
             />
+
             <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2">
               <InfoTile label="Name" value={contact.customerName} />
+
               <InfoTile label="Mobile" value={contact.customerMobile} />
+
               <div className="sm:col-span-2">
                 <InfoTile
                   label="Address"
-                  value={[contact.customerAddress, contact.customerPostalCode]
-                    .filter(Boolean)
-                    .join(", ")}
+                  value={
+                    [contact.customerAddress, contact.customerPostalCode]
+                      .filter(Boolean)
+                      .join(", ") || "--"
+                  }
                 />
               </div>
             </div>
           </div>
 
-          {/* Cancellation */}
+          {/* Hotel cancellation policy */}
           <div className={cardClass}>
             <SectionHeader
               icon={<SafetyCertificateFilled />}
               title="Cancellation Policy"
             />
+
             <div className="space-y-3 p-5">
               {policies.length > 0 ? (
                 policies.map((item, index) => {
@@ -439,12 +575,14 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                       key={index}
                       className="flex items-start gap-3 rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] p-4"
                     >
-                      <CheckCircleFilled className="mt-0.5 shrink-0 !text-[18px] !text-[#22c55e]" />
+                      <CheckCircleFilled className="mt-0.5 shrink-0 text-[18px] text-[#22c55e]" />
+
                       {match ? (
                         <div>
                           <p className="mb-1! text-[14px] font-medium text-gray-800">
                             {match[1]} - {match[2]}
                           </p>
+
                           <p className="mb-0! text-[15px] font-semibold text-red-600">
                             Charge: {formatPrice(match[3])}
                           </p>
@@ -458,21 +596,23 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                   );
                 })
               ) : (
-                <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-[14px] font-medium text-green-700">
+                <p className="mb-0! text-[14px] text-gray-500">
                   No cancellation policy available.
-                </div>
+                </p>
               )}
 
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-[13px] text-amber-800">
-                Cancellation charges may vary depending on the cancellation
-                date, supplier rules, and hotel policy.
+                Cancellation charges may vary depending on the cancellation date
+                and hotel policy.
               </div>
             </div>
           </div>
 
+          {/* Hotel facilities */}
           {facilities.length > 0 && (
             <div className={cardClass}>
               <SectionHeader icon={<HomeOutlined />} title="Hotel Facilities" />
+
               <div className="flex flex-wrap gap-2 p-5">
                 {facilities.map((item, index) => (
                   <span
@@ -486,9 +626,13 @@ export default function BookingDetailsTab({ bookingRefNo }) {
             </div>
           )}
 
-          {/* Map */}
+          {/* Hotel location */}
           <div className={cardClass}>
-            <SectionHeader icon={<EnvironmentOutlined />} title="Hotel Location" />
+            <SectionHeader
+              icon={<EnvironmentOutlined />}
+              title="Hotel Location"
+            />
+
             <div className="p-5">
               <div className="overflow-hidden rounded-xl border border-gray-200">
                 <iframe
@@ -502,41 +646,50 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                   )}&z=15&output=embed`}
                 />
               </div>
-              <p className="mt-3 mb-0! text-[14px] text-gray-700">{address}</p>
+
+              <p className="mt-3 mb-0! text-[14px] text-gray-700">
+                {address || "--"}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Sidebar */}
+        {/* Right sidebar */}
         <div className="flex flex-col gap-4 xl:sticky xl:top-5 xl:self-start">
+          {/* Price breakup */}
           <div className={cardClass}>
             <SectionHeader icon={<CalendarOutlined />} title="Price Breakup" />
+
             <div className="p-5">
               <PriceRow
                 label="Room Charges"
                 value={formatPrice(pricing.baseAmount)}
               />
+
               {Number(pricing.serviceCharge) > 0 && (
                 <PriceRow
                   label="Service Charge"
                   value={formatPrice(pricing.serviceCharge)}
                 />
               )}
+
               <PriceRow
                 label="Platform Fee & Taxes"
                 value={formatPrice(pricing.platformFeeAndTax)}
                 valueClass="text-orange-600"
               />
+
               {autoDiscount > 0 && (
                 <PriceRow
-                  label={`Auto Discount (${offer.autoCouponCode})`}
+                  label={`Auto Discount (${offer.autoCouponCode || ""})`}
                   value={`-${formatPrice(autoDiscount)}`}
                   valueClass="text-green-600"
                 />
               )}
+
               {couponDiscount > 0 && (
                 <PriceRow
-                  label={`Coupon (${offer.couponCode})`}
+                  label={`Coupon (${offer.couponCode || ""})`}
                   value={`-${formatPrice(couponDiscount)}`}
                   valueClass="text-green-600"
                 />
@@ -546,9 +699,11 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                 <p className="mb-1 text-[12px] tracking-wide text-white/70 uppercase">
                   {isPaid ? "Total Paid" : "Total Payable"}
                 </p>
+
                 <p className="mb-0! text-[28px] leading-none font-bold text-white">
                   {formatPrice(payableAmount)}
                 </p>
+
                 {totalDiscount > 0 && (
                   <p className="mt-2 mb-0! text-[12px] text-[#7dffb0]">
                     You saved {formatPrice(totalDiscount)}
@@ -558,15 +713,17 @@ export default function BookingDetailsTab({ bookingRefNo }) {
             </div>
           </div>
 
+          {/* Booking actions */}
           <div className={`${cardClass} flex flex-col gap-3 p-5`}>
             {isPaid && (
               <button
                 type="button"
                 onClick={handleDownloadInvoice}
                 disabled={downloading}
-                className="flex h-11 items-center justify-center gap-2 rounded-lg border border-[#05144b] bg-white text-[15px] font-semibold text-[#05144b] transition-all hover:bg-[#05144b] hover:text-white! disabled:opacity-60"
+                className="flex h-11 items-center justify-center gap-2 rounded-lg border border-[#05144b] bg-white text-[15px] font-semibold text-[#05144b] transition-all hover:bg-[#05144b] hover:text-white disabled:opacity-60"
               >
                 <DownloadOutlined />
+
                 {downloading ? "Downloading..." : "Download Invoice"}
               </button>
             )}
@@ -580,24 +737,36 @@ export default function BookingDetailsTab({ bookingRefNo }) {
               Share Details
             </button>
 
-            {canCancel && (
-              <button
-                type="button"
-                onClick={() => setCancelModalOpen(true)}
-                disabled={cancelling}
-                className="flex h-11 items-center justify-center rounded-lg border border-red-300 bg-red-50 text-[15px] font-semibold text-red-500 transition-all hover:bg-red-500 hover:text-white! disabled:opacity-60"
-              >
-                {cancelling ? "Cancelling..." : "Cancel Booking"}
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                if (canCancel && !cancelling) {
+                  setCancelModalOpen(true);
+                }
+              }}
+              disabled={!canCancel || cancelling}
+              className={`flex h-11 items-center justify-center rounded-lg border text-[15px] font-semibold transition-all ${
+                !canCancel || cancelling
+                  ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 opacity-70"
+                  : "cursor-pointer border-red-300 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white"
+              }`}
+            >
+              {cancelling
+                ? "Cancelling..."
+                : isCancelled
+                  ? "Booking Cancelled"
+                  : "Cancel Booking"}
+            </button>
 
             <p className="mt-1 mb-0! flex items-center justify-center gap-2 text-[12px] text-gray-500">
-              <PhoneOutlined /> Need help? Contact support from the Help tab.
+              <PhoneOutlined />
+              Need help? Contact support from the Help tab.
             </p>
           </div>
         </div>
       </div>
 
+      {/* Cancellation modal */}
       <CancelBookingModal
         open={cancelModalOpen}
         onCancel={() => setCancelModalOpen(false)}
@@ -607,6 +776,8 @@ export default function BookingDetailsTab({ bookingRefNo }) {
         hotelName={hotelName}
         cancellationCharge={0}
       />
+
+      {/* Share modal */}
       <ShareBookingModal
         open={shareModalOpen}
         onClose={() => setShareModalOpen(false)}
