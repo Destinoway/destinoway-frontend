@@ -167,56 +167,66 @@ export default function HotelContentOverview({ hotelContent = {} }) {
         );
       })}
 
-      {/* Location and Nearby Places */}
+      {/* Location and Nearby Places Dropdown */}
       {nearbyPlaces.length > 0 && (
-        <section className="mt-4 overflow-hidden !rounded-xl border border-gray-200 bg-white shadow-sm">
-          {/* Header */}
-          <header className="flex items-center gap-3 border-b border-gray-100 bg-gray-50 px-4 py-5 sm:px-5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-xl text-sky-700">
-              <EnvironmentOutlined />
-            </span>
+        <details className="group mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          {/* Dropdown Header */}
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 marker:hidden sm:px-5">
+            <div className="flex gap-3">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-xl text-sky-700">
+                <EnvironmentOutlined />
+              </span>
 
-            <div>
-              <h2 className="m-0 text-base font-semibold text-gray-900">
-                Location and nearby places
-              </h2>
+              <div>
+                <h2 className="m-0 text-base font-semibold text-gray-900">
+                  Location and nearby places
+                </h2>
 
-              <p className="m-0 mt-1 text-sm text-gray-500">
-                Nearby points of interest
-              </p>
-            </div>
-          </header>
-
-          {/* Two-column layout */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 sm:divide-x sm:divide-gray-100">
-            {[
-              nearbyPlaces.slice(0, Math.ceil(nearbyPlaces.length / 2)),
-              nearbyPlaces.slice(Math.ceil(nearbyPlaces.length / 2)),
-            ].map((places, columnIndex) => (
-              <div key={columnIndex} className="min-w-0">
-                {places.map((place, index) => (
-                  <div
-                    key={`${place.name}-${index}`}
-                    className="flex min-h-[60px] items-center justify-between gap-3 border-b border-gray-100 px-4 py-3 last:border-b-0 sm:px-5"
-                  >
-                    {/* Place name */}
-                    <span className="min-w-0 text-sm leading-5 text-gray-700">
-                      {place.name}
-                    </span>
-
-                    {/* Distance badge */}
-                    {place.distance && (
-                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700">
-                        <CarOutlined />
-                        {place.distance}
-                      </span>
-                    )}
-                  </div>
-                ))}
+                <p className="m-0 mt-1 text-sm text-gray-500">
+                  {nearbyPlaces.length} nearby places
+                </p>
               </div>
-            ))}
+            </div>
+
+            {/* Dropdown Icon */}
+            <span className="flex shrink-0 items-center  text-[10px] font-medium text-(--theme-primary)">
+              <span className="group-open:hidden">View details</span>
+              <span className="hidden group-open:inline">Hide details</span>
+            </span>
+          </summary>
+
+          {/* Dropdown Content */}
+          <div className="border-t border-gray-100 bg-gray-50/70 p-3 sm:p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 sm:divide-x sm:divide-gray-100">
+              {[
+                nearbyPlaces.slice(0, Math.ceil(nearbyPlaces.length / 2)),
+                nearbyPlaces.slice(Math.ceil(nearbyPlaces.length / 2)),
+              ].map((places, columnIndex) => (
+                <div key={columnIndex} className="min-w-0">
+                  {places.map((place, index) => (
+                    <div
+                      key={`${place.name}-${index}`}
+                      className="flex min-h-[60px] items-center justify-between gap-3 border-b border-gray-100 bg-white px-4 py-3 last:border-b-0 sm:px-5"
+                    >
+                      {/* Place Name */}
+                      <span className="min-w-0 text-sm leading-5 text-gray-700">
+                        {place.name}
+                      </span>
+
+                      {/* Distance Badge */}
+                      {place.distance && (
+                        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700">
+                          <CarOutlined />
+                          {place.distance}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
+        </details>
       )}
     </section>
   );
