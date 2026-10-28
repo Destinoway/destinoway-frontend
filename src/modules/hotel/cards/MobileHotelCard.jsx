@@ -93,17 +93,13 @@ function MobileHotelCard({ hotel, wishlistIds }) {
   const price = Number(priceDetails?.basePrice ?? hotel?.price ?? 0) || 0;
 
   const tax =
-    Number(
-      priceDetails?.["platform&servicetax"] ?? hotel?.tax ?? 0,
-    ) || 0;
+    Number(priceDetails?.["platform&servicetax"] ?? hotel?.tax ?? 0) || 0;
 
   const beforeCouponPrice =
     Number(priceDetails?.totalPriceBeforeCoupon ?? hotel?.oldPrice) ||
     (price ? Math.round(price + price * 0.1) : 0);
 
-  const couponDiscountPercent = Number(
-    priceDetails?.couponDiscountPercent,
-  );
+  const couponDiscountPercent = Number(priceDetails?.couponDiscountPercent);
   const discountPercent = Number.isFinite(couponDiscountPercent)
     ? couponDiscountPercent
     : 8;
@@ -278,12 +274,26 @@ function MobileHotelCard({ hotel, wishlistIds }) {
           {/* Rating */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="buttion-background-color rounded px-2 py-1 text-xs font-bold text-white">
-                {rating.toFixed(1)}
-              </span>
+              <span className="flex items-center gap-[2px]">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const fill = Math.max(0, Math.min(1, rating - i));
 
-              <span className="most-text-color text-sm font-semibold">
-                {ratingLabel}
+                  return (
+                    <span
+                      key={i}
+                      className="relative inline-block text-[13px] leading-none"
+                    >
+                      <StarFilled className="!text-gray-300" />
+
+                      <span
+                        className="absolute inset-y-0 left-0 overflow-hidden"
+                        style={{ width: `${fill * 100}%` }}
+                      >
+                        <StarFilled className="!text-yellow-500" />
+                      </span>
+                    </span>
+                  );
+                })}
               </span>
 
               <span className="text-xs text-gray-500">
@@ -318,12 +328,12 @@ function MobileHotelCard({ hotel, wishlistIds }) {
 
           {stars > 0 && (
             <div className="mt-2 flex items-center gap-1">
-              {Array.from({ length: stars }).map((_, i) => (
-                <StarFilled key={i} className="text-[13px] !text-yellow-500" />
-              ))}
-
-              <span className="ml-1 text-xs text-gray-600">
-                {stars} Star Hotel
+              <span className="ml-1 flex text-[16px] text-gray-600">
+                {" "}
+                <span className="buttion-background-color !mr-3 rounded px-2 py-1 text-xs font-bold text-white">
+                  {stars}{" "}
+                </span>
+                Star Hotel
               </span>
             </div>
           )}
@@ -397,7 +407,8 @@ function MobileHotelCard({ hotel, wishlistIds }) {
                   })}
                 </p>
                 <span className="text-[11px] font-medium text-red-600">
-                  -{discountPercent.toLocaleString("en-IN", {
+                  -
+                  {discountPercent.toLocaleString("en-IN", {
                     maximumFractionDigits: 2,
                   })}
                   %

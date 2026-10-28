@@ -35,7 +35,7 @@ const FALLBACK_HOTEL_IMAGE =
 
 function HotelCard({ hotel, wishlistIds }) {
   const router = useRouter();
-const isMobile = useIsMobile(700);
+  const isMobile = useIsMobile(700);
 
   const [openModal, setOpenModal] = useState(false);
   const [showAllFacilities, setShowAllFacilities] = useState(false);
@@ -186,17 +186,13 @@ const isMobile = useIsMobile(700);
   const price = Number(priceDetails?.basePrice ?? hotel?.price ?? 0) || 0;
 
   const tax =
-    Number(
-      priceDetails?.["platform&servicetax"] ?? hotel?.tax ?? 0,
-    ) || 0;
+    Number(priceDetails?.["platform&servicetax"] ?? hotel?.tax ?? 0) || 0;
 
   const beforeCouponPrice =
     Number(priceDetails?.totalPriceBeforeCoupon ?? hotel?.oldPrice) ||
     (price ? Math.round(price + price * 0.1) : 0);
 
-  const couponDiscountPercent = Number(
-    priceDetails?.couponDiscountPercent,
-  );
+  const couponDiscountPercent = Number(priceDetails?.couponDiscountPercent);
   const discountPercent = Number.isFinite(couponDiscountPercent)
     ? couponDiscountPercent
     : 8;
@@ -432,17 +428,11 @@ const isMobile = useIsMobile(700);
                 {hotelName}
               </h2>
 
-              {/* STARS */}
               {stars > 0 && (
-                <div className="mt-1 flex items-center gap-[2px]">
-                  {Array.from({
-                    length: stars,
-                  }).map((_, i) => (
-                    <StarFilled
-                      key={i}
-                      className="text-[11px] text-[#C55A11]! min-[1200px]:text-[13px]"
-                    />
-                  ))}
+                <div className="mt-1 flex items-center">
+                  <span className="text-most-text-color text-[12px] font-medium min-[1200px]:text-[13px]">
+                    {stars} Star Rating
+                  </span>
                 </div>
               )}
               {/* LOCATION */}
@@ -581,17 +571,35 @@ const isMobile = useIsMobile(700);
             </div>
 
             <div className="flex flex-col items-end">
-              <div className="flex max-w-full items-center gap-1">
-                <span className="text-[16px] font-bold text-[#2167d5] min-[1200px]:text-[18px]">
-                  {rating > 0 ? rating.toFixed(1) : "N/A"}
-                </span>
+             <div className="flex max-w-full items-center gap-1">
+ 
 
-                {rating > 0 && (
-                  <span className="truncate text-[12px] font-semibold text-gray-800 min-[1200px]:text-[14px]">
-                    {ratingLabel}
-                  </span>
-                )}
-              </div>
+  {rating > 0 && (
+    <span className="flex shrink-0 items-center gap-[2px]">
+      {Array.from({ length: 5 }).map((_, i) => {
+        const fill = Math.max(0, Math.min(1, rating - i));
+
+        return (
+          <span
+            key={i}
+            className="relative inline-block text-[12px] leading-none min-[1200px]:text-[14px]"
+          >
+            {/* Light background star */}
+            <StarFilled className="text-gray-300!" />
+
+            {/* Filled star or half star */}
+            <span
+              className="absolute inset-y-0 left-0 overflow-hidden"
+              style={{ width: `${fill * 100}%` }}
+            >
+              <StarFilled className="text-[#C55A11]!" />
+            </span>
+          </span>
+        );
+      })}
+    </span>
+  )}
+</div>
 
               <p className="mt-0.5 text-[11px] text-gray-500 min-[1200px]:text-[13px]">
                 {reviews.toLocaleString("en-IN")} reviews
@@ -618,7 +626,8 @@ const isMobile = useIsMobile(700);
                 </span>
 
                 <span className="text-[11px] font-medium text-[#d93025] min-[1200px]:text-[13px]">
-                  -{discountPercent.toLocaleString("en-IN", {
+                  -
+                  {discountPercent.toLocaleString("en-IN", {
                     maximumFractionDigits: 2,
                   })}
                   %
