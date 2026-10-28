@@ -21,6 +21,14 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "destinoway-media-dev.s3.ap-south-1.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "dc706kweo6g1.cloudfront.net",
+      },
+      {
+        protocol: "https",
         hostname: "images.unsplash.com",
       },
 
@@ -77,6 +85,13 @@ const nextConfig = {
         protocol: "http",
         hostname: "cdnh.octanio.com",
         pathname: "/images/hotels/**",
+      },
+      // Hotel suppliers return images from changing CDN domains. Keep the
+      // optimizer limited to HTTPS while allowing those supplier hosts.
+      {
+        protocol: "https",
+        hostname: "**",
+        pathname: "/**",
       },
     ],
 

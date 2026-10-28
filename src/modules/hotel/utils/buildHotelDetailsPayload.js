@@ -21,6 +21,7 @@ export const buildHotelDetailsPayload = ({ selectedHotel, initialPayload }) => {
     initialPayload?.supplierHotelId ||
     selectedHotelMeta?.supplierHotelId ||
     fallbackSelectedHotel?.supplierHotelId ||
+    hotelId ||
     "";
 
   const payload = {

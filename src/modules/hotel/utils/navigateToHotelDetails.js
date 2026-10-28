@@ -37,7 +37,7 @@ export const navigateToHotelDetails = ({
     hotel?.HotelId ||
     "";
 
-  if ((!searchId || !supplierHotelId) && !hotelId) {
+  if (!hotelId && !supplierHotelId) {
     console.error("Hotel searchId or supplierHotelId not found", {
       hotelId,
       hotelDetailId,
@@ -59,10 +59,6 @@ export const navigateToHotelDetails = ({
   const query = new URLSearchParams();
 
   if (searchId) query.set("searchId", String(searchId));
-  if (supplierHotelId) {
-    query.set("supplierHotelId", String(supplierHotelId));
-  }
-
   if (hotelId) query.set("hid", String(hotelId));
   if (hotelDetailId) query.set("hotelDetailId", String(hotelDetailId));
 

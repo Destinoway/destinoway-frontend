@@ -2,7 +2,8 @@
 
 import { message } from "antd";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import useIsMobile from "@/hooks/useIsMobile";
 import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
@@ -30,6 +31,8 @@ const HOTEL_SEARCH_POLL_INTERVAL_MS = 400;
 const HOTEL_SEARCH_TIMEOUT_MS = 30000;
 
 export const useHotelDetailsPage = ({ initialPayload = null }) => {
+  const router = useRouter();
+  const [resolvedSearchId, setResolvedSearchId] = useState("");
   const { selectedHotel } = useSelectedHotelStore();
   const { appliedSearchData } = useHotelSearchStore();
   const currency = useCurrencyStore((state) => state.selectedCurrency.code);
@@ -77,6 +80,7 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
         ...searchPayload,
         currency,
       });
+      setResolvedSearchId(search.searchId);
       const expectedHotelSlug =
         initialPayload?.hotelMeta?.hotelSlug || "";
       const deadline = Date.now() + HOTEL_SEARCH_TIMEOUT_MS;
@@ -148,6 +152,27 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
       };
     },
   });
+
+  useEffect(() => {
+    const searchId = resolvedSearchId || routeQuery.data?.searchId;
+    if (!initialPayload || !searchId || initialPayload.searchId === searchId) {
+      return;
+    }
+
+    const query = new URLSearchParams(window.location.search);
+    if (
+      query.get("searchId") === String(searchId) &&
+      !query.has("supplierHotelId")
+    ) {
+      return;
+    }
+
+    query.set("searchId", String(searchId));
+    query.delete("supplierHotelId");
+    router.replace(`${window.location.pathname}?${query.toString()}`, {
+      scroll: false,
+    });
+  }, [initialPayload, resolvedSearchId, routeQuery.data, router]);
 
   const payload = routeQuery.data || routePayload;
 

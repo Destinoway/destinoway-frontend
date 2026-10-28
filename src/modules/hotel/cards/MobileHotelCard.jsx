@@ -221,9 +221,6 @@ function MobileHotelCard({ hotel, wishlistIds }) {
 
     if (hotelId) query.set("hid", String(hotelId));
     if (hotel?.searchId) query.set("searchId", String(hotel.searchId));
-    if (hotel?.supplierHotelId) {
-      query.set("supplierHotelId", String(hotel.supplierHotelId));
-    }
     if (hotel?.hotelDetailId) {
       query.set("hotelDetailId", String(hotel.hotelDetailId));
     }

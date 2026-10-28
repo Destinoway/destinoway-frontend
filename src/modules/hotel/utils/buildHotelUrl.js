@@ -5,10 +5,9 @@ export const buildHotelUrl = ({
   cityName = "",
   hotelId = "",
   searchId = "",
-  supplierHotelId = "",
   hotelDetailId = "",
 }) => {
-  if (!hotelName || !hotelId || !searchId || !supplierHotelId) {
+  if (!hotelName || !hotelId || !searchId) {
     return "";
   }
 
@@ -22,9 +21,9 @@ export const buildHotelUrl = ({
 
   if (hotelId) query.set("hid", String(hotelId));
   if (searchId) query.set("searchId", String(searchId));
-  if (supplierHotelId) {
-    query.set("supplierHotelId", String(supplierHotelId));
-  }
+  // `hid` is the public hotel identifier. The details API uses the same value
+  // as supplierHotelId for current hotel records, so keep that internal alias
+  // out of shared URLs.
   if (hotelDetailId) query.set("hotelDetailId", String(hotelDetailId));
 
   const queryString = query.toString();
