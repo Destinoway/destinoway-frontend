@@ -477,6 +477,10 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
     requireAuth(async () => {
       try {
         const wishlistPayload = buildWishlistPayload({
+          hotel: {
+            ...hotel,
+            image: hotel?.image || hotel?.heroImage || "",
+          },
           hotelId: payload?.hotelId,
           supplierData,
           searchData: appliedSearchData,
@@ -492,14 +496,19 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
         message.success(
           isWishlisted ? "Removed from wishlist" : "Added to wishlist",
         );
-      } catch {
-        message.error("Wishlist update failed");
+      } catch (error) {
+        message.error(
+          error?.response?.data?.message ||
+            error?.message ||
+            "Wishlist update failed",
+        );
       }
     });
   }, [
     appliedSearchData,
     basePrice,
     isWishlisted,
+    hotel,
     mutateAsync,
     payload,
     platformFeeAndTax,
