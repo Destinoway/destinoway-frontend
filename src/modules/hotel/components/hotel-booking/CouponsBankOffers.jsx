@@ -170,7 +170,7 @@ const CouponsBankOffers = ({
       </div>
 
       {appliedCoupon && (
-        <div className="mt-2 flex min-h-[70px] items-center justify-between gap-3 rounded-[10px] border border-[#62e6b3] bg-[#effff8] px-3 py-3 sm:px-[18px]">
+        <div className="mt-2 flex min-h-[70px] items-center justify-between gap-2 rounded-[10px] border border-[#62e6b3] bg-[#effff8] px-2 py-2 sm:px-[18px]">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-[#079b6d]">
               <CheckOutlined className="text-[14px] font-bold text-white" />
@@ -226,7 +226,7 @@ const CouponsBankOffers = ({
                       {coupon?.code}
                     </p>
                     <span className="mt-1 rounded-[4px] bg-[#eafaf4] px-2 py-[2px] text-[9px] font-bold text-[#079b6d]">
-                      {getDiscountLabel(coupon)}
+                     Up-to {getDiscountLabel(coupon)}
                     </span>
                   </div>
                   <div className="min-w-0 flex-1 px-2.5 sm:px-3.5">

@@ -157,6 +157,12 @@ export const buildHotelPayload = ({
 
   return {
     locationId: String(locationId),
+    state:
+      cityData?.state ||
+      cityData?.stateName ||
+      searchData?.state ||
+      searchData?.stateName ||
+      "",
 
     geoCode: {
       lat: String(latitude),
