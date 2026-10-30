@@ -195,7 +195,7 @@ export default function Header() {
         className={`flex justify-between bg-white shadow-sm ${
           isMobile
             ? "h-14 px-5 py-1 pt-0"
-            : "h-18 px-6 py-1 pt-0 md:px-10 lg:px-8 xl:px-30 2xl:px-30"
+            : "h-18 px-6 py-1 pt-0 md:px-10 lg:px-8 xl:px-6 2xl:px-32"
         }`}
       >
         {/* Logo */}

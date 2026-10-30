@@ -376,7 +376,7 @@ function DestinationSearchField({
                   notFoundContent={
                     isLoading ? (
                       <div className="flex justify-center py-4">
-                        <Spin size="small" />
+                        <Spin size="large" />
                       </div>
                     ) : destinationSearchFailed ? (
                       <div className="py-3 text-center text-sm text-red-500">
