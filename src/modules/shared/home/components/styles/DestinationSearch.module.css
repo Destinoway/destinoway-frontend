@@ -1,3 +1,4 @@
+
 .destinationSelect {
   width: 100%;
   min-width: 0;
@@ -71,6 +72,26 @@
   flex: 1 1 auto !important;
 }
 
+/* DROPDOWN ARROW ICON */
+.destinationSelect :global(.ant-select-arrow) {
+  font-size: 18px !important;
+}
+
+.destinationSelect :global(.ant-select-arrow .anticon) {
+  font-size: 18px !important;
+}
+
+/* CROSS / CLEAR ICON */
+.destinationSelect :global(.ant-select-clear) {
+  font-size: 18px !important;
+}
+
+.destinationSelect :global(.ant-select-clear .anticon) {
+  font-size: 18px !important;
+}
+
+/* EDITING */
 .destinationSelect.editing :global(.ant-select-selection-item) {
   color: #bfbfbf !important;
 }
+

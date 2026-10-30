@@ -127,7 +127,7 @@ export default function HotelContentOverview({ hotelContent = {} }) {
         return (
           <details
             key={title}
-            className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+            className="group !mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
           >
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 marker:hidden sm:px-5">
               <span className="flex items-center gap-2 text-sm font-semibold text-gray-800">
@@ -189,7 +189,7 @@ export default function HotelContentOverview({ hotelContent = {} }) {
             </div>
 
             {/* Dropdown Icon */}
-            <span className="flex shrink-0 items-center  text-[10px] font-medium text-(--theme-primary)">
+            <span className="flex shrink-0 items-center text-[10px] font-medium text-(--theme-primary)">
               <span className="group-open:hidden">View details</span>
               <span className="hidden group-open:inline">Hide details</span>
             </span>

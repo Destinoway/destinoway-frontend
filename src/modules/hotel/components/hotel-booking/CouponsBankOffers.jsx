@@ -206,49 +206,47 @@ const CouponsBankOffers = ({
             {visibleCoupons.map((coupon) => {
               const isApplied = coupon?.code === appliedCoupon;
 
-              return (
-                <div
-                  key={coupon.code}
-                  className="flex min-h-[68px] items-center rounded-[9px] border border-dashed border-[#ccd3dd] bg-white px-2.5 transition hover:border-[#c6571d] sm:px-3.5"
-                >
-                  {coupon?.image && (
-                    <Image
-                      src={coupon.image}
-                      alt=""
-                      width={40}
-                      height={40}
-                      unoptimized
-                      className="mr-2 h-10 w-10 shrink-0 rounded object-cover"
-                    />
-                  )}
-                  <div className="flex h-full w-[86px] shrink-0 flex-col items-center justify-center border-r border-dashed border-[#d5dbe3] pr-2">
-                    <p className="m-0 break-all text-center text-[12px] font-bold tracking-wide text-[#293446] sm:text-[14px]">
-                      {coupon?.code}
-                    </p>
-                    <span className="mt-1 rounded-[4px] bg-[#eafaf4] px-2 py-[2px] text-[9px] font-bold text-[#079b6d]">
-                     Up-to {getDiscountLabel(coupon)}
-                    </span>
-                  </div>
-                  <div className="min-w-0 flex-1 px-2.5 sm:px-3.5">
-                    <p className="m-0 line-clamp-2 text-[12px] leading-4 font-bold text-[#293446] sm:text-[14px]">
-                      {coupon?.title || coupon?.code}
-                    </p>
-                    {coupon?.discount > 0 && (
-                      <p className="m-0 mt-1 text-[11px] text-[#687385]">
-                        Save {currencySymbol} {formatAmount(coupon.discount)}
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleCouponUpdate(coupon?.code)}
-                    disabled={isUpdating || isApplied}
-                    className="h-[34px] min-w-[68px] shrink-0 rounded-full border border-[#c6571d] bg-white px-2 text-[11px] font-bold text-[#c6571d] transition hover:bg-[#c6571d] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[76px] sm:px-3 sm:text-[12px]"
-                  >
-                    {isApplied ? "APPLIED" : "APPLY"}
-                  </button>
-                </div>
-              );
+return (
+  <div
+    key={coupon.code}
+    className="flex min-h-[88px] items-center gap-2 rounded-[9px] border border-dashed border-[#ccd3dd] bg-white px-2.5 py-2 transition hover:border-[#c6571d] sm:gap-3 sm:px-3"
+  >
+  
+    {/* Coupon Code */}
+    <div className="flex min-h-[68px] w-[82px] shrink-0 flex-col items-center justify-center gap-1.5 border-r border-dashed border-[#d5dbe3] pr-2 sm:w-[100px]">
+      <p className="m-0 w-full break-words text-center text-[11px] leading-[14px] font-bold text-[#293446] sm:text-[12px]">
+        {coupon?.code}
+      </p>
+
+      <span className="whitespace-nowrap rounded-[4px] bg-[#eafaf4] px-1.5 py-[2px] text-[9px] font-bold text-[#079b6d] sm:text-[10px]">
+        {getDiscountLabel(coupon)}
+      </span>
+    </div>
+
+    {/* Offer Details */}
+    <div className="flex min-w-0 flex-1 flex-col justify-center px-1">
+      <p className="m-0 line-clamp-2 break-words text-[11px] leading-[14px] font-bold text-[#293446] sm:text-[12px]">
+        {coupon?.title || coupon?.code}
+      </p>
+
+      {coupon?.discount > 0 && (
+        <p className="m-0 mt-1 text-[10px] leading-[14px] text-[#687385] sm:text-[11px]">
+          Save {currencySymbol} {formatAmount(coupon.discount)}
+        </p>
+      )}
+    </div>
+
+    {/* Apply Button */}
+    <button
+      type="button"
+      onClick={() => handleCouponUpdate(coupon?.code)}
+      disabled={isUpdating || isApplied}
+      className="flex h-[32px] min-w-[64px] shrink-0 items-center justify-center rounded-full border border-[#c6571d] bg-white px-2 text-[10px] font-bold text-[#c6571d] transition hover:bg-[#c6571d] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[76px] sm:text-[11px]"
+    >
+      {isApplied ? "APPLIED" : "APPLY"}
+    </button>
+  </div>
+);
             })}
           </div>
         ) : (
