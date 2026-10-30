@@ -200,7 +200,8 @@ export default async function Page({ params, searchParams }) {
         initialPayload={{
           hotelId,
           searchId: query?.searchId || "",
-          supplierHotelId: query?.supplierHotelId || "",
+          // Accept legacy URLs while allowing new URLs to rely on hid.
+          supplierHotelId: query?.supplierHotelId || query?.hid || "",
           hotelDetailId: query?.hotelDetailId || "",
           hotelMeta: {
             hotelName: cms?.data?.hotelMeta?.hotelName || hotelName,

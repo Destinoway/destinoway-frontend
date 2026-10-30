@@ -6,6 +6,7 @@ import { buildRoomBookingUrl } from "@/modules/hotel/utils/buildRoomBookingUrl";
 import { useHotelBookingStore } from "@/modules/hotel/store/booking.store";
 import RoomPriceBreakdown from "../RoomPriceBreakdown";
 import { Button, Modal } from "antd";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -140,13 +141,42 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
     ["Policies", plan?.policies],
     ["Board basis", plan?.boardBasis],
     ["Includes", plan?.includes],
-    ["Beds", plan?.beds],
     ["Facilities", plan?.facilities],
     ["Room type", plan?.type],
-    ["Views", plan?.views],
   ]
     .map(([label, value]) => [label, getItems(value)])
     .filter(([, values]) => values.length);
+  const policies = items.find(([label]) => label === "Policies")?.[1] || [];
+  const stayIncludes = items.filter(([label]) =>
+    ["Board basis", "Includes"].includes(label),
+  );
+  const roomFacilities = items.filter(([label]) =>
+    ["Facilities", "Room type"].includes(label),
+  );
+  const roomHighlights = [
+    [
+      "Guests",
+      plan?.maxGuestAllowed !== null && plan?.maxGuestAllowed !== undefined
+        ? `Up to ${getText(plan.maxGuestAllowed)} guests`
+        : "",
+    ],
+    [
+      "Adults",
+      plan?.maxAdultAllowed !== null && plan?.maxAdultAllowed !== undefined
+        ? `Up to ${getText(plan.maxAdultAllowed)} adults`
+        : "",
+    ],
+    [
+      "Children",
+      plan?.maxChildrenAllowed !== null &&
+      plan?.maxChildrenAllowed !== undefined
+        ? `Up to ${getText(plan.maxChildrenAllowed)} children`
+        : "",
+    ],
+    ["Room size", getText(plan?.area)],
+    ["Bed type", getText(plan?.beds)],
+    ["View", getText(plan?.views)],
+  ].filter(([, value]) => value !== "");
   const capacityDetails = [
     plan?.maxGuestAllowed,
     plan?.maxAdultAllowed,
@@ -168,11 +198,7 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
   const selectRoom = () => {
     const recommendationId = plan?.recommendationId || "";
 
-    if (
-      !plan?.searchId ||
-      !plan?.supplierHotelId ||
-      !recommendationId
-    ) {
+    if (!plan?.searchId || !plan?.supplierHotelId || !recommendationId) {
       console.error("Room selection is missing required search identifiers", {
         missing: [
           !plan?.searchId && "searchId",
@@ -223,7 +249,7 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
                 }
                 className="absolute top-1/2 left-2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-lg text-white"
               >
-                ‹
+                <ChevronLeft aria-hidden="true" size={18} />
               </button>
               <button
                 type="button"
@@ -233,7 +259,7 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
                 }
                 className="absolute top-1/2 right-2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-lg text-white"
               >
-                ›
+                <ChevronRight aria-hidden="true" size={18} />
               </button>
               <span className="absolute right-2 bottom-2 rounded-full bg-black/65 px-2 py-1 text-xs text-white">
                 {imageIndex + 1} / {images.length}
@@ -312,24 +338,23 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
               )}
           </div>
 
-      
-<div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs">
-  {BOOLEAN_FIELDS.map(([field, label]) =>
-    plan?.[field] === true ? (
-      <span
-        key={field}
-        className="inline-flex items-center gap-1.5 font-medium text-emerald-600"
-      >
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100">
-          <span className="text-xs font-bold text-emerald-600">
-            ✓
-          </span>
-        </span>
-        {label}
-      </span>
-    ) : null,
-  )}
-</div>
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs">
+            {BOOLEAN_FIELDS.map(([field, label]) =>
+              plan?.[field] === true ? (
+                <span
+                  key={field}
+                  className="inline-flex items-center gap-1.5 font-medium text-emerald-600"
+                >
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100">
+                    <span className="text-xs font-bold text-emerald-600">
+                      ✓
+                    </span>
+                  </span>
+                  {label}
+                </span>
+              ) : null,
+            )}
+          </div>
 
           {hasAdditionalDetails && (
             <button
@@ -356,92 +381,150 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
       </div>
 
       <Modal
-        title={roomName}
+        title={
+          <span className="pr-6 text-base font-bold text-slate-900 sm:text-lg">
+            {roomName}
+          </span>
+        }
         open={showDetails}
         onCancel={() => setShowDetails(false)}
         footer={null}
-        width={680}
+        width={800}
         centered
+        styles={{ body: { paddingTop: 8 } }}
       >
-        <div className="max-h-[70vh] space-y-5 overflow-y-auto pt-2">
-          {imageSrc && (
-            <div className="relative h-60 overflow-hidden rounded-xl bg-slate-100">
+        <div className="max-h-[72vh] space-y-5 overflow-y-auto px-1 pb-1">
+          <div className="grid gap-5 sm:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <div className="relative h-52 overflow-hidden rounded-lg bg-slate-100 sm:h-60">
               <Image
                 src={imageSrc}
                 alt={roomName}
                 fill
                 unoptimized
-                sizes="(max-width: 680px) 100vw, 640px"
+                sizes="(max-width: 640px) 100vw, 420px"
                 className="object-cover"
               />
               {images.length > 1 && (
-                <div className="absolute right-3 bottom-3 flex gap-2">
-                  <button
-                    type="button"
-                    aria-label="Previous room image"
-                    onClick={() =>
-                      setActiveImage(
-                        (index) => (index - 1 + images.length) % images.length,
-                      )
-                    }
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-black/65 text-lg text-white"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Next room image"
-                    onClick={() =>
-                      setActiveImage((index) => (index + 1) % images.length)
-                    }
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-black/65 text-lg text-white"
-                  >
-                    ›
-                  </button>
-                </div>
+                <>
+                  <span className="absolute bottom-3 left-3 rounded bg-black/65 px-2.5 py-1 text-xs font-medium text-white">
+                    {imageIndex + 1} / {images.length} photos
+                  </span>
+                  <div className="absolute right-3 bottom-3 flex gap-2">
+                    <button
+                      type="button"
+                      aria-label="Previous room image"
+                      onClick={() =>
+                        setActiveImage(
+                          (index) =>
+                            (index - 1 + images.length) % images.length,
+                        )
+                      }
+                      className="flex h-8 w-8 items-center justify-center rounded bg-black/65 text-lg text-white"
+                    >
+                      <ChevronLeft aria-hidden="true" size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Next room image"
+                      onClick={() =>
+                        setActiveImage((index) => (index + 1) % images.length)
+                      }
+                      className="flex h-8 w-8 items-center justify-center rounded bg-black/65 text-lg text-white"
+                    >
+                      <ChevronRight aria-hidden="true" size={18} />
+                    </button>
+                  </div>
+                </>
               )}
             </div>
-          )}
-          {plan?.description && <RoomDescription html={plan.description} />}
-          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {[
-              ["Maximum guests", plan?.maxGuestAllowed],
-              ["Maximum adults", plan?.maxAdultAllowed],
-              ["Maximum children", plan?.maxChildrenAllowed],
-              ["Book now, pay later", plan?.bookNowPayLaterDate],
-            ]
-              .filter(
-                ([, value]) =>
-                  value !== null && value !== undefined && value !== "",
-              )
-              .map(([label, value]) => (
-                <div key={label} className="rounded-lg bg-slate-50 p-3">
-                  <dt className="text-xs font-medium text-slate-500">
-                    {label}
-                  </dt>
-                  <dd className="m-0 mt-1 text-sm font-semibold text-slate-800">
-                    {getText(value)}
-                  </dd>
-                </div>
-              ))}
-          </dl>
-          {items.map(([label, values]) => (
-            <section key={label}>
-              <h4 className="mb-2 text-sm font-semibold text-slate-800">
-                {label}
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {values.map((value, index) => (
-                  <span
-                    key={`${label}-${index}`}
-                    className="rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700"
+            <div>
+              <p className="mt-0 mb-3 text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                Room highlights
+              </p>
+              <dl className="divide-y divide-slate-100 border-y border-slate-100">
+                {roomHighlights.map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="flex items-start justify-between gap-3 py-2.5 text-sm"
                   >
-                    {value}
+                    <dt className="text-slate-500">{label}</dt>
+                    <dd className="m-0 text-right font-medium text-slate-800">
+                      {value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              {plan?.bookNowPayLaterDate && (
+                <p className="mt-3 mb-0 rounded bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                  Book now, pay later:{" "}
+                  <span className="font-semibold">
+                    {getText(plan.bookNowPayLaterDate)}
                   </span>
+                </p>
+              )}
+            </div>
+          </div>
+          {plan?.description && (
+            <section className="border-t border-slate-200 pt-4">
+              <h4 className="mb-2 text-sm font-bold text-slate-900">
+                About the room
+              </h4>
+              <RoomDescription
+                html={plan.description}
+                className="text-sm leading-6 text-slate-600"
+              />
+            </section>
+          )}
+          {(stayIncludes.length > 0 || roomFacilities.length > 0) && (
+            <section className="border-t border-slate-200 pt-4">
+              <h4 className="mt-0 mb-3 text-sm font-bold text-slate-900">
+                Room details
+              </h4>
+              <div className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
+                {stayIncludes.map(([label, values]) => (
+                  <div key={label}>
+                    <h5 className="mb-2 text-sm font-semibold text-slate-700">
+                      {label}
+                    </h5>
+                    <ul className="m-0 list-disc space-y-1 pl-5 text-sm leading-5 text-slate-600">
+                      {values.map((value, index) => (
+                        <li key={`${label}-${index}`}>{value}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+                {roomFacilities.map(([label, values]) => (
+                  <div key={label}>
+                    <h5 className="mb-2 text-sm font-semibold text-slate-700">
+                      {label}
+                    </h5>
+                    <div className="flex flex-wrap gap-2">
+                      {values.map((value, index) => (
+                        <span
+                          key={`${label}-${index}`}
+                          className="rounded bg-slate-100 px-2.5 py-1.5 text-sm leading-5 text-slate-700"
+                        >
+                          {value}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </section>
-          ))}
+          )}
+          {policies.length > 0 && (
+            <section className="border-t border-slate-200 pt-4">
+              <h4 className="mt-0 mb-2 text-sm font-bold text-slate-900">
+                Policies
+              </h4>
+              <ul className="m-0 list-disc space-y-1 pl-5 text-sm leading-5 text-slate-600">
+                {policies.map((policy, index) => (
+                  <li key={`policy-${index}`}>{policy}</li>
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
       </Modal>
     </article>

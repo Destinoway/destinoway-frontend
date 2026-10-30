@@ -9,7 +9,7 @@ export const updateHotelItineraryCoupon = async ({
   }
 
   const path = `/hoteltempBooking/itinerary/${encodeURIComponent(itineraryId)}/coupon`;
-  const response = await api.post(path, {
+  const response = await api.patch(path, {
     couponCode: couponCode || null,
   });
   const result = response?.data?.data ?? response?.data;

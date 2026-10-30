@@ -3,7 +3,7 @@ import {
   getCachedSession,
   refreshCachedSession,
 } from "@/lib/sessionTokenCache";
-import { recordHotelSearchActivity } from "@/modules/hotel/utils/hotelSearchSession";
+// import { recordHotelSearchActivity } from "@/modules/hotel/utils/hotelSearchSession";
 import { useCurrencyStore } from "@/modules/shared/store/currency.store";
 import axios from "axios";
 import { signOut } from "next-auth/react";
@@ -21,7 +21,7 @@ api.interceptors.request.use(
       config.method?.toLowerCase() === "post" &&
       config.url?.split("?")[0].replace(/\/+$/, "") === "/hotelSearch/search"
     ) {
-      recordHotelSearchActivity();
+      // recordHotelSearchActivity();
     }
 
     try {

@@ -596,7 +596,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                   );
                 })
               ) : (
-                <p className="mb-0! text-[14px] text-gray-500">
+                <p className="mb-2! text-[14px] text-gray-500">
                   No cancellation policy available.
                 </p>
               )}
@@ -647,7 +647,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                 />
               </div>
 
-              <p className="mt-3 mb-0! text-[14px] text-gray-700">
+              <p className="mt-3! mb-0! text-[14px] text-gray-700">
                 {address || "--"}
               </p>
             </div>
@@ -720,7 +720,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                 type="button"
                 onClick={handleDownloadInvoice}
                 disabled={downloading}
-                className="flex h-11 items-center justify-center gap-2 rounded-lg border border-[#05144b] bg-white text-[15px] font-semibold text-[#05144b] transition-all hover:bg-[#05144b] hover:text-white disabled:opacity-60"
+                className="flex h-11 items-center justify-center gap-2 rounded-lg border border-[#05144b] bg-white text-[15px] font-semibold text-[#05144b] transition-all hover:bg-[#05144b] hover:text-white! disabled:opacity-60"
               >
                 <DownloadOutlined />
 

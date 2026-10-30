@@ -3,6 +3,10 @@
 import { useSelectedHotelStore } from "@/modules/hotel/store/selectedHotel.store";
 import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
 import { navigateToHotelDetails } from "@/modules/hotel/utils/navigateToHotelDetails";
+import { buildSearchData } from "@/modules/hotel/utils/buildSearchData";
+import { buildHotelPayload } from "@/modules/hotel/utils/buildHotelPayload";
+import { searchDestinationApi } from "@/modules/hotel/services/search.api";
+import { slugify } from "@/utils/slug/slugify";
 import { useToggleWishlist } from "@/modules/wishlist/hooks/useToggleWishlist";
 import { useWishlistCity } from "@/modules/wishlist/hooks/useWishlistCity";
 import {
@@ -19,14 +23,14 @@ export default function WishlistDetailTab() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [removingHotelId, setRemovingHotelId] = useState(null);
+  const [openingHotelId, setOpeningHotelId] = useState(null);
   const { setSelectedHotel } = useSelectedHotelStore();
   const { mutateAsync } = useToggleWishlist();
   const cityId = searchParams.get("cityId");
   const { data, isLoading } = useWishlistCity(cityId);
   const hotels = data?.data || [];
-  const { appliedSearchData, setDraftSearchData } = useHotelSearchStore();
-
-  console.log("hotels in wishlist", hotels);
+  const { appliedSearchData, setAppliedSearchData, setDraftSearchData } =
+    useHotelSearchStore();
 
   useEffect(() => {
     if (!isLoading && hotels.length === 0) {
@@ -48,30 +52,73 @@ export default function WishlistDetailTab() {
     }
   };
 
-  const handleViewHotel = (hotel) => {
-    setSelectedHotel({
-      fromWishlist: true,
-      hotelMeta: {
-        hotelId: hotel.hotelId,
-        cityId: hotel.cityId,
+  const handleViewHotel = async (hotel) => {
+    const cityName = String(hotel.cityName || "")
+      .split(",")[0]
+      .trim();
+
+    if (!cityName) {
+      message.error("This wishlist hotel is missing its city.");
+      return;
+    }
+
+    setOpeningHotelId(hotel.hotelId);
+
+    try {
+      const destinations = await searchDestinationApi(cityName);
+      const citySlug = slugify(cityName);
+      const exactDestinations = destinations.filter(
+        (item) =>
+          [item?.city, item?.name, item?.displayName].some(
+            (name) => slugify(name || "") === citySlug,
+          ) && item?.id,
+      );
+      const destination =
+        exactDestinations.find(
+          (item) => String(item?.type || "").toLowerCase() === "city",
+        ) || exactDestinations[0];
+
+      if (!destination) {
+        throw new Error(`Couldn't find destination details for ${cityName}.`);
+      }
+
+      const hotelSearchData = buildSearchData({
+        baseSearchData: appliedSearchData,
+        city: destination.displayName || destination.name || cityName,
+        cityId: destination.id,
+        destinationData: destination,
         stateName: hotel.stateName || "",
         countryCode: hotel.countryCode || "",
-        cityName: hotel.cityName || "",
-        hotelSlug: hotel.hotelSlug || "",
-      },
-    });
+      });
 
-    navigateToHotelDetails({
-      router,
-      hotel: {
-        id: hotel.hotelId,
-        name: hotel.hotelName,
-        cityName: hotel.cityName,
-        hotelSlug: hotel.hotelSlug,
-      },
-      searchData: appliedSearchData,
-      setSelectedHotel: null, // already above set kar diya
-    });
+      if (!buildHotelPayload({ searchData: hotelSearchData })) {
+        throw new Error(
+          `Destination details for ${cityName} are incomplete. Please try again later.`,
+        );
+      }
+
+      setDraftSearchData(hotelSearchData);
+      setAppliedSearchData(hotelSearchData);
+      navigateToHotelDetails({
+        router,
+        hotel: {
+          id: hotel.hotelId,
+          name: hotel.hotelName,
+          cityName,
+          hotelSlug: hotel.hotelSlug,
+        },
+        searchData: hotelSearchData,
+        setSelectedHotel,
+      });
+    } catch (error) {
+      message.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          `Could not load destination details for ${cityName}.`,
+      );
+    } finally {
+      setOpeningHotelId(null);
+    }
   };
 
   if (isLoading) {
@@ -107,7 +154,7 @@ export default function WishlistDetailTab() {
 
             <button
               onClick={() => router.push("/")}
-              className="rounded-lg !buttion-background-color px-6 py-3 font-semibold text-white! transition "
+              className="!buttion-background-color rounded-lg px-6 py-3 font-semibold text-white! transition"
             >
               Explore Hotels
             </button>
@@ -127,7 +174,7 @@ export default function WishlistDetailTab() {
         </h2>
         <button
           onClick={() => router.push("/profile?tab=wishlist")}
-          className="flex items-center gap-2 text-[15px] font-semibold ! most-text-color"
+          className="! most-text-color flex items-center gap-2 text-[15px] font-semibold"
         >
           <ArrowLeftOutlined /> Back to Wishlist
         </button>
@@ -138,7 +185,7 @@ export default function WishlistDetailTab() {
         </h2>
 
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-md border most-boder-colour px-2 py-1 text-xs most-text-color">
+          <span className="most-boder-colour most-text-color rounded-md border px-2 py-1 text-xs">
             {hotels.length} Saved Hotel
             {hotels.length > 1 ? "s" : ""}
           </span>
@@ -219,8 +266,10 @@ export default function WishlistDetailTab() {
                   </div>
                   <div className="flex items-end gap-3">
                     <Button
-                      className="rounded-lg! buttion-background-color px-5! py-2! text-sm! font-semibold! text-white!"
+                      className="buttion-background-color rounded-lg! px-5! py-2! text-sm! font-semibold! text-white!"
                       onClick={() => handleViewHotel(hotel)}
+                      loading={openingHotelId === hotel.hotelId}
+                      disabled={openingHotelId !== null}
                     >
                       View Hotel
                     </Button>
