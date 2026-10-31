@@ -1,14 +1,14 @@
 "use client";
 
+import { searchDestinationApi } from "@/modules/hotel/services/search.api";
 import { useSelectedHotelStore } from "@/modules/hotel/store/selectedHotel.store";
 import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
-import { navigateToHotelDetails } from "@/modules/hotel/utils/navigateToHotelDetails";
-import { buildSearchData } from "@/modules/hotel/utils/buildSearchData";
 import { buildHotelPayload } from "@/modules/hotel/utils/buildHotelPayload";
-import { searchDestinationApi } from "@/modules/hotel/services/search.api";
-import { slugify } from "@/utils/slug/slugify";
+import { buildSearchData } from "@/modules/hotel/utils/buildSearchData";
+import { navigateToHotelDetails } from "@/modules/hotel/utils/navigateToHotelDetails";
 import { useToggleWishlist } from "@/modules/wishlist/hooks/useToggleWishlist";
 import { useWishlistCity } from "@/modules/wishlist/hooks/useWishlistCity";
+import { slugify } from "@/utils/slug/slugify";
 import {
   ArrowLeftOutlined,
   CheckCircleOutlined,
@@ -236,7 +236,7 @@ export default function WishlistDetailTab() {
 
                   <div className="mt-3 space-y-2">
                     <div className="font-roboto flex items-center gap-2">
-                      <CheckCircleOutlined className="text-green-500" />
+                      <CheckCircleOutlined style={{ color: "#16A34A" }} />
 
                       <span className="text-sm text-gray-600">
                         Saved in your wishlist
@@ -244,7 +244,7 @@ export default function WishlistDetailTab() {
                     </div>
 
                     <div className="font-roboto flex items-center gap-2">
-                      <CheckCircleOutlined className="text-green-500" />
+                      <CheckCircleOutlined style={{ color: "#16A34A" }} />
 
                       <span className="text-sm text-gray-600">
                         Quick access anytime
@@ -256,7 +256,7 @@ export default function WishlistDetailTab() {
                 {/* RIGHT */}
                 <div className="flex min-w-[180px] flex-col items-end justify-between">
                   <div className="text-right">
-                    <p className="font-jost mb-0! text-[22px] font-bold text-gray-900">
+                    <p className="font-jost text-red-500 mb-0! text-[22px] font-bold">
                       {hotel.currencySymbol} {hotel.savedPrice}
                     </p>
 
