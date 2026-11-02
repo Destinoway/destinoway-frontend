@@ -200,6 +200,7 @@ export default function GiftCardSlider() {
                         alt={card.title || "Gift Card"}
                         fill
                         fetchPriority={index === 0 ? "high" : undefined}
+                        quality={60}
                         sizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, (max-width: 1023px) 33.33vw, 25vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                       />

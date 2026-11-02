@@ -1,17 +1,23 @@
 "use client";
 
 import useIsMobile from "@/hooks/useIsMobile";
-import BusSearchForm from "@/modules/bus/components/BusSearchForm";
-import FlightSearchForm from "@/modules/flight/components/FlightSearchForm";
 import HotelSearchForm from "@/modules/hotel/components/hotels/HotelSearchForm";
 import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
 import { navigateToHotels } from "@/modules/hotel/utils/hotelNavigation";
 import { HOME_TABS } from "@/modules/shared/config/homeTabs";
 import styles from "@/modules/shared/home/components/styles/Hero.module.css";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Tabs from "./Tabs";
+
+const FlightSearchForm = dynamic(
+  () => import("@/modules/flight/components/FlightSearchForm"),
+);
+const BusSearchForm = dynamic(
+  () => import("@/modules/bus/components/BusSearchForm"),
+);
 
 const FORM_MAP = {
   hotel: HotelSearchForm,

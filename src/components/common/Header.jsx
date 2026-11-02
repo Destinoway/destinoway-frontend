@@ -205,13 +205,12 @@ export default function Header() {
               src="/images/LOGO-DW.png"
               alt="Destonoway"
               width={400}
-              height={970}
-              priority
-              unoptimized
+              height={70}
+              sizes="(max-width: 778px) 170px, 200px"
               className={`object-contain transition-all duration-300 ${
                 isMobile
-                  ? "absolute top-0 left-2 h-[50px] w-[170px]"
-                  : "h-[200px] w-[200px]"
+                  ? "absolute top-0 left-2 h-auto w-[170px]"
+                  : "h-auto w-[200px]"
               }`}
             />
           </Link>

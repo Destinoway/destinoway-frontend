@@ -51,7 +51,7 @@ export default function WhySection() {
               src="/images/whySection.png"
               alt="Luxury Resort"
               fill
-              priority
+              sizes="(max-width: 1023px) 100vw, 50vw"
               className="object-cover"
             />
 

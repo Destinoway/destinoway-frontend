@@ -10,7 +10,7 @@ export default function OfferBanner() {
           src="/images/cashback_banner.png"
           alt="banner"
           fill
-          priority
+          sizes="100vw"
           className="object-cover"
         />
 

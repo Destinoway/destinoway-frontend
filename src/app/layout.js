@@ -53,10 +53,10 @@ export default async function RootLayout({ children }) {
 
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-DYY7076V0W"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
 
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag() {

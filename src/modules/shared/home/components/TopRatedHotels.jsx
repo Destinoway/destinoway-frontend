@@ -9,8 +9,10 @@ import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
 import { searchHotelsFromCard } from "@/modules/hotel/utils/searchFromCard";
 import { useRouter } from "next/navigation";
 
+const EMPTY_HOTELS = [];
+
 export default function TopRatedHotels({ hotels }) {
-  const data = hotels?.items || [];
+  const data = hotels?.items || EMPTY_HOTELS;
 
   const { draftSearchData } = useHotelSearchStore();
   const router = useRouter();
@@ -116,7 +118,7 @@ export default function TopRatedHotels({ hotels }) {
     });
 
   // CARD
-  const renderCard = (hotel, idx) => (
+  const renderCard = (hotel) => (
     <div
       onClick={() => handleSearch(hotel)}
       key={hotel._id}
@@ -136,8 +138,6 @@ export default function TopRatedHotels({ hotels }) {
               src={hotel.image}
               alt={hotel.alt || hotel.name}
               fill
-              priority={idx < 2}
-              loading={idx < 2 ? "eager" : "lazy"}
               quality={75}
               sizes="(max-width:768px) 50vw,(max-width:1200px) 33vw,20vw"
               className="object-cover transition duration-500 hover:scale-105"
@@ -204,7 +204,7 @@ export default function TopRatedHotels({ hotels }) {
               transform: `translateX(-${topIndex * (100 / perRow)}%)`,
             }}
           >
-            {topData.map((hotel, idx) => renderCard(hotel, idx))}
+            {topData.map((hotel) => renderCard(hotel))}
           </div>
         </div>
 
@@ -240,7 +240,7 @@ export default function TopRatedHotels({ hotels }) {
               transform: `translateX(-${bottomIndex * (100 / perRow)}%)`,
             }}
           >
-            {bottomData.map((hotel, idx) => renderCard(hotel, idx))}
+            {bottomData.map((hotel) => renderCard(hotel))}
           </div>
         </div>
       </div>
