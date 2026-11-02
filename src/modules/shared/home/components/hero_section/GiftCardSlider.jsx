@@ -190,7 +190,7 @@ export default function GiftCardSlider() {
               },
             }}
           >
-            {giftCards.map((card) => (
+            {giftCards.map((card, index) => (
               <SwiperSlide key={card._id}>
                 <div className="group relative w-full overflow-hidden rounded-[6px] border border-[#e7e7e7] bg-white shadow-[0_2px_6px_rgba(0,0,0,0.10)] transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_5px_12px_rgba(0,0,0,0.14)]">
                   <div className="relative h-[100px] w-full overflow-hidden sm:h-[125px] md:h-[140px] lg:h-[170px]">
@@ -199,6 +199,7 @@ export default function GiftCardSlider() {
                         src={card.image}
                         alt={card.title || "Gift Card"}
                         fill
+                        fetchPriority={index === 0 ? "high" : undefined}
                         sizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, (max-width: 1023px) 33.33vw, 25vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                       />
