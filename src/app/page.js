@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Herobanner from "@/modules/shared/home/components/cashback_sections/OfferBanner";
 import ComingSoonSection from "@/modules/shared/home/components/ComingSoonSection";
 import DestinationsSection from "@/modules/shared/home/components/DestinationsSection";
@@ -16,7 +17,8 @@ import Hero from "@/modules/shared/home/components/hero_section/Hero";
 import TrustSection from "@/modules/shared/home/components/hero_section/TrustSection";
 
 import { fetchHomeContent } from "@/modules/shared/home/services/homeContentFetch";
-import GiftCardSlider from "@/modules/shared/home/components/hero_section/GiftCardSlider";
+import GiftCardSliderServer from "@/modules/shared/home/components/hero_section/GiftCardSliderServer";
+import GiftCardSliderFallback from "@/modules/shared/home/components/hero_section/GiftCardSliderFallback";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 const OG_IMAGE = `${SITE_URL}/images/OGIMAGE1.png`;
@@ -160,7 +162,9 @@ export default async function Page() {
       <ScrollToTopButton />
       <Hero banner={banner} />
       <TrustSection />
-      <GiftCardSlider />
+      <Suspense fallback={<GiftCardSliderFallback />}>
+        <GiftCardSliderServer />
+      </Suspense>
       <VacationSection vibes={placesAsPerYourVibe} />
       <Herobanner />
       <WhySection />

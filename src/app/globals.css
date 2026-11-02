@@ -305,6 +305,31 @@ body {
 
 .gift-card-swiper .swiper-slide {
   height: auto;
+  width: calc(100% - 10px);
+}
+
+@media (min-width: 640px) {
+  .gift-card-swiper .swiper-slide {
+    width: calc(50% - 5px);
+  }
+}
+
+@media (min-width: 768px) {
+  .gift-card-swiper .swiper-slide {
+    width: calc(50% - 6px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .gift-card-swiper .swiper-slide {
+    width: calc(33.333333% - 8px);
+  }
+}
+
+@media (min-width: 1280px) {
+  .gift-card-swiper .swiper-slide {
+    width: calc(25% - 9px);
+  }
 }
 
 /* =========================================================

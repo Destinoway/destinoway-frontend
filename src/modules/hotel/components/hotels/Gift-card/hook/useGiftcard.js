@@ -6,13 +6,21 @@ export const useGiftcard = () =>
     queryKey: ["giftcard"],
     queryFn: async () => {
       const res = await getAllGiftCardApi();
+      const response = res?.data;
 
-      console.log("API RESPONSE:", res.data);
-
-      if (!res?.data?.data) {
-        throw new Error("giftCard data missing");
+      if (response?.success === false) {
+        throw new Error(response?.message || "Unable to load gift cards.");
       }
 
-      return res.data.data;
+      const coupons =
+        response?.data?.coupons ??
+        response?.coupons ??
+        (Array.isArray(response?.data) ? response.data : null);
+
+      if (!Array.isArray(coupons)) {
+        throw new Error(response?.message || "Gift card list is missing.");
+      }
+
+      return coupons;
     },
   });
