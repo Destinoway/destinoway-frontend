@@ -1,6 +1,5 @@
 "use client";
 
-import useIsMobile from "@/hooks/useIsMobile";
 import MobileTrustSection from "@/modules/hotel/mobile-componant/MobileTrustSection";
 
 import {
@@ -68,46 +67,40 @@ const trustItems = [
 ];
 
 export default function TrustSection() {
-  const isMobile = useIsMobile();
-
-  if (isMobile === null) return null;
-
-  if (isMobile) {
-    return (
-      <div className="background-color-bg w-full">
+  return (
+    <>
+      <div className="background-color-bg block w-full min-[778px]:hidden">
         <MobileTrustSection />
       </div>
-    );
-  }
 
-  return (
-    <section className="background-color-bg !lg:mt-[6vh] w-full pt-[30px] md:mt-[90px] xl:mt-[80px] 2xl:mt-[99px]">
-      <div className="mx-auto w-[94%] overflow-hidden rounded-lg border border-[#e5e7eb] bg-white sm:w-[94%] md:w-[92%] lg:w-[94%] xl:w-[82%] 2xl:w-[82%]">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-          {trustItems.map((item, index) => (
-            <div
-              key={item.id}
-              className={`flex min-h-[78px] items-start gap-2 px-4 py-3 transition-all duration-300 hover:bg-white ${
-                index !== trustItems.length - 1
-                  ? "border-r border-[#e5e7eb]"
-                  : ""
-              } `}
-            >
-              <div className="shrink-0 pt-[2px]">{item.icon}</div>
+      <section className="background-color-bg hidden w-full pt-[30px] min-[778px]:block md:mt-[90px] xl:mt-[80px] 2xl:mt-[99px]">
+        <div className="mx-auto w-[94%] overflow-hidden rounded-lg border border-[#e5e7eb] bg-white sm:w-[94%] md:w-[92%] lg:w-[94%] xl:w-[82%] 2xl:w-[82%]">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+            {trustItems.map((item, index) => (
+              <div
+                key={item.id}
+                className={`flex min-h-[78px] items-start gap-2 px-4 py-3 transition-all duration-300 hover:bg-white ${
+                  index !== trustItems.length - 1
+                    ? "border-r border-[#e5e7eb]"
+                    : ""
+                } `}
+              >
+                <div className="shrink-0 pt-[2px]">{item.icon}</div>
 
-              <div className="min-w-0">
-                <h3 className="text-[13px] leading-[18px] font-semibold text-[#1F2937]">
-                  {item.title}
-                </h3>
+                <div className="min-w-0">
+                  <h3 className="text-[13px] leading-[18px] font-semibold text-[#1F2937]">
+                    {item.title}
+                  </h3>
 
-                <p className="mt-0.5 text-[11px] leading-[15px] text-[#6B7280]">
-                  {item.description}
-                </p>
+                  <p className="mt-0.5 text-[11px] leading-[15px] text-[#6B7280]">
+                    {item.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

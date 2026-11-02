@@ -42,19 +42,12 @@ export default function GiftCardSlider() {
         <div className="mx-auto w-full max-w-[1400px] px-2 sm:px-4 lg:px-17">
           <div className="mb-3 flex items-center justify-between sm:mb-4">
             <div>
-              <Skeleton.Input
-                active
-                size="small"
-                className="!h-[20px] !w-[110px] sm:!h-[23px] sm:!w-[130px]"
-              />
-
-              <div className="mt-1">
-                <Skeleton.Input
-                  active
-                  size="small"
-                  className="!h-[12px] !w-[180px]"
-                />
-              </div>
+              <h2 className="text-[17px] font-bold text-[#05144B] sm:text-[19px] lg:text-[20px]">
+                Gift Cards
+              </h2>
+              <p className="mt-0.5 text-[10px] text-gray-500 sm:text-xs">
+                Exclusive offers &amp; discounts
+              </p>
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
@@ -72,10 +65,23 @@ export default function GiftCardSlider() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {[1, 2, 3, 4].map((item) => (
-              <GiftCardSkeleton key={item} />
-            ))}
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[0, 1, 2, 3].map((item) => {
+              const visibilityClass =
+                item === 0
+                  ? ""
+                  : item === 1
+                    ? "hidden min-[640px]:block"
+                    : item === 2
+                      ? "hidden min-[1024px]:block"
+                      : "hidden min-[1280px]:block";
+
+              return (
+                <div key={item} className={visibilityClass}>
+                  <GiftCardSkeleton />
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

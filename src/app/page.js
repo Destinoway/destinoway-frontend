@@ -16,6 +16,7 @@ import Hero from "@/modules/shared/home/components/hero_section/Hero";
 import TrustSection from "@/modules/shared/home/components/hero_section/TrustSection";
 
 import { fetchHomeContent } from "@/modules/shared/home/services/homeContentFetch";
+import GiftCardSlider from "@/modules/shared/home/components/hero_section/GiftCardSlider";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 const OG_IMAGE = `${SITE_URL}/images/OGIMAGE1.png`;
@@ -159,7 +160,7 @@ export default async function Page() {
       <ScrollToTopButton />
       <Hero banner={banner} />
       <TrustSection />
-      {/* <GiftCardSlider /> */}
+      <GiftCardSlider />
       <VacationSection vibes={placesAsPerYourVibe} />
       <Herobanner />
       <WhySection />
