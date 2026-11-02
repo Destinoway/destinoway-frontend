@@ -72,6 +72,7 @@ export default function TestimonialsSection() {
                           src={item.image}
                           alt={item.name}
                           fill
+                          sizes="74px"
                           className="object-cover"
                         />
                       </div>
@@ -90,7 +91,7 @@ export default function TestimonialsSection() {
                       </div>
 
                       <p className="mt-4 text-[15px] leading-7 font-medium text-[#222] sm:text-[16px]">
-                        "{item.review}"
+                        &ldquo;{item.review}&rdquo;
                       </p>
                     </div>
 

@@ -49,7 +49,7 @@ const socialLinks = [
 
 export default function FooterLinks() {
   return (
-    <div className="font-roboto! grid grid-cols-1 gap-10 text-white/90 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+    <div className="grid grid-cols-1 gap-10 text-white/90 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
       {/* About */}
       <div className="max-w-[340px]">
         <p className="footer-backgound-color text-[15px] leading-7 !text-white/90">

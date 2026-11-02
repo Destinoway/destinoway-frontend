@@ -214,7 +214,7 @@ export default function GiftCardSlider({ giftCards = [] }) {
                     </div>
                   </div>
 
-                  <div className="bg-white px-[8px] pt-[2px] !pb-[1px] sm:px-[9px] sm:pt-[2px] sm:pb-[6px]">
+                  <div className="flex min-h-[52px] flex-col justify-center bg-white px-[8px] pt-[2px] !pb-[1px] sm:min-h-[60px] sm:px-[9px] sm:pt-[2px] sm:pb-[6px]">
                     <p className="!sm:text-[11px] !text-[15px] text-[#777]">
                       Great Offer deal
                     </p>

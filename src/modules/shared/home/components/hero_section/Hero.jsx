@@ -49,7 +49,12 @@ export default function Hero({ banner }) {
       className="relative w-full overflow-visible bg-[#EDF7FF]"
     >
       <picture className={styles.heroBg}>
-        <source media="(max-width: 777px)" srcSet="/images/heromobile.png" />
+        <source
+          media="(max-width: 777px)"
+          srcSet="/images/heromobile.webp 390w, /images/heromobile-2x.webp 780w"
+          sizes="100vw"
+          type="image/webp"
+        />
         <Image
           src={bannerItem.image || "/images/homepage/Banner-1.webp"}
           alt={bannerItem.alt || "Destonoway"}

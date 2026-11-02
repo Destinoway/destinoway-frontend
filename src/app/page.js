@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { preload } from "react-dom";
 import Herobanner from "@/modules/shared/home/components/cashback_sections/OfferBanner";
 import ComingSoonSection from "@/modules/shared/home/components/ComingSoonSection";
 import DestinationsSection from "@/modules/shared/home/components/DestinationsSection";
@@ -74,6 +75,15 @@ export async function generateMetadata() {
 }
 
 export default async function Page() {
+  preload("/images/heromobile.webp", {
+    as: "image",
+    imageSrcSet: "/images/heromobile.webp 390w, /images/heromobile-2x.webp 780w",
+    imageSizes: "100vw",
+    media: "(max-width: 777px)",
+    fetchPriority: "high",
+    type: "image/webp",
+  });
+
   const [homeCms, homeContent] = await Promise.all([
     fetchCmsBySlug("home"),
     fetchHomeContent(),

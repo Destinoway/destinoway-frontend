@@ -5,22 +5,21 @@ import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
 import { searchHotelsFromCard } from "@/modules/hotel/utils/searchFromCard";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ButtonTab from "./vacation_sections/ButtonTab";
 
 export default function DestinationsSection({ destinations }) {
   const categories = destinations?.categories || [];
 
   const [activeTab, setActiveTab] = useState(categories[0]?.category || "");
-
-  useEffect(() => {
-    if (categories.length > 0 && !activeTab) {
-      setActiveTab(categories[0].category);
-    }
-  }, [categories, activeTab]);
+  const activeCategory = categories.some(
+    (item) => item.category === activeTab,
+  )
+    ? activeTab
+    : categories[0]?.category || "";
 
   const selectedCategory = categories.find(
-    (item) => item.category === activeTab,
+    (item) => item.category === activeCategory,
   );
 
   const activeDestinations = selectedCategory?.items || [];
@@ -41,7 +40,7 @@ export default function DestinationsSection({ destinations }) {
           <div className="scrollbar-hide flex max-w-full items-center gap-4 overflow-x-auto pb-2 whitespace-nowrap sm:gap-6 lg:gap-8">
             <ButtonTab
               tabs={categories}
-              activeTab={activeTab}
+              activeTab={activeCategory}
               setActiveTab={setActiveTab}
             />
           </div>
@@ -110,7 +109,7 @@ function DestinationCard({ item }) {
         alt={item.alt || item.name}
         fill
         quality={75}
-        sizes="(max-width:768px)100vw,33vw"
+        sizes="(max-width: 767px) 230px, (max-width: 1279px) 46vw, 45vw"
         loading="lazy"
         className="object-cover"
       />

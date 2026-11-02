@@ -1,7 +1,6 @@
 "use client";
 
 import useIsMobile from "@/hooks/useIsMobile";
-import LoginModal from "@/modules/auth/components/LoginFormModal";
 import { useLogout } from "@/modules/auth/hooks/useAuth";
 import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
 import { useCurrency } from "@/modules/shared/home/hooks/useCurrency";
@@ -26,11 +25,17 @@ import {
   Plane,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import CurrencyDropdown from "./CurrencyDropdown";
+
+const LoginModal = dynamic(
+  () => import("@/modules/auth/components/LoginFormModal"),
+  { ssr: false },
+);
 
 const navigationItems = [
   {
@@ -457,14 +462,16 @@ export default function Header() {
       </Drawer>
 
       {/* Modals */}
-      <LoginModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onSuccess={() => {
-          setOpen(false);
-          setShowSuccess(true);
-        }}
-      />
+      {open && (
+        <LoginModal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          onSuccess={() => {
+            setOpen(false);
+            setShowSuccess(true);
+          }}
+        />
+      )}
     </div>
   );
 }

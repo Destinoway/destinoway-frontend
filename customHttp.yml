@@ -3,6 +3,18 @@ customHeaders:
     headers:
       - key: 'Cache-Control'
         value: 'public, max-age=86400, stale-while-revalidate=604800'
+  - pattern: '/images/LOGO-DW-Symbol.png'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=86400, stale-while-revalidate=604800'
+  - pattern: '/images/heromobile.webp'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=86400, stale-while-revalidate=604800'
+  - pattern: '/images/heromobile-2x.webp'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=86400, stale-while-revalidate=604800'
   - pattern: '/images/payments/*.svg'
     headers:
       - key: 'Cache-Control'
