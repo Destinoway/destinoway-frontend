@@ -1,4 +1,6 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
+
+const SITE_URL = getSiteUrl();
 
 const OG_IMAGE = "/images/OGIMAGE1.png";
 
@@ -80,21 +82,5 @@ export const metadata = {
 
   manifest: "/manifest.webmanifest",
 
-  /*
-   * IMPORTANT:
-   * Currently Destonoway should NOT be indexed by search engines.
-   */
-  robots: {
-    index: false,
-    follow: false,
-    nocache: true,
-
-    googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
-      "max-image-preview": "none",
-      "max-snippet": -1,
-    },
-  },
+  robots: getRobotsMetadata(),
 };

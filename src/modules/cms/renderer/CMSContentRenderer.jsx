@@ -5,9 +5,6 @@ import ContentBlock from "./blocks/ContentBlock";
 export default function CMSContentRenderer({ cms, primaryHeading = false }) {
   if (!cms) return null;
 
-  console.log("Renderer slug:", cms?.slug);
-  console.log("Renderer content:", cms?.data?.blocks?.[0]?.data?.content);
-
   const blocks = cms?.data?.blocks || [];
 
   const firstHeroIndex = primaryHeading

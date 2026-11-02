@@ -5,8 +5,8 @@ import { getHomeContent } from "./homeFetch";
 export const fetchHomeContent = cache(async () => {
   try {
     return await getHomeContent();
-  } catch (error) {
-    console.error("HOME CONTENT FETCH ERROR", error);
+  } catch {
+    console.error("Home content could not be loaded.");
 
     return null;
   }

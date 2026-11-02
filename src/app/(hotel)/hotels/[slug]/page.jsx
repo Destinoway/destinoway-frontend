@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import { redirectIfCmsMoved } from "@/modules/cms/services/cmsRedirect";
 import { buildRequestedPath } from "@/modules/cms/utils/redirectPath";
 import { notFound } from "next/navigation";
+import { getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 const formatCityName = (value = "") => {
   return (
@@ -71,7 +72,7 @@ export async function generateMetadata({ params, searchParams }) {
     return metadata;
   }
 
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   const cityName = formatCityName(slug) || "Hotels";
   const canonical = `${siteUrl}/hotels/${slug}`;
 
@@ -127,7 +128,7 @@ export default async function Page({ params, searchParams }) {
   const { slug } = await params;
   const query = await searchParams;
   const preview = query?.preview === "true";
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   const cms = await fetchCityCms(slug, preview);
 
   if (!cms) {

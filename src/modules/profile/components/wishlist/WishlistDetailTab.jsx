@@ -44,8 +44,7 @@ export default function WishlistDetailTab() {
         hotelId: hotel.hotelId,
       });
       message.success("Hotel removed from wishlist");
-    } catch (error) {
-      console.log(error);
+    } catch {
       message.error("Failed to remove hotel");
     } finally {
       setRemovingHotelId(null);

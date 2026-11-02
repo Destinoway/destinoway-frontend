@@ -1,8 +1,10 @@
 import HotelItinerary from "@/modules/hotel/pages/HotelItinerary";
+import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 export const metadata = {
   title: "Review & Pay",
-  robots: { index: false, follow: false },
+  alternates: { canonical: `${getSiteUrl()}/hotel-itinerary` },
+  robots: getRobotsMetadata({ noindex: true }),
 };
 
 export default function Page() {

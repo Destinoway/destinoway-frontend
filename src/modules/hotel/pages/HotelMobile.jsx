@@ -27,8 +27,6 @@ export default function HotelMobile({
   const [showSort, setShowSort] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  console.log("appliedSearchData in mobile", appliedSearchData);
-
   const handleReset = () => {
     setSort(null);
     setFilters(DEFAULT_HOTEL_FILTERS);

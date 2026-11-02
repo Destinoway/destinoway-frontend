@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 
 export default function FooterBottom() {
@@ -19,7 +17,7 @@ export default function FooterBottom() {
           </Link>
           <Link
             className="footer-hover-most-text-color relative inline-block transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-0 after:bg-[var(--theme-secondary)] after:transition-all after:duration-300 hover:after:w-full"
-            href="/privacy-policy"
+            href="/terms-conditions"
           >
             Terms & Conditions
           </Link>

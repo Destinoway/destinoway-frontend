@@ -69,11 +69,7 @@ function DestinationSearchField({
           },
         });
       }
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(error);
-      }
-    }
+    } catch {}
   }, []);
 
   const debounceSearch = useMemo(
@@ -113,11 +109,7 @@ function DestinationSearchField({
       const updated = [item, ...filtered].slice(0, 4);
       localStorage.setItem("recentHotelSearches", JSON.stringify(updated));
       setRecentSearches(updated);
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(error);
-      }
-    }
+    } catch {}
   };
 
   const isEmptySearch = searchText.trim() === "";
@@ -361,6 +353,7 @@ function DestinationSearchField({
                   options={groupedOptions}
                   loading={isLoading}
                   placeholder="Where do you want to stay?"
+                  aria-label="City, property name or location"
                   variant="borderless"
                   popupMatchSelectWidth={compact ? false : true}
                   className={`font-jost! w-full min-w-0 overflow-hidden font-medium text-gray-600 min-[700px]:font-semibold! min-[700px]:text-gray-800! ${

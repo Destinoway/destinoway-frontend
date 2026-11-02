@@ -80,7 +80,6 @@ export default function EmailOtpLogin({ onSuccess }) {
       message.success("Login success");
       onSuccess?.();
     } catch (err) {
-      console.error(err);
       message.error(err?.message || "Something went wrong");
       setVerifying(false);
     }

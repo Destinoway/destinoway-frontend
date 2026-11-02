@@ -4,47 +4,41 @@ import NewsletterSection from "@/modules/shared/home/components/NewsletterSectio
 import ContactFormSection from "@/modules/shared/pages/contact-us/contactcontant";
 import ContactSection from "@/modules/shared/pages/contact-us/contacthero";
 import ContactMapSection from "@/modules/shared/pages/contact-us/ContactMapSection";
+import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 export async function generateMetadata() {
   const contactUsCms = await fetchCmsBySlug("contact-us");
 
-  
-
-  const siteUrl = process.env.NEXTAUTH_URL;
+  const siteUrl = getSiteUrl();
+  const title =
+    contactUsCms?.metaTitle || "Contact Destonoway | Travel Booking Support";
+  const description =
+    contactUsCms?.metaDescription ||
+    "Contact Destonoway for help with hotel bookings, travel services and customer support.";
 
   return {
-    title: contactUsCms?.metaTitle,
-    description: contactUsCms?.metaDescription,
+    metadataBase: new URL(siteUrl),
+    title,
+    description,
     keywords: contactUsCms?.keywords,
 
     alternates: {
       canonical: `${siteUrl}/contact-us`,
     },
 
-    robots: {
-      index: false,
-      follow: false,
-      nocache: true,
-      googleBot: {
-        index: false,
-        follow: false,
-        noimageindex: true,
-        "max-image-preview": "none",
-        "max-snippet": -1,
-      },
-    },
+    robots: getRobotsMetadata(),
 
     openGraph: {
-      title: contactUsCms?.metaTitle,
-      description: contactUsCms?.metaDescription,
+      title,
+      description,
       url: `${siteUrl}/contact-us`,
       type: "website",
     },
 
     twitter: {
       card: "summary_large_image",
-      title: contactUsCms?.metaTitle,
-      description: contactUsCms?.metaDescription,
+      title,
+      description,
     },
   };
 }

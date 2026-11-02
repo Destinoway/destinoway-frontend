@@ -63,9 +63,9 @@ export default function WhySection() {
               </p>
 
               <div className="mt-1 flex items-center gap-3">
-                <h4 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
+                <p aria-label="Rated 4.9 out of 5" className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
                   4.9★
-                </h4>
+                </p>
 
                 <div className="h-10 w-[1px] bg-gray-200" />
 

@@ -18,12 +18,8 @@ export const createBooking = async (payload) => {
     return response.data;
   } catch (error) {
     console.error("Hotel itinerary request failed", {
-      searchId,
-      supplierHotelId,
-      recommendationId: bookingPayload?.recommendationId,
       httpStatus: error?.response?.status,
       backendStatus: error?.backendError?.statusCode || error?.response?.data?.error?.statusCode,
-      message: error?.response?.data?.message || error?.message || "Booking failed",
     });
 
     throw new Error(error?.response?.data?.message || error?.message || "Booking failed");

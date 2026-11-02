@@ -81,8 +81,7 @@ export default function MobileOtpLogin({ onSuccess }) {
       }
       message.success("Login success");
       onSuccess?.();
-    } catch (err) {
-      console.error(err);
+    } catch {
       message.error("Something went wrong");
       setVerifying(false);
     }

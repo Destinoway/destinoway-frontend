@@ -38,13 +38,7 @@ export const navigateToHotelDetails = ({
     "";
 
   if (!hotelId && !supplierHotelId) {
-    console.error("Hotel searchId or supplierHotelId not found", {
-      hotelId,
-      hotelDetailId,
-      searchId,
-      supplierHotelId,
-      hotel,
-    });
+    console.error("Hotel details navigation is missing required search data.");
 
     return;
   }

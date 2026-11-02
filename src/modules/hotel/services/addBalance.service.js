@@ -6,7 +6,7 @@ export const addBalance = async (payload) => {
 
     return response.data;
   } catch (error) {
-    console.error("ADD BALANCE ERROR:", error);
+    console.error("Wallet balance update failed.");
 
     throw new Error(error?.response?.data?.message || "Payment failed");
   }

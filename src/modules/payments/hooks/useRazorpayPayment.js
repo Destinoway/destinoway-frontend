@@ -75,9 +75,7 @@ export const useRazorpayPayment = () => {
             `/hotel-checkout?bookingRefNo=${encodeURIComponent(bookingRefNo)}`,
           );
         } catch (error) {
-          console.error("Payment Verification Error:", error);
-          console.error("Error Message:", error?.message);
-          console.error("Response:", error?.response);
+          console.error("Payment verification request failed.");
 
           message.error({
             key: "payment",
@@ -102,7 +100,6 @@ export const useRazorpayPayment = () => {
     const razorpay = new window.Razorpay(options);
 
     razorpay.on("payment.failed", function (response) {
-      console.error("Payment Failed :", response);
       message.error(response?.error?.description || "Payment failed.");
       setProcessing(false);
     });
@@ -139,7 +136,7 @@ export const useRazorpayPayment = () => {
         bookingId,
       });
     } catch (error) {
-      console.error(error);
+      console.error("Unable to create a payment order.");
 
       message.error({
         key: "payment",

@@ -16,11 +16,8 @@ export async function getGiftCardsServer() {
       (Array.isArray(response?.data) ? response.data : null);
 
     return Array.isArray(coupons) ? coupons : [];
-  } catch (error) {
-    console.error(
-      "SERVER GIFT CARD FETCH ERROR:",
-      error?.response?.data || error?.message,
-    );
+  } catch {
+    console.error("Gift card offers could not be loaded.");
     return [];
   }
 }

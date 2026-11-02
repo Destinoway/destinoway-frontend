@@ -7,11 +7,8 @@ export const searchDestinationServer = async (searchText = "") => {
     });
 
     return response?.data?.data || [];
-  } catch (err) {
-    console.error(
-      "DESTINATION SEARCH ERROR:",
-      err?.response?.data || err?.message,
-    );
+  } catch {
+    console.error("Destination search request failed.");
 
     return [];
   }

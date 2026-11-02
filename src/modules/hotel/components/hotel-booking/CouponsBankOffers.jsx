@@ -7,13 +7,14 @@ import {
   RightOutlined,
   TagOutlined,
 } from "@ant-design/icons";
-import { message } from "antd";
+import { App } from "antd";
 import { useState } from "react";
 
 const CouponsBankOffers = ({
   bookingData = {},
   onCouponUpdate,
 }) => {
+  const { message } = App.useApp();
   const [couponCode, setCouponCode] = useState("");
   const [showMore, setShowMore] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);

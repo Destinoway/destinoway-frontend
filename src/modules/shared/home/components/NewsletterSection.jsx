@@ -101,7 +101,11 @@ export default function NewsletterSection() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-3">
               <div className="w-full">
                 <input
+                  id="newsletter-email"
                   type="email"
+                  aria-label="Email address for newsletter"
+                  aria-invalid={Boolean(error)}
+                  aria-describedby={error ? "newsletter-email-error" : undefined}
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
@@ -121,7 +125,7 @@ export default function NewsletterSection() {
 
                 {/* Input validation error */}
                 {error && (
-                  <p className="mt-2 text-sm text-red-500">
+                    <p id="newsletter-email-error" role="alert" className="mt-2 text-sm text-red-500">
                     {error}
                   </p>
                 )}

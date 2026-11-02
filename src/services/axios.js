@@ -38,7 +38,7 @@ api.interceptors.request.use(
 
       return config;
     } catch (error) {
-      console.error("Request Interceptor Error:", error);
+      console.error("Unable to read the current session for this request.");
       return config;
     }
   },
@@ -51,17 +51,12 @@ api.interceptors.response.use(
   async (error) => {
     const status = error?.response?.status;
 
-    console.log("❌ API ERROR:", status);
-
     if (status === 401) {
-      console.log("⚠️ 401 received");
-
       try {
         const session = await refreshCachedSession();
 
         // Refresh completely failed
         if (session?.error === "RefreshAccessTokenError") {
-          console.log("❌ Refresh failed → logout");
           clearCachedSession();
 
           await signOut({
@@ -72,8 +67,8 @@ api.interceptors.response.use(
             window.location.href = "/";
           }
         }
-      } catch (err) {
-        console.error("401 Handler Error:", err);
+      } catch {
+        console.error("Session recovery failed after an unauthorized response.");
       }
     }
 

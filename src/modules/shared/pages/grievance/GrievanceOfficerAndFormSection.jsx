@@ -110,11 +110,7 @@ export default function GrievanceOfficerAndFormSection() {
     }
   };
 
-  const onError = (errors) => {
-    console.log("ERRORS", errors);
-    console.log("isSubmitted", methods.formState.isSubmitted);
-  };
-  console.log("FORM ERRORS", methods.formState.errors);
+  const onError = () => {};
   return (
     <section className="bg-[#eef5fa] py-12 lg:py-16">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6">

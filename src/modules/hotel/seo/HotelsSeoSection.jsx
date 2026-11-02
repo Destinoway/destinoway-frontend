@@ -1,5 +1,4 @@
 export default function HotelsSeoSection({ children }) {
-  console.log("HotelsSeoSection children", children);
 
   if (!children) return null;
 

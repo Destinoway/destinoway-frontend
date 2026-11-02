@@ -1,6 +1,3 @@
-"use client";
-
-import { Card } from "antd";
 import Image from "next/image";
 
 import bookingData from "./data/Busflightherodata";
@@ -33,13 +30,9 @@ export default function ComingSoonSection() {
               </div>
 
               {/* Floating Card */}
-              <Card
-                rootClassName="absolute left-1/2 bottom-4 sm:bottom-8 md:bottom-10 lg:bottom-14 xl:bottom-16 w-[92%] sm:w-[88%] md:w-[84%] lg:w-[82%] -translate-x-1/2 rounded-xl lg:rounded-2xl border-0 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
-                styles={{
-                  body: {
-                    padding: "18px 16px",
-                  },
-                }}
+              <div
+                className="absolute bottom-4 left-1/2 w-[92%] -translate-x-1/2 rounded-xl border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] sm:bottom-8 sm:w-[88%] md:bottom-10 md:w-[84%] lg:bottom-14 lg:w-[82%] lg:rounded-2xl xl:bottom-16"
+                style={{ padding: "18px 16px" }}
               >
                 <div className="text-center">
                   <h3 className="text-lg leading-tight font-bold text-[#222] sm:text-xl lg:text-2xl">
@@ -50,7 +43,7 @@ export default function ComingSoonSection() {
                     {item.desc}
                   </p>
                 </div>
-              </Card>
+              </div>
             </div>
           ))}
         </div>

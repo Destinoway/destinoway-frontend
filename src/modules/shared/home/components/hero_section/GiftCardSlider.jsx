@@ -30,10 +30,6 @@ export default function GiftCardSlider({ giftCards = [] }) {
     return `${card.discountValue} Off`;
   };
 
-  if (!giftCards.length) {
-    return null;
-  }
-
   return (
     <section className="background-color-bg w-full py-4 sm:py-5">
       <div className="mx-auto w-full max-w-[1400px] px-2 sm:px-4 lg:px-17">
@@ -71,7 +67,14 @@ export default function GiftCardSlider({ giftCards = [] }) {
           )}
         </div>
 
-        <div className="gift-card-swiper">
+        {!giftCards.length ? (
+          <div className="w-full rounded-md border border-[#e7e7e7] bg-white text-center shadow-[0_2px_6px_rgba(0,0,0,0.08)] sm:w-[calc(50%-5px)] md:w-[calc(50%-6px)] lg:w-[calc(33.333333%-8px)] xl:w-[calc(25%-9px)]">
+            <div className="flex h-[100px] items-center justify-center bg-gray-50 text-sm text-gray-500 sm:h-[125px] md:h-[140px] lg:h-[170px]">
+              No gift card offers are available right now.
+            </div>
+            <div className="h-[52px] bg-white sm:h-[60px]" aria-hidden="true" />
+          </div>
+        ) : <div className="gift-card-swiper">
           <Swiper
             modules={[Autoplay]}
             onSwiper={setSwiper}
@@ -118,9 +121,10 @@ export default function GiftCardSlider({ giftCards = [] }) {
                         src={card.image}
                         alt={card.title || "Gift Card"}
                         fill
-                        fetchPriority={index === 0 ? "high" : undefined}
-                        quality={60}
+                        quality={75}
                         sizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, (max-width: 1023px) 33.33vw, 25vw"
+                        loading={index === 0 ? "eager" : "lazy"}
+                        fetchPriority={index === 0 ? "high" : "auto"}
                         className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                       />
                     ) : (
@@ -231,7 +235,7 @@ export default function GiftCardSlider({ giftCards = [] }) {
               </SwiperSlide>
             ))}
           </Swiper>
-        </div>
+        </div>}
       </div>
     </section>
   );

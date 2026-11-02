@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { redirectIfCmsMoved } from "@/modules/cms/services/cmsRedirect";
 import { resolveSavedCanonical } from "@/modules/cms/utils/canonical";
 import { buildRequestedPath } from "@/modules/cms/utils/redirectPath";
+import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 import { fetchBlogBySlug } from "@/modules/blog/api/blog.server";
 import BlogDetailsPage from "@/modules/blog/pages/BlogDetailsPage";
@@ -16,12 +17,16 @@ export async function generateMetadata({ params }) {
     return {};
   }
 
-  const selfUrl = `https://destinoway.com/blog/${blog.slug}`;
+  const siteUrl = getSiteUrl();
+  const selfUrl = `${siteUrl}/blog/${encodeURIComponent(blog.slug)}`;
+  const savedCanonical = resolveSavedCanonical(blog.canonicalUrl, siteUrl);
   const canonical =
-    resolveSavedCanonical(blog.canonicalUrl, "https://destinoway.com") ||
-    selfUrl;
+    savedCanonical && new URL(savedCanonical).origin === new URL(siteUrl).origin
+      ? savedCanonical
+      : selfUrl;
 
   return {
+    metadataBase: new URL(siteUrl),
     title: blog.metaTitle || blog.title,
     description: blog.metaDescription || blog.description,
 
@@ -30,11 +35,14 @@ export async function generateMetadata({ params }) {
     alternates: {
       canonical,
     },
+    robots: getRobotsMetadata(),
 
     openGraph: {
       title: blog.metaTitle || blog.title,
       description: blog.metaDescription || blog.description,
       url: canonical,
+      siteName: "Destonoway",
+      type: "article",
 
       ...(blog.featuredImage
         ? {
@@ -46,6 +54,12 @@ export async function generateMetadata({ params }) {
             ],
           }
         : {}),
+    },
+    twitter: {
+      card: blog.featuredImage ? "summary_large_image" : "summary",
+      title: blog.metaTitle || blog.title,
+      description: blog.metaDescription || blog.description,
+      ...(blog.featuredImage ? { images: [blog.featuredImage] } : {}),
     },
   };
 }

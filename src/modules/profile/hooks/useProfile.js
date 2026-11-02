@@ -14,8 +14,6 @@ export const useProfile = () =>
     queryFn: async () => {
       const res = await getProfileApi();
 
-      console.log("API RESPONSE:", res.data);
-
       if (!res?.data?.data) {
         throw new Error("Profile data missing");
       }

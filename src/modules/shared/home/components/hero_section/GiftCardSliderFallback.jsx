@@ -23,10 +23,10 @@ export default function GiftCardSliderFallback() {
               className={`overflow-hidden rounded-[6px] border border-[#e7e7e7] bg-white ${item === 1 ? "hidden sm:block" : ""} ${item === 2 ? "hidden lg:block" : ""} ${item === 3 ? "hidden xl:block" : ""}`}
             >
               <div className="h-[100px] animate-pulse bg-gray-200 sm:h-[125px] md:h-[140px] lg:h-[170px]" />
-              <div className="space-y-2 p-2">
-                <div className="h-3 w-24 animate-pulse rounded bg-gray-200" />
-                <div className="h-4 w-4/5 animate-pulse rounded bg-gray-200" />
-                <div className="h-3 w-16 animate-pulse rounded bg-gray-200" />
+              <div className="space-y-0 bg-white px-[8px] pt-[2px] pb-[1px] sm:px-[9px] sm:pt-[2px] sm:pb-[6px]">
+                <div className="h-[22px] w-24 animate-pulse rounded bg-gray-200" />
+                <div className="h-px w-4/5 animate-pulse rounded bg-gray-200" />
+                <div className="h-[13px] w-16 animate-pulse rounded bg-gray-200" />
               </div>
             </div>
           ))}

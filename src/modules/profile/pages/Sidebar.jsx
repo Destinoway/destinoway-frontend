@@ -22,8 +22,6 @@ export default function Sidebar({ activeTab, setActiveTab, horizontal }) {
   const [avatarError, setAvatarError] = useState(false);
   const user = session?.user;
 
-  console.log("🚀 USER:", user);
-
   const handleLogout = () => {
     logout(session?.refreshToken);
   };
@@ -59,8 +57,6 @@ export default function Sidebar({ activeTab, setActiveTab, horizontal }) {
       .toUpperCase()
       .slice(0, 2);
   };
-  console.log("USER IMAGE", user?.image);
-
   return (
     <>
       <div

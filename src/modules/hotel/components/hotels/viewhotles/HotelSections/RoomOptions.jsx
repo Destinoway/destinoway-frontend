@@ -199,18 +199,7 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
     const recommendationId = plan?.recommendationId || "";
 
     if (!plan?.searchId || !plan?.supplierHotelId || !recommendationId) {
-      console.error("Room selection is missing required search identifiers", {
-        missing: [
-          !plan?.searchId && "searchId",
-          !plan?.supplierHotelId && "supplierHotelId",
-          !recommendationId && "recommendationId",
-        ].filter(Boolean),
-        hotelDetailId,
-        recommendationId,
-        searchId: plan?.searchId,
-        supplierHotelId: plan?.supplierHotelId,
-        plan,
-      });
+      console.error("Room selection is missing required search data.");
       return;
     }
 

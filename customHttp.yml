@@ -1,0 +1,13 @@
+customHeaders:
+  - pattern: '/images/LOGO-DW.png'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=86400, stale-while-revalidate=604800'
+  - pattern: '/images/payments/*.svg'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=86400, stale-while-revalidate=604800'
+  - pattern: '/images/icons/*.svg'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=86400, stale-while-revalidate=604800'

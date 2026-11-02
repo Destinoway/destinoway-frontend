@@ -6,7 +6,6 @@ GET BY SLUG
 export const getCmsBySlug = async (slug, preview = false) => {
   const query = preview ? "?preview=true" : "";
   const response = await serverApi.get(`/cms/page/${slug}${query}`);
-  console.log("CMS API", slug, "PREVIEW:", preview);
   return response?.data?.data;
 };
 
@@ -17,6 +16,6 @@ SITEMAP
 */
 export const getAllCmsPages = async () => {
   const response = await serverApi.get("/cms/public/pages?limit=5000");
-  console.log("ALL CMS RESPONSE", response?.data);
-  return response?.data?.data?.data || [];
+  const pages = response?.data?.data?.data;
+  return Array.isArray(pages) ? pages : [];
 };

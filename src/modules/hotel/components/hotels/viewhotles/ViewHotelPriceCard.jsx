@@ -192,18 +192,7 @@ const ViewHotelPriceCard = ({
       !selectedPlan?.supplierHotelId ||
       !recommendationId
     ) {
-      console.error("Room selection is missing required search identifiers", {
-        missing: [
-          !selectedPlan?.searchId && "searchId",
-          !selectedPlan?.supplierHotelId && "supplierHotelId",
-          !recommendationId && "recommendationId",
-        ].filter(Boolean),
-        hotelDetailId,
-        recommendationId,
-        searchId: selectedPlan?.searchId,
-        supplierHotelId: selectedPlan?.supplierHotelId,
-        selectedPlan,
-      });
+      console.error("Room selection is missing required search data.");
 
       return;
     }

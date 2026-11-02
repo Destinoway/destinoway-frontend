@@ -1,111 +1,110 @@
-// import { getAllCmsPages } from "@/modules/cms/services/cms.service";
+import { fetchAllPublicBlogs } from "@/modules/blog/api/blog.server";
+import { getAllCmsPages } from "@/modules/cms/services/cms.service";
+import { getSiteUrl, isIndexableSite } from "@/modules/cms/utils/seoUrl";
 
-// export default async function sitemap() {
-//   const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+export const revalidate = 3600;
 
-//   let cmsPages = [];
+const toSitemapEntry = (siteUrl, path, lastModified, priority) => ({
+  url: `${siteUrl}${path}`,
+  ...(lastModified && !Number.isNaN(new Date(lastModified).getTime())
+    ? { lastModified: new Date(lastModified) }
+    : {}),
+  changeFrequency: "monthly",
+  priority,
+});
 
-//   try {
-//     cmsPages = await getAllCmsPages();
-//   } catch (err) {
-//     console.log("SITEMAP CMS ERROR:", err);
-//   }
+const encodePathSegment = (value) => encodeURIComponent(String(value || "").trim());
 
-//   /*
-//    STATIC APP ROUTES
-//   */
-//   const staticRoutes = [
-//     {
-//       url: siteUrl,
-//       lastModified: new Date(),
-//       priority: 1,
-//     },
-//     {
-//       url: `${siteUrl}/hotels`,
-//       lastModified: new Date(),
-//       priority: 0.9,
-//     },
-//     {
-//       url: `${siteUrl}/about-us`,
-//       lastModified: new Date(),
-//       priority: 0.8,
-//     },
-//     {
-//       url: `${siteUrl}/contact-us`,
-//       lastModified: new Date(),
-//       priority: 0.8,
-//     },
-//     {
-//       url: `${siteUrl}/privacy-policy`,
-//       lastModified: new Date(),
-//       priority: 0.8,
-//     },
-//     {
-//       url: `${siteUrl}/terms-conditions`,
-//       lastModified: new Date(),
-//       priority: 0.8,
-//     },
-//   ];
+export const getCmsSitemapPath = (page) => {
+  const slug = encodePathSegment(page?.slug);
+  if (!slug || slug === "home") return null;
 
-//   /*
-//    CMS ROUTES
-//   */
-//   const cmsRoutes =
-//     cmsPages
-//       ?.map((page) => {
-//         let url = siteUrl;
+  if (page?.entityType === "hotelCity" || page?.entityType === "city") {
+    return `/hotels/${slug}`;
+  }
 
-//         switch (page?.entityType) {
-//           case "hotelCity":
-//           case "city":
-//             url = `${siteUrl}/hotels/${page.slug}`;
-//             break;
+  if (page?.entityType === "hotel") {
+    const city = String(page?.data?.cityMeta?.destination || "")
+      .split(",")[0]
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
 
-//           case "hotel": {
-//             const citySlug = page?.data?.cityMeta?.destination
-//               ?.split(",")?.[0]
-//               ?.trim()
-//               ?.toLowerCase()
-//               ?.replace(/[^a-z0-9\s-]/g, "")
-//               ?.replace(/\s+/g, "-");
+    return city ? `/hotel-details/${encodePathSegment(city)}/${slug}` : null;
+  }
 
-//             if (!citySlug) {
-//               console.log("❌ HOTEL SKIPPED - NO CITY:", page.slug);
-//               return null;
-//             }
+  return `/${slug}`;
+};
 
-//             url = `${siteUrl}/hotel-details/${citySlug}/${page.slug}`;
-//             break;
-//           }
+export default async function sitemap() {
+  if (!isIndexableSite()) return [];
 
-//           default:
-//             // HOME duplicate avoid
-//             if (!page?.slug || page.slug === "/" || page.slug === "home") {
-//               return null;
-//             }
+  const siteUrl = getSiteUrl();
+  const staticPaths = [
+    ["/", 1],
+    ["/about-us", 0.8],
+    ["/contact-us", 0.7],
+    ["/terms-conditions", 0.5],
+    ["/grievance-redressal", 0.5],
+    ["/blog", 0.7],
+  ];
 
-//             url = `${siteUrl}/${page.slug}`;
-//         }
+  const [cmsPages, blogs] = await Promise.all([
+    getAllCmsPages().catch(() => {
+      console.error("Public CMS sitemap entries could not be loaded.");
+      return [];
+    }),
+    fetchAllPublicBlogs(),
+  ]);
 
-//         return {
-//           url,
-//           lastModified: page?.updatedAt || new Date(),
-//           priority: page?.entityType === "hotel" ? 0.9 : 0.8,
-//         };
-//       })
-//       .filter(Boolean) || [];
+  const entries = staticPaths.map(([path, priority]) =>
+    toSitemapEntry(siteUrl, path, null, priority),
+  );
 
-//   /*
-//    REMOVE DUPLICATES
-//   */
-//   const allRoutes = [...staticRoutes, ...cmsRoutes];
+  for (const page of cmsPages) {
+    if (
+      page?.noindex === true ||
+      page?.isIndexable === false ||
+      page?.robots?.index === false ||
+      page?.isPublished === false ||
+      page?.status === "draft"
+    ) {
+      continue;
+    }
+    const path = getCmsSitemapPath(page);
+    if (path) {
+      entries.push(
+        toSitemapEntry(
+          siteUrl,
+          path,
+          page?.updatedAt,
+          page?.entityType === "hotel" ? 0.8 : 0.6,
+        ),
+      );
+    }
+  }
 
-//   const uniqueRoutes = Array.from(
-//     new Map(allRoutes.map((item) => [item.url, item])).values(),
-//   );
-//   return uniqueRoutes;
-// }
+  for (const blog of blogs) {
+    if (
+      !blog?.slug ||
+      blog?.noindex === true ||
+      blog?.isIndexable === false ||
+      blog?.robots?.index === false ||
+      blog?.isPublished === false ||
+      blog?.status === "draft"
+    ) {
+      continue;
+    }
+    entries.push(
+      toSitemapEntry(
+        siteUrl,
+        `/blog/${encodePathSegment(blog.slug)}`,
+        blog.updatedAt || blog.createdAt,
+        0.6,
+      ),
+    );
+  }
 
-export default function sitemap() {
-  return [];
+  return Array.from(new Map(entries.map((entry) => [entry.url, entry])).values());
 }

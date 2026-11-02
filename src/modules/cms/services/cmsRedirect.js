@@ -18,7 +18,7 @@ export const resolveCmsRedirect = async (requestedPath) => {
     return pickRedirectDestination(requestedPath, response?.headers?.location);
   } catch (error) {
     if (error?.response?.status !== 404) {
-      console.error("CMS REDIRECT ERROR:", error?.message);
+      console.error("CMS redirect lookup failed.");
     }
     return null;
   }

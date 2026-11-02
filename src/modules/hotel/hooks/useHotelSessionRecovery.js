@@ -40,14 +40,11 @@ export const useHotelSessionRecovery = ({ hotelDetails, rawRatePlans }) => {
         filters: {},
         sort: "",
       };
-      console.log("reload payload", payload);
       const response = await searchHotels(payload);
       const hotels = response?.data?.hotels || [];
-      console.log("reload hotels", hotels);
       const sameHotel = hotels.find(
         (hotel) => hotel?.hotelId === selectedHotel?.hotelMeta?.hotelId,
       );
-      console.log("sameHotel", sameHotel);
       if (sameHotel) {
         setSelectedHotel(sameHotel);
         setSessionExpired(false);
@@ -55,8 +52,8 @@ export const useHotelSessionRecovery = ({ hotelDetails, rawRatePlans }) => {
         setSessionExpired(false);
         window.location.href = "/hotels";
       }
-    } catch (error) {
-      console.log("hotel reload failed", error);
+    } catch {
+      console.error("Unable to reload hotel search results.");
     } finally {
       setReloadingHotels(false);
     }

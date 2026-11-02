@@ -49,9 +49,84 @@ test("requested path is encoded per segment", () => {
 
 import {
   buildPageTitle,
+  getRobotsMetadata,
+  getSiteUrl,
+  isIndexableSite,
   joinSiteUrl,
   normalizeSiteUrl,
 } from "./seoUrl.js";
+
+const withEnvironment = (values, callback) => {
+  const keys = Object.keys(values);
+  const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  Object.assign(process.env, values);
+  try {
+    callback();
+  } finally {
+    for (const key of keys) {
+      if (previous[key] === undefined) delete process.env[key];
+      else process.env[key] = previous[key];
+    }
+  }
+};
+
+test("SEO environment: only aligned production origins are indexable", () => {
+  withEnvironment(
+    {
+      NODE_ENV: "production",
+      DEPLOYMENT_ENV: "production",
+      NEXT_PUBLIC_SITE_URL: "https://destinoway.com",
+      NEXTAUTH_URL: "https://destinoway.com",
+    },
+    () => {
+      assert.equal(isIndexableSite(), true);
+      assert.equal(getRobotsMetadata().index, true);
+      assert.equal(getSiteUrl(), "https://destinoway.com");
+    },
+  );
+});
+
+test("SEO environment: staging and mismatched origins fail closed", () => {
+  withEnvironment(
+    {
+      NODE_ENV: "production",
+      DEPLOYMENT_ENV: "staging",
+      NEXT_PUBLIC_SITE_URL: "https://dev.destinoway.com",
+      NEXTAUTH_URL: "https://dev.destinoway.com",
+    },
+    () => {
+      assert.equal(isIndexableSite(), false);
+      assert.equal(getRobotsMetadata().index, false);
+      assert.equal(getSiteUrl(), "https://dev.destinoway.com");
+    },
+  );
+
+  withEnvironment(
+    {
+      NODE_ENV: "production",
+      DEPLOYMENT_ENV: "production",
+      NEXT_PUBLIC_SITE_URL: "https://destinoway.com",
+      NEXTAUTH_URL: "https://dev.destinoway.com",
+    },
+    () => {
+      assert.equal(isIndexableSite(), false);
+      assert.equal(getSiteUrl(), "https://destinoway.com");
+    },
+  );
+
+  withEnvironment(
+    {
+      NODE_ENV: "production",
+      DEPLOYMENT_ENV: "staging",
+      NEXT_PUBLIC_SITE_URL: "https://dev.destinoway.com",
+      NEXTAUTH_URL: "https://destinoway.com",
+    },
+    () => {
+      assert.equal(isIndexableSite(), false);
+      assert.equal(getSiteUrl(), "https://dev.destinoway.com");
+    },
+  );
+});
 
 test("site url: trailing slashes and paths are normalized", () => {
   assert.equal(normalizeSiteUrl("https://a.com/"), "https://a.com");

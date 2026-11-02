@@ -4,12 +4,9 @@ import CompactItem from "./CompactItem";
 import SummaryItem from "./SummaryItem";
 
 export default function GuestTrigger({ variant = "default", value, icon }) {
-  console.log("GuestTrigger Render", icon);
-
   if (variant === "compact") {
     return (
       <div
-        onClick={() => console.log("Trigger Clicked")}
         className="flex cursor-pointer items-center gap-3 rounded border border-gray-300 bg-white px-3 transition-all hover:border-gray-300 sm:h-[50px]"
       >
         {/* ICON */}

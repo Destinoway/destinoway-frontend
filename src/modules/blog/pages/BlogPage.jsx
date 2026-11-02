@@ -9,6 +9,7 @@ import {
 } from "@ant-design/icons";
 
 import { Button } from "antd";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -26,10 +27,12 @@ const BlogCard = ({ blog, onClick }) => {
     <article className="group overflow-hidden rounded-[18px] border border-gray-100 bg-white shadow-[0_4px_18px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
       {/* IMAGE */}
       <div className="relative h-[210px] w-full overflow-hidden">
-        <img
+        <Image
           src={blog.image}
           alt={blog.title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+          fill
+          sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
         />
 
         {/* CATEGORY */}
@@ -144,10 +147,14 @@ const BlogPage = () => {
         <section className="relative overflow-hidden">
           {/* BACKGROUND IMAGE */}
           <div className="absolute inset-0 overflow-hidden bg-[#092f49]">
-            <img
+            <Image
               src="/images/heroimage.jpg"
-              alt="Travel"
-              className="h-full w-full object-cover object-center !opacity-50"
+              alt=""
+              fill
+              loading="eager"
+              fetchPriority="high"
+              sizes="100vw"
+              className="object-cover object-center !opacity-50"
             />
 
             {/* White filter on image */}
@@ -403,10 +410,13 @@ const BlogPage = () => {
                   type="button"
                   className="group relative h-[145px] overflow-hidden rounded-[15px] border-0 bg-gray-200 text-left"
                 >
-                  <img
+                  <Image
                     src={destination.image}
                     alt={destination.name}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.07]"
+                    fill
+                    quality={60}
+                    sizes="(max-width: 767px) 80vw, (max-width: 1023px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.07]"
                   />
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />

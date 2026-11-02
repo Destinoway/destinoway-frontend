@@ -7,6 +7,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Button } from "antd";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
@@ -50,10 +51,14 @@ const BlogDetailsPage = ({ blog }) => {
         {/* BACKGROUND IMAGE */}
         <div className="absolute inset-0">
           {blog?.featuredImage && (
-            <img
+            <Image
               src={blog.featuredImage}
               alt={blog.featuredImageAlt || blog.title || ""}
-              className="h-full w-full object-cover opacity-50"
+              fill
+              loading="eager"
+              fetchPriority="high"
+              sizes="100vw"
+              className="object-cover opacity-50"
             />
           )}
         </div>

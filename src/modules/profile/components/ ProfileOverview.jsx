@@ -279,8 +279,6 @@ export default function ProfileOverview() {
   const [emailVerified, setEmailVerified] = useState(false);
   const [mobileVerified, setMobileVerified] = useState(false);
 
-  console.log("USER: in profile section", user);
-
   // ================= FORM =================
 
   const methods = useForm({

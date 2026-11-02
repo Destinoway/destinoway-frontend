@@ -11,7 +11,9 @@ export const fetchCmsBySlug = cache(async (slug, preview = false) => {
       return null;
     }
 
-    console.error("CMS FETCH ERROR:", status || error?.message);
+    if (status) {
+      console.error("CMS request failed with status:", status);
+    }
 
     return null;
   }

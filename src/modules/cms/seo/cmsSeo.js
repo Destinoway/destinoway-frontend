@@ -1,8 +1,8 @@
 import { resolveSavedCanonical } from "../utils/canonical";
+import { getRobotsMetadata, getSiteUrl } from "../utils/seoUrl";
 import {
   buildPageTitle,
   joinSiteUrl,
-  normalizeSiteUrl,
   titleToText,
 } from "../utils/seoUrl";
 
@@ -11,7 +11,7 @@ export const buildCmsMetadata = (cms) => {
     return {};
   }
 
-  const siteUrl = normalizeSiteUrl(process.env.NEXTAUTH_URL);
+  const siteUrl = getSiteUrl();
 
   const slug = cms?.slug || "";
 
@@ -54,7 +54,10 @@ CANONICAL
     default:
       canonical = joinSiteUrl(siteUrl, slug);
   }
-  canonical = resolveSavedCanonical(cms?.canonicalUrl, siteUrl) || canonical;
+  const savedCanonical = resolveSavedCanonical(cms?.canonicalUrl, siteUrl);
+  if (savedCanonical && new URL(savedCanonical).origin === new URL(siteUrl).origin) {
+    canonical = savedCanonical;
+  }
 
   /*
   BASIC
@@ -74,18 +77,7 @@ CANONICAL
     cms?.data?.coverImage ||
     "/images/default-og.jpg";
 
-  const robots = {
-    index: false,
-    follow: false,
-    nocache: true,
-    googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
-      "max-image-preview": "none",
-      "max-snippet": -1,
-    },
-  };
+  const robots = getRobotsMetadata();
 
   return {
     /*

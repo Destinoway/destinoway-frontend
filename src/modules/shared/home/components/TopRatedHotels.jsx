@@ -138,8 +138,7 @@ export default function TopRatedHotels({ hotels }) {
               src={hotel.image}
               alt={hotel.alt || hotel.name}
               fill
-              quality={75}
-              sizes="(max-width:768px) 50vw,(max-width:1200px) 33vw,20vw"
+              sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, 20vw"
               className="object-cover transition duration-500 hover:scale-105"
             />
           </div>

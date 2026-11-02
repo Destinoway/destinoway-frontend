@@ -19,8 +19,9 @@ import TrustSection from "@/modules/shared/home/components/hero_section/TrustSec
 import { fetchHomeContent } from "@/modules/shared/home/services/homeContentFetch";
 import GiftCardSliderServer from "@/modules/shared/home/components/hero_section/GiftCardSliderServer";
 import GiftCardSliderFallback from "@/modules/shared/home/components/hero_section/GiftCardSliderFallback";
+import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const SITE_URL = getSiteUrl();
 const OG_IMAGE = `${SITE_URL}/images/OGIMAGE1.png`;
 
 export async function generateMetadata() {
@@ -43,19 +44,7 @@ export async function generateMetadata() {
       canonical: SITE_URL,
     },
 
-    robots: {
-      index: false,
-      follow: false,
-      nocache: true,
-
-      googleBot: {
-        index: false,
-        follow: false,
-        noimageindex: true,
-        "max-image-preview": "none",
-        "max-snippet": -1,
-      },
-    },
+    robots: getRobotsMetadata(),
 
     openGraph: {
       title,

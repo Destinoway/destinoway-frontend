@@ -10,7 +10,7 @@ export default function OfferBanner() {
           src="/images/cashback_banner.png"
           alt="banner"
           fill
-          sizes="100vw"
+          sizes="(max-width: 1023px) 100vw, 86vw"
           className="object-cover"
         />
 
@@ -21,6 +21,7 @@ export default function OfferBanner() {
           alt="luggage"
           width={600}
           height={600}
+            sizes="(max-width: 639px) 70px, (max-width: 767px) 100px, (max-width: 1023px) 180px, 280px"
           className="absolute right-1 bottom-0 z-20 h-auto w-[70px] drop-shadow-2xl sm:w-[100px] md:w-[180px] lg:w-[280px]"
         />
 
@@ -29,6 +30,7 @@ export default function OfferBanner() {
             src="/images/offer.png"
             alt="offer badge"
             fill
+            sizes="(max-width: 639px) 50px, (max-width: 767px) 90px, (max-width: 1023px) 140px, 180px"
             className="rotate-[-15deg] object-contain"
           />
         </div>

@@ -4,6 +4,7 @@ import {
   buildHotelTitle,
 } from "@/modules/cms/seo/hotelSeo";
 import { fetchHotelCms } from "@/modules/cms/services/cmsFetch";
+import { getSiteUrl } from "@/modules/cms/utils/seoUrl";
 import HotelDetails from "@/modules/hotel/pages/hotelDetails";
 
 export async function generateMetadata({ params, searchParams }) {
@@ -17,6 +18,10 @@ export async function generateMetadata({ params, searchParams }) {
 
   if (cms) {
     const metadata = buildCmsMetadata(cms);
+    const siteUrl = getSiteUrl();
+    const canonical = `${siteUrl}/hotel-details/${encodeURIComponent(city)}/${encodeURIComponent(slug)}`;
+    metadata.alternates = { ...metadata.alternates, canonical };
+    metadata.openGraph = { ...metadata.openGraph, url: canonical };
 
     if (preview) {
       metadata.robots = {
@@ -31,7 +36,7 @@ export async function generateMetadata({ params, searchParams }) {
 
     return metadata;
   }
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   const hotelSlug =
     slug?.replace(/-/g, " ")?.replace(/\b\w/g, (l) => l.toUpperCase()) ||
     "Hotel";
@@ -83,7 +88,7 @@ export async function generateMetadata({ params, searchParams }) {
 export default async function Page({ params, searchParams }) {
   const { slug, city } = await params;
   const query = await searchParams;
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   const preview = query?.preview === "true";
 
   const cms = await fetchHotelCms(city, slug, preview);

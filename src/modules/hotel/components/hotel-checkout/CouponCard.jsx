@@ -18,7 +18,6 @@ export default function CouponCard({
 }) {
   const { message } = App.useApp();
 
-  console.log("coupons in check out page", coupons);
 
   const formatPrice = (value) =>
     Number(value || 0).toLocaleString("en-IN", {

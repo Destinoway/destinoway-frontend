@@ -8,13 +8,13 @@ import { buildCmsMetadata } from "@/modules/cms/seo/cmsSeo";
 import { fetchCmsBySlug } from "@/modules/cms/services/cmsFetch";
 import HotelContent from "@/modules/hotel/pages/Hotel";
 import { Suspense } from "react";
+import { getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 export async function generateMetadata({ searchParams }) {
   const query = await searchParams;
 
-  console.log("SEARCH PAGE QUERY:", query);
   const preview = query?.preview === "true";
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   const rawCity = query?.cityName || query?.city || "";
   const cityName = rawCity?.split(",")?.[0]?.trim() || "Hotels";
   const citySlug = cityName
