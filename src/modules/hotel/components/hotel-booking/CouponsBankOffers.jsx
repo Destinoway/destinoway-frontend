@@ -206,7 +206,6 @@ const CouponsBankOffers = ({
             {visibleCoupons.map((coupon) => {
               const isApplied = coupon?.code === appliedCoupon;
 
-<<<<<<< HEAD
 return (
   <div
     key={coupon.code}
@@ -248,7 +247,7 @@ return (
     </button>
   </div>
 );
-=======
+
               return (
                 <div
                   key={coupon.code}
@@ -292,7 +291,7 @@ return (
                   </button>
                 </div>
               );
->>>>>>> 4b3e97ba0597f4f7c4c11054c21d8d02540143a6
+
             })}
           </div>
         ) : (

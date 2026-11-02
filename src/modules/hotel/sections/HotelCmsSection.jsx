@@ -2,9 +2,9 @@ export default function HotelCmsSection({ children }) {
   if (!children) return null;
 
   return (
-    <section className="mt-10 overflow-hidden rounded border border-[#dfeaf2] bg-white shadow-sm">
+    <section className="mt-10  mb-10 overflow-hidden rounded border border-[#dfeaf2] bg-white shadow-sm">
       {/* Header */}
-      <div className="border-b border-[#edf3f8] px-6 py-5 md:px-8 bg-[#f7fcff]">
+      <div className="border border-[#edf3f8] px-6 py-5 md:px-8 bg-[#f7fcff]">
         <h2 className="text-[24px] font-semibold text-[#1f2937]">
           About This Hotel
         </h2>
