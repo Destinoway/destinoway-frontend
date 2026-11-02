@@ -99,7 +99,7 @@ const Amenities = ({ amenities = [] }) => {
     : normalizedAmenities.slice(0, 8);
 
   return (
-    <div className="rounded border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-gray-300 p-6">
       <h2 className="mb-5 text-xl font-semibold text-gray-800">Amenities</h2>
 
       {normalizedAmenities.length > 0 ? (

@@ -51,7 +51,7 @@ const AboutHotel = ({ about = "" }) => {
         </div>
       </div>
       <div className="p-4">
-        <div className="rounded border border-[#e7f3fb] bg-[#f9fcfe] p-4">
+        <div className="rounded-xl border border-gray-300 p-4">
           <div className="most-text-color mb-3 flex items-center gap-2">
             <InfoCircleOutlined />
             <span className="!text-[15px] font-medium">Hotel Information</span>

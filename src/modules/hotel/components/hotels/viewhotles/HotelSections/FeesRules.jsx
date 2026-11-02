@@ -140,7 +140,7 @@ const FeesRules = ({ supplierData = {} }) => {
   return (
     <div className="space-y-4">
       {uniqueRules.length > 0 ? (
-        <div className="rounded border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-gray-300  p-6 ">
           <div className="mb-5">
             <h2 className="text-xl font-semibold text-gray-800">
               Hotel Rules & Information
