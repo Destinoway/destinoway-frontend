@@ -51,6 +51,12 @@ export default function Hero({ banner }) {
       <picture className={styles.heroBg}>
         <source
           media="(max-width: 777px)"
+          srcSet="/images/heromobile.avif 390w, /images/heromobile-2x.avif 780w"
+          sizes="100vw"
+          type="image/avif"
+        />
+        <source
+          media="(max-width: 777px)"
           srcSet="/images/heromobile.webp 390w, /images/heromobile-2x.webp 780w"
           sizes="100vw"
           type="image/webp"

@@ -73,13 +73,13 @@ export async function generateMetadata() {
 }
 
 export default async function Page() {
-  preload("/images/heromobile.webp", {
+  preload("/images/heromobile.avif", {
     as: "image",
-    imageSrcSet: "/images/heromobile.webp 390w, /images/heromobile-2x.webp 780w",
+    imageSrcSet: "/images/heromobile.avif 390w, /images/heromobile-2x.avif 780w",
     imageSizes: "100vw",
     media: "(max-width: 777px)",
     fetchPriority: "high",
-    type: "image/webp",
+    type: "image/avif",
   });
 
   const [homeCms, homeContent] = await Promise.all([

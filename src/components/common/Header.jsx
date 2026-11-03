@@ -197,14 +197,10 @@ export default function Header() {
     <div className="w-full">
       {/* Navbar */}
       <header
-        className={`flex justify-between bg-white shadow-sm ${
-          isMobile
-            ? "h-14 px-5 py-1 pt-0"
-            : "h-18 px-6 py-1 pt-0 md:px-10 lg:px-8 xl:px-6 2xl:px-32"
-        }`}
+        className="flex h-14 justify-between bg-white px-5 py-1 pt-0 shadow-sm min-[778px]:h-18 min-[778px]:px-10 lg:px-8 xl:px-6 2xl:px-32"
       >
         {/* Logo */}
-        <div className={isMobile ? "" : "flex items-center justify-start"}>
+        <div className="min-[778px]:flex min-[778px]:items-center min-[778px]:justify-start">
           <Link href="/" className="flex items-center">
             <Image
               src="/images/LOGO-DW.png"
@@ -212,11 +208,7 @@ export default function Header() {
               width={400}
               height={70}
               sizes="(max-width: 778px) 170px, 200px"
-              className={`object-contain transition-all duration-300 ${
-                isMobile
-                  ? "absolute top-0 left-2 h-auto w-[170px]"
-                  : "h-auto w-[200px]"
-              }`}
+              className="absolute top-0 left-2 h-auto w-[170px] object-contain transition-all duration-300 min-[778px]:static min-[778px]:w-[200px]"
             />
           </Link>
         </div>
@@ -278,26 +270,18 @@ export default function Header() {
           {!session ? (
             <button
               onClick={() => setOpen(true)}
-              className={`buttion-background-color flex items-center rounded-lg text-white! transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${
-                isMobile
-                  ? "gap-3 px-4 py-2 text-[13px]"
-                  : "gap-2 px-3 py-2 text-sm"
-              }`}
+              className="buttion-background-color flex items-center gap-3 rounded-lg px-4 py-2 text-[13px] text-white! transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg min-[778px]:gap-2 min-[778px]:px-3 min-[778px]:text-sm"
             >
-              <UserOutlined
-                className={isMobile ? "text-[12px]" : "text-[18px]"}
-              />
+              <UserOutlined className="text-[12px] min-[778px]:text-[18px]" />
 
-              {!isMobile && <span>Login</span>}
+              <span className="hidden min-[778px]:inline">Login</span>
             </button>
           ) : (
             <Dropdown menu={{ items }} placement="bottomRight">
               <div className="flex cursor-pointer items-center gap-2 transition-all duration-300 hover:scale-105">
                 {/* ✅ PERFECT ROUND AVATAR */}
                 <div
-                  className={`teb-border-color flex items-center justify-center overflow-hidden rounded-full border-2 bg-gray-100 transition-all duration-300 ${
-                    isMobile ? "h-7! w-7!" : "h-9 w-9"
-                  }`}
+                  className="teb-border-color flex h-7! w-7! items-center justify-center overflow-hidden rounded-full border-2 bg-gray-100 transition-all duration-300 min-[778px]:h-9! min-[778px]:w-9!"
                 >
                   {user?.image ? (
                     <Image
@@ -309,9 +293,7 @@ export default function Header() {
                     />
                   ) : (
                     <span
-                      className={`font-semibold text-[#4A9BB5] ${
-                        isMobile ? "text-xs" : "text-sm"
-                      }`}
+                      className="text-xs font-semibold text-[#4A9BB5] min-[778px]:text-sm"
                     >
                       {getInitials(user?.name)}
                     </span>
