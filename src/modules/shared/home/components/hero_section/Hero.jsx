@@ -60,6 +60,7 @@ export default function Hero({ banner }) {
           alt={bannerItem.alt || "Destonoway"}
           fill
           loading="eager"
+          fetchPriority="high"
           quality={75}
           sizes="100vw"
           className="object-cover"

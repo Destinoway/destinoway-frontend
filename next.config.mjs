@@ -9,6 +9,24 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig = {
   reactCompiler: true,
 
+  experimental: {
+    inlineCss: true,
+  },
+
+  async headers() {
+    const staticAssetCache = [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=2592000, stale-while-revalidate=86400",
+      },
+    ];
+
+    return [
+      { source: "/images/icons/:path*", headers: staticAssetCache },
+      { source: "/images/payments/:path*", headers: staticAssetCache },
+    ];
+  },
+
   images: {
     remotePatterns: [
       {

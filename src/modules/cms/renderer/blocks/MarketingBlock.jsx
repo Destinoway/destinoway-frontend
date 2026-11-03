@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function MarketingBlock({ data }) {
   if (!data) return null;
 
@@ -11,11 +13,16 @@ export default function MarketingBlock({ data }) {
         )}
 
         {data?.bannerImage && (
-          <img
-            src={data.bannerImage}
-            alt={data.imageAlt || data.bannerTitle || ""}
-            className="mb-6 w-full rounded object-cover"
-          />
+          <div className="relative mb-6 aspect-video w-full overflow-hidden rounded">
+            <Image
+              src={data.bannerImage}
+              alt={data.imageAlt || data.bannerTitle || ""}
+              fill
+              sizes="(max-width: 768px) 100vw, 1152px"
+              quality={75}
+              className="object-cover"
+            />
+          </div>
         )}
 
         {data?.content && (
