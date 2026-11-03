@@ -3,5 +3,9 @@
 import BookingWebsiteLoader from "@/components/common/loder/BookingWebsiteLoader";
 
 export default function Loading() {
-  return <BookingWebsiteLoader />;
+  return (
+    <div className="min-h-screen">
+      <BookingWebsiteLoader />
+    </div>
+  );
 }
