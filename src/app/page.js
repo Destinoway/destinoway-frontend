@@ -12,8 +12,6 @@ import WhySection from "@/modules/shared/home/components/why_sections/WhySection
 import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
 import { fetchCmsBySlug } from "@/modules/cms/services/cmsFetch";
 
-import ScrollToTopButton from "@/modules/hotel/ScrollToTopButton";
-
 import Hero from "@/modules/shared/home/components/hero_section/Hero";
 import TrustSection from "@/modules/shared/home/components/hero_section/TrustSection";
 
@@ -158,7 +156,6 @@ export default async function Page() {
         />
       )}
 
-      <ScrollToTopButton />
       <Hero banner={banner} />
       <TrustSection />
       <Suspense fallback={<GiftCardSliderFallback />}>
