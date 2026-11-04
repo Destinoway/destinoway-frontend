@@ -35,6 +35,8 @@ export default function PriceBreakupCard({ bookingData = {} }) {
     bookingData?.couponDiscount ?? details?.couponDiscount;
   const discountPercent =
     bookingData?.couponDiscountPercent ?? details?.couponDiscountPercent;
+  // Coupon rows are only meaningful when a discount is actually applied.
+  const hasCouponDiscount = Number(couponDiscount) > 0;
 
   const renderPrice = (value) =>
     value !== null && value !== undefined && value !== ""
@@ -97,27 +99,29 @@ export default function PriceBreakupCard({ bookingData = {} }) {
             </span>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-gray-500">Price Before Coupon</span>
-            <span className="text-right text-gray-500 line-through">
-              {renderPrice(beforeCoupon)}
-            </span>
-          </div>
+          {hasCouponDiscount && (
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-gray-500">Price Before Coupon</span>
+              <span className="text-right text-gray-500 line-through">
+                {renderPrice(beforeCoupon)}
+              </span>
+            </div>
+          )}
 
-          {appliedCoupon && (
+          {hasCouponDiscount && appliedCoupon && (
             <div className="flex items-center justify-between gap-3 text-emerald-700">
               <span className="min-w-0 truncate">
                 Coupon{appliedCouponTitle ? `: ${appliedCouponTitle}` : ""}
                 <span className="ml-1 font-semibold">({appliedCoupon})</span>
               </span>
               <span className="shrink-0 text-right font-medium">
-                {renderPrice(couponDiscount)}
-                {Number(couponDiscount) > 0 ? " off" : ""}
+                {renderPrice(couponDiscount)} off
               </span>
             </div>
           )}
 
-          {discountPercent !== null &&
+          {hasCouponDiscount &&
+            discountPercent !== null &&
             discountPercent !== undefined &&
             discountPercent !== "" && (
               <div className="flex items-center justify-between gap-3 text-emerald-700">

@@ -47,9 +47,10 @@ export default function LoginSuccessModalContent({
           <Button
             size="large"
             onClick={onProfile}
-            className="h-[44px] rounded-lg px-10 font-medium text-white!"
+            className="h-[44px] rounded-lg px-10 font-medium"
             style={{
-              background: "buttion-background-color",
+              background: "var(--theme-primary)",
+              color: "var(--theme-white)",
               border: "none",
             }}
           >

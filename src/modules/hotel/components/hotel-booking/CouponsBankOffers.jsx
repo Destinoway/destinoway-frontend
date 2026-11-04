@@ -41,48 +41,6 @@ const CouponsBankOffers = ({
     (coupon) => coupon?.code === appliedCoupon,
   );
 
-  const commitCouponUpdate = (response, nextCouponCode) => {
-    const undiscountedTotal =
-      Number(bookingData?.totalPayable) + totalSaved ||
-      Number(
-      priceDetails?.totalPriceBeforeCoupon ?? priceDetails?.totalPrice ?? 0,
-      );
-    const selectedCoupon = availableCoupons.find(
-      (coupon) => coupon?.code === nextCouponCode,
-    );
-    const fallbackDiscount = nextCouponCode
-      ? Number(
-          nextCouponCode === appliedCoupon
-            ? totalSaved
-            : selectedCoupon?.discount,
-        ) || 0
-      : 0;
-    onCouponUpdate?.({
-      ...(response || {}),
-      availableCoupons:
-        Array.isArray(response?.availableCoupons)
-          ? response.availableCoupons
-          : availableCoupons,
-      appliedCoupon:
-        response?.appliedCoupon !== undefined
-          ? response.appliedCoupon || ""
-          : nextCouponCode || "",
-      couponDiscount:
-        response?.couponDiscount !== undefined
-          ? Number(response.couponDiscount) || 0
-          : fallbackDiscount,
-      couponDiscountPercent:
-        response?.couponDiscountPercent ??
-        (selectedCoupon?.discountType === "percent"
-          ? selectedCoupon?.discountValue
-          : null),
-      totalPayable:
-        response?.totalPayable !== undefined
-          ? Number(response.totalPayable) || 0
-          : Math.max(undiscountedTotal - fallbackDiscount, 0),
-    });
-  };
-
   const handleCouponUpdate = async (code) => {
     const normalizedCode =
       typeof code === "string" ? code.trim().toUpperCase() : null;
@@ -91,17 +49,28 @@ const CouponsBankOffers = ({
 
     setIsUpdating(true);
     try {
-      const response = await updateHotelItineraryCoupon({
+      await updateHotelItineraryCoupon({
         itineraryId: bookingData?.itineraryId,
         couponCode: normalizedCode,
       });
-      commitCouponUpdate(response, normalizedCode);
-      setCouponCode("");
+    } catch (error) {
+      message.error(error?.message || "Unable to update the coupon.");
+      setIsUpdating(false);
+      return;
+    }
+
+    setCouponCode("");
+    try {
+      // Coupon changes the price, so re-fetch itinerary pricing.
+      await onCouponUpdate?.();
       message.success(
         normalizedCode ? "Coupon applied successfully" : "Coupon removed",
       );
     } catch (error) {
-      message.error(error?.message || "Unable to update the coupon.");
+      message.error(
+        error?.message ||
+          "Coupon updated, but the latest price could not be loaded.",
+      );
     } finally {
       setIsUpdating(false);
     }

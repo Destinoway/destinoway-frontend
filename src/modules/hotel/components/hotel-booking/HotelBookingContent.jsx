@@ -36,6 +36,7 @@ export default function HotelBookingContent({
   hotelBookingData = {},
   hotelDetailId = "",
   roomId = "",
+  onPricingRefresh,
 }) {
   const [isMobile, setIsMobile] = useState(false);
   const mounted = useSyncExternalStore(
@@ -44,7 +45,6 @@ export default function HotelBookingContent({
     getServerMountSnapshot,
   );
   const [agreement, setAgreement] = useState(false);
-  const [couponUpdate, setCouponUpdate] = useState({});
   const guestFormRef = useRef(null);
   const bookingSubmissionRef = useRef(false);
   const { mutate: bookHotel, isPending } = useHotelBooking();
@@ -63,9 +63,8 @@ export default function HotelBookingContent({
       hotelId: hotelBookingData?.hotelId || "",
       roomId: hotelBookingData?.roomId || roomId || "",
       searchData,
-      ...couponUpdate,
     }),
-    [couponUpdate, hotelBookingData, hotelDetailId, roomId, searchData],
+    [hotelBookingData, hotelDetailId, roomId, searchData],
   );
 
   const occupancy = useMemo(() => {
@@ -238,7 +237,7 @@ export default function HotelBookingContent({
     storeBookingData,
     handleGuestSubmit,
     handleRequestChange,
-    handleCouponUpdate: setCouponUpdate,
+    handleCouponUpdate: onPricingRefresh,
     handleBooking,
     isPending,
     session,
@@ -307,7 +306,7 @@ export default function HotelBookingContent({
                   
                   <CouponsBankOffers
                     bookingData={bookingData}
-                    onCouponUpdate={setCouponUpdate}
+                    onCouponUpdate={onPricingRefresh}
                   />
                 </div>
               </Col>

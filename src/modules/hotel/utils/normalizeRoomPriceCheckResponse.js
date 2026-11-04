@@ -24,6 +24,35 @@ const normalizeFacilities = (facilities) =>
         .filter(Boolean)
     : [];
 
+// Converts a room's supplier/customer price block into the shape the booking UI reads.
+const buildRoomPricing = (room = {}) => {
+  const customerPrice = room?.customerPrice || {};
+  const supplierPrice = room?.price || {};
+  const baseRate =
+    Number(customerPrice?.basePrice ?? supplierPrice?.baseRate) || 0;
+  const totalRate =
+    Number(customerPrice?.totalPrice ?? supplierPrice?.totalRate) || 0;
+  const tax =
+    Number(
+      customerPrice?.["platform&servicetax"] ??
+        supplierPrice?.tax ??
+        Math.max(totalRate - baseRate, 0),
+    ) || 0;
+
+  return {
+    ...customerPrice,
+    basicAmount: baseRate,
+    baseRate,
+    tax,
+    totalRate,
+    totalAmount: totalRate,
+    currency: formatCurrency(customerPrice?.currency || supplierPrice?.currency),
+    currencyCode: customerPrice?.currency || supplierPrice?.currency || "INR",
+    priceDetails: customerPrice,
+    supplierPrice,
+  };
+};
+
 export const normalizeRoomPriceCheckResponse = (
   responseData,
   {
@@ -36,41 +65,13 @@ export const normalizeRoomPriceCheckResponse = (
   const apiRooms = Array.isArray(responseData?.pricing?.rooms)
     ? responseData.pricing.rooms
     : [];
-  const rooms = apiRooms.map((room) => {
-    const customerPrice = room?.customerPrice || {};
-    const supplierPrice = room?.price || {};
-    const baseRate =
-      Number(customerPrice?.basePrice ?? supplierPrice?.baseRate) || 0;
-    const totalRate =
-      Number(customerPrice?.totalPrice ?? supplierPrice?.totalRate) || 0;
-    const tax =
-      Number(
-        customerPrice?.["platform&servicetax"] ??
-          supplierPrice?.tax ??
-          Math.max(totalRate - baseRate, 0),
-      ) || 0;
-
-    return {
-      ...room,
-      roomType: room?.name || "Selected Room",
-      inclusion: room?.boardBasis || "",
-      guests: room?.occupancies || [],
-      pricing: {
-        ...customerPrice,
-        basicAmount: baseRate,
-        baseRate,
-        tax,
-        totalRate,
-        totalAmount: totalRate,
-        currency: formatCurrency(
-          customerPrice?.currency || supplierPrice?.currency,
-        ),
-        currencyCode: customerPrice?.currency || supplierPrice?.currency || "INR",
-        priceDetails: customerPrice,
-        supplierPrice,
-      },
-    };
-  });
+  const rooms = apiRooms.map((room) => ({
+    ...room,
+    roomType: room?.name || "Selected Room",
+    inclusion: room?.boardBasis || "",
+    guests: room?.occupancies || [],
+    pricing: buildRoomPricing(room),
+  }));
   const selectedRoom = rooms[0] || {};
   const occupancies =
     responseData?.occupancies?.length > 0
@@ -144,5 +145,49 @@ export const normalizeRoomPriceCheckResponse = (
     selectedRoom,
     importantInformation: [],
     recommendationId,
+  };
+};
+
+// Merges the itinerary pricing API response (prices + coupons) into the
+// normalized price-check data. Rooms are matched by index.
+export const mergeItineraryPricing = (priceCheckData, pricingData) => {
+  if (!priceCheckData || !pricingData) return priceCheckData;
+
+  const pricingRooms = Array.isArray(pricingData?.pricing?.rooms)
+    ? pricingData.pricing.rooms
+    : [];
+  const rooms = (priceCheckData?.rooms || []).map((room, index) => {
+    const roomPricing = pricingRooms[index];
+    if (!roomPricing) return room;
+
+    return {
+      ...room,
+      ...roomPricing,
+      pricing: buildRoomPricing(roomPricing),
+    };
+  });
+  const selectedRoom = rooms[0] || {};
+  const selectedPricing = selectedRoom?.pricing || {};
+  const priceDetails = selectedPricing?.priceDetails || {};
+
+  return {
+    ...priceCheckData,
+    rooms,
+    selectedRoom,
+    pricing: {
+      ...selectedPricing,
+      refundable: priceCheckData?.refundable ?? false,
+    },
+    availableCoupons: Array.isArray(pricingData?.availableCoupons)
+      ? pricingData.availableCoupons
+      : [],
+    appliedCoupon:
+      pricingData?.appliedCoupon || priceDetails?.appliedCouponCode || "",
+    couponDiscount:
+      Number(pricingData?.couponDiscount ?? priceDetails?.couponDiscount) || 0,
+    couponDiscountPercent: priceDetails?.couponDiscountPercent ?? null,
+    totalPayable:
+      Number(pricingData?.totalPayable ?? selectedPricing?.totalAmount) || 0,
+    currency: formatCurrency(pricingData?.currency || priceDetails?.currency),
   };
 };

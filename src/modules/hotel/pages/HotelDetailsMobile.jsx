@@ -77,7 +77,12 @@ function HotelDetailsMobile({
     : supplierData?.HotelGallery || [];
 
   const amenities = Array.isArray(supplierData?.Amenities)
-    ? supplierData.Amenities.map((item) => String(item).trim()).filter(Boolean)
+    ? supplierData.Amenities.map((item) =>
+        // API sends amenities as objects ({ name, ... }); String(obj) gave "[object Object]".
+        typeof item === "string"
+          ? item.trim()
+          : (item?.name || item?.title || item?.description || "").trim(),
+      ).filter(Boolean)
     : typeof supplierData?.Amenities === "string"
       ? supplierData.Amenities.split(",")
           .map((item) => item.trim())

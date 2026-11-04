@@ -5,7 +5,9 @@ import { useEffect } from "react";
 
 import HotelBookingContent from "../components/hotel-booking/HotelBookingContent";
 import HotelBookingSkeleton from "../components/hotel-booking/HotelBookingSkeleton";
+import { useItineraryPricing } from "../hooks/useItineraryPricing";
 import { useRoomPricing } from "../hooks/useRoomPricing";
+import { mergeItineraryPricing } from "../utils/normalizeRoomPriceCheckResponse";
 import { useHotelBookingStore } from "../store/booking.store";
 import { useSelectedHotelStore } from "../store/selectedHotel.store";
 
@@ -34,6 +36,24 @@ export default function HotleBooking() {
     recommendationId,
   });
 
+  const itineraryId = roomPricingData?.itineraryId || "";
+  const {
+    data: itineraryPricingData,
+    isLoading: isPricingLoading,
+    isError: isPricingError,
+    error: pricingError,
+    refetch: refetchItineraryPricing,
+  } = useItineraryPricing(itineraryId);
+
+  // Called after a coupon is applied/removed so the price reflects it.
+  const refreshItineraryPricing = async () => {
+    const result = await refetchItineraryPricing();
+    if (result?.isError) {
+      throw result.error || new Error("Unable to refresh room pricing.");
+    }
+    return result?.data;
+  };
+
   useEffect(() => {
     if (!searchId || !supplierHotelId || !recommendationId) {
       router.replace("/hotels");
@@ -46,12 +66,18 @@ export default function HotleBooking() {
   }
 
   // Loading state
-  if (!roomPricingData && (isLoading || isFetching)) {
+  if (
+    (!roomPricingData && (isLoading || isFetching)) ||
+    (!itineraryPricingData && isPricingLoading)
+  ) {
     return <HotelBookingSkeleton />;
   }
 
   // Error state
-  if (isError || !roomPricingData) {
+  const hasPricingError =
+    !itineraryPricingData && (isPricingError || !itineraryId);
+
+  if (isError || !roomPricingData || hasPricingError) {
     return (
       <div className="background-color-bg flex min-h-screen w-full flex-col items-center justify-center gap-4 overflow-x-hidden px-4 py-8 text-center">
         <h2 className="text-lg font-semibold sm:text-xl">
@@ -59,7 +85,12 @@ export default function HotleBooking() {
         </h2>
 
         <p className="max-w-md text-sm text-gray-500 sm:text-base">
-          {error?.message || "Please go back and select the room again."}
+          {error?.message ||
+            pricingError?.message ||
+            (!itineraryId && roomPricingData
+              ? "Room pricing is unavailable right now."
+              : "") ||
+            "Please go back and select the room again."}
         </p>
 
         <button
@@ -73,9 +104,14 @@ export default function HotleBooking() {
     );
   }
 
+  const pricedData = mergeItineraryPricing(
+    roomPricingData,
+    itineraryPricingData,
+  );
+
   const bookingData = {
-    ...roomPricingData,
-    rooms: (roomPricingData?.rooms || []).map((room) => ({
+    ...pricedData,
+    rooms: (pricedData?.rooms || []).map((room) => ({
       ...room,
       roomType:
         room?.name ||
@@ -84,8 +120,8 @@ export default function HotleBooking() {
         "Selected Room",
     })),
     image:
-      roomPricingData?.image ||
-      roomPricingData?.hotel?.image ||
+      pricedData?.image ||
+      pricedData?.hotel?.image ||
       selectedHotel?.hotelImage ||
       selectedHotel?.image ||
       selectedHotelMeta?.image ||
@@ -99,6 +135,7 @@ export default function HotleBooking() {
           hotelBookingData={bookingData}
           hotelDetailId={hotelDetailId}
           roomId={roomId}
+          onPricingRefresh={refreshItineraryPricing}
         />
       </div>
     </main>

@@ -28,6 +28,10 @@ export const useRoomPricing = ({
 
     staleTime: 0,
 
+    // Price-check is a POST that creates an itinerary; React Query's default
+    // retry (3x) would silently create extra itineraries on failure.
+    retry: false,
+
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });

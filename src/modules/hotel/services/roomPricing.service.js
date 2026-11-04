@@ -39,3 +39,23 @@ export const checkRoomPrice = async ({
     throw new Error(message || "Unable to verify room price.");
   }
 };
+
+export const getItineraryPricing = async (itineraryId) => {
+  if (!itineraryId) {
+    throw new Error("Hotel itinerary is missing. Please select the room again.");
+  }
+
+  try {
+    const path = `/hotelDetails/itinerary/${encodeURIComponent(itineraryId)}/pricing`;
+    const { data } = await api.get(path);
+
+    if (data?.success !== true || !data?.data) {
+      throw new Error(data?.message || "Unable to fetch room pricing.");
+    }
+
+    return data.data;
+  } catch (error) {
+    const message = error?.response?.data?.message || error?.message;
+    throw new Error(message || "Unable to fetch room pricing.");
+  }
+};
