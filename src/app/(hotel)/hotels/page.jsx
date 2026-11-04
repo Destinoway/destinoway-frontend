@@ -5,7 +5,7 @@ import {
   buildHotelTitle,
 } from "@/modules/cms/seo/cmsDynamicSeo";
 import { buildCmsMetadata } from "@/modules/cms/seo/cmsSeo";
-import { fetchCmsBySlug } from "@/modules/cms/services/cmsFetch";
+import { fetchCityCms } from "@/modules/cms/services/cmsFetch";
 import HotelContent from "@/modules/hotel/pages/Hotel";
 import { Suspense } from "react";
 import { getSiteUrl } from "@/modules/cms/utils/seoUrl";
@@ -22,7 +22,7 @@ export async function generateMetadata({ searchParams }) {
     ?.replace(/[^a-z0-9\s-]/g, "")
     ?.replace(/\s+/g, "-");
 
-  const cms = citySlug ? await fetchCmsBySlug(citySlug) : null;
+  const cms = citySlug ? await fetchCityCms(citySlug) : null;
 
   if (cms) {
     const metadata = buildCmsMetadata(cms);
@@ -85,7 +85,7 @@ export default async function Page({ searchParams }) {
     ?.toLowerCase()
     ?.replace(/[^a-z0-9\s-]/g, "")
     ?.replace(/\s+/g, "-");
-  const cms = citySlug ? await fetchCmsBySlug(citySlug) : null;
+  const cms = citySlug ? await fetchCityCms(citySlug) : null;
 
   return (
     <Suspense fallback={<BookingWebsiteLoader />}>

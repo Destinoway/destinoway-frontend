@@ -197,18 +197,18 @@ export default function Header() {
     <div className="w-full">
       {/* Navbar */}
       <header
-        className="flex h-14 justify-between bg-white px-5 py-1 pt-0 shadow-sm min-[778px]:h-18 min-[778px]:px-10 lg:px-8 xl:px-6 2xl:px-32"
+        className="flex h-14 items-center justify-between bg-white px-5 shadow-sm min-[778px]:h-18 min-[778px]:px-10 lg:px-8 xl:px-6 2xl:px-32"
       >
         {/* Logo */}
-        <div className="min-[778px]:flex min-[778px]:items-center min-[778px]:justify-start">
-          <Link href="/" className="flex items-center">
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center!">
             <Image
               src="/images/LOGO-DW.png"
               alt="Destonoway"
               width={400}
               height={70}
               sizes="(max-width: 778px) 170px, 200px"
-              className="absolute top-0 left-2 h-auto w-[170px] object-contain transition-all duration-300 min-[778px]:static min-[778px]:w-[200px]"
+              className="h-auto w-[170px] object-contain transition-all duration-300 min-[778px]:w-[200px]"
             />
           </Link>
         </div>

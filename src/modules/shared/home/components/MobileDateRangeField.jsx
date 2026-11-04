@@ -12,7 +12,8 @@ import { CalendarDate, getLocalTimeZone, today } from "@internationalized/date";
 
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function MobileDateRangeField({
   value,
@@ -79,14 +80,19 @@ export default function MobileDateRangeField({
     setOpen?.(true);
   };
 
-  useEffect(() => {
-  if (!open) return;
+  // The parent can open the sheet (e.g. after picking a destination). Reset
+  // the draft selection when it opens, during render instead of in an effect.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
 
-  setActiveField("checkIn");
-  setSelectedCheckIn(toCalendarDate(value?.[0]));
-  setSelectedCheckOut(toCalendarDate(value?.[1]));
-  setIsSelectingNewCheckIn(false);
-}, [open]);
+    if (open) {
+      setActiveField("checkIn");
+      setSelectedCheckIn(toCalendarDate(value?.[0]));
+      setSelectedCheckOut(toCalendarDate(value?.[1]));
+      setIsSelectingNewCheckIn(false);
+    }
+  }
 
   // ==========================================
   // CLOSE
@@ -194,6 +200,11 @@ export default function MobileDateRangeField({
   // MIN DATE
   // ==========================================
 
+  const sheetNights =
+    selectedCheckIn && selectedCheckOut
+      ? toDayjs(selectedCheckOut).diff(toDayjs(selectedCheckIn), "day")
+      : 0;
+
   const calendarMinDate =
     activeField === "checkOut" && selectedCheckIn && !selectedCheckOut
       ? selectedCheckIn
@@ -247,17 +258,17 @@ export default function MobileDateRangeField({
         <Button
           slot="previous"
           aria-label="Previous month"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-[#F5F7FF] text-[#05144B] transition hover:bg-[#E8F0FF] active:scale-95"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-(--theme-secondary) shadow-sm transition hover:bg-slate-50 active:scale-95"
         >
           <ChevronLeft size={19} />
         </Button>
 
-        <Heading className="flex-1 text-center text-[16px] font-bold text-[#05144B]" />
+        <Heading className="flex-1 text-center text-[16px] font-bold text-(--theme-text-primary)" />
 
         <Button
           slot="next"
           aria-label="Next month"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-[#F5F7FF] text-[#05144B] transition hover:bg-[#E8F0FF] active:scale-95"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-(--theme-secondary) shadow-sm transition hover:bg-slate-50 active:scale-95"
         >
           <ChevronRight size={19} />
         </Button>
@@ -267,7 +278,7 @@ export default function MobileDateRangeField({
           SINGLE CALENDAR
       ====================================== */}
 
-      <CalendarGrid className="w-full">
+      <CalendarGrid className="w-full [&_td]:p-0.5 [&_th]:pb-2 [&_th]:text-[11px] [&_th]:font-semibold [&_th]:text-gray-400">
         {(date) => (
           <CalendarCell
             date={date}
@@ -280,12 +291,12 @@ export default function MobileDateRangeField({
 
               // CHECK IN / CHECK OUT
               if (isCheckIn || isCheckOut) {
-                return `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#05144B] text-[13px] font-semibold text-white`;
+                return `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-(--theme-secondary) text-[13px] font-semibold text-white shadow-[0_4px_10px_rgba(15,23,42,0.25)]`;
               }
 
               // BETWEEN RANGE
               if (isRange) {
-                return `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#E8F0FF] text-[13px] font-medium text-[#05144B]`;
+                return `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-(--theme-secondary)/10 text-[13px] font-semibold text-(--theme-secondary)`;
               }
 
               // DISABLED
@@ -294,7 +305,7 @@ export default function MobileDateRangeField({
               }
 
               // NORMAL
-              return `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-[13px] font-medium text-[#222] transition hover:bg-[#EEF3FF]`;
+              return `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-[13px] font-medium text-gray-800 transition hover:bg-slate-100`;
             }}
           />
         )}
@@ -310,22 +321,22 @@ export default function MobileDateRangeField({
     <>
       {/* LABEL */}
 
-      <div className="mb-2 flex items-center justify-between px-1">
+      <div className="mb-1.5 flex items-center justify-between">
         <span
-          className={`text-[14px] transition-all ${
+          className={`text-[11px] tracking-[0.08em] uppercase transition-all ${
             activeField === "checkIn"
               ? "font-bold text-[#05144B] underline decoration-2 underline-offset-4"
-              : "font-semibold text-[#222]"
+              : "font-bold text-gray-500"
           } `}
         >
           Check In
         </span>
 
         <span
-          className={`text-[14px] transition-all ${
+          className={`text-[11px] tracking-[0.08em] uppercase transition-all ${
             activeField === "checkOut"
               ? "font-bold text-[#05144B] underline decoration-2 underline-offset-4"
-              : "font-semibold text-[#222]"
+              : "font-bold text-gray-500"
           } `}
         >
           Check Out
@@ -334,18 +345,22 @@ export default function MobileDateRangeField({
 
       {/* FIELD */}
 
-      <div className="relative z-[99999] w-full">
+      <div className="relative w-full">
         <div
-          className="flex h-[65px] w-full cursor-pointer items-center gap-3 rounded-md border border-[#d9d9d9] bg-white px-2 py-3"
+          className="flex h-[64px] w-full cursor-pointer items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] transition-colors active:bg-slate-50"
           onClick={handleOpen}
         >
-          {icon}
+          {icon && (
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--theme-secondary)/8 [&_.anticon]:!text-[16px] [&_.anticon]:!text-(--theme-secondary)">
+              {icon}
+            </span>
+          )}
 
           {/* CHECK IN */}
 
           <div className="flex min-w-0 flex-1 flex-col justify-center">
             <div className="flex items-start gap-1">
-              <span className="font-jost text-[22px] leading-none text-gray-700 min-[700px]:font-medium! min-[700px]:text-gray-800! sm:text-[22px] md:text-[28px] lg:text-[26px]">
+              <span className="font-jost text-[22px] leading-none font-semibold text-gray-900">
                 {start.format("DD")}
               </span>
 
@@ -356,22 +371,26 @@ export default function MobileDateRangeField({
               </div>
             </div>
 
-            <span className="mt-2 truncate text-[12px] font-medium text-[#777] uppercase">
+            <span className="mt-1 truncate text-[11px] font-medium text-gray-500">
               {start.format("dddd")}
             </span>
           </div>
 
           {/* ARROW */}
 
-          <div className="mx-3 shrink-0">
-            <span className="text-[26px] text-[#05144B]">→</span>
+          <div className="relative flex shrink-0 items-center px-1">
+            <span className="rounded-full border border-gray-200 bg-slate-50 px-2 py-[3px] text-[10px] font-bold whitespace-nowrap text-gray-600">
+              {nights > 0
+                ? `${nights} ${nights > 1 ? "Nights" : "Night"}`
+                : "→"}
+            </span>
           </div>
 
           {/* CHECK OUT */}
 
           <div className="flex min-w-0 flex-1 flex-col items-end justify-center">
             <div className="flex items-start gap-1">
-              <span className="font-jost text-[22px] leading-none text-gray-700 min-[700px]:font-medium! min-[700px]:text-gray-800! sm:text-[22px] md:text-[28px] lg:text-[26px]">
+              <span className="font-jost text-[22px] leading-none font-semibold text-gray-900">
                 {end.format("DD")}
               </span>
 
@@ -382,99 +401,128 @@ export default function MobileDateRangeField({
               </div>
             </div>
 
-            <span className="mt-2 truncate text-[12px] font-medium text-[#777] uppercase">
+            <span className="mt-1 truncate text-[11px] font-medium text-gray-500">
               {end.format("dddd")}
             </span>
           </div>
 
           {/* NIGHTS */}
-
-          {nights > 0 && (
-            <div className="buttion-background-color ml-2 hidden rounded-md px-2 py-1 text-[10px] font-semibold text-white sm:block">
-              {nights}N
-            </div>
-          )}
         </div>
 
         {/* ======================================
             MOBILE BOTTOM SHEET
         ====================================== */}
 
-        {open && (
-          <>
-            {/* OVERLAY */}
+        {/* Portal: a fixed sheet inside a transformed parent (e.g. a Modal)
+            would otherwise be positioned relative to that parent. */}
+        {open &&
+          typeof document !== "undefined" &&
+          createPortal(
+            <>
+              {/* OVERLAY */}
 
-            <div
-              className="fixed inset-0 z-[999998] bg-black/40"
-              onClick={handleClose}
-            />
+              <div
+                className="fixed inset-0 z-[999998] bg-black/40"
+                onClick={handleClose}
+              />
 
-            {/* BOTTOM SHEET */}
+              {/* BOTTOM SHEET */}
 
-            <div className="fixed bottom-0 left-0 z-[999999] w-full animate-[slideUp_0.25s_ease-out] rounded-t-2xl bg-white px-4 pt-3 pb-5 shadow-[0_-8px_30px_rgba(0,0,0,0.18)]">
-              {/* DRAG HANDLE */}
+              <div className="fixed bottom-0 left-0 z-[999999] max-h-[92vh] w-full animate-[slideUp_0.25s_ease-out] overflow-y-auto overscroll-contain rounded-t-2xl bg-white px-4 pt-3 pb-[calc(20px+env(safe-area-inset-bottom,0px))] shadow-[0_-8px_30px_rgba(0,0,0,0.18)]">
+                {/* DRAG HANDLE */}
 
-              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-300" />
+                <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-300" />
 
-              {/* TOP */}
+                {/* TOP */}
 
-              <div className="mb-4 flex items-center justify-between border-b border-gray-200 pb-3">
-                <div className="flex items-center gap-5">
-                  <span
-                    className={`text-[14px] ${
-                      activeField === "checkIn"
-                        ? "font-bold text-[#05144B] underline decoration-2 underline-offset-4"
-                        : "font-medium text-gray-500"
-                    } `}
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="m-0 text-[17px] font-bold text-(--theme-text-primary)">
+                    Select Dates
+                  </h3>
+                  <button
+                    type="button"
+                    aria-label="Close"
+                    onClick={handleClose}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition hover:bg-gray-200"
                   >
-                    Check In
-                  </span>
-
-                  <span className="text-gray-300">→</span>
-
-                  <span
-                    className={`text-[14px] ${
-                      activeField === "checkOut"
-                        ? "font-bold text-[#05144B] underline decoration-2 underline-offset-4"
-                        : "font-medium text-gray-500"
-                    } `}
-                  >
-                    Check Out
-                  </span>
+                    <X size={17} />
+                  </button>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-600"
-                >
-                  <X size={17} />
-                </button>
-              </div>
+                <div className="mb-4 grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1">
+                  {[
+                    {
+                      key: "checkIn",
+                      label: "Check In",
+                      date: selectedCheckIn,
+                    },
+                    {
+                      key: "checkOut",
+                      label: "Check Out",
+                      date: selectedCheckOut,
+                    },
+                  ].map((tab) => (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      disabled={tab.key === "checkOut" && !selectedCheckIn}
+                      onClick={() => setActiveField(tab.key)}
+                      className={`rounded-lg px-3 py-2 text-left transition-all disabled:cursor-not-allowed ${
+                        activeField === tab.key
+                          ? "bg-white shadow-sm ring-1 ring-(--theme-secondary)/25"
+                          : "bg-transparent"
+                      }`}
+                    >
+                      <span
+                        className={`block text-[10px] font-bold tracking-[0.08em] uppercase ${
+                          activeField === tab.key
+                            ? "text-(--theme-secondary)"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {tab.label}
+                      </span>
+                      <span
+                        className={`mt-0.5 block text-[14px] font-semibold ${
+                          tab.date ? "text-gray-900" : "text-gray-400"
+                        }`}
+                      >
+                        {tab.date
+                          ? toDayjs(tab.date).format("ddd, D MMM")
+                          : "Select date"}
+                      </span>
+                    </button>
+                  ))}
+                </div>
 
-              {/* CALENDAR */}
+                {/* CALENDAR */}
 
-              {calendar}
+                {calendar}
 
-              {/* ==================================
+                {/* ==================================
                   NEXT / DONE
               ================================== */}
 
-              <button
-                type="button"
-                disabled={
-                  activeField === "checkIn"
-                    ? !selectedCheckIn
-                    : !selectedCheckOut
-                }
-                onClick={handleNext}
-                className="mt-4 w-full rounded-xl bg-[#05144B] py-3.5 text-sm font-semibold text-white! transition hover:bg-[#0C2FB1] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {activeField === "checkIn" ? "Next" : "Done"}
-              </button>
-            </div>
-          </>
-        )}
+                <button
+                  type="button"
+                  disabled={
+                    activeField === "checkIn"
+                      ? !selectedCheckIn
+                      : !selectedCheckOut
+                  }
+                  onClick={handleNext}
+                  className="mt-4 w-full rounded-xl bg-(--theme-secondary) py-3.5 text-[15px] font-semibold text-white! shadow-[0_8px_20px_rgba(15,23,42,0.22)] transition hover:bg-(--theme-hover) disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+                >
+                  {activeField === "checkIn"
+                    ? "Next"
+                    : sheetNights > 0
+                      ? `Done · ${sheetNights} ${sheetNights > 1 ? "Nights" : "Night"}`
+                      : "Select check-out"}
+                </button>
+              </div>
+            </>,
+            document.body,
+          )}
       </div>
     </>
   );

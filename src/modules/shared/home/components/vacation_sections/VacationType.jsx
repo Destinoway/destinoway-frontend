@@ -40,9 +40,13 @@ export default function VacationType({ activeTab, vibes = [] }) {
     return () => window.removeEventListener("resize", updatePerPage);
   }, [data.length]);
 
-  useEffect(() => {
+  // Go back to the first page when the tab changes. Done during render
+  // instead of in an effect to avoid an extra re-render.
+  const [prevTab, setPrevTab] = useState(activeTab);
+  if (activeTab !== prevTab) {
+    setPrevTab(activeTab);
     setIndex(0);
-  }, [activeTab]);
+  }
 
   const next = () => {
     if (index + perPage < data.length) {

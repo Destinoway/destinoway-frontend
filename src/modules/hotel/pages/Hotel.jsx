@@ -3,7 +3,7 @@
 import BookingWebsiteLoader from "@/components/common/loder/BookingWebsiteLoader";
 import useIsMobile from "@/hooks/useIsMobile";
 import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseCircleOutlined, CloseOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
@@ -25,10 +25,23 @@ import DynamicSeoFallback from "../seo/DynamicSeoFallback";
 import HotelsSeoSection from "../seo/HotelsSeoSection";
 import { useHotelSearchStore } from "../store/serchData.store";
 import { scrollToHotelList } from "../utils/scrollToHotelList";
+import { slugify } from "@/utils/slug/slugify";
 import HotelMobile from "./HotelMobile";
+
+const getCitySlug = (value) =>
+  slugify(String(value || "").split(",")[0].trim());
+
+const FILTER_CHIP_LABELS = {
+  isRecommended: "Akbar Choice",
+  freeCancellation: "Free Cancellation",
+  freeBreakfast: "Breakfast Available",
+  availableOnly: "Available Only",
+};
 
 const CMS_TRIGGER_OFFSET = 520;
 const STICKY_OFFSET = 108;
+// Must match the sidebar's `sticky top-[120px]`.
+const SIDEBAR_STICKY_TOP = 120;
 const subscribeToMount = () => () => {};
 const getClientMountSnapshot = () => true;
 const getServerMountSnapshot = () => false;
@@ -57,6 +70,7 @@ export default function HotelContent({ initialSearchData = null, cms = null }) {
   const lastHydratedSearchRef = useRef(null);
   const hotelListRef = useRef(null);
   const cmsTriggerRef = useRef(null);
+  const sidebarRef = useRef(null);
   const scrollFrameRef = useRef(null);
   const sidebarZ0Ref = useRef(false);
   const [filters, setFilters] = useState(DEFAULT_HOTEL_FILTERS);
@@ -99,6 +113,15 @@ const handleSortChange = useCallback((value) => {
 }, []);
 
 
+  // When the hotel column ends, the sticky sidebar gets pushed up past its
+  // sticky top and would slide over the sticky search bar. Detect that from
+  // the sidebar's real position instead of guessing from scroll offsets.
+  const isSidebarPushedUp = useCallback(() => {
+    const sidebar = sidebarRef.current;
+    if (!sidebar) return false;
+    return sidebar.getBoundingClientRect().top < SIDEBAR_STICKY_TOP - 1;
+  }, []);
+
   useEffect(() => {
     if (!mounted || isMobile) return;
 
@@ -107,6 +130,11 @@ const handleSortChange = useCallback((value) => {
       const scrollY = window.scrollY || window.pageYOffset;
       const hotelElement = hotelListRef.current;
       const cmsTrigger = cmsTriggerRef.current;
+
+      if (isSidebarPushedUp()) {
+        updateSidebarZIndex(true);
+        return;
+      }
 
       if (hotelsLoading) {
         updateSidebarZIndex(scrollY > 50);
@@ -157,7 +185,14 @@ const handleSortChange = useCallback((value) => {
         scrollFrameRef.current = null;
       }
     };
-  }, [mounted, isMobile, hotelsLoading, hasHotels, updateSidebarZIndex]);
+  }, [
+    mounted,
+    isMobile,
+    hotelsLoading,
+    hasHotels,
+    isSidebarPushedUp,
+    updateSidebarZIndex,
+  ]);
 
   useEffect(() => {
     if (!mounted || isMobile) return;
@@ -170,7 +205,7 @@ const handleSortChange = useCallback((value) => {
 
       const rect = cmsTrigger.getBoundingClientRect();
       const cmsReached = rect.top <= CMS_TRIGGER_OFFSET;
-      updateSidebarZIndex(cmsReached);
+      updateSidebarZIndex(cmsReached || isSidebarPushedUp());
     };
 
     const resizeObserver = new ResizeObserver(() => {
@@ -193,7 +228,15 @@ const handleSortChange = useCallback((value) => {
 
       window.removeEventListener("resize", checkCmsPosition);
     };
-  }, [mounted, isMobile, cms, hotelsLoading, hasHotels, updateSidebarZIndex]);
+  }, [
+    mounted,
+    isMobile,
+    cms,
+    hotelsLoading,
+    hasHotels,
+    isSidebarPushedUp,
+    updateSidebarZIndex,
+  ]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -407,6 +450,77 @@ const handleSortChange = useCallback((value) => {
     return activeFilters.some(([_, value]) => isFilterActive(value));
   }, [activeFilters, isFilterActive]);
 
+  // One readable chip per active filter value.
+  const filterChips = useMemo(() => {
+    const chips = [];
+
+    activeFilters.forEach(([key, value]) => {
+      if (!isFilterActive(value) || key === "minPrice" || key === "maxPrice") {
+        return;
+      }
+
+      if (Array.isArray(value)) {
+        value.forEach((item) => {
+          let label = String(item);
+          if (key === "starRatings") {
+            label = Number(item) === 0 ? "General" : `${item} Star`;
+          } else if (key === "amenities" && item === "Internet") {
+            label = "Wifi";
+          }
+          chips.push({
+            id: `${key}-${item}`,
+            label,
+            onRemove: () => removeFilter(key, item),
+          });
+        });
+        return;
+      }
+
+      const label =
+        value === true
+          ? FILTER_CHIP_LABELS[key] || key
+          : key === "minReviewRating"
+            ? `${value}+ Rating`
+            : key === "search"
+              ? `"${value}"`
+              : key === "starCategory"
+                ? `${value} Star`
+                : String(value);
+
+      chips.push({ id: key, label, onRemove: () => removeFilter(key) });
+    });
+
+    if (filters?.minPrice || filters?.maxPrice) {
+      chips.push({
+        id: "price",
+        label: `₹${filters?.minPrice || 0} - ₹${filters?.maxPrice || 50000}`,
+        onRemove: () =>
+          setFilters((prev) => ({ ...prev, minPrice: "", maxPrice: "" })),
+      });
+    }
+
+    return chips;
+  }, [activeFilters, filters, isFilterActive, removeFilter]);
+
+  // CMS is fetched server-side for the URL's city. Searching another city on
+  // this page doesn't navigate, so drop CMS that belongs to a different city
+  // and let the static fallback render instead.
+  const activeCms = useMemo(() => {
+    if (!cms) return null;
+
+    const cmsCity = getCitySlug(cms?.data?.cityMeta?.destination);
+    if (!cmsCity) return cms;
+
+    const searchedCity = getCitySlug(
+      appliedSearchData?.cityData?.city ||
+        appliedSearchData?.cityData?.name ||
+        appliedSearchData?.city,
+    );
+    if (!searchedCity) return cms;
+
+    return searchedCity === cmsCity || searchedCity === cms?.slug ? cms : null;
+  }, [cms, appliedSearchData]);
+
   if (!mounted) return <BookingWebsiteLoader />;
 
   return (
@@ -421,10 +535,12 @@ const handleSortChange = useCallback((value) => {
           mapOpen={mapOpen}
           setMapOpen={setMapOpen}
           hotelsLoading={hotelsLoading}
+          setHotelsLoading={setHotelsLoading}
           hasHotels={hasHotels}
+          setHasHotels={setHasHotels}
           hotelsForMap={hotelsForMap}
           setHotelsForMap={setHotelsForMap}
-          cms={cms}
+          cms={activeCms}
         />
       ) : (
         <div className="background-color-bg">
@@ -432,7 +548,8 @@ const handleSortChange = useCallback((value) => {
 
           <div className="relative mx-auto mt-[-39px] flex max-w-7xl gap-4 p-3 md:flex-nowrap">
             <div
-              className={`sticky top-[120px] max-h-[calc(100vh-20px)] w-full overflow-y-auto sm:w-64 md:w-72 ${
+              ref={sidebarRef}
+              className={`sticky top-[120px] h-[calc(100vh-132px)] min-h-[420px] w-full shrink-0 sm:w-64 md:w-72 ${
                 sidebarZ0 ? "z-0" : "!z-20"
               }`}
             >
@@ -460,87 +577,43 @@ const handleSortChange = useCallback((value) => {
                 <div
                   className={`sticky top-[163px] min-[700px]:max-[850px]:top-[155px] ${
                     sidebarZ0 ? "!-z-10" : "z-12"
-                  } background-color-bg !pt-[8px]`}
+                  } background-color-bg pt-3`}
                 >
-                  <div className="flex flex-wrap gap-2 pb-1">
-                    {activeFilters.map(([key, value]) => {
-                      if (!isFilterActive(value)) {
-                        return null;
-                      }
+                  <div className="flex flex-wrap items-center gap-2 rounded-lg bg-white px-3 py-2 shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
+                    <span className="shrink-0 text-[14px] font-semibold whitespace-nowrap text-[#344054]">
+                      Applied Filters:
+                    </span>
 
-                      if (key === "minPrice" || key === "maxPrice") {
-                        return null;
-                      }
-
-                      if (Array.isArray(value)) {
-                        return value.map((v, i) => (
-                          <div
-                            key={`${key}-${i}`}
-                            className="flex items-center gap-1 rounded bg-blue-100 px-3 py-1 text-xs text-blue-600"
-                          >
-                            {v}
-
-                            <CloseOutlined
-                              className="cursor-pointer text-xs"
-                              onClick={() => removeFilter(key, v)}
-                            />
-                          </div>
-                        ));
-                      }
-
-                      let label = value;
-
-                      if (key === "freeCancellation") {
-                        label = "Free Cancellation";
-                      }
-
-                      if (key === "starCategory") {
-                        label = `${value} Star`;
-                      }
-
-                      return (
-                        <div
-                          key={key}
-                          className="flex items-center gap-1 rounded bg-blue-100 px-3 py-1 text-xs text-blue-600"
+                    {filterChips.map((chip) => (
+                      <span
+                        key={chip.id}
+                        className="inline-flex h-7 items-center gap-1 rounded-full border border-(--theme-secondary)/25 bg-(--theme-secondary)/5 pr-1 pl-3 text-xs font-medium text-(--theme-secondary)"
+                      >
+                        {chip.label}
+                        <button
+                          type="button"
+                          aria-label={`Remove ${chip.label} filter`}
+                          onClick={chip.onRemove}
+                          className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-[10px] text-(--theme-secondary) transition-colors hover:bg-(--theme-secondary) hover:text-white"
                         >
-                          {label}
-
-                          <CloseOutlined
-                            className="cursor-pointer text-xs"
-                            onClick={() => removeFilter(key)}
-                          />
-                        </div>
-                      );
-                    })}
-
-                    {(filters?.minPrice || filters?.maxPrice) && (
-                      <div className="flex items-center gap-1 rounded bg-blue-100 px-3 py-1 text-xs text-blue-600">
-                        ₹{filters?.minPrice || 0}
-                        {" - "}₹{filters?.maxPrice || 50000}
-                        <CloseOutlined
-                          className="cursor-pointer text-xs"
-                          onClick={() =>
-                            setFilters((prev) => ({
-                              ...prev,
-                              minPrice: "",
-                              maxPrice: "",
-                            }))
-                          }
-                        />
-                      </div>
-                    )}
+                          <CloseOutlined />
+                        </button>
+                      </span>
+                    ))}
 
                     <button
+                      type="button"
                       onClick={clearAll}
-                      className="rounded bg-red-200 px-3 py-1 text-xs text-red-600"
+                      className="ml-auto inline-flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-600 transition-all duration-200 hover:border-red-500 hover:bg-red-500 hover:text-white! active:scale-95"
                     >
+                      <CloseCircleOutlined />
                       Clear All
                     </button>
                   </div>
                 </div>
               )}
 
-              <div id="hotel-list-section" ref={hotelListRef} className="pt-1">
+              <div id="hotel-list-section" ref={hotelListRef} className="pt-3">
                 <HotelList
                   searchData={appliedSearchData}
                   filters={filters}
@@ -558,9 +631,9 @@ const handleSortChange = useCallback((value) => {
                   aria-hidden="true"
                 />
 
-                {cms ? (
+                {activeCms ? (
                   <HotelsSeoSection>
-                    <CMSContentRenderer cms={cms} />
+                    <CMSContentRenderer cms={activeCms} />
                   </HotelsSeoSection>
                 ) : (
                   !hotelsLoading &&

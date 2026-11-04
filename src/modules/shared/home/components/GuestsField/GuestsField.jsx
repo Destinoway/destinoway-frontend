@@ -1,7 +1,7 @@
 "use client";
 
 import useIsMobile from "@/hooks/useIsMobile";
-import { Button, Drawer, Popover } from "antd";
+import { Drawer, Popover } from "antd";
 import { memo, useMemo, useState } from "react";
 import { CHILD_AGES, DEFAULT_GUEST_VALUE, MAX_ROOMS } from "./constants";
 import GuestTrigger from "./GuestTrigger";
@@ -80,171 +80,235 @@ function GuestsField({
     setOpen?.(false);
   };
 
+  const counterButtonClass =
+    "flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-gray-300 bg-white text-[18px] leading-none text-gray-700 transition-colors hover:border-(--theme-secondary) hover:text-(--theme-secondary) disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-gray-300 disabled:hover:text-gray-700";
+
   const content = (
     <div
-      className="w-full rounded-xl bg-white p-4 sm:w-[390px]"
+      className={`bg-white ${isMobile ? "w-full px-4 pt-1" : "w-[390px] rounded-xl p-4"}`}
       onClick={(event) => event.stopPropagation()}
     >
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="m-0 text-base font-bold text-[#172033]">
+      {/* The mobile drawer already shows the title in its header. */}
+      {!isMobile && (
+        <h3 className="m-0 text-base font-bold text-(--theme-text-primary)">
           Rooms & Guests
         </h3>
-        <span className="text-xs text-gray-500">
-          Max 8 adults, 2 children per room
-        </span>
-      </div>
-      <div className="max-h-[55vh] space-y-2 overflow-y-auto">
-        {rooms.map((room, index) => (
-          <section key={index} className="rounded-lg border border-[#e2e8f0]">
-            <button
-              type="button"
-              onClick={() => setActiveRoom(index)}
-              className={`flex w-full items-center justify-between px-3 py-2 text-left ${activeRoom === index ? "bg-blue-50" : ""}`}
+      )}
+      <p className="mt-0.5 mb-3 text-xs text-gray-500">
+        Max 8 adults, 2 children per room
+      </p>
+
+      <div
+        className={`space-y-2.5 overflow-y-auto ${isMobile ? "" : "max-h-[55vh]"}`}
+      >
+        {rooms.map((room, index) => {
+          const isActive = activeRoom === index;
+
+          return (
+            <section
+              key={index}
+              className={`overflow-hidden rounded-xl border transition-colors ${
+                isActive
+                  ? "border-(--theme-secondary)/30 shadow-[0_2px_10px_rgba(15,23,42,0.06)]"
+                  : "border-gray-200"
+              }`}
             >
-              <span className="font-semibold text-[#172033]">
-                Room {index + 1}
-              </span>
-              <span className="text-xs text-gray-600">
-                {room.adults} Adults · {room.children.length} Children
-              </span>
-            </button>
-            {activeRoom === index && (
-              <div className="space-y-3 border-t p-3">
-                {[
-                  { label: "Adults", key: "adults", min: 1, max: 8 },
-                  { label: "Children", key: "children", min: 0, max: 2 },
-                ].map(({ label, key, min, max }) => {
-                  const amount =
-                    key === "adults" ? room.adults : room.children.length;
-                  const change = (delta) =>
-                    updateRoom(index, (current) =>
-                      key === "adults"
-                        ? {
-                            ...current,
-                            adults: Math.min(
-                              max,
-                              Math.max(min, current.adults + delta),
-                            ),
-                          }
-                        : {
-                            ...current,
-                            children:
-                              delta > 0
-                                ? [...current.children, { age: "" }]
-                                : current.children.slice(0, -1),
-                          },
-                    );
-                  return (
-                    <div
-                      key={key}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="text-sm text-[#172033]">
-                        {label}
-                        {key === "children" && (
-                          <small className="ml-1 text-gray-500">
-                            (0–17 years)
-                          </small>
-                        )}
-                      </span>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          aria-label={`Decrease ${label} in room ${index + 1}`}
-                          disabled={amount <= min}
-                          onClick={() => change(-1)}
-                          className="h-8 w-8 rounded-md border disabled:opacity-40"
-                        >
-                          −
-                        </button>
-                        <span className="w-5 text-center font-semibold">
-                          {amount}
-                        </span>
-                        <button
-                          type="button"
-                          aria-label={`Increase ${label} in room ${index + 1}`}
-                          disabled={amount >= max}
-                          onClick={() => change(1)}
-                          className="h-8 w-8 rounded-md border disabled:opacity-40"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-                {room.children.map((child, childIndex) => (
-                  <label
-                    key={childIndex}
-                    className="flex items-center justify-between text-sm"
+              <button
+                type="button"
+                onClick={() => setActiveRoom(index)}
+                className={`flex w-full cursor-pointer items-center justify-between border-none px-3.5 py-3 text-left ${
+                  isActive ? "bg-(--theme-secondary)/5" : "bg-white"
+                }`}
+              >
+                <span className="flex items-center gap-2 text-[14px] font-bold text-(--theme-text-primary)">
+                  <span
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] ${
+                      isActive
+                        ? "bg-(--theme-secondary) text-white"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
                   >
-                    Child {childIndex + 1} age
-                    <select
-                      value={child.age}
-                      onChange={(event) =>
-                        updateRoom(index, (current) => ({
-                          ...current,
-                          children: current.children.map((item, i) =>
-                            i === childIndex
-                              ? { age: event.target.value }
-                              : item,
-                          ),
-                        }))
-                      }
-                      className="rounded border border-gray-300 px-2 py-1"
+                    {index + 1}
+                  </span>
+                  Room {index + 1}
+                </span>
+                <span className="text-xs font-medium text-gray-500">
+                  {room.adults} {room.adults > 1 ? "Adults" : "Adult"} ·{" "}
+                  {room.children.length}{" "}
+                  {room.children.length === 1 ? "Child" : "Children"}
+                </span>
+              </button>
+
+              {isActive && (
+                <div className="space-y-3.5 border-t border-gray-100 px-3.5 py-3.5">
+                  {[
+                    {
+                      label: "Adults",
+                      hint: "Age 18+",
+                      key: "adults",
+                      min: 1,
+                      max: 8,
+                    },
+                    {
+                      label: "Children",
+                      hint: "Age 0–17 years",
+                      key: "children",
+                      min: 0,
+                      max: 2,
+                    },
+                  ].map(({ label, hint, key, min, max }) => {
+                    const amount =
+                      key === "adults" ? room.adults : room.children.length;
+                    const change = (delta) =>
+                      updateRoom(index, (current) =>
+                        key === "adults"
+                          ? {
+                              ...current,
+                              adults: Math.min(
+                                max,
+                                Math.max(min, current.adults + delta),
+                              ),
+                            }
+                          : {
+                              ...current,
+                              children:
+                                delta > 0
+                                  ? [...current.children, { age: "" }]
+                                  : current.children.slice(0, -1),
+                            },
+                      );
+
+                    return (
+                      <div
+                        key={key}
+                        className="flex items-center justify-between gap-3"
+                      >
+                        <span className="flex flex-col">
+                          <span className="text-[14px] font-semibold text-gray-900">
+                            {label}
+                          </span>
+                          <span className="text-[11px] text-gray-500">
+                            {hint}
+                          </span>
+                        </span>
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            aria-label={`Decrease ${label} in room ${index + 1}`}
+                            disabled={amount <= min}
+                            onClick={() => change(-1)}
+                            className={counterButtonClass}
+                          >
+                            −
+                          </button>
+                          <span className="w-5 text-center text-[16px] font-bold text-gray-900">
+                            {amount}
+                          </span>
+                          <button
+                            type="button"
+                            aria-label={`Increase ${label} in room ${index + 1}`}
+                            disabled={amount >= max}
+                            onClick={() => change(1)}
+                            className={counterButtonClass}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {room.children.map((child, childIndex) => (
+                    <label
+                      key={childIndex}
+                      className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 text-[13px] font-medium text-gray-700"
                     >
-                      <option value="">Select age</option>
-                      {CHILD_AGES.map((age) => (
-                        <option key={age} value={age}>
-                          {age} years
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ))}
-              </div>
-            )}
-          </section>
-        ))}
+                      Child {childIndex + 1} age
+                      <select
+                        value={child.age}
+                        onChange={(event) =>
+                          updateRoom(index, (current) => ({
+                            ...current,
+                            children: current.children.map((item, i) =>
+                              i === childIndex
+                                ? { age: event.target.value }
+                                : item,
+                            ),
+                          }))
+                        }
+                        className={`h-9 cursor-pointer rounded-lg border bg-white px-2.5 text-[13px] font-semibold text-gray-800 outline-none focus:border-(--theme-secondary) ${
+                          child.age === ""
+                            ? "border-red-300"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        <option value="">Select age</option>
+                        {CHILD_AGES.map((age) => (
+                          <option key={age} value={age}>
+                            {age} {Number(age) === 1 ? "year" : "years"}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })}
       </div>
-      <div className="mt-3 flex items-center justify-between gap-2">
-        <div className="flex gap-2">
-          <Button
-            disabled={rooms.length >= MAX_ROOMS}
-            onClick={() => {
-              setRooms((current) => [...current, { adults: 1, children: [] }]);
-              setActiveRoom(rooms.length);
-            }}
-          >
-            + Add room
-          </Button>
-          {rooms.length > 1 && (
-            <Button
-              onClick={() => {
-                setRooms((current) =>
-                  current.filter((_, i) => i !== activeRoom),
-                );
-                setActiveRoom(Math.max(activeRoom - 1, 0));
-              }}
-            >
-              Remove room
-            </Button>
-          )}
-        </div>
-        <Button
-          type="primary"
-          disabled={!agesValid}
-          onClick={apply}
-          className="buttion-background-color"
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          disabled={rooms.length >= MAX_ROOMS}
+          onClick={() => {
+            setRooms((current) => [...current, { adults: 1, children: [] }]);
+            setActiveRoom(rooms.length);
+          }}
+          className="h-9 cursor-pointer rounded-full border border-dashed border-(--theme-secondary)/50 bg-white px-3.5 text-[13px] font-semibold text-(--theme-secondary) transition-colors hover:bg-(--theme-secondary)/5 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Done
-        </Button>
+          + Add room
+        </button>
+        {rooms.length > 1 && (
+          <button
+            type="button"
+            onClick={() => {
+              setRooms((current) => current.filter((_, i) => i !== activeRoom));
+              setActiveRoom(Math.max(activeRoom - 1, 0));
+            }}
+            className="h-9 cursor-pointer rounded-full border border-red-200 bg-white px-3.5 text-[13px] font-semibold text-red-600 transition-colors hover:bg-red-50"
+          >
+            Remove room
+          </button>
+        )}
       </div>
+
       {!agesValid && (
         <p className="mt-2 mb-0 text-xs text-red-500">
           Select an age for each child.
         </p>
       )}
+
+      {/* On phones the action bar sticks to the bottom of the sheet. */}
+      <div
+        className={
+          isMobile
+            ? "sticky bottom-0 -mx-4 mt-4 border-t border-gray-100 bg-white px-4 pt-3 pb-[calc(16px+env(safe-area-inset-bottom,0px))]"
+            : "mt-4"
+        }
+      >
+        <button
+          type="button"
+          disabled={!agesValid}
+          onClick={apply}
+          className="flex h-11 w-full cursor-pointer items-center justify-center rounded-xl border-none bg-(--theme-secondary) text-[15px] font-semibold text-white! shadow-[0_8px_20px_rgba(15,23,42,0.18)] transition hover:bg-(--theme-hover) disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+        >
+          Done · {rooms.length} {rooms.length > 1 ? "Rooms" : "Room"},{" "}
+          {totals.adults + totals.children}{" "}
+          {totals.adults + totals.children > 1 ? "Guests" : "Guest"}
+        </button>
+      </div>
     </div>
   );
 
@@ -277,12 +341,37 @@ function GuestsField({
         </div>
         <Drawer
           placement="bottom"
-          size="90%"
+          size="auto"
           open={drawerOpen}
           destroyOnHidden
           onClose={() => setDrawerOpen(false)}
-          styles={{ body: { padding: 0, overflowY: "auto" } }}
-          title="Rooms & Guests"
+          closable={false}
+          extra={
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => setDrawerOpen(false)}
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-none bg-gray-100 text-[18px] leading-none text-gray-600"
+            >
+              ×
+            </button>
+          }
+          // Sheet sized to its content (max 90vh) instead of a fixed 90%.
+          styles={{
+            wrapper: { maxHeight: "90vh" },
+            section: {
+              maxHeight: "90vh",
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            },
+            header: { padding: "16px 16px 8px", borderBottom: "none" },
+            body: { padding: 0, overflowY: "auto" },
+          }}
+          title={
+            <span className="text-[17px] font-bold text-(--theme-text-primary)">
+              Rooms & Guests
+            </span>
+          }
         >
           {content}
         </Drawer>

@@ -45,13 +45,13 @@ function SortBar({ sort, setSort }) {
   };
 
   return (
-    <div className="sticky top-[98px] z-[999] w-full min-w-0 rounded-[6px] bg-white p-[4px] shadow-[0_2px_8px_rgba(0,0,0,0.18)]">
+    <div className="sticky top-[98px] z-[999] w-full min-w-0 rounded-lg bg-white p-[4px] shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
       {/* Tablet: 650px to 850px */}
       <div className="relative hidden min-[650px]:max-[850px]:block">
         <button
           type="button"
           onClick={() => setMobileSortOpen((prev) => !prev)}
-          className="flex h-[38px] w-full items-center justify-center gap-2 rounded-[5px] bg-white px-4 text-[14px] font-medium !text-gray-700"
+          className="flex h-[38px] w-full cursor-pointer items-center justify-center gap-2 rounded-[5px] bg-white px-4 text-[14px] font-medium !text-gray-700 transition-colors hover:bg-[#fff8ed] hover:!text-[#e98b00]"
         >
           Sort By
           {mobileSortOpen ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
@@ -70,8 +70,8 @@ function SortBar({ sort, setSort }) {
                     handleSortChange(tab.value);
                     setMobileSortOpen(false);
                   }}
-                  className={`flex h-[48px] w-full items-center justify-center gap-2 border-b border-gray-200 ${
-                    active ? "bg-[#fff8ed]" : "bg-white hover:bg-gray-50"
+                  className={`flex h-[48px] w-full cursor-pointer items-center justify-center gap-2 border-b border-gray-200 transition-colors ${
+                    active ? "bg-[#fff8ed]" : "bg-white hover:bg-[#fff8ed]"
                   } ${index === tabs.length - 1 ? "border-b-0" : ""}`}
                 >
                   <span
@@ -102,12 +102,12 @@ function SortBar({ sort, setSort }) {
       </div>
 
       {/* Desktop: 851px and above */}
-      <div className="hidden min-h-[37px] w-full min-w-0 items-center gap-2 px-[6px] min-[851px]:flex">
+      <div className="hidden min-h-[37px] w-full min-w-0 items-center gap-3 px-2 min-[851px]:flex">
         <span className="shrink-0 text-[14px] font-semibold whitespace-nowrap !text-[#344054]">
           Sort By:
         </span>
 
-        <div className="ml-auto flex min-w-0 items-center justify-end gap-[6px]">
+        <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2 max-[1100px]:gap-[6px]">
           {tabs.map((tab) => {
             const active = sort === tab.value;
             const isRating = tab.value.includes("rating");
@@ -117,10 +117,10 @@ function SortBar({ sort, setSort }) {
                 key={tab.value}
                 type="button"
                 onClick={() => handleSortChange(tab.value)}
-                className={`flex h-[34px] min-w-0 shrink items-center justify-center gap-[4px] rounded-full border px-[10px] whitespace-nowrap transition-colors duration-200 focus:outline-none max-[1100px]:h-[32px] max-[1100px]:gap-[3px] max-[1100px]:px-[7px] ${
+                className={`group flex h-[34px] min-w-0 shrink cursor-pointer items-center justify-center gap-[4px] rounded-full border px-[10px] whitespace-nowrap transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e98b00]/40 active:scale-95 max-[1100px]:h-[32px] max-[1100px]:gap-[3px] max-[1100px]:px-[7px] ${
                   active
-                    ? "border-[#e98b00]"
-                    : "border-[#dce3eb]  hover:border-[#c7d0da] hover:bg-[#f9fafb]"
+                    ? "border-[#e98b00] bg-[#fff8ed]"
+                    : "border-[#dce3eb] hover:-translate-y-px hover:border-[#e98b00] hover:bg-[#fff8ed] hover:shadow-sm"
                 }`}
               >
                 <span
@@ -132,16 +132,20 @@ function SortBar({ sort, setSort }) {
                 </span>
 
                 <span
-                  className={`text-[13px] font-medium max-[1100px]:text-[11px] ${
-                    active ? "text-[#e98b00]" : "text-[#344054]"
+                  className={`text-[13px] font-medium transition-colors max-[1100px]:text-[11px] ${
+                    active
+                      ? "text-[#e98b00]"
+                      : "text-[#344054] group-hover:text-[#e98b00]"
                   }`}
                 >
                   {tab.label}
                 </span>
 
                 <span
-                  className={`text-[13px] max-[1100px]:text-[10px] ${
-                    active ? "text-[#e98b00]" : "text-[#8a98aa]"
+                  className={`text-[13px] transition-colors max-[1100px]:text-[10px] ${
+                    active
+                      ? "text-[#e98b00]"
+                      : "text-[#8a98aa] group-hover:text-[#e98b00]/80"
                   }`}
                 >
                   {tab.sub}

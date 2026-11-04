@@ -224,15 +224,27 @@ export default function SearchBar({ onSearch }) {
         footer={null}
         destroyOnHidden
         centered
-        width={700}
+        width="min(700px, calc(100vw - 24px))"
+        title={
+          <span className="text-[17px] font-bold text-(--theme-text-primary)">
+            Modify Search
+          </span>
+        }
         styles={{
+          container: { padding: 0, borderRadius: 16, overflow: "hidden" },
+          header: {
+            margin: 0,
+            padding: "16px 20px",
+            borderBottom: "1px solid #eef0f4",
+          },
           body: {
-            padding: 20,
-            maxHeight: "85vh",
+            padding: "4px 16px 20px",
+            maxHeight: "80vh",
             overflowY: "auto",
           },
         }}
-        className="md:!max-w-[700px]"
+        // Opening the modal focuses the close button; hide that focus ring.
+        rootClassName="[&_.ant-modal-close]:!shadow-none [&_.ant-modal-close]:!outline-none"
         onCancel={() => setSearchModalOpen(false)}
       >
         <HotelSearchForm

@@ -1,7 +1,7 @@
 "use client";
 
 import { useDestinationSearch } from "@/modules/hotel/hooks/useDestinationSearch";
-import { SearchOutlined } from "@ant-design/icons";
+import { EnvironmentOutlined, SearchOutlined } from "@ant-design/icons";
 import { Popover, Select, Spin } from "antd";
 import debounce from "lodash/debounce";
 import { memo, useEffect, useMemo, useState } from "react";
@@ -163,13 +163,20 @@ function DestinationSearchField({
 
       return {
         label: (
-          <div className="flex flex-col py-1">
-            <span className="font-semibold text-gray-800">{fullName}</span>
+          <div className="flex min-w-0 items-center gap-3 py-1">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[14px] text-gray-500">
+              <EnvironmentOutlined />
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="truncate font-semibold text-gray-800">
+                {fullName}
+              </span>
 
-            <span className="text-xs text-gray-500">
-              {[getDestinationTypeLabel(item?.type), locationDetails]
-                .filter(Boolean)
-                .join(" · ")}
+              <span className="truncate text-xs text-gray-500">
+                {[getDestinationTypeLabel(item?.type), locationDetails]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
             </span>
           </div>
         ),
@@ -288,14 +295,14 @@ function DestinationSearchField({
   return (
     <>
       {!compact && (
-        <span className="mb-2 block text-[14px] font-semibold text-[#222]">
+        <span className="mb-2 block text-[14px] font-semibold text-[#222] max-[777px]:mb-1.5 max-[777px]:text-[11px] max-[777px]:font-bold max-[777px]:tracking-[0.08em] max-[777px]:text-gray-500 max-[777px]:uppercase">
           City, Property name or Location
         </span>
       )}
 
       <div
         title={value?.city || ""}
-        className={`relative w-full min-w-0 overflow-visible rounded border !bg-white px-3 py-1 transition-all hover:border-[#0077b6] ${
+        className={`relative w-full min-w-0 overflow-visible rounded border !bg-white px-3 py-1 transition-all hover:border-[#0077b6] max-[777px]:rounded-xl max-[777px]:border-gray-200 max-[777px]:py-0 max-[777px]:shadow-[0_1px_3px_rgba(15,23,42,0.06)] ${
           error ? "border-red-500" : "border-gray-300"
         } ${wrapperClassName}`}
         style={{ height }}
@@ -304,13 +311,23 @@ function DestinationSearchField({
           className={`flex w-full min-w-0 overflow-hidden ${
             compact
               ? "h-full items-center gap-2 px-0"
-              : "min-h-[6px] flex-col justify-center px-1 md:px-2"
+              : "min-h-[6px] flex-col justify-center px-1 max-[777px]:h-full max-[777px]:flex-row max-[777px]:items-center max-[777px]:gap-2 max-[777px]:px-0 md:px-2"
           }`}
         >
           {icon && <div className="flex shrink-0 items-center">{icon}</div>}
 
           <div className="flex w-full min-w-0 items-center gap-2 overflow-hidden">
-            {icon || <SearchOutlined className="!text-[20px] text-gray-400" />}
+            {icon || (
+              <span
+                className={
+                  compact
+                    ? "flex shrink-0 items-center"
+                    : "flex shrink-0 items-center max-[777px]:h-9 max-[777px]:w-9 max-[777px]:justify-center max-[777px]:rounded-lg max-[777px]:bg-(--theme-secondary)/8 max-[777px]:[&_.anticon]:!text-[16px] max-[777px]:[&_.anticon]:!text-(--theme-secondary)"
+                }
+              >
+                <SearchOutlined className="!text-[20px] text-gray-400" />
+              </span>
+            )}
 
             <div className="min-w-0 flex-1">
               <Popover
@@ -356,6 +373,13 @@ function DestinationSearchField({
                   aria-label="City, property name or location"
                   variant="borderless"
                   popupMatchSelectWidth={compact ? false : true}
+                  classNames={{
+                    popup: {
+                      // Phones: the select itself is narrow, so give the list
+                      // the full card width instead of matching the input.
+                      root: "!rounded-2xl !p-1.5 shadow-[0_16px_40px_rgba(15,23,42,0.18)] max-[777px]:!left-4 max-[777px]:!w-[calc(100vw-32px)] max-[777px]:!max-w-[440px] [&_.ant-select-item]:!rounded-xl [&_.ant-select-item]:!px-2.5 [&_.ant-select-item-group]:!px-2.5 [&_.ant-select-item-group]:!pt-2 [&_.ant-select-item-group]:!text-[11px] [&_.ant-select-item-group]:!font-bold [&_.ant-select-item-group]:!tracking-[0.08em] [&_.ant-select-item-group]:!text-gray-400 [&_.ant-select-item-group]:!uppercase [&_.ant-select-item-option-active]:!bg-slate-50 [&_.ant-select-item-option-selected]:!bg-(--theme-secondary)/8",
+                    },
+                  }}
                   className={`font-jost! w-full min-w-0 overflow-hidden font-medium text-gray-600 min-[700px]:font-semibold! min-[700px]:text-gray-800! ${
                     styles.destinationSelect
                   } ${isEditing ? styles.editing : ""} ${
@@ -396,7 +420,13 @@ function DestinationSearchField({
               {value?.cityData?.country || value?.cityData?.countryCode || ""}
             </span>
           ) : (
-            <span className="!z-34 inline-block w-fit bg-white text-xs !font-bold text-gray-700 md:text-sm">
+            <span
+              className={`!z-34 inline-block w-fit bg-white text-xs !font-bold text-gray-700 max-[777px]:shrink-0 max-[777px]:rounded-md max-[777px]:bg-slate-100 max-[777px]:px-2 max-[777px]:py-1 max-[777px]:text-[11px] max-[777px]:!font-semibold max-[777px]:text-gray-600 md:text-sm ${
+                value?.cityData?.country || value?.cityData?.countryCode
+                  ? ""
+                  : "max-[777px]:hidden"
+              }`}
+            >
               {value?.cityData?.country ||
                 value?.cityData?.countryCode ||
                 "Search destinations"}

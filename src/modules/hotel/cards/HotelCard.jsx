@@ -23,7 +23,7 @@ import {
 import { message } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 
 import { buildWishlistPayload } from "../utils/buildWishlistPayload";
 import { navigateToHotelDetails } from "../utils/navigateToHotelDetails";
@@ -35,11 +35,13 @@ const FALLBACK_HOTEL_IMAGE =
 
 function HotelCard({ hotel, wishlistIds }) {
   const router = useRouter();
-  const isMobile = useIsMobile(700);
+  // Below 1024px the list column is too narrow for the 3-column card.
+  const isMobile = useIsMobile(1024);
 
   const [openModal, setOpenModal] = useState(false);
   const [showAllFacilities, setShowAllFacilities] = useState(false);
-  const [currentImage, setCurrentImage] = useState(0);
+  const [imageIndex, setImageIndex] = useState(0);
+  const [prevHotelId, setPrevHotelId] = useState(hotel?.id);
   const [failedImageUrl, setFailedImageUrl] = useState("");
 
   const { setSelectedHotel } = useSelectedHotelStore();
@@ -170,16 +172,18 @@ function HotelCard({ hotel, wishlistIds }) {
     hotel?.imageUrl,
   ]);
 
-  useEffect(() => {
-    setCurrentImage(0);
+  // Reset gallery/facilities when the card is reused for a different hotel.
+  // Adjusting state during render avoids an extra effect-driven re-render.
+  if (hotel?.id !== prevHotelId) {
+    setPrevHotelId(hotel?.id);
+    setImageIndex(0);
     setShowAllFacilities(false);
-  }, [hotel?.id]);
+  }
 
-  useEffect(() => {
-    if (currentImage >= hotelImages.length || currentImage < 0) {
-      setCurrentImage(0);
-    }
-  }, [currentImage, hotelImages.length]);
+  // Derived instead of corrected in an effect: fall back to the first image
+  // if the list shrank below the stored index.
+  const currentImage =
+    imageIndex >= 0 && imageIndex < hotelImages.length ? imageIndex : 0;
 
   const priceDetails = hotel?.priceDetails || hotel?.rawHotel?.price || {};
 
@@ -210,17 +214,18 @@ function HotelCard({ hotel, wishlistIds }) {
     return Math.min(Number(hotel?.starRating || 0), 5);
   }, [hotel?.starRating]);
 
+  const rawFacilities = hotel?.facilities;
   const facilities = useMemo(() => {
-    if (!Array.isArray(hotel?.facilities)) return [];
+    if (!Array.isArray(rawFacilities)) return [];
 
-    return hotel.facilities
+    return rawFacilities
       .map((facility) =>
         typeof facility === "string"
           ? facility.trim()
           : facility?.name?.toString().trim() || "",
       )
       .filter(Boolean);
-  }, [hotel?.facilities]);
+  }, [rawFacilities]);
 
   const visibleFacilities = useMemo(() => {
     if (showAllFacilities) {
@@ -284,7 +289,7 @@ function HotelCard({ hotel, wishlistIds }) {
 
     if (hotelImages.length <= 1) return;
 
-    setCurrentImage((prev) => (prev >= hotelImages.length - 1 ? 0 : prev + 1));
+    setImageIndex(currentImage >= hotelImages.length - 1 ? 0 : currentImage + 1);
   };
 
   const handlePreviousImage = (e) => {
@@ -293,7 +298,7 @@ function HotelCard({ hotel, wishlistIds }) {
 
     if (hotelImages.length <= 1) return;
 
-    setCurrentImage((prev) => (prev <= 0 ? hotelImages.length - 1 : prev - 1));
+    setImageIndex(currentImage <= 0 ? hotelImages.length - 1 : currentImage - 1);
   };
 
   const handleWishlist = (e) => {
@@ -336,6 +341,10 @@ function HotelCard({ hotel, wishlistIds }) {
     return <MobileHotelCard hotel={hotel} wishlistIds={wishlistIds} />;
   }
 
+  const currencySymbol = hotel?.currencySymbol || "₹";
+  const formatAmount = (value) =>
+    value.toLocaleString("en-IN", { maximumFractionDigits: 2 });
+
   return (
     <>
       <div
@@ -346,9 +355,10 @@ function HotelCard({ hotel, wishlistIds }) {
 
           handleNavigate();
         }}
-        className="group w-full cursor-pointer overflow-hidden rounded-xl border border-gray-300 bg-white transition-all duration-300 hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
+        className="group relative isolate w-full cursor-pointer overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-[0_14px_34px_rgba(15,23,42,0.12)]"
       >
-        <div className="flex w-full items-stretch">
+        <div className="flex min-h-[230px] w-full items-stretch">
+          {/* IMAGE */}
           <div className="relative w-[225px] shrink-0 self-stretch overflow-hidden min-[1100px]:w-[270px] min-[1200px]:w-[290px] min-[1300px]:w-[310px] min-[1400px]:w-[325px] min-[1536px]:w-[340px]">
             <Image
               key={`${hotel?.id}-${currentImage}`}
@@ -370,16 +380,19 @@ function HotelCard({ hotel, wishlistIds }) {
                 (max-width: 1535px) 325px,
                 340px
               "
-              className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
+              className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
             />
 
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-black/10" />
 
             <button
               type="button"
               disabled={isPending}
               onClick={handleWishlist}
-              className="absolute top-3 right-3 flex h-[37px] w-[37px] cursor-pointer items-center justify-center rounded-full bg-white !text-[21px] !text-gray-400 shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-all duration-300 hover:scale-105 active:scale-95 min-[1280px]:h-[42px] min-[1280px]:w-[42px]"
+              aria-label={
+                isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+              }
+              className="absolute top-3 right-3 z-30 flex h-[36px] w-[36px] cursor-pointer items-center justify-center rounded-full bg-white/95 !text-[19px] !text-gray-500 shadow-[0_2px_10px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-all duration-300 hover:scale-110 active:scale-95 min-[1280px]:h-[40px] min-[1280px]:w-[40px]"
             >
               {isWishlisted ? (
                 <HeartFilled className="text-red-500!" />
@@ -389,60 +402,57 @@ function HotelCard({ hotel, wishlistIds }) {
             </button>
 
             {hotelImages.length > 1 && (
-              <button
-                type="button"
-                aria-label="Previous image"
-                onClick={handlePreviousImage}
-                className="absolute top-1/2 left-3 z-30 flex h-[36px] w-[36px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white text-[12px] text-gray-800 opacity-0 shadow-[0_2px_8px_rgba(0,0,0,0.20)] transition-all duration-200 group-hover:opacity-100 hover:scale-110 active:scale-95 min-[1280px]:h-[38px] min-[1280px]:w-[38px]"
-              >
-                <LeftOutlined />
-              </button>
-            )}
+              <>
+                <button
+                  type="button"
+                  aria-label="Previous image"
+                  onClick={handlePreviousImage}
+                  className="absolute top-1/2 left-3 z-30 flex h-[34px] w-[34px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 text-[11px] text-gray-800 opacity-0 shadow-[0_2px_8px_rgba(0,0,0,0.20)] transition-all duration-200 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                >
+                  <LeftOutlined />
+                </button>
 
-            {hotelImages.length > 1 && (
-              <button
-                type="button"
-                aria-label="Next image"
-                onClick={handleNextImage}
-                className="absolute top-1/2 right-3 z-30 flex h-[36px] w-[36px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white text-[12px] text-gray-800 shadow-[0_3px_10px_rgba(0,0,0,0.22)] transition-all duration-200 hover:scale-110 active:scale-95 min-[1280px]:h-[38px] min-[1280px]:w-[38px]"
-              >
-                <RightOutlined />
-              </button>
-            )}
+                <button
+                  type="button"
+                  aria-label="Next image"
+                  onClick={handleNextImage}
+                  className="absolute top-1/2 right-3 z-30 flex h-[34px] w-[34px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 text-[11px] text-gray-800 opacity-0 shadow-[0_2px_8px_rgba(0,0,0,0.20)] transition-all duration-200 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                >
+                  <RightOutlined />
+                </button>
 
-            {hotelImages.length > 1 && (
-              <div className="absolute bottom-3 left-3 z-20 rounded-md bg-black/75 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
-                {currentImage + 1}/{hotelImages.length}
-              </div>
+                <div className="absolute bottom-3 left-3 z-20 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+                  {currentImage + 1}/{hotelImages.length}
+                </div>
+              </>
             )}
           </div>
 
-          <div className="flex min-w-0 flex-1 flex-col border-l border-gray-300 px-3 py-3 min-[1200px]:px-4">
-            {/* HOTEL NAME */}
-
+          {/* DETAILS */}
+          <div className="flex min-w-0 flex-1 flex-col px-4 py-4 min-[1200px]:px-5">
             <div className="min-w-0">
               <h2
                 title={hotelName}
-                className="truncate text-[18px] leading-[23px] font-bold text-[#1f2937] min-[1200px]:text-[20px] min-[1400px]:text-[21px]"
+                className="truncate text-[18px] leading-[24px] font-bold tracking-[-0.01em] text-[#111827] transition-colors group-hover:text-(--theme-secondary) min-[1200px]:text-[20px] min-[1400px]:text-[21px]"
               >
                 {hotelName}
               </h2>
 
               {stars > 0 && (
-                <div className="mt-1 flex items-center">
-                  <span className="text-most-text-color text-[12px] font-medium min-[1200px]:text-[13px]">
-                    {stars} Star Rating
-                  </span>
-                </div>
+                <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-[3px] text-[11px] font-semibold text-amber-700 ring-1 ring-amber-200/70 min-[1200px]:text-[12px]">
+                  <StarFilled className="text-[10px] text-amber-500" />
+                  {stars} Star Rating
+                </span>
               )}
+
               {/* LOCATION */}
-              <div className="mt-1 flex min-w-0 items-start gap-1.5">
+              <div className="mt-2 flex min-w-0 items-start gap-1.5">
                 <EnvironmentOutlined className="mt-[2px] shrink-0 text-[12px] text-[#2167d5] min-[1200px]:text-[13px]" />
 
                 <div className="min-w-0 flex-1">
                   <p
                     title={hotel?.address || hotel?.location}
-                    className="truncate text-[12px] leading-[16px] font-medium text-[#2167d5] min-[1200px]:text-[13px]"
+                    className="truncate text-[12px] leading-[17px] font-medium text-[#2167d5] min-[1200px]:text-[13px]"
                   >
                     {hotel?.address ||
                       hotel?.location ||
@@ -466,42 +476,46 @@ function HotelCard({ hotel, wishlistIds }) {
                   )}
                 </div>
               </div>
-              {/* AVAILABILITY */}
 
-              {Number(hotel?.roomsLeft) > 0 && (
-                <span className="rounded-sm bg-[#d9382b] px-2 py-[5px] text-[10px] leading-none font-semibold text-white">
-                  Only {hotel.roomsLeft} left
-                </span>
-              )}
-              {hotel?.isRecommended && (
-                <span className="rounded-sm border border-gray-300 px-2 py-[4px] text-[10px] leading-none font-medium text-gray-600">
-                  Recommended
-                </span>
+              {/* AVAILABILITY */}
+              {(Number(hotel?.roomsLeft) > 0 || hotel?.isRecommended) && (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {Number(hotel?.roomsLeft) > 0 && (
+                    <span className="rounded-full bg-[#d9382b] px-2 py-[4px] text-[10px] leading-none font-semibold text-white">
+                      Only {hotel.roomsLeft} left
+                    </span>
+                  )}
+                  {hotel?.isRecommended && (
+                    <span className="rounded-full border border-gray-300 px-2 py-[3px] text-[10px] leading-none font-medium text-gray-600">
+                      Recommended
+                    </span>
+                  )}
+                </div>
               )}
 
               {/* HIGHLIGHT */}
-              <div className="mt-2 flex min-w-0 items-start gap-1.5 min-[1200px]:mt-3">
+              <div className="mt-2.5 flex min-w-0 items-start gap-1.5">
                 <ThunderboltFilled className="mt-[2px] shrink-0 text-[11px] text-[#657184] min-[1200px]:text-[13px]" />
 
                 <p
                   title={hotel?.highlight}
-                  className="line-clamp-2 text-[11px] leading-[15px] text-[#53657d] min-[1200px]:text-[13px] min-[1200px]:leading-[17px]"
+                  className="line-clamp-2 text-[12px] leading-[16px] text-[#53657d] min-[1200px]:text-[13px] min-[1200px]:leading-[18px]"
                 >
                   {hotel?.highlight ||
                     "Prime Location Near US Visa Centre, 32 m Infinity Pool"}
                 </p>
               </div>
-              {/* COUPON */}
             </div>
 
-            <div className="mt-0">
+            {/* Pinned to the bottom so cards line up regardless of content */}
+            <div className="mt-auto space-y-2 pt-3">
               {facilities.length > 0 && (
-                <div className="flex max-w-full flex-wrap items-center gap-1 overflow-hidden min-[1200px]:gap-1.5">
+                <div className="flex max-w-full flex-wrap items-center gap-1.5 overflow-hidden">
                   {visibleFacilities.map((tag, i) => (
                     <span
                       key={`${tag}-${i}`}
                       title={tag}
-                      className="max-w-[105px] truncate rounded-md border border-gray-200 bg-gray-50 px-1.5 py-[4px] text-[9px] leading-none font-medium text-gray-600 min-[1200px]:max-w-[120px] min-[1200px]:px-2 min-[1200px]:text-[10px]"
+                      className="max-w-[110px] truncate rounded-full border border-gray-200 bg-gray-50 px-2 py-[5px] text-[10px] leading-none font-medium text-gray-600 min-[1200px]:max-w-[130px] min-[1200px]:px-2.5 min-[1200px]:text-[11px]"
                     >
                       {tag}
                     </span>
@@ -516,7 +530,7 @@ function HotelCard({ hotel, wishlistIds }) {
 
                         setShowAllFacilities((prev) => !prev);
                       }}
-                      className="shrink-0 cursor-pointer rounded-md bg-[#edf7ff] px-1.5 py-[2px] text-[9px] leading-none font-semibold whitespace-nowrap text-[#2167d5] transition-colors hover:bg-[#dcefff]! min-[1200px]:px-2 min-[1200px]:text-[10px]"
+                      className="shrink-0 cursor-pointer rounded-full bg-[#edf7ff] px-2 py-[5px] text-[10px] leading-none font-semibold whitespace-nowrap text-[#2167d5] transition-colors hover:bg-[#dcefff]! min-[1200px]:px-2.5 min-[1200px]:text-[11px]"
                     >
                       {showAllFacilities
                         ? "View Less"
@@ -525,29 +539,27 @@ function HotelCard({ hotel, wishlistIds }) {
                   )}
                 </div>
               )}
+
               {hotelBenefits.length > 0 && (
-                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                   {hotelBenefits.map((benefit) => (
                     <div
                       key={benefit.key}
                       className="flex items-center gap-1 text-[11px] font-medium text-green-700 min-[1200px]:text-[12px]"
                     >
-                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100">
-                        <span className="text-[11px] font-bold text-green-700">
-                          ✓
-                        </span>
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100 text-[10px] font-bold text-green-700">
+                        ✓
                       </span>
-
                       <span>{benefit.label}</span>
                     </div>
                   ))}
                 </div>
               )}
-              {(couponCode || hotel?.couponText || facilities.length > 0) && (
-                <div className="mt-1 flex items-center gap-1.5">
-                  <TagsFilled className="shrink-0 text-[11px] !text-[rgb(0,126,62)] min-[1200px]:text-[15px]" />
 
-                  <span className="truncate text-[11px] font-medium !text-[rgb(0,126,62)] min-[1200px]:text-[14px]">
+              {(couponCode || hotel?.couponText || facilities.length > 0) && (
+                <div className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-dashed border-green-300 bg-green-50 px-2.5 py-1">
+                  <TagsFilled className="shrink-0 text-[12px] !text-[rgb(0,126,62)] min-[1200px]:text-[14px]" />
+                  <span className="truncate text-[11px] font-semibold !text-[rgb(0,126,62)] min-[1200px]:text-[13px]">
                     {couponLabel}
                   </span>
                 </div>
@@ -555,101 +567,84 @@ function HotelCard({ hotel, wishlistIds }) {
             </div>
           </div>
 
-          <div className="flex w-[185px] shrink-0 flex-col justify-between border-l border-gray-300 px-2.5 py-3 min-[1100px]:w-[200px] min-[1200px]:w-[215px] min-[1300px]:w-[225px] min-[1400px]:w-[235px] min-[1536px]:w-[245px]">
-            {/* SHARE */}
-            <div
-              className="flex justify-end text-[16px] text-gray-500 min-[1200px]:text-[18px]"
-              onClick={(e) => e.stopPropagation()}
-            >
+          {/* PRICE */}
+          <div className="flex w-[185px] shrink-0 flex-col border-l border-gray-100 bg-gradient-to-b from-white to-slate-50/80 px-3 py-4 text-right min-[1100px]:w-[200px] min-[1200px]:w-[215px] min-[1200px]:px-4 min-[1300px]:w-[225px] min-[1400px]:w-[235px] min-[1536px]:w-[245px]">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex min-w-0 flex-col items-start text-left">
+                {rating > 0 && (
+                  <span className="flex shrink-0 items-center gap-[2px]">
+                    {Array.from({ length: 5 }).map((_, i) => {
+                      const fill = Math.max(0, Math.min(1, rating - i));
+
+                      return (
+                        <span
+                          key={i}
+                          className="relative inline-block text-[12px] leading-none min-[1200px]:text-[14px]"
+                        >
+                          <StarFilled className="text-gray-300!" />
+                          <span
+                            className="absolute inset-y-0 left-0 overflow-hidden"
+                            style={{ width: `${fill * 100}%` }}
+                          >
+                            <StarFilled className="text-[#C55A11]!" />
+                          </span>
+                        </span>
+                      );
+                    })}
+                  </span>
+                )}
+
+                <p className="mt-1 text-[11px] text-gray-500 min-[1200px]:text-[12px]">
+                  {reviews.toLocaleString("en-IN")} reviews
+                </p>
+              </div>
+
               <button
                 type="button"
                 onClick={handleShare}
-                className="cursor-pointer transition-all duration-200 hover:scale-110 hover:text-[#2167d5]!"
+                aria-label="Share hotel"
+                className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-white text-[14px] text-gray-500 transition-all duration-200 hover:border-[#2167d5] hover:text-[#2167d5]!"
               >
                 <ShareAltOutlined />
               </button>
             </div>
 
-            <div className="flex flex-col items-end">
-             <div className="flex max-w-full items-center gap-1">
- 
+            <p className="mt-2 self-start rounded-md bg-[#edf7ff] px-2 py-1 text-left text-[11px] font-semibold text-[#1f4f8f] min-[1200px]:text-[12px]">
+              {hotel?.locationScore != null
+                ? `${hotel.locationScore} Location score`
+                : "9.2 Location score"}
+            </p>
 
-  {rating > 0 && (
-    <span className="flex shrink-0 items-center gap-[2px]">
-      {Array.from({ length: 5 }).map((_, i) => {
-        const fill = Math.max(0, Math.min(1, rating - i));
-
-        return (
-          <span
-            key={i}
-            className="relative inline-block text-[12px] leading-none min-[1200px]:text-[14px]"
-          >
-            {/* Light background star */}
-            <StarFilled className="text-gray-300!" />
-
-            {/* Filled star or half star */}
-            <span
-              className="absolute inset-y-0 left-0 overflow-hidden"
-              style={{ width: `${fill * 100}%` }}
-            >
-              <StarFilled className="text-[#C55A11]!" />
-            </span>
-          </span>
-        );
-      })}
-    </span>
-  )}
-</div>
-
-              <p className="mt-0.5 text-[11px] text-gray-500 min-[1200px]:text-[13px]">
-                {reviews.toLocaleString("en-IN")} reviews
-              </p>
-
-              <p className="mt-1 text-right text-[11px] font-semibold text-gray-800 min-[1200px]:text-[14px]">
-                {hotel?.locationScore != null
-                  ? `${hotel.locationScore} Location score`
-                  : "9.2 Location score"}
-              </p>
-            </div>
-
-            <div className="mt-auto pt-2 text-right">
-              <p className="mb-1 text-[10px] text-gray-600 min-[1200px]:text-[11px]">
+            <div className="mt-auto border-t border-dashed border-gray-200 pt-3">
+              <p className="mb-1 text-[10px] text-gray-500 min-[1200px]:text-[11px]">
                 Per night before taxes and fees
               </p>
 
-              <div className="flex items-center justify-end gap-1">
-                <span className="text-[15px] font-semibold text-gray-500 line-through min-[1200px]:text-[18px]">
-                  {hotel?.currencySymbol || "₹"}
-                  {beforeCouponPrice.toLocaleString("en-IN", {
-                    maximumFractionDigits: 2,
-                  })}
+              <div className="flex items-center justify-end gap-1.5">
+                <span className="text-[13px] font-medium text-gray-400 line-through min-[1200px]:text-[15px]">
+                  {currencySymbol}
+                  {formatAmount(beforeCouponPrice)}
                 </span>
 
-                <span className="text-[11px] font-medium text-[#d93025] min-[1200px]:text-[13px]">
-                  -
-                  {discountPercent.toLocaleString("en-IN", {
-                    maximumFractionDigits: 2,
-                  })}
-                  %
+                <span className="rounded bg-red-50 px-1.5 py-[2px] text-[10px] font-bold text-[#d93025] min-[1200px]:text-[11px]">
+                  -{formatAmount(discountPercent)}%
                 </span>
               </div>
 
-              <div className="mt-0.5 flex items-center justify-end gap-1">
-                <span className="text-[11px] font-semibold text-[#d93025] min-[1200px]:text-[13px]">
-                  {hotel?.currencySymbol || "₹"}
+              <div className="mt-1 flex items-baseline justify-end gap-1">
+                <span className="text-[13px] font-semibold text-[#d93025] min-[1200px]:text-[14px]">
+                  {currencySymbol}
                 </span>
 
-                <span className="text-[21px] leading-none font-bold text-[#d93025] min-[1200px]:text-[23px]">
-                  {price.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
+                <span className="text-[22px] leading-none font-extrabold tracking-[-0.02em] text-[#d93025] min-[1200px]:text-[25px]">
+                  {formatAmount(price)}
                 </span>
 
-                <LockFilled className="ml-1 text-[10px] text-gray-600 min-[1200px]:text-[12px]" />
+                <LockFilled className="ml-0.5 self-center text-[10px] text-gray-500 min-[1200px]:text-[12px]" />
               </div>
 
-              <p className="mt-1 text-[9px] text-gray-500 min-[1200px]:text-[11px]">
-                + <span className="mr-1">{hotel?.currencySymbol || "₹"}</span>
-                {tax.toLocaleString("en-IN", { maximumFractionDigits: 2 })}{" "}
-                taxes & fees
+              <p className="mt-1 text-[10px] text-gray-500 min-[1200px]:text-[11px]">
+                + {currencySymbol} {formatAmount(tax)} taxes &amp; fees
               </p>
             </div>
           </div>

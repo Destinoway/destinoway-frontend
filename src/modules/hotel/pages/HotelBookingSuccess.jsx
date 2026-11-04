@@ -18,6 +18,25 @@ import { useBookingDetails } from "@/modules/profile/hooks/useBookingDetails";
 import { Button, Card } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 
+// Defined outside the component so it is not recreated on every render.
+const PriceRow = ({ label, value, last = false, valueClass = "" }) => (
+  <div
+    className={`flex items-center justify-between py-1 ${
+      !last ? "border-b border-gray-100" : ""
+    }`}
+  >
+    <p className="font-roboto! mb-0! text-[14px] text-gray-600">{label}</p>
+
+    <p
+      className={`font-roboto! mb-0! text-[15px] font-semibold ${
+        valueClass || "text-gray-900"
+      }`}
+    >
+      {value}
+    </p>
+  </div>
+);
+
 export default function HotelBookingSuccess() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -95,24 +114,6 @@ export default function HotelBookingSuccess() {
   if (Number(room?.Child_Count) > 0) {
     roomSummary.push(`${room.Child_Count} Child`);
   }
-
-  const PriceRow = ({ label, value, last = false, valueClass = "" }) => (
-    <div
-      className={`flex items-center justify-between py-1 ${
-        !last ? "border-b border-gray-100" : ""
-      }`}
-    >
-      <p className="font-roboto! mb-0! text-[14px] text-gray-600">{label}</p>
-
-      <p
-        className={`font-roboto! mb-0! text-[15px] font-semibold ${
-          valueClass || "text-gray-900"
-        }`}
-      >
-        {value}
-      </p>
-    </div>
-  );
 
   const formattedPolicies = cancellationPolicies?.map((item) => {
     const match = item.match(

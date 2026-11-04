@@ -32,8 +32,11 @@
 /* ===================== Mobile ===================== */
 
 @media (max-width: 699px) {
+  /* Image covers the whole section; the form card defines the height. */
   .heroBg {
-    height: 575px;
+    position: absolute;
+    inset: 0;
+    height: 100%;
     background-size: cover;
     background-position: center;
   }

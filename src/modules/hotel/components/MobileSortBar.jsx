@@ -3,102 +3,92 @@
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
+  CheckCircleFilled,
   StarOutlined,
 } from "@ant-design/icons";
-import { memo, useMemo } from "react";
+import { memo } from "react";
 
+export const SORT_OPTIONS = [
+  {
+    label: "User Rating",
+    sub: "Highest First",
+    value: "ratingHigh",
+    icon: <StarOutlined />,
+  },
+  {
+    label: "User Rating",
+    sub: "Lowest First",
+    value: "ratingLow",
+    icon: <StarOutlined />,
+  },
+  {
+    label: "Price",
+    sub: "Highest First",
+    value: "priceHigh",
+    icon: <ArrowDownOutlined />,
+  },
+  {
+    label: "Price",
+    sub: "Lowest First",
+    value: "priceLow",
+    icon: <ArrowUpOutlined />,
+  },
+];
 
+// Full-width panel of tappable option buttons; parent controls placement.
 function MobileSortBar({ sort, setSort }) {
-  const tabs = useMemo(
-    () => [
-      {
-        label: "User Rating",
-        sub: "(Highest First)",
-        value: "ratingHigh",
-        icon: <StarOutlined />,
-      },
-      {
-        label: "User Rating",
-        sub: "(Lowest First)",
-        value: "ratingLow",
-        icon: <StarOutlined />,
-      },
-      {
-        label: "Price",
-        sub: "(Highest First)",
-        value: "priceHigh",
-        icon: <ArrowDownOutlined />,
-      },
-      {
-        label: "Price",
-        sub: "(Lowest First)",
-        value: "priceLow",
-        icon: <ArrowUpOutlined />,
-      },
-    ],
-    []
-  );
-
   return (
-    <div
-      className="
-        absolute
-        top-full
-        mt-1
-        !left-[-10px]
-        z-[999]
-        w-[320px]
-     
-        border
-        border-gray-200
-        bg-white
-        shadow-2xl
-        overflow-hidden
-      "
-    >
-      {tabs.map((tab, index) => {
-        const active = sort === tab.value;
+    <div className="w-full rounded-xl border border-gray-200 bg-white p-3 shadow-[0_10px_30px_rgba(0,0,0,0.15)]">
+      <p className="mb-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+        Sort hotels by
+      </p>
 
-        return (
-          <button
-            key={tab.value}
-            onClick={() => setSort(tab.value)}
-            className={`flex h-[56px] w-full items-center justify-center gap-2 border-b border-gray-300
-              ${active
-                ? "bg-[#edf7ff]"
-                : "bg-white hover:bg-gray-50"
-              }
-              ${index === tabs.length - 1 ? "border-b-0" : ""}
-            `}
-          >
-            <span
-              className={
+      <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
+        {SORT_OPTIONS.map((option) => {
+          const active = sort === option.value;
+
+          return (
+            <button
+              key={option.value}
+              type="button"
+              aria-pressed={active}
+              onClick={() => setSort(active ? null : option.value)}
+              className={`flex min-h-[52px] w-full cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-left shadow-sm transition-all duration-200 active:scale-[0.98] ${
                 active
-                  ? "text-[#4aa3df]"
-                  : "text-gray-400"
-              }
+                  ? "border-[#e98b00] bg-[#fff8ed]"
+                  : "border-gray-300 bg-white hover:border-[#e98b00] hover:bg-[#fffaf3]"
+              }`}
             >
-              {tab.icon}
-            </span>
-
-            <div className="flex flex-wrap items-center gap-1">
               <span
-                className={
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[14px] ${
                   active
-                    ? "text-[#4aa3df] font-medium"
-                    : "text-gray-800 font-medium"
-                }
+                    ? "bg-[#e98b00] text-white"
+                    : option.value.includes("rating")
+                      ? "bg-[#fff7e0] text-[#f5b400]"
+                      : "bg-gray-100 text-[#344054]"
+                }`}
               >
-                {tab.label}
+                {option.icon}
               </span>
 
-              <span className="text-gray-500 text-sm">
-                {tab.sub}
+              <span className="flex min-w-0 flex-1 flex-col leading-tight">
+                <span
+                  className={`text-[14px] font-semibold ${
+                    active ? "text-[#e98b00]" : "text-gray-800"
+                  }`}
+                >
+                  {option.label}
+                </span>
+                <span className="text-[12px] text-gray-500">{option.sub}</span>
               </span>
-            </div>
-          </button>
-        );
-      })}
+
+              {active && (
+                <CheckCircleFilled className="shrink-0 text-[16px] text-[#e98b00]" />
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -73,8 +73,8 @@ export default function Hero({ banner }) {
         />
       </picture>
 
-      <div className="!2xl:max-w-[99%] absolute top-18 left-1/2 z-20 w-[95%] -translate-x-1/2 sm:top-2 sm:w-[94%] md:top-14 md:w-[92%] lg:top-[56%] lg:w-[94%] xl:top-[61%] xl:w-[82%] 2xl:top-[66%]">
-        <div className="w-full rounded-2xl border border-gray-200 bg-[#F8F8F8] p-4 shadow-xl sm:p-5 md:p-6 lg:p-7 xl:p-8">
+      <div className="!2xl:max-w-[99%] relative z-20 mx-auto w-[94%] pt-18 pb-6 min-[700px]:absolute min-[700px]:top-2 min-[700px]:left-1/2 min-[700px]:-translate-x-1/2 min-[700px]:pt-0 min-[700px]:pb-0 md:top-14 md:w-[92%] lg:top-[56%] lg:w-[94%] xl:top-[61%] xl:w-[82%] 2xl:top-[66%]">
+        <div className="w-full rounded-2xl border border-gray-200 bg-[#F8F8F8] px-3.5 pt-4 pb-4 shadow-[0_12px_40px_rgba(15,23,42,0.18)] sm:p-5 md:p-6 lg:p-7 xl:p-8">
           <Tabs
             tabs={HOME_TABS}
             activeTab={activeTab}

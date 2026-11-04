@@ -12,7 +12,7 @@ export default function SearchButton({ onSearch, floating = true }) {
       <button
         type="button"
         onClick={onSearch}
-        className="buttion-background-color flex h-[52px] w-full cursor-pointer items-center justify-center rounded-xl !text-[18px] font-bold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:opacity-90 active:scale-[0.98] min-[700px]:h-[60px] min-[700px]:w-full min-[1000px]:h-[80px] min-[1000px]:w-[150px] min-[1205px]:h-[80px] min-[1205px]:w-[170px] min-[1400px]:h-[75px] min-[1400px]:w-[190px] sm:h-[65px] sm:text-[18px]"
+        className="buttion-background-color flex h-[52px] w-full cursor-pointer items-center justify-center rounded-xl !text-[18px] font-bold text-white shadow-lg max-[777px]:mt-1 max-[777px]:!text-[17px] max-[777px]:tracking-wide max-[777px]:shadow-[0_8px_20px_rgba(15,23,42,0.22)] transition-all duration-300 hover:scale-[1.02] hover:opacity-90 active:scale-[0.98] min-[700px]:h-[60px] min-[700px]:w-full min-[1000px]:h-[80px] min-[1000px]:w-[150px] min-[1205px]:h-[80px] min-[1205px]:w-[170px] min-[1400px]:h-[75px] min-[1400px]:w-[190px] sm:h-[65px] sm:text-[18px]"
         style={{ color: "#FFFFFF" }}
       >
         Search →

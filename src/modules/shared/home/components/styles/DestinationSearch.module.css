@@ -5,6 +5,23 @@
   overflow: hidden;
 }
 
+/* Phones: the 24px inline size is too large for the narrow field. */
+@media (max-width: 777px) {
+  .destinationSelect,
+  .destinationSelect :global(.ant-select-selection-item),
+  .destinationSelect :global(.ant-select-selection-placeholder),
+  .destinationSelect :global(.ant-select-selection-search-input) {
+    font-size: 17px !important;
+    font-weight: 600 !important;
+    color: #111827;
+  }
+
+  .destinationSelect :global(.ant-select-selection-placeholder) {
+    font-weight: 500 !important;
+    color: #9ca3af;
+  }
+}
+
 /* MAIN SELECT */
 .destinationSelect :global(.ant-select) {
   width: 100% !important;

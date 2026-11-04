@@ -66,6 +66,15 @@ body {
   font-family: var(--font-roboto), sans-serif;
 }
 
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 :where(.css-dev-only-do-not-override-xogyor).ant-modal .ant-modal-container {
   position: relative;
   background-color: var(--ant-modal-content-bg);
@@ -305,7 +314,8 @@ body {
 
 .gift-card-swiper .swiper-slide {
   height: auto;
-  width: calc(100% - 10px);
+  /* Phones: show a sliver of the next card so it reads as swipeable. */
+  width: 86%;
 }
 
 @media (min-width: 640px) {
