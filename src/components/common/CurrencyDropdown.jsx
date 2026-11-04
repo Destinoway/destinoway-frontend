@@ -9,6 +9,7 @@ export default function CurrencyDropdown({
   currencies,
   setCurrency,
   closeDropdown,
+  inline = false,
 }) {
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
@@ -21,18 +22,22 @@ export default function CurrencyDropdown({
     );
   }, [currencies, search]);
 
-  const handleCurrencyChange = async (currency) => {
+  const handleCurrencyChange = (currency) => {
     setCurrency(currency);
-
-    await invalidateCurrencyQueries(queryClient);
-
     closeDropdown();
     setSearch("");
+
+    // Refetch price queries so they use the new currency header.
+    invalidateCurrencyQueries(queryClient);
   };
 
   return (
     <div
-      className="w-[calc(100vw-24px)] max-w-[350px] rounded-xl bg-white p-3 shadow-[0_10px_30px_rgba(0,0,0,0.12)] sm:w-[350px]"
+      className={
+        inline
+          ? "w-full rounded-xl border border-gray-200 bg-white p-2"
+          : "w-[calc(100vw-24px)] max-w-[350px] rounded-xl bg-white p-3 shadow-[0_10px_30px_rgba(0,0,0,0.12)] sm:w-[350px]"
+      }
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
@@ -51,15 +56,13 @@ export default function CurrencyDropdown({
       />
 
       {/* Currency List */}
-      <div className="-mt- max-h-[55vh] overflow-y-auto sm:max-h-80">
+      <div
+        className={`overflow-y-auto ${inline ? "mt-1 max-h-[40vh]" : "max-h-[55vh] sm:max-h-80"}`}
+      >
         {filteredCurrencies.map((currency) => (
           <div
             key={currency.code}
-            onClick={() => {
-              setCurrency(currency);
-              closeDropdown();
-              setSearch("");
-            }}
+            onClick={() => handleCurrencyChange(currency)}
             className="height-100% flex cursor-pointer items-center justify-between rounded-lg px-3 py-3 transition hover:bg-[#F5FBFE] active:bg-[#EAF7F9]"
           >
             <span className="truncate pr-3 text-sm sm:text-base">

@@ -392,15 +392,21 @@ export default function Header() {
               );
             })}
 
-            {/* Currency */}
-            <Dropdown
-              trigger={["click"]}
-              open={mobileCurrencyOpen}
-              onOpenChange={setMobileCurrencyOpen}
-              getPopupContainer={(trigger) => trigger.parentElement}
-              popupRender={() => currencyDropdownContent}
-            >
-              <div className={drawerItemClass}>
+            {/* Currency: expands inline; a popup overflows the narrow drawer */}
+            <div>
+              <div
+                role="button"
+                tabIndex={0}
+                aria-expanded={mobileCurrencyOpen}
+                className={drawerItemClass}
+                onClick={() => setMobileCurrencyOpen((open) => !open)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setMobileCurrencyOpen((open) => !open);
+                  }
+                }}
+              >
                 <div className="flex items-center gap-1">
                   <div className="boder most-boder-colour flex h-10 w-10 items-center justify-center rounded-xl">
                     <Banknote size={20} className="most-text-color" />
@@ -424,7 +430,18 @@ export default function Header() {
                   }`}
                 />
               </div>
-            </Dropdown>
+
+              {mobileCurrencyOpen && (
+                <div className="mt-2">
+                  <CurrencyDropdown
+                    inline
+                    currencies={currencies}
+                    setCurrency={setCurrency}
+                    closeDropdown={() => setMobileCurrencyOpen(false)}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Footer */}
