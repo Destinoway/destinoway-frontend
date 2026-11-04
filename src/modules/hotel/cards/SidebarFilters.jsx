@@ -585,6 +585,7 @@ function SidebarFilters({
               src="/images/filterMap.png"
               alt="Explore on Map"
               fill
+              sizes="(max-width: 777px) 85vw, 288px"
               className="object-cover transition-transform duration-500 group-hover/map:scale-105"
             />
             <div className="absolute inset-0 flex items-center justify-center bg-linear-to-t from-black/25 to-black/0">

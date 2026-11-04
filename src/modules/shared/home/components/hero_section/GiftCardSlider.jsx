@@ -95,7 +95,8 @@ export default function GiftCardSlider({ giftCards = [] }) {
               slidesPerView="auto"
               allowTouchMove={true}
               simulateTouch={true}
-              loop={giftCards.length > 4}
+              // Swiper loop needs roughly 2x the visible slides (4 on desktop).
+              loop={giftCards.length > 8}
               autoplay={{
                 delay: 3000,
                 disableOnInteraction: false,
