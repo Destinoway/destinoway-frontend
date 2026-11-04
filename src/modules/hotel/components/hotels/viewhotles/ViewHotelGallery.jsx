@@ -7,7 +7,7 @@ const ViewHotelGallery = ({ images = [], onOpen }) => {
 
   const getHDImage = (url) => {
     if (!url || typeof url !== "string") {
-      return "/images/heroimage.jpg";
+      return "/images/heroimage.webp";
     }
 
     return url.replace("_t.", "_y.").replace("_b.", "_y.");
@@ -31,7 +31,7 @@ const ViewHotelGallery = ({ images = [], onOpen }) => {
 
   const totalPhotos = imageUrls.length;
 
-  const fallbackImage = "/images/heroimage.jpg";
+  const fallbackImage = "/images/heroimage.webp";
 
   const getImage = (index) => {
     return imageUrls[index] || imageUrls[0] || fallbackImage;

@@ -202,7 +202,7 @@ export default function Header() {
         <div className={isMobile ? "" : "flex items-center justify-start"}>
           <Link href="/" className="flex items-center">
             <Image
-              src="/images/LOGO-DW.png"
+              src="/images/LOGO-DW.webp"
               alt="Destonoway"
               width={400}
               height={70}
@@ -331,7 +331,7 @@ export default function Header() {
         title={
           <div className="flex items-center gap-2">
             <Image
-              src="/images/LOGO-DW-Symbol.png"
+              src="/images/LOGO-DW-Symbol.webp"
               alt="Destonoway"
               width={48}
               height={48}

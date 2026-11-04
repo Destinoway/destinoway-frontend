@@ -14,7 +14,7 @@ export default function AboutHero() {
               rgba(255, 255, 255, 0.45) 45%,
               rgba(255, 255, 255, 0) 100%
             ),
-            url('/images/heroimage.jpg')
+            url('/images/heroimage.webp')
           `,
         }}
       >
@@ -38,7 +38,7 @@ export default function AboutHero() {
             {/* Left Image */}
             <div className="relative overflow-hidden rounded-2xl shadow-lg">
               <img
-                src="/images/aboutsection.jpg"
+                src="/images/aboutsection.webp"
                 alt="destinoway"
                 className="h-[260px] w-full rounded-2xl object-cover transition-transform duration-500 hover:scale-105 sm:h-[230px] md:h-[320px] lg:h-[400px]"
               />

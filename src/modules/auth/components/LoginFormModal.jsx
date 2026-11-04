@@ -108,7 +108,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
                   className="flex h-[44px] w-[44px] items-center justify-center rounded-lg border transition hover:bg-gray-100 sm:h-[48px] sm:w-[48px]"
                 >
                   <Image
-                    src="/images/google.png"
+                    src="/images/google.webp"
                     alt="google"
                     width={20}
                     height={20}

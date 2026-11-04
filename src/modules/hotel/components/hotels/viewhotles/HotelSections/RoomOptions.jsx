@@ -159,7 +159,7 @@ function RoomOptionCard({ plan, hotelDetailId, hotelImageFallback }) {
   const imageIndex = images.length ? activeImage % images.length : 0;
 
   const fallbackImage =
-    getImageUrl(hotelImageFallback) || "/images/heroimage.jpg";
+    getImageUrl(hotelImageFallback) || "/images/heroimage.webp";
 
   const imageSrc = images[imageIndex] || fallbackImage;
 

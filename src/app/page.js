@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import Herobanner from "@/modules/shared/home/components/cashback_sections/OfferBanner";
 import ComingSoonSection from "@/modules/shared/home/components/ComingSoonSection";
 import DestinationsSection from "@/modules/shared/home/components/DestinationsSection";
@@ -7,6 +6,7 @@ import TestimonialsSection from "@/modules/shared/home/components/TestimonialsSe
 import TopRatedHotels from "@/modules/shared/home/components/TopRatedHotels";
 import VacationSection from "@/modules/shared/home/components/vacation_sections/VacationSection";
 import WhySection from "@/modules/shared/home/components/why_sections/WhySection";
+import { Suspense } from "react";
 
 import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
 import { fetchCmsBySlug } from "@/modules/cms/services/cmsFetch";
@@ -16,13 +16,13 @@ import ScrollToTopButton from "@/modules/hotel/ScrollToTopButton";
 import Hero from "@/modules/shared/home/components/hero_section/Hero";
 import TrustSection from "@/modules/shared/home/components/hero_section/TrustSection";
 
-import { fetchHomeContent } from "@/modules/shared/home/services/homeContentFetch";
-import GiftCardSliderServer from "@/modules/shared/home/components/hero_section/GiftCardSliderServer";
-import GiftCardSliderFallback from "@/modules/shared/home/components/hero_section/GiftCardSliderFallback";
 import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
+import GiftCardSliderFallback from "@/modules/shared/home/components/hero_section/GiftCardSliderFallback";
+import GiftCardSliderServer from "@/modules/shared/home/components/hero_section/GiftCardSliderServer";
+import { fetchHomeContent } from "@/modules/shared/home/services/homeContentFetch";
 
 const SITE_URL = getSiteUrl();
-const OG_IMAGE = `${SITE_URL}/images/OGIMAGE1.png`;
+const OG_IMAGE = `${SITE_URL}/images/OGIMAGE1.webp`;
 
 export async function generateMetadata() {
   const homeCms = await fetchCmsBySlug("home");

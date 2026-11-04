@@ -56,7 +56,7 @@ export default function ContactSection() {
       {/* Hero Banner */}
       <div className="relative h-[321px] w-full overflow-hidden">
         <Image
-          src="/images/concacthero.jpg"
+          src="/images/concacthero.webp"
           alt="Contact Banner"
           fill
           priority

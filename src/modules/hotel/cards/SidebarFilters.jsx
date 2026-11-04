@@ -242,7 +242,12 @@ function SidebarFilters({
       setCustomPriceDraft(nextRange);
       updateFilters((previous) => ({ ...previous, ...nextRange }));
     },
-    [currentFilters.maxPrice, currentFilters.minPrice, debouncedPriceUpdate, updateFilters],
+    [
+      currentFilters.maxPrice,
+      currentFilters.minPrice,
+      debouncedPriceUpdate,
+      updateFilters,
+    ],
   );
 
   const handleCustomPrice = useCallback(
@@ -256,7 +261,11 @@ function SidebarFilters({
       setCustomPriceDraft(nextRange);
       debouncedPriceUpdate(nextRange);
     },
-    [customPriceDraft.maxPrice, customPriceDraft.minPrice, debouncedPriceUpdate],
+    [
+      customPriceDraft.maxPrice,
+      customPriceDraft.minPrice,
+      debouncedPriceUpdate,
+    ],
   );
 
   const handlePopularFilter = useCallback(
@@ -512,7 +521,7 @@ function SidebarFilters({
           className="relative mb-4 h-[80px] cursor-pointer overflow-hidden rounded sm:h-[70px] md:h-[105px]"
         >
           <Image
-            src="/images/filterMap.png"
+            src="/images/filterMap.webp"
             alt="Explore on Map"
             fill
             className="object-cover"
