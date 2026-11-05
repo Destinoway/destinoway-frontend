@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { preload } from "react-dom";
+import { getImageProps } from "next/image";
 import Herobanner from "@/modules/shared/home/components/cashback_sections/OfferBanner";
 import ComingSoonSection from "@/modules/shared/home/components/ComingSoonSection";
 import DestinationsSection from "@/modules/shared/home/components/DestinationsSection";
@@ -19,6 +20,12 @@ import { fetchHomeContent } from "@/modules/shared/home/services/homeContentFetc
 import GiftCardSliderServer from "@/modules/shared/home/components/hero_section/GiftCardSliderServer";
 import GiftCardSliderFallback from "@/modules/shared/home/components/hero_section/GiftCardSliderFallback";
 import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
+import {
+  HERO_DESKTOP_MEDIA,
+  HERO_QUALITY,
+  getHeroBannerSrc,
+  isPreOptimizedImage,
+} from "@/modules/shared/home/utils/heroBanner";
 
 const SITE_URL = getSiteUrl();
 const OG_IMAGE = `${SITE_URL}/images/OGIMAGE1.png`;
@@ -75,7 +82,8 @@ export async function generateMetadata() {
 export default async function Page() {
   preload("/images/heromobile.avif", {
     as: "image",
-    imageSrcSet: "/images/heromobile.avif 390w, /images/heromobile-2x.avif 780w",
+    imageSrcSet:
+      "/images/heromobile.avif 390w, /images/heromobile-2x.avif 780w",
     imageSizes: "100vw",
     media: "(max-width: 777px)",
     fetchPriority: "high",
@@ -89,6 +97,32 @@ export default async function Page() {
 
   const { banner, placesAsPerYourVibe, topRatedHotels, popularDestinations } =
     homeContent ?? {};
+
+  // Desktop hero is the LCP image: start downloading it with the HTML instead
+  // of waiting for the browser to reach the <img> deep in the document.
+  const heroSrc = getHeroBannerSrc(banner);
+  if (isPreOptimizedImage(heroSrc)) {
+    preload(heroSrc, {
+      as: "image",
+      media: HERO_DESKTOP_MEDIA,
+      fetchPriority: "high",
+    });
+  } else {
+    const { props: heroImage } = getImageProps({
+      src: heroSrc,
+      alt: "",
+      fill: true,
+      sizes: "100vw",
+      quality: HERO_QUALITY,
+    });
+    preload(heroImage.src, {
+      as: "image",
+      imageSrcSet: heroImage.srcSet,
+      imageSizes: "100vw",
+      media: HERO_DESKTOP_MEDIA,
+      fetchPriority: "high",
+    });
+  }
   const faqBlock = homeCms?.data?.blocks?.find((block) => block.type === "faq");
   const faqItems = faqBlock?.data?.items ?? [];
 

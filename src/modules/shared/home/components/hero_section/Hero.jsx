@@ -5,6 +5,11 @@ import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
 import { navigateToHotels } from "@/modules/hotel/utils/hotelNavigation";
 import { HOME_TABS } from "@/modules/shared/config/homeTabs";
 import styles from "@/modules/shared/home/components/styles/Hero.module.css";
+import {
+  HERO_QUALITY,
+  getHeroBannerSrc,
+  isPreOptimizedImage,
+} from "@/modules/shared/home/utils/heroBanner";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -30,6 +35,7 @@ export default function Hero({ banner }) {
   );
   const router = useRouter();
   const bannerItem = banner?.items?.[0] ?? {};
+  const bannerSrc = getHeroBannerSrc(banner);
   const { draftSearchData, applySearch } = useHotelSearchStore();
   const ActiveForm = FORM_MAP[activeTab];
   const [destinationError, setDestinationError] = useState(false);
@@ -62,12 +68,13 @@ export default function Hero({ banner }) {
           type="image/webp"
         />
         <Image
-          src={bannerItem.image || "/images/homepage/Banner-1.webp"}
+          src={bannerSrc}
           alt={bannerItem.alt || "Destinoway"}
           fill
           loading="eager"
           fetchPriority="high"
-          quality={75}
+          unoptimized={isPreOptimizedImage(bannerSrc)}
+          quality={HERO_QUALITY}
           sizes="100vw"
           className="object-cover"
         />

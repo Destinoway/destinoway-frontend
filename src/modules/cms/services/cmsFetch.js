@@ -1,10 +1,20 @@
+import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { slugify } from "@/utils/slug/slugify";
 import { getCmsBySlug } from "./cms.service";
 
+// Published CMS pages are cached for a minute; previews always hit the API.
+const getPublishedCmsCached = unstable_cache(
+  (slug) => getCmsBySlug(slug, false),
+  ["cms-page"],
+  { revalidate: 60, tags: ["cms"] },
+);
+
 export const fetchCmsBySlug = cache(async (slug, preview = false) => {
   try {
-    return await getCmsBySlug(slug, preview);
+    return preview
+      ? await getCmsBySlug(slug, true)
+      : await getPublishedCmsCached(slug);
   } catch (error) {
     const status = error?.response?.status;
     if (status === 404) {
