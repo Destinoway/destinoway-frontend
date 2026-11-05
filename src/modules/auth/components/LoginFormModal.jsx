@@ -33,7 +33,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
       footer={null}
       centered
       width="95%"
-      className="sm:!max-w-[560px] md:!max-w-[700px] lg:!max-w-[900px] xl:!max-w-[1000px]"
+      className="sm:max-w-140! md:max-w-175! lg:max-w-225! xl:max-w-250!"
       closable
       styles={{
         body: {
@@ -46,9 +46,9 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
         </span>
       }
     >
-      <div className="flex flex-col overflow-hidden rounded-xl lg:h-[600px] lg:flex-row">
+      <div className="flex flex-col overflow-hidden rounded-xl lg:h-150 lg:flex-row">
         {/* Left Image */}
-        <div className="relative h-[220px] w-full sm:h-[260px] lg:h-full lg:w-1/2">
+        <div className="relative h-55 w-full sm:h-65 lg:h-full lg:w-1/2">
           <Image
             src="/images/auth/login.png"
             alt="travel"
@@ -105,7 +105,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
                 {/* Google */}
                 <button
                   onClick={handleGoogleLogin}
-                  className="flex h-[44px] w-[44px] items-center justify-center rounded-lg border transition hover:bg-gray-100 sm:h-[48px] sm:w-[48px]"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg border transition hover:bg-gray-100 sm:h-12 sm:w-12"
                 >
                   <Image
                     src="/images/google.png"
@@ -118,7 +118,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
                 {/* Email */}
                 <button
                   onClick={() => setActiveView("email")}
-                  className="flex h-[44px] w-[44px] items-center justify-center rounded-lg border transition hover:bg-gray-100 sm:h-[48px] sm:w-[48px]"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg border transition hover:bg-gray-100 sm:h-12 sm:w-12"
                 >
                   <MailOutlined className="text-[18px]" />
                 </button>

@@ -45,7 +45,7 @@ export default function GrievanceHero() {
   return (
     <section className="relative">
       {/* Hero Banner */}
-      <div className="relative h-[321px] w-full overflow-hidden">
+      <div className="relative h-80.25 w-full overflow-hidden">
         <Image
           src="/images/concacthero.jpg"
           alt="Contact Banner"
@@ -60,8 +60,8 @@ export default function GrievanceHero() {
 
         {/* Content */}
         <div className="absolute inset-0 z-20 flex items-center">
-          <div className="mx-auto w-full max-w-[1400px] px-6 md:px-10 lg:px-16">
-            <div className="max-w-[600px]">
+          <div className="mx-auto w-full max-w-350 px-6 md:px-10 lg:px-16">
+            <div className="max-w-150">
               <h1 className="text-[32px] leading-tight font-bold text-white md:text-[42px] lg:text-[52px]">
                 Grievance Redressal
               </h1>
@@ -77,7 +77,7 @@ export default function GrievanceHero() {
       </div>
 
       {/* Contact Cards */}
-      <div className="absolute top-[280px] left-1/2 z-30 w-full max-w-[1400px] -translate-x-1/2 px-3">
+      <div className="absolute top-70 left-1/2 z-30 w-full max-w-350 -translate-x-1/2 px-3">
         <div className="flex gap-4 overflow-x-auto pb-2 lg:grid lg:grid-cols-4 lg:overflow-visible">
           {grievanceCards.map((card, index) => {
             const Icon = card.icon;

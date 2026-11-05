@@ -12,7 +12,7 @@ function FooterColumn({ title, links }) {
           <li key={item.label}>
             <Link
               href={item.href}
-              className="footer-hover-most-text-color relative inline-block transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-0 after:bg-[var(--theme-secondary)] after:transition-all after:duration-300 hover:after:w-full"
+              className="footer-hover-most-text-color relative inline-block transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-(--theme-secondary) after:transition-all after:duration-300 hover:after:w-full"
             >
               {item.label}
               {index < links.length - 1 && ","}
@@ -51,9 +51,9 @@ export default function FooterLinks() {
   return (
     <div className="grid grid-cols-1 gap-10 text-white/90 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
       {/* About */}
-      <div className="max-w-[340px]">
-        <p className="footer-backgound-color text-[15px] leading-7 !text-white/90">
-          Destonoway helps travelers discover and book hotels with ease,
+      <div className="max-w-85">
+        <p className="footer-backgound-color text-[15px] leading-7 text-white/90!">
+          Destinoway helps travelers discover and book hotels with ease,
           offering secure payments, verified stays, and dedicated customer
           support.
         </p>
@@ -91,7 +91,7 @@ export default function FooterLinks() {
         </div>
 
         {/* Small trust text */}
-        <p className="footer-backgound-color mt-5 text-xs leading-6 !text-white/90">
+        <p className="footer-backgound-color mt-5 text-xs leading-6 text-white/90!">
           Trusted platform for discovering and booking hotels with a seamless
           and secure travel experience.
         </p>

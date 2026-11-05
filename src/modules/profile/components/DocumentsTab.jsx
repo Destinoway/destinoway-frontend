@@ -3,7 +3,7 @@
 import RHFInput from "@/components/ui/RHFinputs/RHFInput";
 import { EditOutlined } from "@ant-design/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, message } from "antd";
+import { App, Button } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -44,6 +44,7 @@ const schema = z.object({
 });
 
 export default function DocumentsTab() {
+  const { message } = App.useApp();
   const [isEdit, setIsEdit] = useState(false);
   const [loading, setLoading] = useState(false);
   const [documentsLoading, setDocumentsLoading] = useState(true);
@@ -107,7 +108,7 @@ export default function DocumentsTab() {
     };
 
     fetchDocuments();
-  }, [reset]);
+  }, [message, reset]);
 
   /* SUBMIT */
 
@@ -197,7 +198,7 @@ export default function DocumentsTab() {
 
       {/* TITLE */}
 
-      <div className="flex items-center justify-between !bg-white px-6 py-4 text-gray-900">
+      <div className="flex items-center justify-between bg-white! px-6 py-4 text-gray-900">
         <h2 className="mb-0! text-[22px] font-bold text-gray-900">
           My Profile
         </h2>
@@ -205,7 +206,7 @@ export default function DocumentsTab() {
 
       {/* MAIN */}
 
-      <div className="!bg-white p-6 text-gray-900 shadow">
+      <div className="bg-white! p-6 text-gray-900 shadow">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-semibold">Documents</h3>
 
@@ -305,7 +306,7 @@ export default function DocumentsTab() {
 
             {isEdit && (
               <div className="mt-6 flex gap-3">
-                <Button onClick={handleCancel} className="!h-[42px] !px-6">
+                <Button onClick={handleCancel} className="h-10.5! px-6!">
                   Cancel
                 </Button>
 
@@ -313,7 +314,7 @@ export default function DocumentsTab() {
                   htmlType="submit"
                   type="primary"
                   loading={loading}
-                  className="buttion-background-color !h-[42px] !border-none !px-6"
+                  className="buttion-background-color h-10.5! border-none! px-6!"
                 >
                   Save Changes
                 </Button>

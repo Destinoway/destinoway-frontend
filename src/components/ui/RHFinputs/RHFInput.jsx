@@ -1,6 +1,6 @@
 "use client";
 
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, get, useFormContext } from "react-hook-form";
 
 import AppInput from "../inputs/AppInput";
 
@@ -30,7 +30,7 @@ export default function RHFInput({ name, transform, ...props }) {
 
               field.onChange(value);
             }}
-            error={errors?.[name]?.message}
+            error={get(errors, name)?.message}
           />
         );
       }}

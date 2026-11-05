@@ -17,6 +17,6 @@ export const mapBlog = (blog) => {
         })
       : "",
 
-    author: blog.authorName || "Destonoway",
+    author: blog.authorName || "Destinoway",
   };
 };

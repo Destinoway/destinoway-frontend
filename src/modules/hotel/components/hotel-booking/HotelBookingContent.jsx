@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Col, message, Row } from "antd";
+import { App, Button } from "antd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -38,6 +38,7 @@ export default function HotelBookingContent({
   roomId = "",
   onPricingRefresh,
 }) {
+  const { message } = App.useApp();
   const [isMobile, setIsMobile] = useState(false);
   const mounted = useSyncExternalStore(
     subscribeToMount,
@@ -244,7 +245,7 @@ export default function HotelBookingContent({
   };
 
   if (!mounted) {
-    return null;
+    return <div className="min-h-screen" />;
   }
 
   return (
@@ -252,65 +253,55 @@ export default function HotelBookingContent({
       {isMobile ? (
         <HotelBookingContents {...bookingProps} occupancy={occupancy} />
       ) : (
-        <div className="w-full">
+        <div className="w-full pb-10">
           <BackgroundSection />
 
-          <div className="mx-auto max-w-[1250px] !pb-6 sm:px-4">
-            <Row gutter={[14, 23]}>
-              <Col xs={24} lg={15}>
-                <div className="-mt-10! space-y-4 px-1 sm:space-y-5 sm:px-0">
-                  <BookingHeaderCard bookingData={bookingData} />
-                  <StaySummaryCard
-                    bookingData={bookingData}
-                    occupancy={occupancy}
-                  />
-                  <RoomPackageCard bookingData={bookingData} />
-                  <GuestDetailsForm
-                    ref={guestFormRef}
-                    onSubmit={handleGuestSubmit}
-                    occupancy={occupancy}
-                    isPANRequired={bookingData?.isPANRequired}
-                  />
+          <div className="relative mx-auto -mt-12 max-w-312.5 px-4">
+            <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px]">
+              <div className="min-w-0 space-y-4">
+                <BookingHeaderCard bookingData={bookingData} />
+                <StaySummaryCard
+                  bookingData={bookingData}
+                  occupancy={occupancy}
+                />
+                <RoomPackageCard bookingData={bookingData} />
+                <GuestDetailsForm
+                  ref={guestFormRef}
+                  onSubmit={handleGuestSubmit}
+                  occupancy={occupancy}
+                  isPANRequired={bookingData?.isPANRequired}
+                />
+                <SpecialRequestCard
+                  value={storeBookingData?.requestData || {}}
+                  onChange={handleRequestChange}
+                />
+                <ImportantInfoCard bookingData={bookingData} />
+                <BookingAgreement
+                  checked={agreement}
+                  onChange={setAgreement}
+                  bookingData={bookingData}
+                >
+                  <Button
+                    type="primary"
+                    size="large"
+                    loading={isPending}
+                    disabled={!agreement}
+                    onClick={handleBooking}
+                    className="buttion-background-color h-12! w-full rounded-xl! px-8! text-[15px]! font-semibold sm:w-auto"
+                  >
+                    Continue To Booking
+                  </Button>
+                </BookingAgreement>
+              </div>
 
-                  <SpecialRequestCard
-                    value={storeBookingData?.requestData || {}}
-                    onChange={handleRequestChange}
-                  />
-
-                  <ImportantInfoCard bookingData={bookingData} />
-
-                  <BookingAgreement
-                    checked={agreement}
-                    onChange={setAgreement}
-                    bookingData={bookingData}
-                  />
-
-                  <div className="mb-[36px] pt-1 md:mb-[49px] xl:mb-0">
-                    <Button
-                      type="primary"
-                      size="large"
-                      loading={isPending}
-                      disabled={!agreement}
-                      onClick={handleBooking}
-                      className="buttion-background-color !h-[44px] w-full !rounded-lg !text-sm sm:!h-[48px] sm:w-auto sm:!rounded-xl sm:!text-base"
-                    >
-                      Continue To Booking
-                    </Button>
-                  </div>
-                </div>
-              </Col>
-
-              <Col xs={24} lg={8}>
-                <div className="-mt-10! space-y-4 px-1 sm:space-y-5 sm:px-0">
-                  <PriceBreakupCard bookingData={bookingData} />
-                  
-                  <CouponsBankOffers
-                    bookingData={bookingData}
-                    onCouponUpdate={onPricingRefresh}
-                  />
-                </div>
-              </Col>
-            </Row>
+              <aside className="min-w-0 space-y-4 lg:sticky lg:top-24">
+                <PriceBreakupCard bookingData={bookingData} />
+                <CouponsBankOffers
+                  bookingData={bookingData}
+                  onCouponUpdate={onPricingRefresh}
+                />
+              </aside>
+            </div>
           </div>
         </div>
       )}

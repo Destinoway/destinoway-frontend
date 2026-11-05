@@ -109,9 +109,9 @@ export default function GiftCardSlider({ giftCards = [] }) {
               }}
             >
               {giftCards.map((card) => (
-                <SwiperSlide key={card._id} className="!h-auto pb-2">
+                <SwiperSlide key={card._id} className="h-auto! pb-2">
                   <div className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(15,23,42,0.12)]">
-                    <div className="relative h-[150px] w-full overflow-hidden sm:h-[150px] lg:h-[165px] xl:h-[175px]">
+                    <div className="relative h-37.5 w-full overflow-hidden sm:h-37.5 lg:h-41.25 xl:h-43.75">
                       {card.image ? (
                         <Image
                           src={card.image}
@@ -133,7 +133,7 @@ export default function GiftCardSlider({ giftCards = [] }) {
                       {/* Gift ribbon in the top-left corner */}
                       <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
                         <svg
-                          className="absolute -top-[10px] -left-[17px] h-[130px] w-[130px]"
+                          className="absolute -top-2.5 -left-4.25 h-32.5 w-32.5"
                           viewBox="0 0 130 130"
                           xmlns="http://www.w3.org/2000/svg"
                           aria-hidden="true"
@@ -242,7 +242,7 @@ export default function GiftCardSlider({ giftCards = [] }) {
                     </div>
 
                     <div className="flex flex-1 flex-col px-3.5 py-3">
-                      <p className="text-[11px] font-semibold tracking-wide text-amber-600 uppercase">
+                      <p className="text-[11px] font-semibold tracking-wide text-amber-700 uppercase">
                         Great Offer Deal
                       </p>
                       <p

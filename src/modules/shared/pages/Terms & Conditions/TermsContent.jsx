@@ -85,7 +85,7 @@ export default function TermsConditionsPage() {
             </h2>
             <p className="text-sm leading-7 md:text-base">
               <li>
-                Cancellation and refund eligibility depend on the hotel's
+                Cancellation and refund eligibility depend on the hotel&apos;s
                 specific cancellation policy.
               </li>
               <li>
@@ -103,7 +103,7 @@ export default function TermsConditionsPage() {
               7. Check-in and Check-out
             </h2>
             <p className="text-sm leading-7 md:text-base">
-              Guests must comply with the hotel's check-in and check-out
+              Guests must comply with the hotel&apos;s check-in and check-out
               policies. Valid government-issued identification may be required
               at the time of check-in
             </p>

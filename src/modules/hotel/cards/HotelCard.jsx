@@ -20,7 +20,7 @@ import {
   ThunderboltFilled,
 } from "@ant-design/icons";
 
-import { message } from "antd";
+import { App } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { memo, useMemo, useState } from "react";
@@ -34,6 +34,7 @@ const FALLBACK_HOTEL_IMAGE =
   "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80&auto=format&fit=crop";
 
 function HotelCard({ hotel, wishlistIds }) {
+  const { message } = App.useApp();
   const router = useRouter();
   // Below 1024px the list column is too narrow for the 3-column card.
   const isMobile = useIsMobile(1024);
@@ -328,6 +329,7 @@ function HotelCard({ hotel, wishlistIds }) {
     e.stopPropagation();
 
     await shareHotel({
+      message,
       hotelName,
       cityName: appliedSearchData?.city,
       hotelId: hotel?.id,
@@ -357,9 +359,9 @@ function HotelCard({ hotel, wishlistIds }) {
         }}
         className="group relative isolate w-full cursor-pointer overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-[0_14px_34px_rgba(15,23,42,0.12)]"
       >
-        <div className="flex min-h-[230px] w-full items-stretch">
+        <div className="flex min-h-57.5 w-full items-stretch">
           {/* IMAGE */}
-          <div className="relative w-[225px] shrink-0 self-stretch overflow-hidden min-[1100px]:w-[270px] min-[1200px]:w-[290px] min-[1300px]:w-[310px] min-[1400px]:w-[325px] min-[1536px]:w-[340px]">
+          <div className="relative w-56.25 shrink-0 self-stretch overflow-hidden min-[1100px]:w-67.5 min-[1200px]:w-72.5 min-[1300px]:w-77.5 min-[1400px]:w-81.25 min-[1536px]:w-85">
             <Image
               key={`${hotel?.id}-${currentImage}`}
               src={
@@ -383,7 +385,7 @@ function HotelCard({ hotel, wishlistIds }) {
               className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
             />
 
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-black/10" />
+            <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-black/0 to-black/10" />
 
             <button
               type="button"
@@ -392,7 +394,7 @@ function HotelCard({ hotel, wishlistIds }) {
               aria-label={
                 isWishlisted ? "Remove from wishlist" : "Add to wishlist"
               }
-              className="absolute top-3 right-3 z-30 flex h-[36px] w-[36px] cursor-pointer items-center justify-center rounded-full bg-white/95 !text-[19px] !text-gray-500 shadow-[0_2px_10px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-all duration-300 hover:scale-110 active:scale-95 min-[1280px]:h-[40px] min-[1280px]:w-[40px]"
+              className="absolute top-3 right-3 z-30 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/95 text-[19px]! text-gray-500! shadow-[0_2px_10px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-all duration-300 hover:scale-110 active:scale-95 min-[1280px]:h-10 min-[1280px]:w-10"
             >
               {isWishlisted ? (
                 <HeartFilled className="text-red-500!" />
@@ -407,7 +409,7 @@ function HotelCard({ hotel, wishlistIds }) {
                   type="button"
                   aria-label="Previous image"
                   onClick={handlePreviousImage}
-                  className="absolute top-1/2 left-3 z-30 flex h-[34px] w-[34px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 text-[11px] text-gray-800 opacity-0 shadow-[0_2px_8px_rgba(0,0,0,0.20)] transition-all duration-200 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                  className="absolute top-1/2 left-3 z-30 flex h-8.5 w-8.5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 text-[11px] text-gray-800 opacity-0 shadow-[0_2px_8px_rgba(0,0,0,0.20)] transition-all duration-200 group-hover:opacity-100 hover:scale-110 active:scale-95"
                 >
                   <LeftOutlined />
                 </button>
@@ -416,7 +418,7 @@ function HotelCard({ hotel, wishlistIds }) {
                   type="button"
                   aria-label="Next image"
                   onClick={handleNextImage}
-                  className="absolute top-1/2 right-3 z-30 flex h-[34px] w-[34px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 text-[11px] text-gray-800 opacity-0 shadow-[0_2px_8px_rgba(0,0,0,0.20)] transition-all duration-200 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                  className="absolute top-1/2 right-3 z-30 flex h-8.5 w-8.5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 text-[11px] text-gray-800 opacity-0 shadow-[0_2px_8px_rgba(0,0,0,0.20)] transition-all duration-200 group-hover:opacity-100 hover:scale-110 active:scale-95"
                 >
                   <RightOutlined />
                 </button>
@@ -433,13 +435,13 @@ function HotelCard({ hotel, wishlistIds }) {
             <div className="min-w-0">
               <h2
                 title={hotelName}
-                className="truncate text-[18px] leading-[24px] font-bold tracking-[-0.01em] text-[#111827] transition-colors group-hover:text-(--theme-secondary) min-[1200px]:text-[20px] min-[1400px]:text-[21px]"
+                className="truncate text-[18px] leading-6 font-bold tracking-[-0.01em] text-[#111827] transition-colors group-hover:text-(--theme-secondary) min-[1200px]:text-[20px] min-[1400px]:text-[21px]"
               >
                 {hotelName}
               </h2>
 
               {stars > 0 && (
-                <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-[3px] text-[11px] font-semibold text-amber-700 ring-1 ring-amber-200/70 min-[1200px]:text-[12px]">
+                <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.75 text-[11px] font-semibold text-amber-700 ring-1 ring-amber-200/70 min-[1200px]:text-[12px]">
                   <StarFilled className="text-[10px] text-amber-500" />
                   {stars} Star Rating
                 </span>
@@ -447,12 +449,12 @@ function HotelCard({ hotel, wishlistIds }) {
 
               {/* LOCATION */}
               <div className="mt-2 flex min-w-0 items-start gap-1.5">
-                <EnvironmentOutlined className="mt-[2px] shrink-0 text-[12px] text-[#2167d5] min-[1200px]:text-[13px]" />
+                <EnvironmentOutlined className="mt-0.5 shrink-0 text-[12px] text-[#2167d5] min-[1200px]:text-[13px]" />
 
                 <div className="min-w-0 flex-1">
                   <p
                     title={hotel?.address || hotel?.location}
-                    className="truncate text-[12px] leading-[17px] font-medium text-[#2167d5] min-[1200px]:text-[13px]"
+                    className="truncate text-[12px] leading-4.25 font-medium text-[#2167d5] min-[1200px]:text-[13px]"
                   >
                     {hotel?.address ||
                       hotel?.location ||
@@ -467,7 +469,7 @@ function HotelCard({ hotel, wishlistIds }) {
                   </p>
 
                   {(hotel?.distance || hotel?.nearby) && (
-                    <p className="truncate text-[11px] leading-[15px] text-gray-500">
+                    <p className="truncate text-[11px] leading-3.75 text-gray-500">
                       {hotel?.distance || "265 m"} from Mumbai BKC
                       {hotel?.nearby
                         ? ` • ${hotel.nearby}`
@@ -481,12 +483,12 @@ function HotelCard({ hotel, wishlistIds }) {
               {(Number(hotel?.roomsLeft) > 0 || hotel?.isRecommended) && (
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {Number(hotel?.roomsLeft) > 0 && (
-                    <span className="rounded-full bg-[#d9382b] px-2 py-[4px] text-[10px] leading-none font-semibold text-white">
+                    <span className="rounded-full bg-[#d9382b] px-2 py-1 text-[10px] leading-none font-semibold text-white">
                       Only {hotel.roomsLeft} left
                     </span>
                   )}
                   {hotel?.isRecommended && (
-                    <span className="rounded-full border border-gray-300 px-2 py-[3px] text-[10px] leading-none font-medium text-gray-600">
+                    <span className="rounded-full border border-gray-300 px-2 py-0.75 text-[10px] leading-none font-medium text-gray-600">
                       Recommended
                     </span>
                   )}
@@ -495,11 +497,11 @@ function HotelCard({ hotel, wishlistIds }) {
 
               {/* HIGHLIGHT */}
               <div className="mt-2.5 flex min-w-0 items-start gap-1.5">
-                <ThunderboltFilled className="mt-[2px] shrink-0 text-[11px] text-[#657184] min-[1200px]:text-[13px]" />
+                <ThunderboltFilled className="mt-0.5 shrink-0 text-[11px] text-[#657184] min-[1200px]:text-[13px]" />
 
                 <p
                   title={hotel?.highlight}
-                  className="line-clamp-2 text-[12px] leading-[16px] text-[#53657d] min-[1200px]:text-[13px] min-[1200px]:leading-[18px]"
+                  className="line-clamp-2 text-[12px] leading-4 text-[#53657d] min-[1200px]:text-[13px] min-[1200px]:leading-4.5"
                 >
                   {hotel?.highlight ||
                     "Prime Location Near US Visa Centre, 32 m Infinity Pool"}
@@ -515,7 +517,7 @@ function HotelCard({ hotel, wishlistIds }) {
                     <span
                       key={`${tag}-${i}`}
                       title={tag}
-                      className="max-w-[110px] truncate rounded-full border border-gray-200 bg-gray-50 px-2 py-[5px] text-[10px] leading-none font-medium text-gray-600 min-[1200px]:max-w-[130px] min-[1200px]:px-2.5 min-[1200px]:text-[11px]"
+                      className="max-w-27.5 truncate rounded-full border border-gray-200 bg-gray-50 px-2 py-1.25 text-[10px] leading-none font-medium text-gray-600 min-[1200px]:max-w-32.5 min-[1200px]:px-2.5 min-[1200px]:text-[11px]"
                     >
                       {tag}
                     </span>
@@ -530,7 +532,7 @@ function HotelCard({ hotel, wishlistIds }) {
 
                         setShowAllFacilities((prev) => !prev);
                       }}
-                      className="shrink-0 cursor-pointer rounded-full bg-[#edf7ff] px-2 py-[5px] text-[10px] leading-none font-semibold whitespace-nowrap text-[#2167d5] transition-colors hover:bg-[#dcefff]! min-[1200px]:px-2.5 min-[1200px]:text-[11px]"
+                      className="shrink-0 cursor-pointer rounded-full bg-[#edf7ff] px-2 py-1.25 text-[10px] leading-none font-semibold whitespace-nowrap text-[#2167d5] transition-colors hover:bg-[#dcefff]! min-[1200px]:px-2.5 min-[1200px]:text-[11px]"
                     >
                       {showAllFacilities
                         ? "View Less"
@@ -558,8 +560,8 @@ function HotelCard({ hotel, wishlistIds }) {
 
               {(couponCode || hotel?.couponText || facilities.length > 0) && (
                 <div className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-dashed border-green-300 bg-green-50 px-2.5 py-1">
-                  <TagsFilled className="shrink-0 text-[12px] !text-[rgb(0,126,62)] min-[1200px]:text-[14px]" />
-                  <span className="truncate text-[11px] font-semibold !text-[rgb(0,126,62)] min-[1200px]:text-[13px]">
+                  <TagsFilled className="shrink-0 text-[12px] text-[rgb(0,126,62)]! min-[1200px]:text-[14px]" />
+                  <span className="truncate text-[11px] font-semibold text-[rgb(0,126,62)]! min-[1200px]:text-[13px]">
                     {couponLabel}
                   </span>
                 </div>
@@ -568,11 +570,11 @@ function HotelCard({ hotel, wishlistIds }) {
           </div>
 
           {/* PRICE */}
-          <div className="flex w-[185px] shrink-0 flex-col border-l border-gray-100 bg-gradient-to-b from-white to-slate-50/80 px-3 py-4 text-right min-[1100px]:w-[200px] min-[1200px]:w-[215px] min-[1200px]:px-4 min-[1300px]:w-[225px] min-[1400px]:w-[235px] min-[1536px]:w-[245px]">
+          <div className="flex w-46.25 shrink-0 flex-col border-l border-gray-100 bg-linear-to-b from-white to-slate-50/80 px-3 py-4 text-right min-[1100px]:w-50 min-[1200px]:w-53.75 min-[1200px]:px-4 min-[1300px]:w-56.25 min-[1400px]:w-58.75 min-[1536px]:w-61.25">
             <div className="flex items-start justify-between gap-2">
               <div className="flex min-w-0 flex-col items-start text-left">
                 {rating > 0 && (
-                  <span className="flex shrink-0 items-center gap-[2px]">
+                  <span className="flex shrink-0 items-center gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => {
                       const fill = Math.max(0, Math.min(1, rating - i));
 
@@ -626,7 +628,7 @@ function HotelCard({ hotel, wishlistIds }) {
                   {formatAmount(beforeCouponPrice)}
                 </span>
 
-                <span className="rounded bg-red-50 px-1.5 py-[2px] text-[10px] font-bold text-[#d93025] min-[1200px]:text-[11px]">
+                <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-bold text-[#d93025] min-[1200px]:text-[11px]">
                   -{formatAmount(discountPercent)}%
                 </span>
               </div>

@@ -64,14 +64,14 @@ export async function generateMetadata({ params, searchParams }) {
     },
     authors: [
       {
-        name: "Destonoway",
+        name: "Destinoway",
       },
     ],
     openGraph: {
       title: buildHotelTitle(hotelSlug, cityName),
       description: buildHotelDescription(hotelSlug, city),
       url: canonical,
-      siteName: "Destonoway",
+      siteName: "Destinoway",
       type: "website",
     },
 
@@ -80,8 +80,8 @@ export async function generateMetadata({ params, searchParams }) {
       title: buildHotelTitle(hotelSlug, cityName),
       description: buildHotelDescription(hotelSlug, city),
     },
-    creator: "Destonoway",
-    publisher: "Destonoway",
+    creator: "Destinoway",
+    publisher: "Destinoway",
   };
 }
 
@@ -136,7 +136,7 @@ export default async function Page({ params, searchParams }) {
 
         description:
           cms?.metaDescription ||
-          "Hotel details and booking information on Destonoway.",
+          "Hotel details and booking information on Destinoway.",
 
         url: `${siteUrl}/hotel-details/${city}/${slug}`,
 
@@ -180,13 +180,13 @@ export default async function Page({ params, searchParams }) {
         publisher: {
           "@type": "Organization",
 
-          name: "Destonoway",
+          name: "Destinoway",
         },
       },
 
       {
         "@type": "Organization",
-        name: "Destonoway",
+        name: "Destinoway",
         url: siteUrl,
       },
     ],

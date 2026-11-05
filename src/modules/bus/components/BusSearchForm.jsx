@@ -9,7 +9,7 @@ export default function BusSearchForm() {
         <Input size="large" placeholder="From" />
         <Input size="large" placeholder="To" />
 
-        <DatePicker className="w-full h-[60px]" />
+        <DatePicker className="w-full h-15" />
 
         <Select
           size="large"

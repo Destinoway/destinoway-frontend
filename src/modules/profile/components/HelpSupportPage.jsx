@@ -44,7 +44,7 @@ export default function HelpSupportPage() {
   return (
     <>
       <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-4 text-gray-900">
-        <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
+        <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-normal text-gray-900">
           Help & Support
         </h2>
       </div>
@@ -77,9 +77,9 @@ export default function HelpSupportPage() {
                 </p>
               ),
 
-              className: "!border-b !border-gray-200 last:!border-b-0",
+              className: "border-b! border-gray-200! last:border-b-0!",
             }))}
-            className="help-support-collapse bg-transparent [&_.ant-collapse-content-box]:!px-5 [&_.ant-collapse-content-box]:!pt-0 [&_.ant-collapse-content-box]:!pb-5 md:[&_.ant-collapse-content-box]:!px-6 [&_.ant-collapse-header]:!items-center [&_.ant-collapse-header]:!px-5 [&_.ant-collapse-header]:!py-5 md:[&_.ant-collapse-header]:!px-6"
+            className="help-support-collapse bg-transparent [&_.ant-collapse-content-box]:px-5! [&_.ant-collapse-content-box]:pt-0! [&_.ant-collapse-content-box]:pb-5! md:[&_.ant-collapse-content-box]:px-6! [&_.ant-collapse-header]:items-center! [&_.ant-collapse-header]:px-5! [&_.ant-collapse-header]:py-5! md:[&_.ant-collapse-header]:px-6!"
           />
         </div>
 
@@ -87,7 +87,7 @@ export default function HelpSupportPage() {
         <div className="mt-6 overflow-hidden rounded border border-gray-200 bg-white shadow-[1px_4px_4px_4px_#00000014]">
           {/* HEADER */}
           <div className="border-b border-gray-200 px-5 py-4 md:px-6">
-            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
+            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-normal text-gray-900">
               Contact Support
             </h2>
           </div>

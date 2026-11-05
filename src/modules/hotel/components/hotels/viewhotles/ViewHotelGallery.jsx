@@ -44,7 +44,7 @@ const ViewHotelGallery = ({ images = [], onOpen }) => {
     return (
       <div
         onClick={onOpen}
-        className="relative h-full min-h-[360px] w-full cursor-pointer overflow-hidden rounded-xl"
+        className="relative h-full min-h-90 w-full cursor-pointer overflow-hidden rounded-xl"
       >
         <Image
           src={fallbackImage}
@@ -59,7 +59,7 @@ const ViewHotelGallery = ({ images = [], onOpen }) => {
   }
 
   return (
-    <div className="grid h-full min-h-[360px] w-full grid-cols-[1.35fr_1.65fr] gap-2 overflow-hidden rounded-xl">
+    <div className="grid h-full min-h-90 w-full grid-cols-[1.35fr_1.65fr] gap-2 overflow-hidden rounded-xl">
       {/* Main Image */}
       <div
         onClick={onOpen}
@@ -74,7 +74,7 @@ const ViewHotelGallery = ({ images = [], onOpen }) => {
           className="object-cover transition-transform duration-500 hover:scale-105"
         />
 
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/25 via-transparent to-transparent" />
       </div>
 
       {/* Small Images */}

@@ -60,7 +60,7 @@ export default function HotelDetailsDesktop({
 
       <div
         className={`relative mx-auto w-full max-w-7xl px-3 sm:px-4 md:px-5 lg:px-6 xl:px-4 ${
-          isScrolled ? "z-0" : "z-[820]"
+          isScrolled ? "z-0" : "z-820"
         }`}
       >
         {!showSkeleton && detailError ? (
@@ -86,8 +86,8 @@ export default function HotelDetailsDesktop({
             <HotelDetailsSkeleton />
           ) : (
             <Card
-              className="overflow-visible rounded-md border-0 shadow-lg"
-              styles={{ body: { padding: 20 } }}
+              className="overflow-visible rounded-2xl border border-gray-200 shadow-[0_8px_30px_rgba(15,23,42,0.08)]"
+              styles={{ body: { padding: 24 } }}
             >
               <div className="flex min-w-0 items-start justify-between gap-3 lg:gap-4">
                 <div className="min-w-0 flex-1">
@@ -148,18 +148,18 @@ export default function HotelDetailsDesktop({
 
               <div className="mt-5 grid w-full grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] lg:gap-5">
                 <div className="min-w-0 self-start">
-                  <div className="w-full overflow-hidden rounded-md">
+                  <div className="w-full overflow-hidden rounded-xl">
                     <ViewHotelGallery
                       images={hotelImages}
                       onOpen={() => setIsGalleryOpen(true)}
                     />
                   </div>
 
-                  <div className="mt-5 w-full lg:mt-6">
+                  <div className="mt-4 w-full">
                     <ViewHotelTabs supplierData={supplierData} />
                   </div>
 
-                  <div className="mt-5 w-full lg:mt-6">
+                  <div className="mt-4 w-full">
                     <ViewHotelInfo supplierData={supplierData} />
                   </div>
                 </div>
@@ -176,7 +176,7 @@ export default function HotelDetailsDesktop({
                     />
                   </div>
 
-                  <div className="mt-5 w-full lg:mt-6">
+                  <div className="mt-4 w-full">
                     <ViewHotelLocation supplierData={supplierData} />
                   </div>
                 </div>
@@ -189,14 +189,14 @@ export default function HotelDetailsDesktop({
 
         {!showSkeleton && (
           <>
-            <div className="mt-3 lg:mt-6">
+            <div className="mt-6">
               <HotelSectionsTabs
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
               />
             </div>
 
-            <div className="mt-0">
+            <div className="mt-4">
               <HotelSectionsContent
                 activeTab={activeTab}
                 supplierData={supplierData}
@@ -216,16 +216,21 @@ export default function HotelDetailsDesktop({
               />
             </div>
 
-            <HotelCmsSection>
-              {cms ? (
-                <CMSContentRenderer cms={cms} />
-              ) : (
-                <DynamicHotelSeoFallback
-                  hotelName={hotel?.name}
-                  cityName={location?.city}
-                />
-              )}
-            </HotelCmsSection>
+            {/* Only render the section when there is something to show;
+                the fallback returns null without a hotel name. */}
+            {(cms || hotel?.name || supplierData?.HotelName) && (
+              <HotelCmsSection>
+                {cms ? (
+                  <CMSContentRenderer cms={cms} />
+                ) : (
+                  <DynamicHotelSeoFallback
+                    hotelName={hotel?.name || supplierData?.HotelName}
+                    cityName={location?.city || supplierData?.City}
+                    amenities={amenities}
+                  />
+                )}
+              </HotelCmsSection>
+            )}
 
             {/* Temporarily disabled to prevent its extra hotel search during testing.
             <RelatedHotels

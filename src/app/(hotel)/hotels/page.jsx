@@ -8,7 +8,7 @@ import { buildCmsMetadata } from "@/modules/cms/seo/cmsSeo";
 import { fetchCityCms } from "@/modules/cms/services/cmsFetch";
 import HotelContent from "@/modules/hotel/pages/Hotel";
 import { Suspense } from "react";
-import { getSiteUrl } from "@/modules/cms/utils/seoUrl";
+import { buildPageTitle, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 export async function generateMetadata({ searchParams }) {
   const query = await searchParams;
@@ -47,7 +47,7 @@ export async function generateMetadata({ searchParams }) {
 
   return {
     metadataBase: new URL(siteUrl),
-    title: buildHotelTitle(cityName),
+    title: buildPageTitle(buildHotelTitle(cityName)),
     description: buildHotelDescription(cityName),
     keywords: buildHotelKeywords(cityName),
     alternates: {
@@ -71,7 +71,7 @@ export async function generateMetadata({ searchParams }) {
       title: buildHotelTitle(cityName),
       description: buildHotelDescription(cityName),
       url: canonical,
-      siteName: "Destonoway",
+      siteName: "Destinoway",
       type: "website",
     },
   };
@@ -88,8 +88,13 @@ export default async function Page({ searchParams }) {
   const cms = citySlug ? await fetchCityCms(citySlug) : null;
 
   return (
-    <Suspense fallback={<BookingWebsiteLoader />}>
-      <HotelContent cms={cms} />
-    </Suspense>
+    <>
+      <h1 className="sr-only">
+        {cityName ? `Hotels in ${cityName}` : "Book Hotels Online"}
+      </h1>
+      <Suspense fallback={<BookingWebsiteLoader />}>
+        <HotelContent cms={cms} />
+      </Suspense>
+    </>
   );
 }

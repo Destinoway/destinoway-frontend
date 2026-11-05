@@ -16,8 +16,12 @@ import {
 
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
+
+const subscribeToMount = () => () => {};
+const getClientMounted = () => true;
+const getServerMounted = () => false;
 
 export default function DesktopDateRangeField({
   value,
@@ -35,7 +39,11 @@ export default function DesktopDateRangeField({
 
   const [activeField, setActiveField] = useState(null);
   const [calendarKey, setCalendarKey] = useState(0);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribeToMount,
+    getClientMounted,
+    getServerMounted,
+  );
 
   const fieldRef = useRef(null);
   const popupRef = useRef(null);
@@ -44,10 +52,6 @@ export default function DesktopDateRangeField({
     top: 0,
     left: 0,
   });
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const updatePopupPosition = () => {
     if (!fieldRef.current) return;
@@ -316,7 +320,7 @@ export default function DesktopDateRangeField({
         >
           <ChevronLeft
             size={17}
-            className="sm:h-[19px] sm:w-[19px]"
+            className="sm:h-4.75 sm:w-4.75"
             strokeWidth={2.5}
           />
         </Button>
@@ -330,7 +334,7 @@ export default function DesktopDateRangeField({
         >
           <ChevronRight
             size={17}
-            className="sm:h-[19px] sm:w-[19px]"
+            className="sm:h-4.75 sm:w-4.75"
             strokeWidth={2.5}
           />
         </Button>
@@ -369,13 +373,13 @@ export default function DesktopDateRangeField({
     createPortal(
       <>
         <div
-          className="fixed inset-0 z-[9999999998]"
+          className="fixed inset-0 z-9999999998"
           onClick={handleClose}
         />
 
         <div
           ref={popupRef}
-          className="fixed z-[9999999999] w-[720px] max-w-[calc(100vw-16px)] -translate-x-1/2 rounded-xl border border-gray-200 bg-white p-3 shadow-2xl sm:p-4"
+          className="fixed z-9999999999 w-180 max-w-[calc(100vw-16px)] -translate-x-1/2 rounded-xl border border-gray-200 bg-white p-3 shadow-2xl sm:p-4"
           style={{
             top: `${popupPosition.top}px`,
             left: `${popupPosition.left}px`,
@@ -417,7 +421,7 @@ export default function DesktopDateRangeField({
       <>
         <div ref={fieldRef} className="relative w-full">
           <div
-            className="relative h-[51px] w-full cursor-pointer rounded-[6px] border-0 bg-white px-2 sm:px-3"
+            className="relative h-12.75 w-full cursor-pointer rounded-md border-0 bg-white px-2 sm:px-3"
             onClick={handleOpen}
           >
             <div className="flex h-full w-full items-center gap-1 sm:gap-2">
@@ -438,7 +442,7 @@ export default function DesktopDateRangeField({
                   Check In
                 </span>
 
-                <div className="mt-[2px] flex items-center gap-1">
+                <div className="mt-0.5 flex items-center gap-1">
                   <span className="text-[16px] leading-none font-bold text-[#222] sm:text-[17px]">
                     {start.format("DD")}
                   </span>
@@ -472,7 +476,7 @@ export default function DesktopDateRangeField({
                   Check Out
                 </span>
 
-                <div className="mt-[2px] flex items-center gap-1">
+                <div className="mt-0.5 flex items-center gap-1">
                   <span className="text-[16px] leading-none font-bold text-[#222] sm:text-[17px]">
                     {end.format("DD")}
                   </span>
@@ -517,7 +521,7 @@ export default function DesktopDateRangeField({
 
       <div ref={fieldRef} className="relative w-full">
         <div
-          className="flex h-[60px] w-full cursor-pointer items-center rounded-md border border-[#d9d9d9] bg-white px-2 py-2 transition-all hover:border-[#0077b6] sm:h-[62px] sm:px-2 sm:py-3 lg:h-[65px]"
+          className="flex h-15 w-full cursor-pointer items-center rounded-md border border-[#d9d9d9] bg-white px-2 py-2 transition-all hover:border-[#0077b6] sm:h-15.5 sm:px-2 sm:py-3 lg:h-16.25"
           onClick={handleOpen}
         >
           {icon && (

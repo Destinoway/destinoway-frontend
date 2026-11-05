@@ -4,21 +4,25 @@ import NewsletterSection from "@/modules/shared/home/components/NewsletterSectio
 import ContactFormSection from "@/modules/shared/pages/contact-us/contactcontant";
 import ContactSection from "@/modules/shared/pages/contact-us/contacthero";
 import ContactMapSection from "@/modules/shared/pages/contact-us/ContactMapSection";
-import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
+import {
+  buildPageTitle,
+  getRobotsMetadata,
+  getSiteUrl,
+} from "@/modules/cms/utils/seoUrl";
 
 export async function generateMetadata() {
   const contactUsCms = await fetchCmsBySlug("contact-us");
 
   const siteUrl = getSiteUrl();
   const title =
-    contactUsCms?.metaTitle || "Contact Destonoway | Travel Booking Support";
+    contactUsCms?.metaTitle || "Contact Destinoway | Travel Booking Support";
   const description =
     contactUsCms?.metaDescription ||
-    "Contact Destonoway for help with hotel bookings, travel services and customer support.";
+    "Contact Destinoway for help with hotel bookings, travel services and customer support.";
 
   return {
     metadataBase: new URL(siteUrl),
-    title,
+    title: buildPageTitle(title),
     description,
     keywords: contactUsCms?.keywords,
 

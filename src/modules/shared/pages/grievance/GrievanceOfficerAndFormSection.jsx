@@ -5,7 +5,7 @@ import RHFSelect from "@/components/ui/RHFinputs/RHFSelect";
 import RHFTextarea from "@/components/ui/RHFinputs/RHFTextarea";
 import { useAuthModalStore } from "@/modules/auth/store/authModal.store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { message } from "antd";
+import { App } from "antd";
 import { FormProvider, useForm } from "react-hook-form";
 import { useCreateGrievance } from "./hooks/useGrievance";
 import { grievanceSchema } from "./schema/grievanceSchema";
@@ -38,6 +38,7 @@ const grievanceCategories = [
 ];
 
 export default function GrievanceOfficerAndFormSection() {
+  const { message } = App.useApp();
   const methods = useForm({
     resolver: zodResolver(grievanceSchema),
     mode: "onSubmit",
@@ -113,7 +114,7 @@ export default function GrievanceOfficerAndFormSection() {
   const onError = () => {};
   return (
     <section className="bg-[#eef5fa] py-12 lg:py-16">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
+      <div className="mx-auto max-w-350 px-4 sm:px-6">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.2fr] lg:gap-8">
           <div className="rounded bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.06)] lg:p-8">
             <div className="mb-6">

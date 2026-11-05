@@ -14,12 +14,13 @@ import {
   CheckCircleOutlined,
   EnvironmentOutlined,
 } from "@ant-design/icons";
-import { Button, Card, Empty, message, Tag } from "antd";
+import { App, Button, Card, Empty, Tag } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import WishlistSkeleton from "../../lodding/WishlistSkeleton";
 
 export default function WishlistDetailTab() {
+  const { message } = App.useApp();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [removingHotelId, setRemovingHotelId] = useState(null);
@@ -122,7 +123,7 @@ export default function WishlistDetailTab() {
 
   if (isLoading) {
     return (
-      <div className="mt-[-17px] p-2 sm:p-3 md:p-4">
+      <div className="-mt-4.25 p-2 sm:p-3 md:p-4">
         <div className="mb-2 bg-white px-4 py-2 shadow-sm">
           <div className="h-7 w-32 animate-pulse rounded bg-gray-200" />
         </div>
@@ -168,7 +169,7 @@ export default function WishlistDetailTab() {
       {/* HEADER */}
 
       <div className="font-roboto! flex items-center justify-between border-b border-gray-200 bg-white px-4! py-4! text-gray-900">
-        <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
+        <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-normal text-gray-900">
           WishList Details
         </h2>
         <button
@@ -179,7 +180,7 @@ export default function WishlistDetailTab() {
         </button>
       </div>
       <div className="flex justify-between rounded bg-white p-3 shadow-sm">
-        <h2 className="font-roboto! mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
+        <h2 className="font-roboto! mb-0! text-[20px] leading-[100%] font-semibold tracking-normal text-gray-900">
           {hotels?.[0]?.cityName}
         </h2>
 
@@ -205,7 +206,7 @@ export default function WishlistDetailTab() {
           >
             <div className="flex flex-col gap-5 lg:flex-row">
               {/* IMAGE */}
-              <div className="h-[160px] w-full overflow-hidden rounded lg:w-[200px]">
+              <div className="h-40 w-full overflow-hidden rounded lg:w-50">
                 <img
                   src={hotel.hotelImage}
                   alt={hotel.hotelName}
@@ -253,7 +254,7 @@ export default function WishlistDetailTab() {
                 </div>
 
                 {/* RIGHT */}
-                <div className="flex min-w-[180px] flex-col items-end justify-between">
+                <div className="flex min-w-45 flex-col items-end justify-between">
                   <div className="text-right">
                     <p className="font-jost text-red-500 mb-0! text-[22px] font-bold">
                       {hotel.currencySymbol} {hotel.savedPrice}

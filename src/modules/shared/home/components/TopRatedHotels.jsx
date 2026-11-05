@@ -122,7 +122,7 @@ export default function TopRatedHotels({ hotels }) {
     <div
       onClick={() => handleSearch(hotel)}
       key={hotel._id}
-      className="flex w-1/2 flex-shrink-0 px-1 md:w-1/3 lg:w-1/4 xl:w-1/5"
+      className="flex w-1/2 shrink-0 px-1 md:w-1/3 lg:w-1/4 xl:w-1/5"
     >
       <Card
         hoverable
@@ -133,7 +133,7 @@ export default function TopRatedHotels({ hotels }) {
         }}
         className="flex h-full w-full flex-col overflow-hidden rounded-xl border-0 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
         cover={
-          <div className="relative h-[180px] overflow-hidden sm:h-[180px] md:h-[210px] lg:h-[240px]">
+          <div className="relative h-45 overflow-hidden sm:h-45 md:h-52.5 lg:h-60">
             <Image
               src={hotel.image}
               alt={hotel.alt || hotel.name}
@@ -161,7 +161,7 @@ export default function TopRatedHotels({ hotels }) {
   );
 
   return (
-    <div className="background-color-bg !mt-[-10px] px-0 py-8 md:py-12">
+    <div className="background-color-bg -mt-2.5! px-0 py-8 md:py-12">
       <div className="teb-gradient mx-auto w-full rounded-lg px-0 py-10 sm:rounded-xl sm:px-0 md:rounded-2xl md:px-8 md:py-14 lg:w-[85.87%] lg:rounded-3xl lg:px-8 xl:px-10">
         {/* HEADING */}
         <div className="mb-8 text-center text-white md:mb-10">

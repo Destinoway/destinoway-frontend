@@ -17,13 +17,13 @@ export default function ImageContentBlock({ data }) {
           {/* IMAGE */}
           <div className={`w-full ${isRight ? "lg:order-2" : "lg:order-1"}`}>
             {data?.image && (
-              <div className="w-full overflow-hidden rounded-[18px] sm:rounded-[22px] lg:rounded-[24px]">
+              <div className="w-full overflow-hidden rounded-[18px] sm:rounded-[22px] lg:rounded-3xl">
                 <Image
                   src={encodeURI(data.image)}
                   alt={data?.imageAlt || data?.title || ""}
                   width={1200}
                   height={700}
-                  className="block h-auto max-h-[420px] w-full object-cover shadow-[0_15px_40px_rgba(15,23,42,0.12)] sm:max-h-[460px] lg:max-h-[520px]"
+                  className="block h-auto max-h-105 w-full object-cover shadow-[0_15px_40px_rgba(15,23,42,0.12)] sm:max-h-115 lg:max-h-130"
                 />
               </div>
             )}
@@ -52,7 +52,7 @@ export default function ImageContentBlock({ data }) {
             {data?.buttonText && (
               <Link
                 href={data?.buttonLink || "#"}
-                className="buttion-background-color mt-6 inline-flex h-[46px] min-w-[150px] items-center justify-center rounded-[10px] px-5 text-[14px] font-semibold !text-white no-underline shadow-[0_10px_25px_rgba(37,99,235,0.18)] transition-all duration-200 hover:-translate-y-0.5 sm:mt-7 sm:h-[50px] sm:min-w-[170px] sm:rounded-[12px] sm:px-6 sm:text-[15px]"
+                className="buttion-background-color mt-6 inline-flex h-11.5 min-w-37.5 items-center justify-center rounded-[10px] px-5 text-[14px] font-semibold text-white! no-underline shadow-[0_10px_25px_rgba(37,99,235,0.18)] transition-all duration-200 hover:-translate-y-0.5 sm:mt-7 sm:h-12.5 sm:min-w-42.5 sm:rounded-xl sm:px-6 sm:text-[15px]"
               >
                 {data.buttonText}
               </Link>

@@ -54,7 +54,7 @@ export default function ContactSection() {
   return (
     <section className="relative">
       {/* Hero Banner */}
-      <div className="relative h-[321px] w-full overflow-hidden">
+      <div className="relative h-80.25 w-full overflow-hidden">
         <Image
           src="/images/concacthero.jpg"
           alt="Contact Banner"
@@ -69,14 +69,14 @@ export default function ContactSection() {
 
         {/* Content */}
         <div className="absolute inset-0 z-20 flex items-center">
-          <div className="mx-auto w-full max-w-[1400px] px-6 md:px-10 lg:px-16">
-            <div className="max-w-[600px]">
+          <div className="mx-auto w-full max-w-350 px-6 md:px-10 lg:px-16">
+            <div className="max-w-150">
               <h1 className="text-[32px] leading-tight font-bold text-white md:text-[42px] lg:text-[52px]">
                 Contact Us
               </h1>
 
               <p className="mt-3 text-[15px] leading-relaxed text-white/90 md:text-[17px] lg:text-[18px]">
-                We're here to help with your bookings, travel plans, and any
+                We&apos;re here to help with your bookings, travel plans, and any
                 questions you may have. Reach out to our support team anytime.
               </p>
             </div>
@@ -85,7 +85,7 @@ export default function ContactSection() {
       </div>
 
       {/* Contact Cards */}
-      <div className="absolute top-[280px] left-1/2 z-30 w-full max-w-[1400px] -translate-x-1/2 px-3">
+      <div className="absolute top-70 left-1/2 z-30 w-full max-w-350 -translate-x-1/2 px-3">
         {/* Mobile Scroll */}
         <div className="scrollbar-hide overflow-x-auto min-[951px]:overflow-visible">
           <div className="flex gap-4 min-[951px]:grid min-[951px]:grid-cols-4 md:gap-6">
@@ -97,7 +97,7 @@ export default function ContactSection() {
                   key={index}
                   href={card.href}
                   target={card.target}
-                  className="group block min-w-[300px] shrink-0 min-[951px]:min-w-0"
+                  className="group block min-w-75 shrink-0 min-[951px]:min-w-0"
                 >
                   <div
                     className={`rounded-md bg-white px-4 py-3 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl md:px-5 ${

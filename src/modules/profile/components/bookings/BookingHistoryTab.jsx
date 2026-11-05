@@ -124,7 +124,7 @@ export default function BookingHistoryTab() {
           <h2 className="font-roboto mb-0! text-[22px] leading-tight font-semibold text-white!">
             My Bookings
           </h2>
-          <p className="mb-0! text-[13px] !text-white/75">
+          <p className="mb-0! text-[13px] text-white/75!">
             {counts.all} booking{counts.all !== 1 ? "s" : ""} •{" "}
             {counts.confirmed} confirmed • {counts.pending} awaiting payment
           </p>
@@ -167,7 +167,7 @@ export default function BookingHistoryTab() {
               onChange={(e) => setSearch(e.target.value)}
               prefix={<SearchOutlined className="text-gray-400" />}
               placeholder="Search hotel, city or booking ID"
-              className="h-10 rounded-lg [&_.ant-input]:!border-0 [&_.ant-input]:!shadow-none [&_.ant-input]:focus:!shadow-none"
+              className="h-10 rounded-lg [&_.ant-input]:border-0! [&_.ant-input]:shadow-none! [&_.ant-input]:focus:shadow-none!"
             />
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function BookingHistoryTab() {
                       {item.hotelName}
                     </h3>
                     <span
-                      className={`rounded-full border px-3 py-[2px] text-[12px] font-semibold ${STATUS_TONE_CLASSES[item.status.tone]}`}
+                      className={`rounded-full border px-3 py-0.5 text-[12px] font-semibold ${STATUS_TONE_CLASSES[item.status.tone]}`}
                     >
                       {item.status.label}
                     </span>
@@ -211,7 +211,7 @@ export default function BookingHistoryTab() {
                       {Array.from({ length: item.rating }).map((_, i) => (
                         <StarFilled
                           key={i}
-                          className="text-[13px] !text-[#fda20f]"
+                          className="text-[13px] text-[#fda20f]!"
                         />
                       ))}
                     </div>
@@ -235,7 +235,7 @@ export default function BookingHistoryTab() {
                     `/profile?tab=booking-details&bookingRefNo=${encodeURIComponent(item.bookingRefNo)}`,
                   )
                 }
-                className="buttion-background-color flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg px-5 text-[14px]! font-semibold text-white! transition-all md:w-[150px]"
+                className="buttion-background-color flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg px-5 text-[14px]! font-semibold text-white! transition-all md:w-37.5"
               >
                 View Booking
                 <ArrowRightOutlined />
@@ -271,7 +271,7 @@ export default function BookingHistoryTab() {
                 <p className="mb-1 text-[11px] tracking-wide text-gray-500 uppercase">
                   Duration
                 </p>
-                <span className="inline-flex items-center gap-1 rounded-full border border-[#fda20f] px-3 py-[2px] text-[13px] font-medium text-[#05144b]">
+                <span className="inline-flex items-center gap-1 rounded-full border border-[#fda20f] px-3 py-0.5 text-[13px] font-medium text-[#05144b]">
                   <ClockCircleOutlined />
                   {item.nights} Night{item.nights > 1 ? "s" : ""}
                 </span>

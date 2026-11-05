@@ -5,9 +5,10 @@ import {
   ShareAltOutlined,
   WhatsAppOutlined,
 } from "@ant-design/icons";
-import { Modal, message } from "antd";
+import { App, Modal } from "antd";
 
 export default function ShareBookingModal({ open, onClose, shareText }) {
+  const { message } = App.useApp();
   const handleWhatsApp = () => {
     const text = encodeURIComponent(shareText);
 
@@ -56,7 +57,7 @@ export default function ShareBookingModal({ open, onClose, shareText }) {
           {/* WhatsApp */}
           <button
             onClick={handleWhatsApp}
-            className="flex h-[110px] flex-col items-center justify-center rounded-xl border border-green-200 bg-green-50 transition-all hover:bg-green-100"
+            className="flex h-27.5 flex-col items-center justify-center rounded-xl border border-green-200 bg-green-50 transition-all hover:bg-green-100"
           >
             <WhatsAppOutlined className="text-[30px] text-green-600" />
 
@@ -68,7 +69,7 @@ export default function ShareBookingModal({ open, onClose, shareText }) {
           {/* Copy */}
           <button
             onClick={handleCopyDetails}
-            className="flex h-[110px] flex-col items-center justify-center rounded-xl border border-[#d9ecf8] bg-[#edf7ff] transition-all hover:bg-[#d9f1ff]"
+            className="flex h-27.5 flex-col items-center justify-center rounded-xl border border-[#d9ecf8] bg-[#edf7ff] transition-all hover:bg-[#d9f1ff]"
           >
             <CopyOutlined className="text-[30px] text-[#3b82b6]" />
 

@@ -19,7 +19,7 @@ export default function ImageGallery({ images = [], fallbackImage = "" }) {
       <div className="w-full shrink-0">
         {/* MAIN IMAGE */}
         <div
-          className="h-[180px] w-full cursor-pointer overflow-hidden rounded-t-xl"
+          className="h-45 w-full cursor-pointer overflow-hidden rounded-t-xl"
           onClick={() => setOpen(true)}
         >
           <img
@@ -38,7 +38,7 @@ export default function ImageGallery({ images = [], fallbackImage = "" }) {
             return (
               <div
                 key={i}
-                className="relative h-[60px] w-full cursor-pointer overflow-hidden rounded-md"
+                className="relative h-15 w-full cursor-pointer overflow-hidden rounded-md"
                 onClick={() => setOpen(true)}
               >
                 <img
@@ -70,7 +70,7 @@ export default function ImageGallery({ images = [], fallbackImage = "" }) {
       >
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {images.map((img, i) => (
-            <div key={i} className="h-[200px] w-full">
+            <div key={i} className="h-50 w-full">
               <img
                 src={img}
                 alt="gallery"

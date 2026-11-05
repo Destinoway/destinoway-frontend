@@ -133,18 +133,18 @@ export default function HotelBookingSuccess() {
 
   return (
     <div className="background-color-bg min-h-screen px-4 py-8! md:px-6">
-      <div className="mx-auto flex max-w-[1180px] flex-col gap-6">
+      <div className="mx-auto flex max-w-295 flex-col gap-6">
         {/* SUCCESS HEADER */}
         <Card className="overflow-hidden rounded border-0 shadow-xl">
           {/* Top Success */}
-          <div className="bg-gradient-to-r from-[#0f766e] via-[#1d9d90] to-[#3bb7ab] px-8 py-14 text-center text-white">
+          <div className="bg-linear-to-r from-[#0f766e] via-[#1d9d90] to-[#3bb7ab] px-8 py-14 text-center text-white">
             <CheckCircleFilled className="text-[70px] md:text-[90px]" />
 
             <h1 className="mt-5 text-3xl font-bold md:text-5xl">
               Booking Confirmed
             </h1>
 
-            <p className="mx-auto mt-3 max-w-[700px] text-[15px] text-white/90">
+            <p className="mx-auto mt-3 max-w-175 text-[15px] text-white/90">
               Your hotel booking has been successfully confirmed. Booking
               confirmation and hotel voucher have been sent to your registered
               email address.
@@ -199,7 +199,7 @@ export default function HotelBookingSuccess() {
                 <img
                   src={hotel?.HotelImage}
                   alt="hotel"
-                  className="h-[220px] w-full rounded-xl object-cover sm:h-[170px] sm:w-[180px] sm:shrink-0 lg:h-[180px] lg:w-[220px]"
+                  className="h-55 w-full rounded-xl object-cover sm:h-42.5 sm:w-45 sm:shrink-0 lg:h-45 lg:w-55"
                 />
                 <div>
                   <h3 className="font-roboto! text-[22px] leading-tight font-bold font-semibold! text-gray-900 md:text-[28px]">
@@ -259,8 +259,8 @@ export default function HotelBookingSuccess() {
 
             {/* CENTER */}
             <div className="flex flex-col items-center justify-center p-5 md:p-6">
-              <div className="relative flex w-full max-w-[120px] items-center justify-center">
-                <div className="h-[1px] w-full bg-gray-300" />
+              <div className="relative flex w-full max-w-30 items-center justify-center">
+                <div className="h-px w-full bg-gray-300" />
 
                 <span className="absolute bg-white px-3 text-[#72C0F0]">
                   <ArrowRightOutlined className="text-[24px]" />
@@ -300,7 +300,7 @@ export default function HotelBookingSuccess() {
         <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-lg">
           {/* HEADER */}
           <div className="border-b border-gray-200 px-3 py-4 md:px-3">
-            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
+            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-normal text-gray-900">
               Room & Booking Info
             </h2>
           </div>
@@ -320,7 +320,7 @@ export default function HotelBookingSuccess() {
 
             <div className="mt-5 md:mt-5">
               {/* ROOM TYPE */}
-              <h3 className="font-roboto mt-4 text-[18px] leading-[30px] font-semibold text-gray-900">
+              <h3 className="font-roboto mt-4 text-[18px] leading-7.5 font-semibold text-gray-900">
                 {ratePlan?.HotelRoomTypeDesc}
               </h3>
 
@@ -406,7 +406,7 @@ export default function HotelBookingSuccess() {
                   </h4>
 
                   <p className="mb-0! text-[13px] text-[#72C0F0]">
-                    via Destonoway
+                    via Destinoway
                   </p>
                 </div>
 
@@ -429,7 +429,7 @@ export default function HotelBookingSuccess() {
 
         <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-lg">
           <div className="border-b border-gray-200 px-3 py-4 md:px-3">
-            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
+            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-normal text-gray-900">
               Guest Details
             </h2>
           </div>
@@ -442,7 +442,7 @@ export default function HotelBookingSuccess() {
                 className="flex items-start gap-4 border-b border-gray-200 px-5 py-5 last:border-0 md:px-6"
               >
                 {/* AVATAR */}
-                <div className="h-[52px]md:w-[56px] flex w-[52px] shrink-0 items-center justify-center rounded-full border border-[#d9ecf8] bg-[#edf7ff] text-[15px] font-bold text-[#3b82b6] md:h-[56px] md:text-[16px]">
+                <div className="h-[52px]md:w-[56px] flex w-13 shrink-0 items-center justify-center rounded-full border border-[#d9ecf8] bg-[#edf7ff] text-[15px] font-bold text-[#3b82b6] md:h-14 md:text-[16px]">
                   {`${guest?.FirstName?.[0] || ""}${guest?.LastName?.[0] || ""}`}
                 </div>
 
@@ -450,12 +450,12 @@ export default function HotelBookingSuccess() {
                 <div className="min-w-0 flex-1">
                   {/* NAME + ROLE */}
                   <div className="flex flex-col sm:flex-row sm:items-center">
-                    <h3 className="text-[17px] font-bold break-words text-gray-900 md:text-[16px]">
+                    <h3 className="text-[17px] font-bold wrap-break-word text-gray-900 md:text-[16px]">
                       {guest?.Title} {guest?.FirstName} {guest?.LastName}
                     </h3>
 
                     {guest.role && (
-                      <span className="ml-[25px] w-fit rounded-full bg-[#edf7ff] px-2.5 py-[3px] !text-[11px] font-medium !text-[#3b82b6]">
+                      <span className="ml-6.25 w-fit rounded-full bg-[#edf7ff] px-2.5 py-0.75 text-[11px]! font-medium text-[#3b82b6]!">
                         {guest?.Passengertyp}
                       </span>
                     )}
@@ -479,7 +479,7 @@ export default function HotelBookingSuccess() {
 
         <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-lg">
           <div className="border-b border-gray-200 px-3 py-4 md:px-3">
-            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
+            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-normal text-gray-900">
               Price Breakup
             </h2>
           </div>
@@ -559,7 +559,7 @@ export default function HotelBookingSuccess() {
                       <span className="text-[13px] text-gray-500">Status:</span>
 
                       <span
-                        className={`rounded-full px-2 py-[2px] text-[12px] font-medium ${
+                        className={`rounded-full px-2 py-0.5 text-[12px] font-medium ${
                           bookingData?.paymentStatus === "paid"
                             ? "bg-green-100 text-green-700"
                             : "bg-orange-100 text-orange-700"
@@ -605,7 +605,7 @@ export default function HotelBookingSuccess() {
         <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-lg">
           {/* HEADER */}
           <div className="border-b border-gray-200 px-3 py-4 md:px-3">
-            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
+            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-normal text-gray-900">
               Cancellation Policy
             </h2>
           </div>
@@ -622,7 +622,7 @@ export default function HotelBookingSuccess() {
                         className="rounded-xl border border-[#d9ecf8] bg-[#fafcff] p-4"
                       >
                         <div className="flex items-start gap-3">
-                          <CheckCircleFilled className="mt-0.5 !text-[18px] !text-[#22c55e]" />
+                          <CheckCircleFilled className="mt-0.5 text-[18px]! text-[#22c55e]!" />
 
                           <p className="font-roboto! mb-0! text-[14px] leading-6 font-medium text-gray-800 md:text-[15px]">
                             {item}
@@ -638,7 +638,7 @@ export default function HotelBookingSuccess() {
                       className="rounded-xl border border-[#d9ecf8] bg-[#fafcff] p-4 transition hover:border-[#72C0F0]"
                     >
                       <div className="flex items-start gap-3">
-                        <CheckCircleFilled className="mt-0.5 shrink-0 !text-[18px] !text-[#22c55e]" />
+                        <CheckCircleFilled className="mt-0.5 shrink-0 text-[18px]! text-[#22c55e]!" />
 
                         <div className="flex w-full flex-col gap-4 md:flex-row md:items-start md:justify-between">
                           <div>
@@ -672,7 +672,7 @@ export default function HotelBookingSuccess() {
               ) : (
                 <div className="rounded-xl border border-green-200 bg-green-50 p-4">
                   <div className="flex items-start gap-3">
-                    <CheckCircleFilled className="mt-0.5 !text-[18px] !text-green-600" />
+                    <CheckCircleFilled className="mt-0.5 text-[18px]! text-green-600!" />
 
                     <p className="font-roboto! mb-0! text-[15px] font-medium text-green-700">
                       No cancellation policy available.
@@ -694,7 +694,7 @@ export default function HotelBookingSuccess() {
 
         <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-lg">
           <div className="border-b border-gray-200 px-3 py-4 md:px-3">
-            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
+            <h2 className="font-roboto mb-0! text-[20px] leading-[100%] font-semibold tracking-normal text-gray-900">
               Hotel Facilities
             </h2>
           </div>
@@ -727,7 +727,7 @@ export default function HotelBookingSuccess() {
             disabled
             icon={<DownloadOutlined />}
             size="large"
-            className="!h-[50px] !rounded"
+            className="h-12.5! rounded!"
           >
             Voucher PDF Coming Soon
           </Button>
@@ -736,7 +736,7 @@ export default function HotelBookingSuccess() {
             type="primary"
             icon={<HomeOutlined />}
             size="large"
-            className="!h-[50px] !rounded !bg-[#0f766e]"
+            className="h-12.5! rounded! bg-[#0f766e]!"
             onClick={() => {
               clearBookingData();
               router.push("/");

@@ -1,6 +1,6 @@
 "use client";
 
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, get, useFormContext } from "react-hook-form";
 import AppSelect from "../inputs/AppSelect";
 
 export default function RHFSelect({ name, ...props }) {
@@ -19,7 +19,7 @@ export default function RHFSelect({ name, ...props }) {
           {...props}
           value={field.value || undefined}
           onChange={(value) => field.onChange(value)}
-          error={errors?.[name]?.message}
+          error={get(errors, name)?.message}
         />
       )}
     />

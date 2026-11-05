@@ -85,7 +85,7 @@ function GuestsField({
 
   const content = (
     <div
-      className={`bg-white ${isMobile ? "w-full px-4 pt-1" : "w-[390px] rounded-xl p-4"}`}
+      className={`bg-white ${isMobile ? "w-full px-4 pt-1" : "w-97.5 rounded-xl p-4"}`}
       onClick={(event) => event.stopPropagation()}
     >
       {/* The mobile drawer already shows the title in its header. */}

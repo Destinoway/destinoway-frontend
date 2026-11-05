@@ -17,7 +17,10 @@ const formatAmount = (value) =>
     maximumFractionDigits: 2,
   });
 
-export default function RoomPriceBreakdown({ pricing = {} }) {
+export default function RoomPriceBreakdown({
+  pricing = {},
+  variant = "stacked",
+}) {
   const price = pricing?.priceDetails || pricing || {};
   const currency = pricing?.currency || price?.currency || "INR";
   const currencySymbol =
@@ -43,23 +46,76 @@ export default function RoomPriceBreakdown({ pricing = {} }) {
     (couponDiscount !== null && couponDiscount > 0),
   );
 
+  // Single-row layout used in the room details modal footer.
+  if (variant === "inline") {
+    return (
+      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        {hasCoupon ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold whitespace-nowrap text-emerald-800">
+            <TagsFilled />
+            {couponCode || couponTitle} applied
+            {couponDiscount !== null && couponDiscount > 0 && (
+              <span>
+                · {currencySymbol} {formatAmount(couponDiscount)} off
+              </span>
+            )}
+          </span>
+        ) : (
+          <span className="hidden text-[12px] text-gray-500 sm:inline">
+            Price per room for your selected stay
+          </span>
+        )}
+
+        <div className="ml-auto text-right leading-tight">
+          {(beforeCouponPrice !== null || discountPercent !== null) && (
+            <div className="flex items-center justify-end gap-2 text-xs">
+              {beforeCouponPrice !== null && (
+                <span className="whitespace-nowrap text-slate-400 line-through">
+                  {currencySymbol} {formatAmount(beforeCouponPrice)}
+                </span>
+              )}
+              {discountPercent !== null && (
+                <span className="rounded bg-red-50 px-1.5 py-0.5 font-bold whitespace-nowrap text-red-600">
+                  -{formatAmount(discountPercent)}%
+                </span>
+              )}
+            </div>
+          )}
+
+          <div className="mt-0.5 flex flex-wrap items-baseline justify-end gap-x-1.5">
+            {basePrice !== null && (
+              <span className="text-xl font-bold whitespace-nowrap text-red-600 sm:text-[22px]">
+                {currencySymbol} {formatAmount(basePrice)}
+              </span>
+            )}
+            {platformTax !== null && (
+              <span className="text-[11px] whitespace-nowrap text-slate-500">
+                + {currencySymbol} {formatAmount(platformTax)} taxes & fees
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex items-center justify-end gap-2">
         {beforeCouponPrice !== null && (
-          <span className="whitespace-nowrap text-sm text-slate-500 line-through">
+          <span className="text-sm whitespace-nowrap text-slate-500 line-through">
             {currencySymbol} {formatAmount(beforeCouponPrice)}
           </span>
         )}
         {discountPercent !== null && (
-          <span className="whitespace-nowrap text-xs font-semibold text-red-600">
+          <span className="text-xs font-semibold whitespace-nowrap text-red-600">
             -{formatAmount(discountPercent)}%
           </span>
         )}
       </div>
 
       {basePrice !== null && (
-        <p className="m-0 mt-1 whitespace-nowrap text-right text-2xl leading-tight font-bold text-red-600">
+        <p className="m-0 mt-1 text-right text-2xl leading-tight font-bold whitespace-nowrap text-red-600">
           {currencySymbol} {formatAmount(basePrice)}
         </p>
       )}
@@ -79,7 +135,7 @@ export default function RoomPriceBreakdown({ pricing = {} }) {
           <span className="shrink-0 font-semibold">
             {couponCode || couponTitle} applied
           </span>
-     
+
           {couponDiscount !== null && couponDiscount > 0 && (
             <span className="shrink-0 font-semibold">
               {currencySymbol} {formatAmount(couponDiscount)} off

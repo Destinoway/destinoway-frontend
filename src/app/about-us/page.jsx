@@ -24,10 +24,10 @@ export async function generateMetadata() {
 
   const title =
     cms?.metaTitle ||
-    "About Destonoway | Trusted Travel & Hotel Booking Platform";
+    "About Destinoway | Trusted Travel & Hotel Booking Platform";
 
   const description =
-    cms?.metaDescription || "Learn about Destonoway and our travel mission.";
+    cms?.metaDescription || "Learn about Destinoway and our travel mission.";
 
   const keywords = cms?.keywords || [];
   const canonical = `${getSiteUrl()}/${cms?.slug || PAGE_SLUG}`;
@@ -48,7 +48,7 @@ export async function generateMetadata() {
       description,
       url: canonical,
       type: "website",
-      siteName: "Destonoway",
+      siteName: "Destinoway",
     },
 
     twitter: {

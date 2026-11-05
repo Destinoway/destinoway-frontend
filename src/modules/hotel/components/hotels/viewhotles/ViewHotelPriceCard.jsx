@@ -221,7 +221,7 @@ const ViewHotelPriceCard = ({
 
   if (isRoomsLoading) {
     return (
-      <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 font-sans shadow-sm sm:p-5">
+      <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 font-sans shadow-[0_2px_12px_rgba(15,23,42,0.05)] sm:p-5">
         <Skeleton active paragraph={{ rows: 7 }} />
       </div>
     );
@@ -229,7 +229,7 @@ const ViewHotelPriceCard = ({
 
   if (!selectedPlan) {
     return (
-      <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 font-sans shadow-sm sm:p-5">
+      <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 font-sans shadow-[0_2px_12px_rgba(15,23,42,0.05)] sm:p-5">
         <h3 className="m-0 text-base font-semibold text-gray-900">
           Room rates unavailable
         </h3>
@@ -242,7 +242,7 @@ const ViewHotelPriceCard = ({
   }
 
   return (
-    <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 font-sans shadow-sm sm:p-5">
+    <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 font-sans shadow-[0_2px_12px_rgba(15,23,42,0.05)] sm:p-5">
       {/* ================= ROOM DETAILS ================= */}
 
       <div className="mb-4">
@@ -274,17 +274,17 @@ const ViewHotelPriceCard = ({
             <div className="flex items-center gap-1.5">
               <CalendarOutlined className="text-sm text-blue-600" />
 
-              <p className="!m-0 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+              <p className="m-0! text-xs font-semibold tracking-wide text-gray-500 uppercase">
                 Check-in
               </p>
             </div>
 
-            <p className="!m-0 text-base leading-6 font-medium text-gray-900">
+            <p className="m-0! text-base leading-6 font-medium text-gray-900">
               {formatDate(checkInDate) || "Date not available"}
             </p>
 
             {checkIn?.time && (
-              <p className="!m-0 mt-1! text-xs font-medium text-gray-500">
+              <p className="m-0! mt-1! text-xs font-medium text-gray-500">
                 {formatTime(checkIn.time)}
               </p>
             )}
@@ -294,17 +294,17 @@ const ViewHotelPriceCard = ({
             <div className="flex items-center gap-1.5">
               <CalendarOutlined className="text-sm text-blue-600" />
 
-              <p className="!m-0 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+              <p className="m-0! text-xs font-semibold tracking-wide text-gray-500 uppercase">
                 Check-out
               </p>
             </div>
 
-            <p className="!m-0 text-base leading-6 font-medium text-gray-900">
+            <p className="m-0! text-base leading-6 font-medium text-gray-900">
               {formatDate(checkOutDate) || "Date not available"}
             </p>
 
             {checkOut?.time && (
-              <p className="!m-0 text-xs font-medium text-gray-500">
+              <p className="m-0! text-xs font-medium text-gray-500">
                 {formatTime(checkOut.time)}
               </p>
             )}
@@ -317,7 +317,7 @@ const ViewHotelPriceCard = ({
           <div className="mb-2 flex items-center gap-2">
             <TeamOutlined className="text-base text-blue-600" />
 
-            <h4 className="!m-0 text-xs font-semibold tracking-wide text-gray-600 uppercase">
+            <h4 className="m-0! text-xs font-semibold tracking-wide text-gray-600 uppercase">
               Guest Details
             </h4>
           </div>
@@ -426,7 +426,7 @@ const ViewHotelPriceCard = ({
           type="primary"
           size="large"
           onClick={() => requireAuth(handleBookNow)}
-          className="buttion-background-color !h-11 w-full !rounded-lg !border-0 !text-sm !font-bold !text-white"
+          className="buttion-background-color h-11! w-full rounded-lg! border-0! text-sm! font-bold! text-white!"
         >
           Book Now
         </Button>
@@ -434,7 +434,7 @@ const ViewHotelPriceCard = ({
         <Button
           size="large"
           onClick={handleRoomScroll}
-          className="most-text-color !h-11 w-full !rounded-lg !px-3 !text-sm !font-semibold"
+          className="most-text-color h-11! w-full rounded-lg! px-3! text-sm! font-semibold!"
         >
           View All
         </Button>

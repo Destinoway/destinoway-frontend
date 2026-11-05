@@ -63,7 +63,7 @@ export default function Hero({ banner }) {
         />
         <Image
           src={bannerItem.image || "/images/homepage/Banner-1.webp"}
-          alt={bannerItem.alt || "Destonoway"}
+          alt={bannerItem.alt || "Destinoway"}
           fill
           loading="eager"
           fetchPriority="high"

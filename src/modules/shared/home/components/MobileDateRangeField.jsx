@@ -347,11 +347,11 @@ export default function MobileDateRangeField({
 
       <div className="relative w-full">
         <div
-          className="flex h-[64px] w-full cursor-pointer items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] transition-colors active:bg-slate-50"
+          className="flex h-16 w-full cursor-pointer items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] transition-colors active:bg-slate-50"
           onClick={handleOpen}
         >
           {icon && (
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--theme-secondary)/8 [&_.anticon]:!text-[16px] [&_.anticon]:!text-(--theme-secondary)">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--theme-secondary)/8 [&_.anticon]:text-[16px]! [&_.anticon]:text-(--theme-secondary)!">
               {icon}
             </span>
           )}
@@ -364,7 +364,7 @@ export default function MobileDateRangeField({
                 {start.format("DD")}
               </span>
 
-              <div className="!mt-1 leading-none">
+              <div className="mt-1! leading-none">
                 <span className="text-[12px] font-semibold text-[#444]">
                   {start.format("MMM")} {start.format("YY")}
                 </span>
@@ -379,7 +379,7 @@ export default function MobileDateRangeField({
           {/* ARROW */}
 
           <div className="relative flex shrink-0 items-center px-1">
-            <span className="rounded-full border border-gray-200 bg-slate-50 px-2 py-[3px] text-[10px] font-bold whitespace-nowrap text-gray-600">
+            <span className="rounded-full border border-gray-200 bg-slate-50 px-2 py-0.75 text-[10px] font-bold whitespace-nowrap text-gray-600">
               {nights > 0
                 ? `${nights} ${nights > 1 ? "Nights" : "Night"}`
                 : "→"}
@@ -422,13 +422,13 @@ export default function MobileDateRangeField({
               {/* OVERLAY */}
 
               <div
-                className="fixed inset-0 z-[999998] bg-black/40"
+                className="fixed inset-0 z-999998 bg-black/40"
                 onClick={handleClose}
               />
 
               {/* BOTTOM SHEET */}
 
-              <div className="fixed bottom-0 left-0 z-[999999] max-h-[92vh] w-full animate-[slideUp_0.25s_ease-out] overflow-y-auto overscroll-contain rounded-t-2xl bg-white px-4 pt-3 pb-[calc(20px+env(safe-area-inset-bottom,0px))] shadow-[0_-8px_30px_rgba(0,0,0,0.18)]">
+              <div className="fixed bottom-0 left-0 z-999999 max-h-[92vh] w-full animate-[slideUp_0.25s_ease-out] overflow-y-auto overscroll-contain rounded-t-2xl bg-white px-4 pt-3 pb-[calc(20px+env(safe-area-inset-bottom,0px))] shadow-[0_-8px_30px_rgba(0,0,0,0.18)]">
                 {/* DRAG HANDLE */}
 
                 <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-300" />

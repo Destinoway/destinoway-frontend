@@ -6,12 +6,13 @@ import RHFTextarea from "@/components/ui/RHFinputs/RHFTextarea";
 import RHFSelect from "@/components/ui/RHFinputs/RHFSelect";
 import { useAuthModalStore } from "@/modules/auth/store/authModal.store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { message } from "antd";
+import { App } from "antd";
 import { FormProvider, useForm } from "react-hook-form";
 import { useCreateContact } from "./hooks/useContact";
 import { contactSchema } from "./schema/contactSchema";
 
 export default function ContactFormSection() {
+  const { message } = App.useApp();
   const methods = useForm({
     resolver: zodResolver(contactSchema),
     mode: "onSubmit",
@@ -90,16 +91,16 @@ export default function ContactFormSection() {
   };
   return (
     <section className="font-roboto! bg-[#eef5fa] py-10 lg:py-10">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
+      <div className="mx-auto max-w-350 px-4 sm:px-6">
         <div className="grid grid-cols-1 gap-10 min-[901px]:grid-cols-2 min-[901px]:gap-8">
           <div className="rounded bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.06)] lg:p-8">
             <h2 className="mb-5 text-[18px] leading-[1.2] font-bold most-text-color sm:text-[18px] md:text-[28px] lg:text-[32px]">
-              We're Always Here To
+              We&apos;re Always Here To
               <br />
               Help You
             </h2>
 
-            <p className="mb-8 max-w-[650px] text-[15px] leading-[1.8] text-[#4B5563]">
+            <p className="mb-8 max-w-162.5 text-[15px] leading-[1.8] text-[#4B5563]">
               Our dedicated support team is available to assist you with hotel
               bookings, payment issues, cancellations, refunds, and
               travel-related inquiries. We strive to provide quick, reliable,
@@ -108,15 +109,15 @@ export default function ContactFormSection() {
 
             {/* Quick Stats */}
             <div className="mb-7 grid grid-cols-2 gap-5">
-              <div className="rounded-lg border most-boder-colour p-3 pt-1 !pb-0">
-                <p className="!mb-2 text-[20px] font-bold most-text-color">
+              <div className="rounded-lg border most-boder-colour p-3 pt-1 pb-0!">
+                <p className="mb-2! text-[20px] font-bold most-text-color">
                   24/7
                 </p>
                 <p className="text-[13px] text-gray-600">Support Available</p>
               </div>
 
-              <div className="rounded-lg border most-boder-colour p-3 pt-1 !pb-0">
-                <p className="!mb-2 text-[20px] font-bold most-text-color">
+              <div className="rounded-lg border most-boder-colour p-3 pt-1 pb-0!">
+                <p className="mb-2! text-[20px] font-bold most-text-color">
                   &lt; 24h
                 </p>
                 <p className="text-[13px] text-gray-600">Average Response</p>
@@ -207,7 +208,7 @@ export default function ContactFormSection() {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-full rounded-lg buttion-background-color px-8 py-3.5 font-medium text-white! transition-all duration-300 hover:-translate-y-[1px] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+                  className="w-full rounded-lg buttion-background-color px-8 py-3.5 font-medium text-white! transition-all duration-300 hover:-translate-y-px hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isPending ? "Submitting..." : "Submit"}
                 </button>

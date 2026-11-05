@@ -18,7 +18,7 @@ export default function GiftCardSliderFallback() {
               key={item}
               className={`overflow-hidden rounded-2xl border border-gray-200 bg-white ${item === 1 ? "hidden sm:block" : ""} ${item === 2 ? "hidden lg:block" : ""} ${item === 3 ? "hidden xl:block" : ""}`}
             >
-              <div className="h-[150px] animate-pulse bg-gray-200 lg:h-[165px] xl:h-[175px]" />
+              <div className="h-37.5 animate-pulse bg-gray-200 lg:h-41.25 xl:h-43.75" />
               <div className="space-y-2 px-3.5 py-3">
                 <div className="h-3 w-24 animate-pulse rounded bg-gray-200" />
                 <div className="h-4 w-4/5 animate-pulse rounded bg-gray-200" />

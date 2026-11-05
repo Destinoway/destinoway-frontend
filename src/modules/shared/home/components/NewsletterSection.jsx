@@ -97,7 +97,7 @@ export default function NewsletterSection() {
           </div>
 
           {/* Right Content */}
-          <div className="w-full lg:max-w-[620px]">
+          <div className="w-full lg:max-w-155">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-3">
               <div className="w-full">
                 <input
@@ -135,7 +135,7 @@ export default function NewsletterSection() {
                 type="button"
                 onClick={handleSubscribe}
                 disabled={isPending}
-                className="flex w-[150px] items-center justify-center self-start rounded-md px-5 py-3 text-[15px] font-medium !text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[180px] buttion-background-color"
+                className="flex w-37.5 items-center justify-center self-start rounded-md px-5 py-3 text-[15px] font-medium text-white! transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-45 buttion-background-color"
               >
                 {isPending ? "Subscribing..." : "Subscribe Now"}
               </button>

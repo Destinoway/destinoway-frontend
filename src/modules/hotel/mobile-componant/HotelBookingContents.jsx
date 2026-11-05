@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Col, Row } from "antd";
+import { Button } from "antd";
 import BackgroundSection from "../components/hotel-booking/BackgroundSection";
 import BookingAgreement from "../components/hotel-booking/BookingAgreement";
 import BookingHeaderCard from "../components/hotel-booking/BookingHeaderCard";
@@ -26,59 +26,45 @@ export default function HotelBookingContents({
   isPending,
 }) {
   return (
-    <div className="w-full">
+    <div className="w-full pb-24">
       <BackgroundSection />
 
-      <div className="mx-auto max-w-[1250px] sm:px-4">
-        <Col xs={24} lg={8}>
-          <div className="-mt-10! space-y-4 px-1 sm:space-y-5 sm:px-0">
-            <BookingHeaderCard bookingData={hotelBookingData} />
-            <GuestDetailsForm
-              ref={guestFormRef}
-              onSubmit={handleGuestSubmit}
-              occupancy={occupancy}
-              isPANRequired={hotelBookingData?.isPANRequired}
-            />
-
-            <StaySummaryCard bookingData={hotelBookingData} />
-            <RoomPackageCard bookingData={hotelBookingData} />
-
-            <PriceBreakupCard bookingData={hotelBookingData} />
-            <CouponsBankOffers
-              bookingData={hotelBookingData}
-              onCouponUpdate={handleCouponUpdate}
-            />
-          </div>
-        </Col>
-        <Row gutter={[14, 23]}>
-          {/* LEFT */}
-          <Col xs={24} lg={15}>
-            <div className="mt-3 px-1 sm:px-0">
-              <SpecialRequestCard
-                value={storeBookingData?.requestData}
-                onChange={handleRequestChange}
-              />
-
-              <ImportantInfoCard bookingData={hotelBookingData} />
-              <BookingAgreement checked={agreement} onChange={setAgreement} />
-
-              <div className="mb-[36px] pt-2 md:mb-[49px] xl:mb-0">
-                <Button
-                  type="primary"
-                  size="large"
-                  loading={isPending}
-                  disabled={!agreement}
-                  onClick={handleBooking}
-                  className="buttion-background-color !h-[44px] w-full !rounded-lg !text-sm sm:!h-[48px] sm:w-auto sm:!rounded-xl sm:!text-base"
-                >
-                  Continue To Booking
-                </Button>
-              </div>
-            </div>
-          </Col>
-
-          {/* RIGHT */}
-        </Row>
+      <div className="relative -mt-12 space-y-3 px-3 sm:px-4">
+        <BookingHeaderCard bookingData={hotelBookingData} />
+        <StaySummaryCard bookingData={hotelBookingData} occupancy={occupancy} />
+        <RoomPackageCard bookingData={hotelBookingData} />
+        <GuestDetailsForm
+          ref={guestFormRef}
+          onSubmit={handleGuestSubmit}
+          occupancy={occupancy}
+          isPANRequired={hotelBookingData?.isPANRequired}
+        />
+        <PriceBreakupCard bookingData={hotelBookingData} />
+        <CouponsBankOffers
+          bookingData={hotelBookingData}
+          onCouponUpdate={handleCouponUpdate}
+        />
+        <SpecialRequestCard
+          value={storeBookingData?.requestData || {}}
+          onChange={handleRequestChange}
+        />
+        <ImportantInfoCard bookingData={hotelBookingData} />
+        <BookingAgreement
+          checked={agreement}
+          onChange={setAgreement}
+          bookingData={hotelBookingData}
+        >
+          <Button
+            type="primary"
+            size="large"
+            loading={isPending}
+            disabled={!agreement}
+            onClick={handleBooking}
+            className="buttion-background-color h-12! w-full rounded-xl! text-[15px]! font-semibold"
+          >
+            Continue To Booking
+          </Button>
+        </BookingAgreement>
       </div>
     </div>
   );

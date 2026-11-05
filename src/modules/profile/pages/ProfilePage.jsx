@@ -31,7 +31,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen overflow-x-hidden background-color-bg ">
       {/* Banner */}
-      <div className="relative h-[180px] w-full overflow-hidden sm:h-[200px] md:h-[220px]">
+      <div className="relative h-45 w-full overflow-hidden sm:h-50 md:h-55">
         <img
           src="/images/profile-bg.png"
           alt="background"
@@ -75,7 +75,7 @@ export default function ProfilePage() {
       </Drawer>
 
       {/* Main Section */}
-      <div className="relative mx-auto mt-8 max-w-[1300px] px-1 pb-10 sm:-mt-6 sm:px-4 md:-mt-12 md:px-1 md:pb-12 lg:px-6">
+      <div className="relative mx-auto mt-8 max-w-325 px-1 pb-10 sm:-mt-6 sm:px-4 md:-mt-12 md:px-1 md:pb-12 lg:px-6">
         {/* Tablet Sidebar */}
         <div className="mb-5 hidden overflow-x-auto md:block lg:hidden">
           <div className="flex min-w-max gap-3">

@@ -2,7 +2,7 @@
 
 import { CheckCircleFilled, EditOutlined } from "@ant-design/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Divider, Input, message } from "antd";
+import { App, Button, Divider, Input } from "antd";
 import dayjs from "dayjs";
 import { memo, useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
@@ -53,6 +53,8 @@ const ViewField = memo(({ label, value, type, prefix }) => (
   </div>
 ));
 
+ViewField.displayName = "ViewField";
+
 const VerifySection = ({
   name,
   label,
@@ -67,6 +69,7 @@ const VerifySection = ({
   verifyOtp,
   setVerified,
 }) => {
+  const { message } = App.useApp();
   const handleSendOtp = async () => {
     if (sendOtp.isPending) return;
 
@@ -115,7 +118,7 @@ const VerifySection = ({
         </div>
 
         <Button
-          className="!h-[42px] !min-w-[110px]"
+          className="h-10.5! min-w-27.5!"
           disabled={verified}
           loading={sendOtp.isPending}
           onClick={handleSendOtp}
@@ -124,14 +127,14 @@ const VerifySection = ({
         </Button>
 
         {verified && (
-          <CheckCircleFilled className="mb-[10px] text-[18px] text-green-500" />
+          <CheckCircleFilled className="mb-2.5 text-[18px] text-green-500" />
         )}
       </div>
 
       {showOtp && (
         <div className="mt-2 flex gap-2">
           <Input
-            className="!h-[42px]"
+            className="h-10.5!"
             placeholder="6 digit OTP"
             maxLength={6}
             value={otp}
@@ -139,7 +142,7 @@ const VerifySection = ({
           />
 
           <Button
-            className="!h-[42px] !px-5"
+            className="h-10.5! px-5!"
             loading={verifyOtp.isPending}
             onClick={handleVerifyOtp}
           >
@@ -265,6 +268,7 @@ const profileFields = ({
 ];
 
 export default function ProfileOverview() {
+  const { message } = App.useApp();
   const { data: user } = useProfile();
   const updateProfile = useUpdateProfile();
   const sendEmailOtp = useSendEmailOtp();
@@ -467,7 +471,7 @@ export default function ProfileOverview() {
   return (
     <div className="min-h-screen shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
       <div className="bg-white p-5">
-        <div className="!mb-8 flex items-center justify-between">
+        <div className="mb-8! flex items-center justify-between">
           <h2 className="font-roboto! text-[20px] font-semibold text-[#1f1f1f]">
             Personal Information
           </h2>
@@ -503,7 +507,7 @@ export default function ProfileOverview() {
               )}
             </div>
 
-            <Divider className="!my-8" />
+            <Divider className="my-8!" />
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* EMAIL */}
@@ -562,7 +566,7 @@ export default function ProfileOverview() {
               <div className="mt-6 flex gap-3">
                 <Button
                   onClick={() => setIsEdit(false)}
-                  className="!h-[42px] !px-6"
+                  className="h-10.5! px-6!"
                 >
                   Cancel
                 </Button>
@@ -572,7 +576,7 @@ export default function ProfileOverview() {
                   type="primary"
                   disabled={!canSave}
                   loading={updateProfile.isPending}
-                  className="buttion-background-color !h-[42px] !border-none !px-6"
+                  className="buttion-background-color h-10.5! border-none! px-6!"
                 >
                   Save Changes
                 </Button>

@@ -8,15 +8,15 @@ export const metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default: "Destonoway",
-    template: "%s | Destonoway",
+    default: "Destinoway",
+    template: "%s | Destinoway",
   },
 
   description:
-    "Book hotels, flights and buses easily with Destonoway. Find the best travel deals and destinations.",
+    "Book hotels, flights and buses easily with Destinoway. Find the best travel deals and destinations.",
 
   keywords: [
-    "Destonoway",
+    "Destinoway",
     "hotels",
     "flights",
     "bus booking",
@@ -29,10 +29,10 @@ export const metadata = {
   },
 
   openGraph: {
-    title: "Destonoway - Travel & Booking",
-    description: "Book hotels, flights and travel packages with Destonoway.",
+    title: "Destinoway - Travel & Booking",
+    description: "Book hotels, flights and travel packages with Destinoway.",
     url: "/",
-    siteName: "Destonoway",
+    siteName: "Destinoway",
     locale: "en_IN",
     type: "website",
 
@@ -41,15 +41,15 @@ export const metadata = {
         url: OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: "Destonoway - Travel & Booking",
+        alt: "Destinoway - Travel & Booking",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Destonoway - Travel & Booking",
-    description: "Book hotels, flights and travel packages with Destonoway.",
+    title: "Destinoway - Travel & Booking",
+    description: "Book hotels, flights and travel packages with Destinoway.",
     images: [OG_IMAGE],
   },
 

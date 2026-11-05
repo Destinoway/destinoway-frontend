@@ -36,7 +36,7 @@ export default function LoginSuccessModalContent({
         </h2>
 
         {/* DESCRIPTION */}
-        <p className="font-roboto max-w-[520px] text-[18px] leading-[150%] font-medium text-gray-500">
+        <p className="font-roboto max-w-130 text-[18px] leading-[150%] font-medium text-gray-500">
           Your account is ready to go. Complete your profile for a faster and
           more personalized booking experience.
         </p>
@@ -47,7 +47,7 @@ export default function LoginSuccessModalContent({
           <Button
             size="large"
             onClick={onProfile}
-            className="h-[44px] rounded-lg px-10 font-medium"
+            className="h-11 rounded-lg px-10 font-medium"
             style={{
               background: "var(--theme-primary)",
               color: "var(--theme-white)",
@@ -62,7 +62,7 @@ export default function LoginSuccessModalContent({
             size="large"
             loading={loading}
             onClick={onClose}
-            className="h-[44px] rounded-lg border border-[#0F6A75] px-6 font-medium text-[#0F6A75] hover:bg-[#0F6A75]/5"
+            className="h-11 rounded-lg border border-[#0F6A75] px-6 font-medium text-[#0F6A75] hover:bg-[#0F6A75]/5"
           >
             Continue Browsing
           </Button>

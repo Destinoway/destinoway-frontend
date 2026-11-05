@@ -6,7 +6,7 @@ function ImageSkeleton({ height }) {
   return (
     <Skeleton.Node
       active
-      className="!flex !w-full !max-w-none !items-center !justify-center"
+      className="flex! w-full! max-w-none! items-center! justify-center!"
       style={{
         width: "100%",
         height,

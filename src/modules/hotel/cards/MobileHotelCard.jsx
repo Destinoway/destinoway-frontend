@@ -22,7 +22,7 @@ import {
   WalletOutlined,
 } from "@ant-design/icons";
 
-import { message } from "antd";
+import { App } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { memo, useState } from "react";
@@ -49,6 +49,7 @@ const formatAmount = (value) =>
 // Card for phones/tablets. Uses a container query so it stacks in narrow
 // columns and switches to image-left layout when there is enough width.
 function MobileHotelCard({ hotel, wishlistIds }) {
+  const { message } = App.useApp();
   const router = useRouter();
 
   const [openModal, setOpenModal] = useState(false);
@@ -214,7 +215,7 @@ function MobileHotelCard({ hotel, wishlistIds }) {
           className="group relative isolate flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_2px_10px_rgba(15,23,42,0.06)] transition-all duration-300 hover:shadow-[0_14px_34px_rgba(15,23,42,0.12)] active:scale-[0.995] @[560px]:flex-row"
         >
           {/* IMAGE */}
-          <div className="relative h-[210px] w-full shrink-0 overflow-hidden min-[480px]:h-[240px] @[560px]:h-auto @[560px]:min-h-[250px] @[560px]:w-[42%]">
+          <div className="relative h-52.5 w-full shrink-0 overflow-hidden min-[480px]:h-60 @[560px]:h-auto @[560px]:min-h-62.5 @[560px]:w-[42%]">
             <Image
               key={imageSrc}
               src={imageSrc}
@@ -288,13 +289,13 @@ function MobileHotelCard({ hotel, wishlistIds }) {
 
           {/* DETAILS */}
           <div className="flex min-w-0 flex-1 flex-col p-4 @[560px]:p-5">
-            <h2 className="line-clamp-2 text-[17px] leading-[23px] font-bold tracking-[-0.01em] text-[#111827] @[560px]:text-[19px] @[560px]:leading-[25px]">
+            <h2 className="line-clamp-2 text-[17px] leading-5.75 font-bold tracking-[-0.01em] text-[#111827] @[560px]:text-[19px] @[560px]:leading-6.25">
               {hotel?.name}
             </h2>
 
             <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
               {rating > 0 && (
-                <span className="flex items-center gap-[2px]">
+                <span className="flex items-center gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => {
                     const fill = Math.max(0, Math.min(1, rating - i));
 
@@ -322,8 +323,8 @@ function MobileHotelCard({ hotel, wishlistIds }) {
 
             {(hotel?.address || hotel?.location) && (
               <div className="mt-2 flex min-w-0 items-start gap-1.5">
-                <EnvironmentOutlined className="mt-[3px] shrink-0 text-[12px] text-[#2167d5]" />
-                <p className="line-clamp-2 text-[13px] leading-[18px] font-medium text-[#2167d5]">
+                <EnvironmentOutlined className="mt-0.75 shrink-0 text-[12px] text-[#2167d5]" />
+                <p className="line-clamp-2 text-[13px] leading-4.5 font-medium text-[#2167d5]">
                   {hotel?.address || hotel?.location}
                 </p>
               </div>
@@ -338,7 +339,7 @@ function MobileHotelCard({ hotel, wishlistIds }) {
                   return (
                     <span
                       key={`${item}-${index}`}
-                      className="inline-flex max-w-[150px] items-center gap-1 truncate rounded-full border border-gray-200 bg-gray-50 px-2.5 py-[5px] text-[11px] leading-none font-medium text-gray-600"
+                      className="inline-flex max-w-37.5 items-center gap-1 truncate rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1.25 text-[11px] leading-none font-medium text-gray-600"
                     >
                       {isCashback ? (
                         <WalletOutlined className="shrink-0 text-[10px] text-gray-700" />
@@ -357,7 +358,7 @@ function MobileHotelCard({ hotel, wishlistIds }) {
                       e.stopPropagation();
                       setShowAllFacilities((prev) => !prev);
                     }}
-                    className="cursor-pointer rounded-full border-none bg-[#edf7ff] px-2.5 py-[5px] text-[11px] leading-none font-semibold text-[#2167d5]"
+                    className="cursor-pointer rounded-full border-none bg-[#edf7ff] px-2.5 py-1.25 text-[11px] leading-none font-semibold text-[#2167d5]"
                   >
                     {showAllFacilities
                       ? "View Less"
@@ -390,7 +391,7 @@ function MobileHotelCard({ hotel, wishlistIds }) {
                       {currencySymbol}
                       {formatAmount(beforeCouponPrice)}
                     </span>
-                    <span className="rounded bg-red-50 px-1.5 py-[2px] text-[10px] font-bold text-[#d93025]">
+                    <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-bold text-[#d93025]">
                       -{formatAmount(discountPercent)}%
                     </span>
                   </div>

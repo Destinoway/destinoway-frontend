@@ -53,7 +53,7 @@ export default function HotelMobile({
       <SearchBar />
       {/* Controls */}
       <div className="background-color-bg min-h-screen">
-        <div className="sticky top-[62px] z-40 bg-[#eef6fd] px-1 pt-1 pr-2 pb-1 !shadow-[0_4px_8px_rgba(0,0,0,0.12)]">
+        <div className="sticky top-15.5 z-40 bg-[#eef6fd] px-1 pt-1 pr-2 pb-1 shadow-[0_4px_8px_rgba(0,0,0,0.12)]!">
           <div className="ml-2 grid grid-cols-3 gap-2">
             {/* SORT */}
             <button

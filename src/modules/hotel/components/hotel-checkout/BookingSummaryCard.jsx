@@ -78,19 +78,19 @@ export default function BookingSummaryCard({
             </div>
             <Title
               level={3}
-              className="font-roboto !mb-1 !text-[22px] !font-semibold !text-white"
+              className="font-roboto mb-1! text-[22px]! font-semibold! text-white!"
             >
               {hotelName}
             </Title>
             <div className="flex items-start gap-2 text-white/80">
               <EnvironmentOutlined className="mt-1" />
-              <Text className="!text-[14px] !text-white/80">{address || "--"}</Text>
+              <Text className="text-[14px]! text-white/80!">{address || "--"}</Text>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Tag color="green" className="!m-0 rounded-full">
+              <Tag color="green" className="m-0! rounded-full">
                 Reservation {formatStatus(reservationStatus)}
               </Tag>
-              <Tag color="processing" className="!m-0 rounded-full">
+              <Tag color="processing" className="m-0! rounded-full">
                 Payment {formatStatus(paymentStatus)}
               </Tag>
             </div>
@@ -99,7 +99,7 @@ export default function BookingSummaryCard({
       </div>
 
       <div className="p-5">
-        <Tag color="blue" className="!mb-3 rounded-full">
+        <Tag color="blue" className="mb-3! rounded-full">
           {roomName}
         </Tag>
         <div className="rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] px-3 py-5 sm:p-5">
@@ -167,7 +167,7 @@ export default function BookingSummaryCard({
       </div>
 
       <div className="mx-5 mb-5 flex gap-3 rounded-xl border border-[#d8e4f5] bg-[#FAFCFF] px-4 py-3">
-        <CheckCircleFilled className="mt-0.5 flex-shrink-0 text-[18px] text-[#0f766e]" />
+        <CheckCircleFilled className="mt-0.5 shrink-0 text-[18px] text-[#0f766e]" />
         <div>
           <Text strong className="block text-[#05144b]">
             {String(reservationStatus).toLowerCase() === "confirmed"

@@ -37,7 +37,7 @@ export default function PriceSummaryCard({
       }}
       variant="borderless"
     >
-      <Title level={4} className="!mb-4 !text-[20px] !text-[#05144b]">
+      <Title level={4} className="mb-4! text-[20px]! text-[#05144b]!">
         Price Summary
       </Title>
 
@@ -87,7 +87,7 @@ export default function PriceSummaryCard({
         )}
       </div>
 
-      <Divider className="!my-4" />
+      <Divider className="my-4!" />
 
       {/* Total */}
       <div className="flex items-center justify-between rounded-lg bg-[#F6FFED] px-4 py-3">
@@ -97,7 +97,7 @@ export default function PriceSummaryCard({
           <Text className="text-xs text-gray-400">Inclusive of taxes</Text>
         </div>
 
-        <Title level={3} className="!mb-0 !text-[#15803D]">
+        <Title level={3} className="mb-0! text-[#15803D]!">
           {currencySymbol} {formatPrice(payableAmount)}
         </Title>
       </div>

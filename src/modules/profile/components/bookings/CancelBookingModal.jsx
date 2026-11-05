@@ -102,7 +102,7 @@ export default function CancelBookingModal({
         </div>
 
         <div className="mt-4 flex gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
-          <InfoCircleOutlined className="mt-[2px] text-amber-500" />
+          <InfoCircleOutlined className="mt-0.5 text-amber-500" />
 
           <p className="mb-0 text-[13px] text-amber-700">
             Once cancelled, this booking cannot be restored.

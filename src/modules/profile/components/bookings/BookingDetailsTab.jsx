@@ -16,7 +16,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
-import { message, Skeleton } from "antd";
+import { App, Skeleton } from "antd";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -71,7 +71,7 @@ function InfoTile({ label, value }) {
         {label}
       </p>
 
-      <p className="mb-0! text-[14px] font-semibold break-words text-[#05144b]">
+      <p className="mb-0! text-[14px] font-semibold wrap-break-word text-[#05144b]">
         {value ?? "--"}
       </p>
     </div>
@@ -89,6 +89,7 @@ function PriceRow({ label, value, valueClass = "text-gray-900" }) {
 }
 
 export default function BookingDetailsTab({ bookingRefNo }) {
+  const { message } = App.useApp();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -343,7 +344,7 @@ export default function BookingDetailsTab({ bookingRefNo }) {
                 <img
                   src={hotel.HotelImage}
                   alt={hotelName}
-                  className="h-[88px] w-[104px] shrink-0 rounded-xl object-cover"
+                  className="h-22 w-26 shrink-0 rounded-xl object-cover"
                 />
               ) : (
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/15 text-[26px] text-[#fda20f]">

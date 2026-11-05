@@ -54,7 +54,7 @@ export default function RelatedHotelCard({ hotel, onClick }) {
         {/* LOCATION */}
 
         <div className="mt-2 flex items-start gap-2">
-          <EnvironmentOutlined className="mt-[2px] text-[#72C0F0]" />
+          <EnvironmentOutlined className="mt-0.5 text-[#72C0F0]" />
 
           <p className="line-clamp-1 text-[12px] text-[#667085]">
             {locationText}

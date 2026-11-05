@@ -25,7 +25,7 @@ export default function AppSelect({
           // className={`custom-select h-[44px]! w-full rounded ${
           //   error ? "select-error" : ""
           // } ${className}`}
-          className={`custom-select h-[44px]! w-full rounded pt-[10px]! text-[16px]! ${
+          className={`custom-select h-11! w-full rounded pt-2.5! text-[16px]! ${
             error ? "border-red-500!" : ""
           } ${className}`}
           {...props}
@@ -35,7 +35,7 @@ export default function AppSelect({
           <label
             className={`pointer-events-none absolute left-3 z-10 bg-white px-1 transition-all duration-200 ${
               isActive
-                ? "-top-[8px] text-[13px] most-text-color"
+                ? "-top-2 text-[13px] most-text-color"
                 : "top-1/2 -translate-y-1/2 text-sm text-gray-400"
             }`}
           >

@@ -22,7 +22,7 @@ function SessionTokenCache() {
 
 export default function AppProviders({ children }) {
   return (
-    <AntdRegistry>
+    <AntdRegistry layer>
       <SessionProvider refetchOnWindowFocus={false}>
         <SessionTokenCache />
         <QueryClientProvider client={queryClient}>

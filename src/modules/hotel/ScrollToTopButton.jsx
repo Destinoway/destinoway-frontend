@@ -27,7 +27,7 @@ const ScrollToTopButton = () => {
       <button
         onClick={scrollToTop}
         aria-label="Scroll To Top"
-        className={`fixed right-6 bottom-20 z-[99] h-[42px] w-[42px] cursor-pointer rounded-full transition-all duration-500 md:bottom-12 ${
+        className={`fixed right-6 bottom-20 z-99 h-10.5 w-10.5 cursor-pointer rounded-full transition-all duration-500 md:bottom-12 ${
           show
             ? "translate-y-0 scale-100 opacity-100"
             : "pointer-events-none translate-y-20 scale-75 opacity-0"
@@ -40,7 +40,7 @@ const ScrollToTopButton = () => {
           }}
         />
 
-        <span className="absolute inset-[4px] flex items-center justify-center overflow-hidden rounded-full">
+        <span className="absolute inset-1 flex items-center justify-center overflow-hidden rounded-full">
           <span className="absolute top-1 left-1/2 h-6 w-10 -translate-x-1/2 rounded-full" />
 
           <UpOutlined className="most-text-color relative z-10 text-[24px] drop-shadow-lg" />

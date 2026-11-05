@@ -2,9 +2,8 @@
 
 import {
   CalendarOutlined,
-  ClockCircleOutlined,
+  CheckCircleFilled,
   EnvironmentOutlined,
-  HomeOutlined,
   LockOutlined,
   MailOutlined,
   PhoneOutlined,
@@ -12,57 +11,86 @@ import {
   StarFilled,
   TeamOutlined,
   UserOutlined,
+  WalletOutlined,
 } from "@ant-design/icons";
-import { Button, Card, Col, Row, Tag, Typography } from "antd";
+import { Button } from "antd";
 import dayjs from "dayjs";
 import Image from "next/image";
 
+import SectionCard from "@/modules/hotel/components/hotels/viewhotles/HotelSections/SectionCard";
 import { useRazorpayPayment } from "@/modules/payments/hooks/useRazorpayPayment";
 import BackgroundSection from "../hotel-booking/BackgroundSection";
 
-const { Title, Text } = Typography;
-
-const cardClass =
-  "rounded-xl border border-[#E5EEF7] bg-white shadow-[0_10px_35px_rgba(5,20,75,0.08)]";
+const CARD =
+  "overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)]";
 
 const fullName = (person = {}) =>
   [person.title, person.firstName, person.middleName, person.lastName]
     .filter(Boolean)
     .join(" ");
 
-function SectionTitle({ icon, title, subtitle }) {
+const getStatusTone = (status = "") => {
+  const value = String(status).toLowerCase();
+
+  if (/(paid|success|confirm|complete|booked)/.test(value)) {
+    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  }
+  if (/(fail|cancel|reject|expire)/.test(value)) {
+    return "border-red-200 bg-red-50 text-red-600";
+  }
+  return "border-amber-200 bg-amber-50 text-amber-700";
+};
+
+function StatusPill({ label, status }) {
+  if (!status) return null;
+
   return (
-    <div className="mb-4 flex items-center gap-3">
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff4de] text-[16px] text-[#05144b]">
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-semibold capitalize ${getStatusTone(status)}`}
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+      {label}: {String(status).toLowerCase()}
+    </span>
+  );
+}
+
+function InfoTile({ icon, label, value }) {
+  return (
+    <div className="flex min-w-0 items-start gap-3 rounded-xl border border-gray-100 bg-slate-50 px-3.5 py-3">
+      <span className="mt-0.5 text-[15px] text-(--theme-secondary)">
         {icon}
-      </div>
-      <div>
-        <Title
-          level={5}
-          className="font-roboto! !mb-0 !text-[16px] !font-bold !text-[#05144b]"
-        >
-          {title}
-        </Title>
-        {subtitle && (
-          <Text className="text-[13px] text-gray-500">{subtitle}</Text>
-        )}
+      </span>
+      <div className="min-w-0">
+        <p className="m-0 text-[11px] font-semibold tracking-wide text-gray-500 uppercase">
+          {label}
+        </p>
+        <p className="m-0 mt-0.5 text-[14px] font-semibold wrap-break-word text-gray-800">
+          {value || "--"}
+        </p>
       </div>
     </div>
   );
 }
 
-function InfoRow({ icon, label, value }) {
+function DateBlock({ label, date, align = "left" }) {
+  const valid = date?.isValid?.();
+
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-gray-100 bg-[#FAFCFF] p-3">
-      <span className="mt-0.5 text-[#05144b]">{icon}</span>
-      <div className="min-w-0">
-        <Text className="block text-[11px] tracking-wide text-gray-500 uppercase">
-          {label}
-        </Text>
-        <Text strong className="block text-[14px] break-words">
-          {value || "--"}
-        </Text>
-      </div>
+    <div className={`min-w-0 ${align === "right" ? "text-right" : ""}`}>
+      <p className="m-0 text-[10px] font-bold tracking-widest text-gray-400 uppercase sm:text-[11px]">
+        {label}
+      </p>
+      <p className="m-0 mt-1 text-[15px] leading-tight font-bold text-(--theme-text-primary) sm:text-[18px]">
+        {valid ? date.format("DD MMM") : "-"}
+        {valid && (
+          <span className="ml-1 text-[12px] font-semibold text-gray-500 sm:text-[13px]">
+            {date.format("YYYY")}
+          </span>
+        )}
+      </p>
+      <p className="m-0 mt-0.5 text-[11px] text-gray-500 sm:text-[12px]">
+        {valid ? date.format("dddd") : ""}
+      </p>
     </div>
   );
 }
@@ -73,10 +101,13 @@ export default function ItineraryContent({ itinerary }) {
   const { hotel = {}, stay = {}, contactInfo = {}, rooms = [] } = itinerary;
   const currency = itinerary.currency || "INR";
   const amount = Number(itinerary.amount || 0);
+  const bookingRef = itinerary.bookingRefNo || itinerary.bookingId;
 
   const checkIn = dayjs(stay.checkIn);
   const checkOut = dayjs(stay.checkOut);
-  const nights = Math.max(checkOut.diff(checkIn, "day"), 1);
+  const nights = Math.max(checkOut.diff(checkIn, "day"), 1) || 1;
+  const starRating = Math.min(Math.max(Number(hotel.starRating) || 0, 0), 5);
+  const hotelImage = hotel.image || hotel.imageUrl || hotel.thumbnail || "";
 
   const formatPrice = (value) =>
     new Intl.NumberFormat("en-IN", {
@@ -91,9 +122,15 @@ export default function ItineraryContent({ itinerary }) {
     0,
   );
 
+  const stayLine = [
+    `${nights} Night${nights > 1 ? "s" : ""}`,
+    `${rooms.length} Room${rooms.length === 1 ? "" : "s"}`,
+    `${totalGuests} Guest${totalGuests === 1 ? "" : "s"}`,
+  ].join(" · ");
+
   const handlePay = () =>
     payNow({
-      bookingId: itinerary.bookingRefNo || itinerary.bookingId,
+      bookingId: bookingRef,
       customer: {
         name: fullName({
           firstName: contactInfo.firstName,
@@ -105,327 +142,313 @@ export default function ItineraryContent({ itinerary }) {
     });
 
   return (
-    <div className="background-color-bg min-h-screen pb-10">
-      <BackgroundSection />
+    <div className="background-color-bg min-h-screen pb-24 md:pb-10">
+      <BackgroundSection
+        activeStep={2}
+        title="Review & Pay"
+        subtitle="Check your booking details and complete the payment to confirm."
+      />
 
-      <div className="relative z-20 mx-auto -mt-10 max-w-[1250px] px-3 md:px-5">
-        {/* Header */}
-        <div className="mb-5 flex flex-col gap-3 rounded-xl border border-[#d8e4f5] bg-white px-5 py-4 shadow-md md:flex-row md:items-center md:justify-between">
-          <div>
-            <Title
-              level={2}
-              className="font-roboto !mb-0 !text-[22px] !font-semibold !text-[#05144b]"
-            >
-              Review & Pay
-            </Title>
-            <Text className="font-roboto text-[14px] text-gray-500">
-              Check your booking details and complete the payment to confirm.
-            </Text>
+      <div className="relative z-20 mx-auto -mt-12 max-w-312.5 px-3 sm:px-4">
+        {/* BOOKING REFERENCE STRIP */}
+
+        <div
+          className={`${CARD} mb-4 flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-6`}
+        >
+          <div className="min-w-0">
+            <p className="m-0 text-[11px] font-bold tracking-widest text-gray-400 uppercase">
+              Booking reference
+            </p>
+            <p className="m-0 mt-0.5 truncate text-[16px] font-bold tracking-wide text-(--theme-text-primary) sm:text-[18px]">
+              {bookingRef || "--"}
+            </p>
           </div>
-
           <div className="flex flex-wrap items-center gap-2">
-            <Tag color="green" className="!m-0 rounded-full px-3 py-1">
-              Itinerary {itinerary.itineraryStatus}
-            </Tag>
-            <Tag color="orange" className="!m-0 rounded-full px-3 py-1">
-              Payment {itinerary.paymentStatus}
-            </Tag>
+            <StatusPill label="Itinerary" status={itinerary.itineraryStatus} />
+            <StatusPill label="Payment" status={itinerary.paymentStatus} />
           </div>
         </div>
 
-        <Row gutter={[24, 24]} align="top">
-          {/* Left */}
-          <Col xs={24} lg={16}>
-            <div className="flex flex-col gap-5">
-              {/* Hotel + stay */}
-              <Card
-                className={cardClass}
-                styles={{ body: { padding: 0 } }}
-                variant="borderless"
-              >
-                <div className="rounded-t-xl bg-linear-to-r from-[#05144b] to-[#0c2fb1] p-5 text-white">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/15 text-[26px] text-[#fda20f]">
-                      <HomeOutlined />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="mb-1 flex gap-0.5 text-[#fda20f]">
-                        {Array.from({
-                          length: Number(hotel.starRating) || 0,
-                        }).map((_, i) => (
-                          <StarFilled key={i} />
-                        ))}
-                      </div>
-                      <Title
-                        level={3}
-                        className="font-roboto !mb-1 !text-[22px] !font-semibold !text-white"
-                      >
-                        {hotel.name}
-                      </Title>
-                      <div className="flex items-start gap-2 text-white/80">
-                        <EnvironmentOutlined className="mt-1" />
-                        <Text className="!text-[14px] !text-white/80">
-                          {hotel.address}
-                        </Text>
-                      </div>
-                    </div>
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="min-w-0 space-y-4">
+            {/* HOTEL + STAY */}
+
+            <div className={CARD}>
+              <div className="flex gap-3 p-3 sm:gap-5 sm:p-4">
+                {hotelImage && (
+                  <div className="relative min-h-27.5 w-25 shrink-0 overflow-hidden rounded-xl bg-slate-100 sm:min-h-32.5 sm:w-42.5">
+                    <Image
+                      src={hotelImage}
+                      alt={hotel.name || "Hotel"}
+                      fill
+                      unoptimized
+                      sizes="170px"
+                      className="object-cover"
+                    />
                   </div>
-                </div>
+                )}
 
-                <div className="p-5">
-                  <div className="rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] px-3 py-5 sm:p-5">
-                    <div className="flex items-center justify-between gap-3 sm:gap-6">
-                      <div className="flex-1 text-center">
-                        <Text className="block text-[12px] text-gray-500">
-                          Check-in
-                        </Text>
-                        <Text
-                          strong
-                          className="block text-[15px] leading-tight text-[#05144b] sm:text-[22px]"
-                        >
-                          {checkIn.format("DD MMM YYYY")}
-                        </Text>
-                        <Text className="text-[12px] text-gray-500">
-                          {checkIn.format("dddd")}
-                        </Text>
-                      </div>
-
-                      <div className="flex shrink-0 flex-col items-center">
-                        <div className="rounded-full border border-[#fda20f] px-3 py-1 text-[12px] font-medium whitespace-nowrap text-[#05144b]">
-                          <ClockCircleOutlined className="mr-1" />
-                          {nights} Night{nights > 1 ? "s" : ""}
-                        </div>
-                        <Text className="mt-2 text-center text-[11px] whitespace-nowrap text-gray-500 sm:text-[13px]">
-                          {rooms.length} Room • {totalGuests} Guest
-                          {totalGuests > 1 ? "s" : ""}
-                        </Text>
-                      </div>
-
-                      <div className="flex-1 text-center">
-                        <Text className="block text-[12px] text-gray-500">
-                          Check-out
-                        </Text>
-                        <Text
-                          strong
-                          className="block text-[15px] leading-tight text-[#05144b] sm:text-[22px]"
-                        >
-                          {checkOut.format("DD MMM YYYY")}
-                        </Text>
-                        <Text className="text-[12px] text-gray-500">
-                          {checkOut.format("dddd")}
-                        </Text>
-                      </div>
+                <div className="flex min-w-0 flex-1 flex-col justify-center">
+                  {starRating > 0 && (
+                    <div className="mb-1.5 flex items-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map((item) => (
+                        <StarFilled
+                          key={item}
+                          className={`text-[12px] ${
+                            item <= starRating
+                              ? "text-[#F5A623]!"
+                              : "text-[#D9DEE7]!"
+                          }`}
+                        />
+                      ))}
+                      <span className="ml-1.5 text-[11px] font-semibold text-gray-500">
+                        {starRating}-star hotel
+                      </span>
                     </div>
-                  </div>
+                  )}
+                  <h2 className="m-0 text-[17px] leading-snug font-bold text-(--theme-text-primary) sm:text-[20px]">
+                    {hotel.name || "Hotel"}
+                  </h2>
+                  {hotel.address && (
+                    <p className="m-0 mt-1.5 flex items-start gap-1.5 text-[12px] leading-5 text-gray-500 sm:text-[13px]">
+                      <EnvironmentOutlined className="mt-1 shrink-0 text-(--theme-secondary)" />
+                      <span className="min-w-0">{hotel.address}</span>
+                    </p>
+                  )}
                 </div>
-              </Card>
+              </div>
 
-              {/* Contact */}
-              <Card
-                className={cardClass}
-                styles={{ body: { padding: 20 } }}
-                variant="borderless"
-              >
-                <SectionTitle
+              <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 border-t border-gray-100 px-4 py-4 sm:px-6">
+                <DateBlock label="Check-in" date={checkIn} />
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-(--theme-secondary)/20 bg-(--theme-secondary)/8 px-3 py-1 text-[11px] font-bold whitespace-nowrap text-(--theme-secondary) sm:text-[12px]">
+                  <CalendarOutlined />
+                  {nights} Night{nights > 1 ? "s" : ""}
+                </span>
+                <DateBlock label="Check-out" date={checkOut} align="right" />
+              </div>
+
+              <div className="flex items-center gap-2 border-t border-gray-100 bg-slate-50/70 px-4 py-2.5 text-[12px] font-semibold text-gray-600 sm:px-6 sm:text-[13px]">
+                <TeamOutlined className="text-(--theme-secondary)" />
+                {stayLine}
+              </div>
+            </div>
+
+            {/* CONTACT */}
+
+            <SectionCard
+              icon={<UserOutlined />}
+              title="Contact Details"
+              subtitle="Booking confirmation will be sent here"
+            >
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <InfoTile
                   icon={<UserOutlined />}
-                  title="Contact Details"
-                  subtitle="Booking confirmation will be sent here"
+                  label="Name"
+                  value={fullName(contactInfo)}
                 />
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <InfoRow
-                    icon={<UserOutlined />}
-                    label="Name"
-                    value={fullName(contactInfo)}
-                  />
-                  <InfoRow
-                    icon={<PhoneOutlined />}
-                    label="Mobile"
-                    value={contactInfo.mobile}
-                  />
-                  <InfoRow
-                    icon={<MailOutlined />}
-                    label="Email"
-                    value={contactInfo.email}
-                  />
-                  <InfoRow
-                    icon={<EnvironmentOutlined />}
-                    label="Address"
-                    value={[
-                      contactInfo.address,
-                      contactInfo.city,
-                      contactInfo.state,
-                      contactInfo.pin,
-                    ]
-                      .filter(Boolean)
-                      .join(", ")}
-                  />
-                </div>
-              </Card>
-
-              {/* Rooms & guests */}
-              <Card
-                className={cardClass}
-                styles={{ body: { padding: 20 } }}
-                variant="borderless"
-              >
-                <SectionTitle
-                  icon={<TeamOutlined />}
-                  title="Rooms & Guests"
-                  subtitle={`${rooms.length} room${rooms.length > 1 ? "s" : ""}, ${totalGuests} guest${totalGuests > 1 ? "s" : ""}`}
+                <InfoTile
+                  icon={<PhoneOutlined />}
+                  label="Mobile"
+                  value={contactInfo.mobile}
                 />
+                <InfoTile
+                  icon={<MailOutlined />}
+                  label="Email"
+                  value={contactInfo.email}
+                />
+                <InfoTile
+                  icon={<EnvironmentOutlined />}
+                  label="Address"
+                  value={[
+                    contactInfo.address,
+                    contactInfo.city,
+                    contactInfo.state,
+                    contactInfo.pin,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                />
+              </div>
+            </SectionCard>
 
-                <div className="flex flex-col gap-4">
-                  {rooms.map((room, index) => (
+            {/* ROOMS & GUESTS */}
+
+            <SectionCard
+              icon={<TeamOutlined />}
+              title="Rooms & Guests"
+              subtitle={`${rooms.length} room${rooms.length === 1 ? "" : "s"}, ${totalGuests} guest${totalGuests === 1 ? "" : "s"}`}
+            >
+              <div className="space-y-3">
+                {rooms.map((room, index) => {
+                  const roomNo = room.occupancyId ?? index + 1;
+                  const adults = room.adults?.length || 0;
+                  const children = room.children?.length || 0;
+                  const guests = [
+                    ...(room.adults || []).map((guest) => ({
+                      ...guest,
+                      type: "Adult",
+                    })),
+                    ...(room.children || []).map((guest) => ({
+                      ...guest,
+                      type: "Child",
+                    })),
+                  ];
+
+                  return (
                     <div
                       key={room.occupancyId ?? index}
-                      className="rounded-xl border border-[#E5EEF7] p-4"
+                      className="overflow-hidden rounded-xl border border-gray-200"
                     >
-                      <div className="mb-3 flex items-center justify-between">
-                        <Text strong className="text-[#05144b]">
-                          Room {room.occupancyId ?? index + 1}
-                        </Text>
-                        <Text className="text-[13px] text-gray-500">
-                          {room.adults?.length || 0} Adult
-                          {(room.adults?.length || 0) !== 1 ? "s" : ""}
-                          {room.children?.length
-                            ? `, ${room.children.length} Child${room.children.length > 1 ? "ren" : ""}`
+                      <div className="flex items-center justify-between gap-3 bg-slate-50 px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[13px] font-bold text-(--theme-secondary) shadow-sm">
+                            {index + 1}
+                          </span>
+                          <p className="m-0 text-[14px] font-bold text-(--theme-text-primary)">
+                            Room {roomNo}
+                          </p>
+                        </div>
+                        <span className="text-[12px] font-medium text-gray-500">
+                          {adults} Adult{adults === 1 ? "" : "s"}
+                          {children
+                            ? ` · ${children} Child${children > 1 ? "ren" : ""}`
                             : ""}
-                        </Text>
+                        </span>
                       </div>
 
-                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                        {[
-                          ...(room.adults || []).map((g) => ({
-                            ...g,
-                            type: "Adult",
-                          })),
-                          ...(room.children || []).map((g) => ({
-                            ...g,
-                            type: "Child",
-                          })),
-                        ].map((guest, i) => (
+                      <div className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-2">
+                        {guests.map((guest, guestIndex) => (
                           <div
-                            key={i}
-                            className="flex items-center justify-between rounded-lg bg-[#FAFCFF] px-3 py-2"
+                            key={`${guest.type}-${guestIndex}`}
+                            className="flex items-center justify-between gap-3 rounded-lg border border-gray-100 px-3 py-2.5"
                           >
-                            <Text strong className="text-[14px]">
-                              {fullName(guest)}
-                            </Text>
-                            <Tag
-                              color={guest.type === "Adult" ? "blue" : "purple"}
-                              className="!m-0"
+                            <span className="flex min-w-0 items-center gap-2.5">
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-(--theme-secondary)/8 text-[12px] text-(--theme-secondary)">
+                                <UserOutlined />
+                              </span>
+                              <span className="truncate text-[14px] font-semibold text-gray-800">
+                                {fullName(guest) || "--"}
+                              </span>
+                            </span>
+                            <span
+                              className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                                guest.type === "Adult"
+                                  ? "bg-sky-50 text-sky-700"
+                                  : "bg-violet-50 text-violet-700"
+                              }`}
                             >
                               {guest.type}
-                            </Tag>
+                            </span>
                           </div>
                         ))}
                       </div>
                     </div>
-                  ))}
+                  );
+                })}
+              </div>
+            </SectionCard>
+          </div>
+
+          {/* PAYMENT */}
+
+          <aside className="min-w-0 space-y-4 lg:sticky lg:top-24">
+            <div className={CARD}>
+              <div className="flex items-center gap-3 border-b border-gray-100 px-4 py-4 sm:px-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--theme-secondary)/8 text-[18px] text-(--theme-secondary)">
+                  <WalletOutlined />
+                </span>
+                <div>
+                  <h2 className="m-0 text-[17px] font-bold text-(--theme-text-primary)">
+                    Payment Summary
+                  </h2>
+                  <p className="m-0 mt-0.5 text-[12px] text-gray-500">
+                    {stayLine}
+                  </p>
                 </div>
-              </Card>
+              </div>
+
+              <div className="space-y-3 px-4 pt-4 text-[13px] sm:px-5 sm:text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-gray-500">Booking ID</span>
+                  <span className="max-w-47.5 truncate font-semibold text-gray-900">
+                    {bookingRef}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-gray-500">Check-in</span>
+                  <span className="font-semibold text-gray-900">
+                    {checkIn.isValid() ? checkIn.format("DD MMM YYYY") : "-"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-gray-500">Check-out</span>
+                  <span className="font-semibold text-gray-900">
+                    {checkOut.isValid() ? checkOut.format("DD MMM YYYY") : "-"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="px-4 pt-4 pb-4 sm:px-5">
+                <div className="rounded-xl bg-(--theme-secondary)/6 px-4 py-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[14px] font-bold text-(--theme-text-primary)">
+                      Total payable
+                    </span>
+                    <span className="text-[22px] leading-tight font-bold text-(--theme-text-primary)">
+                      {formatPrice(amount)}
+                    </span>
+                  </div>
+                  <p className="m-0 mt-0.5 text-right text-[11px] text-gray-500">
+                    Inclusive of all taxes & fees
+                  </p>
+                </div>
+              </div>
             </div>
-          </Col>
 
-          {/* Right: payment */}
-          <Col xs={24} lg={8}>
-            <div className="flex flex-col gap-5 lg:sticky lg:top-24">
-              <Card
-                className={cardClass}
-                styles={{ body: { padding: 20 } }}
-                variant="borderless"
+            <div className={`${CARD} p-4 sm:p-5`}>
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 px-3 py-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <Image
+                    src="/images/payments/razorpay-icon.svg"
+                    alt="Razorpay"
+                    width={36}
+                    height={36}
+                  />
+                  <div className="min-w-0">
+                    <p className="m-0 text-[14px] font-bold text-gray-900">
+                      Razorpay
+                    </p>
+                    <p className="m-0 text-[12px] text-gray-500">
+                      UPI, Cards, Net Banking & Wallets
+                    </p>
+                  </div>
+                </div>
+                <CheckCircleFilled className="shrink-0 text-[18px] text-(--theme-secondary)" />
+              </div>
+
+              <Button
+                type="primary"
+                size="large"
+                loading={loading}
+                onClick={handlePay}
+                icon={<LockOutlined />}
+                className="buttion-background-color mt-4! h-13! w-full rounded-xl! text-[16px]! font-semibold!"
               >
-                <SectionTitle
-                  icon={<CalendarOutlined />}
-                  title="Payment Summary"
-                />
+                Pay {formatPrice(amount)}
+              </Button>
 
-                <div className="space-y-3 text-[14px]">
-                  <div className="flex justify-between">
-                    <Text className="text-gray-500">Booking ID</Text>
-                    <Text strong className="max-w-[180px] truncate">
-                      {itinerary.bookingRefNo || itinerary.bookingId}
-                    </Text>
-                  </div>
-                  <div className="flex justify-between">
-                    <Text className="text-gray-500">Stay</Text>
-                    <Text strong>
-                      {nights} Night{nights > 1 ? "s" : ""}
-                    </Text>
-                  </div>
-                </div>
+              <p className="m-0 mt-3 flex items-center justify-center gap-1.5 text-[12px] font-semibold text-emerald-700">
+                <SafetyCertificateFilled />
+                Secure payment powered by Razorpay
+              </p>
 
-                <div className="my-4 border-t border-dashed border-gray-300" />
-
-                <div className="flex items-end justify-between">
-                  <Text strong className="text-[15px] text-[#05144b]">
-                    Total Payable
-                  </Text>
-                  <Text
-                    strong
-                    className="text-[26px] leading-none text-[#05144b]"
-                  >
-                    {formatPrice(amount)}
-                  </Text>
-                </div>
-                <Text className="mt-1 block text-right text-[12px] text-gray-500">
-                  Inclusive of all taxes & fees
-                </Text>
-              </Card>
-
-              <Card
-                className={cardClass}
-                styles={{ body: { padding: 20 } }}
-                variant="borderless"
-              >
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src="/images/payments/razorpay-icon.svg"
-                      alt="Razorpay"
-                      width={40}
-                      height={40}
-                    />
-                    <div>
-                      <Title
-                        level={5}
-                        className="!mb-0 !text-[16px] !font-semibold"
-                      >
-                        Razorpay
-                      </Title>
-                      <Text className="text-[12px] text-gray-500">
-                        UPI, Cards, Net Banking & Wallets
-                      </Text>
-                    </div>
-                  </div>
-                  <Tag
-                    color="green"
-                    icon={<SafetyCertificateFilled />}
-                    className="!m-0 rounded-full"
-                  >
-                    Secure
-                  </Tag>
-                </div>
-
-                <Button
-                  type="primary"
-                  size="large"
-                  loading={loading}
-                  onClick={handlePay}
-                  icon={<LockOutlined />}
-                  className="buttion-background-color !h-[52px] w-full !rounded-lg !text-[16px] !font-semibold"
-                >
-                  Pay {formatPrice(amount)}
-                </Button>
-
-                <Text className="mt-3 block text-center text-[12px] leading-5 text-gray-500">
-                  By clicking <strong>Pay</strong>, you agree to our booking
-                  terms, cancellation policy and secure payment process.
-                </Text>
-              </Card>
+              <p className="m-0 mt-2 text-center text-[11px] leading-5 text-gray-500">
+                By clicking <strong>Pay</strong>, you agree to our booking
+                terms, cancellation policy and secure payment process.
+              </p>
             </div>
-          </Col>
-        </Row>
+          </aside>
+        </div>
       </div>
     </div>
   );

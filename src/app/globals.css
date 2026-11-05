@@ -1,4 +1,14 @@
+/*
+ * Layer order (lowest -> highest priority):
+ *   theme, base (Tailwind preflight + antd reset), antd (antd components),
+ *   components, utilities (Tailwind classes).
+ * antd's reset.css and component styles used to be unlayered, and unlayered
+ * CSS always beats layered CSS, so Tailwind classes needed `!` to apply.
+ */
+@layer theme, base, antd, components, utilities;
+
 @import "tailwindcss";
+@import "antd/dist/reset.css" layer(base);
 @config "../../tailwind.config.js";
 
 :root {

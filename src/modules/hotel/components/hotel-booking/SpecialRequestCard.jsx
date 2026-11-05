@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, Checkbox, Input, Typography } from "antd";
-
-const { Title, Text } = Typography;
+import SectionCard from "@/modules/hotel/components/hotels/viewhotles/HotelSections/SectionCard";
+import { CheckOutlined, MessageOutlined } from "@ant-design/icons";
+import { Input } from "antd";
 
 const requests = [
   "Smoking room",
@@ -15,49 +15,57 @@ const requests = [
 ];
 
 export default function SpecialRequestCard({ value = {}, onChange }) {
+  const selected = Array.isArray(value?.common) ? value.common : [];
+
+  const toggleRequest = (item) => {
+    const common = selected.includes(item)
+      ? selected.filter((request) => request !== item)
+      : [...selected, item];
+
+    onChange?.({ ...value, common });
+  };
+
   return (
-    <Card className="!mb-2 rounded border-0 !shadow-[0_4px_12px_rgba(0,0,0,0.25)] shadow-sm font-roboto!">
-      <Title level={4} className="font-roboto! !mb-5 !text-[20px] font-bold!">
-        Special Request
-      </Title>
+    <SectionCard
+      icon={<MessageOutlined />}
+      title="Special Requests"
+      subtitle="Subject to hotel availability, not guaranteed"
+    >
+      <div className="flex flex-wrap gap-2">
+        {requests.map((item) => {
+          const isSelected = selected.includes(item);
 
-      <Text className="text-[#666]">
-        Requests depend on hotel availability and are not guaranteed.
-      </Text>
-
-      <div className="mt-5 flex flex-wrap gap-3">
-        <Checkbox.Group
-          value={value?.common}
-          onChange={(list) =>
-            onChange({
-              ...value,
-              common: list,
-            })
-          }
-        >
-          <div className="flex flex-wrap gap-4">
-            {requests.map((item) => (
-              <Checkbox key={item} value={item}>
-                {item}
-              </Checkbox>
-            ))}
-          </div>
-        </Checkbox.Group>
+          return (
+            <button
+              key={item}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => toggleRequest(item)}
+              className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-medium transition ${
+                isSelected
+                  ? "border-(--theme-secondary) bg-(--theme-secondary)/8! text-(--theme-secondary)"
+                  : "border-gray-200 bg-white! text-gray-700 hover:border-gray-300 hover:bg-slate-50!"
+              }`}
+            >
+              {isSelected && <CheckOutlined className="text-[11px]" />}
+              {item}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="mt-5">
-        <Input.TextArea
-          rows={4}
-          value={value?.other}
-          placeholder="Any other request?"
-          onChange={(e) =>
-            onChange({
-              ...value,
-              other: e.target.value,
-            })
-          }
-        />
-      </div>
-    </Card>
+      <Input.TextArea
+        rows={3}
+        value={value?.other}
+        placeholder="Any other request? (e.g. anniversary decoration, extra pillows)"
+        onChange={(event) =>
+          onChange?.({
+            ...value,
+            other: event.target.value,
+          })
+        }
+        className="mt-4! rounded-xl!"
+      />
+    </SectionCard>
   );
 }

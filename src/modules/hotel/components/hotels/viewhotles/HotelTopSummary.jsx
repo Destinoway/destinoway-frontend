@@ -64,7 +64,7 @@ export default function HotelTopSummary({
   return (
     <div className="min-w-0">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <h1 className="!m-0 min-w-0 text-xl leading-tight font-bold text-gray-900 sm:text-2xl">
+        <h1 className="m-0! min-w-0 text-xl leading-tight font-bold text-gray-900 sm:text-2xl">
           {name || "Hotel"}
         </h1>
         {stars > 0 && (
@@ -85,7 +85,7 @@ export default function HotelTopSummary({
       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-600 sm:text-sm">
         {location && (
           <span className="inline-flex items-center gap-1">
-            <EnvironmentOutlined className="text-[var(--theme-primary)]" />
+            <EnvironmentOutlined className="text-(--theme-primary)" />
             {location}
           </span>
         )}

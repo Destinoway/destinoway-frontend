@@ -1,6 +1,11 @@
 "use client";
 
-import { CarOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import {
+  CarOutlined,
+  DownOutlined,
+  EnvironmentOutlined,
+  FileProtectOutlined,
+} from "@ant-design/icons";
 
 const contentSections = [
   {
@@ -109,7 +114,7 @@ export default function HotelContentOverview({ hotelContent = {} }) {
   );
 
   return (
-    <section className="space-y-3">
+    <section className="mt-6 space-y-3">
       {/* Policies and Fees */}
       {contentSections.map(({ title, fields }) => {
         const sectionData = fields
@@ -127,19 +132,27 @@ export default function HotelContentOverview({ hotelContent = {} }) {
         return (
           <details
             key={title}
-            className="group !mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+            className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)]"
           >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 marker:hidden sm:px-5">
-              <span className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-                {title}
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 marker:hidden sm:px-6 [&::-webkit-details-marker]:hidden">
+              <span className="flex min-w-0 items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--theme-secondary)/8 text-[18px] text-(--theme-secondary)">
+                  <FileProtectOutlined />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[15px] font-bold text-(--theme-text-primary) sm:text-[16px]">
+                    {title}
+                  </span>
+                  <span className="block text-[12px] text-gray-500">
+                    Check-in rules, fees and stay conditions
+                  </span>
+                </span>
               </span>
 
-              <span className="text-xs text-(--theme-primary) group-open:hidden">
-                View details
-              </span>
-
-              <span className="hidden text-xs text-(--theme-primary) group-open:inline">
-                Hide details
+              <span className="flex shrink-0 items-center gap-1.5 text-[12px] font-semibold text-(--theme-secondary)">
+                <span className="group-open:hidden">View details</span>
+                <span className="hidden group-open:inline">Hide details</span>
+                <DownOutlined className="text-[10px] transition-transform duration-200 group-open:rotate-180" />
               </span>
             </summary>
 
@@ -169,29 +182,30 @@ export default function HotelContentOverview({ hotelContent = {} }) {
 
       {/* Location and Nearby Places Dropdown */}
       {nearbyPlaces.length > 0 && (
-        <details className="group mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <details className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
           {/* Dropdown Header */}
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 marker:hidden sm:px-5">
-            <div className="flex gap-3">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-xl text-sky-700">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 marker:hidden sm:px-6 [&::-webkit-details-marker]:hidden">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--theme-secondary)/8 text-[18px] text-(--theme-secondary)">
                 <EnvironmentOutlined />
               </span>
 
               <div>
-                <h2 className="m-0 text-base font-semibold text-gray-900">
+                <h2 className="m-0 text-[15px] font-bold text-(--theme-text-primary) sm:text-[16px]">
                   Location and nearby places
                 </h2>
 
-                <p className="m-0 mt-1 text-sm text-gray-500">
+                <p className="m-0 text-[12px] text-gray-500">
                   {nearbyPlaces.length} nearby places
                 </p>
               </div>
             </div>
 
             {/* Dropdown Icon */}
-            <span className="flex shrink-0 items-center text-[10px] font-medium text-(--theme-primary)">
+            <span className="flex shrink-0 items-center gap-1.5 text-[12px] font-semibold text-(--theme-secondary)">
               <span className="group-open:hidden">View details</span>
               <span className="hidden group-open:inline">Hide details</span>
+              <DownOutlined className="text-[10px] transition-transform duration-200 group-open:rotate-180" />
             </span>
           </summary>
 
@@ -206,7 +220,7 @@ export default function HotelContentOverview({ hotelContent = {} }) {
                   {places.map((place, index) => (
                     <div
                       key={`${place.name}-${index}`}
-                      className="flex min-h-[60px] items-center justify-between gap-3 border-b border-gray-100 bg-white px-4 py-3 last:border-b-0 sm:px-5"
+                      className="flex min-h-15 items-center justify-between gap-3 border-b border-gray-100 bg-white px-4 py-3 last:border-b-0 sm:px-5"
                     >
                       {/* Place Name */}
                       <span className="min-w-0 text-sm leading-5 text-gray-700">
@@ -215,7 +229,7 @@ export default function HotelContentOverview({ hotelContent = {} }) {
 
                       {/* Distance Badge */}
                       {place.distance && (
-                        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700">
+                        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-(--theme-secondary)/8 px-3 py-1.5 text-xs font-semibold text-(--theme-secondary)">
                           <CarOutlined />
                           {place.distance}
                         </span>

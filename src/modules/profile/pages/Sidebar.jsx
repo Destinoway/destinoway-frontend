@@ -122,7 +122,7 @@ export default function Sidebar({ activeTab, setActiveTab, horizontal }) {
                   ? "whitespace-nowrap px-2 py-1"
                   : "px-3 py-3 sm:px-3 sm:py-3"
                   } ${isActive
-                    ? " !border-[3px] most-boder-colour"
+                    ? " border-[3px]! most-boder-colour"
                     : "border-gray-200 hover:bg-gray-50"
                   }`}
               >

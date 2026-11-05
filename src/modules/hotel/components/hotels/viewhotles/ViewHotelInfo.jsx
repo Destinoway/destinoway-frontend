@@ -7,31 +7,29 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import { Modal } from "antd";
+
+import SectionCard from "./HotelSections/SectionCard";
 import { useEffect, useRef, useState } from "react";
 
 const AboutHotelContent = ({ content, isModalOpen, setIsModalOpen }) => {
   const [isLongContent, setIsLongContent] = useState(false);
   const contentRef = useRef(null);
-  
 
   useEffect(() => {
-    const checkContentHeight = () => {
-      const element = contentRef.current;
+    const element = contentRef.current;
+    if (!element) return undefined;
 
-      if (!element) return;
-
+    const observer = new ResizeObserver(() => {
       const lineHeight = parseFloat(
         window.getComputedStyle(element).lineHeight,
       );
-      const maxHeight = lineHeight * 4;
+      setIsLongContent(
+        Boolean(lineHeight) && element.scrollHeight > lineHeight * 4 + 2,
+      );
+    });
 
-      setIsLongContent(element.scrollHeight > maxHeight + 2);
-    };
-
-    checkContentHeight();
-    window.addEventListener("resize", checkContentHeight);
-
-    return () => window.removeEventListener("resize", checkContentHeight);
+    observer.observe(element);
+    return () => observer.disconnect();
   }, [content]);
 
   return (
@@ -46,7 +44,7 @@ const AboutHotelContent = ({ content, isModalOpen, setIsModalOpen }) => {
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="most-text-color mt-2 cursor-pointer text-sm font-semibold underline transition"
+          className="mt-2 cursor-pointer border-none bg-transparent p-0 text-sm font-semibold text-(--theme-secondary) underline-offset-4 transition hover:underline"
         >
           View More
         </button>
@@ -63,7 +61,7 @@ const AboutHotelContent = ({ content, isModalOpen, setIsModalOpen }) => {
         }
         title={
           <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-            <div className="most-text-color most-boder-colour flex h-10 w-10 items-center justify-center rounded border">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--theme-secondary)/8 text-[18px] text-(--theme-secondary)">
               <InfoCircleOutlined />
             </div>
 
@@ -100,68 +98,41 @@ const ViewHotelInfo = ({ supplierData = {} }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="mt-4">
-      <div className="space-y-4">
-        {/* ================= ABOUT HOTEL ================= */}
-        <div className="rounded border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="most-boder-colour most-text-colour flex h-10 w-10 items-center justify-center rounded border">
-              <InfoCircleOutlined />
-            </div>
+    <div className="space-y-4">
+      <SectionCard
+        icon={<InfoCircleOutlined />}
+        title="About Hotel"
+        subtitle="Property overview"
+      >
+        {AboutHotel ? (
+          <AboutHotelContent
+            content={AboutHotel}
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+          />
+        ) : (
+          <p className="m-0 text-sm leading-7 text-gray-500">
+            No hotel description available.
+          </p>
+        )}
+      </SectionCard>
 
-            <div>
-              <h2 className="mb-0 text-[17px] font-bold text-gray-800">
-                About Hotel
-              </h2>
-
-              <p className="text-sm font-semibold text-gray-500">
-                Property overview
-              </p>
-            </div>
-          </div>
-
-          {AboutHotel ? (
-            <AboutHotelContent
-              content={AboutHotel}
-              isModalOpen={isModalOpen}
-              setIsModalOpen={setIsModalOpen}
-            />
-          ) : (
-            <p className="leading-7 text-gray-600">
-              No hotel description available.
+      <SectionCard
+        icon={<EnvironmentOutlined />}
+        title="Hotel Address"
+        subtitle="Location details"
+      >
+        <div className="rounded-xl border border-gray-200 bg-slate-50/70 p-4">
+          <p className="m-0 text-[14px] font-semibold text-gray-800">
+            {Address || "Address unavailable"}
+          </p>
+          {[City, State, Country].some(Boolean) && (
+            <p className="m-0 mt-1 text-[13px] text-gray-500">
+              {[City, State, Country].filter(Boolean).join(", ")}
             </p>
           )}
         </div>
-
-        {/* ================= HOTEL ADDRESS ================= */}
-        <div className="rounded border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="most-boder-colour most-text-color flex h-10 w-10 items-center justify-center rounded border">
-              <EnvironmentOutlined />
-            </div>
-
-            <div>
-              <h2 className="mb-0 text-[17px] font-bold text-gray-800">
-                Hotel Address
-              </h2>
-
-              <p className="text-sm font-semibold text-gray-500">
-                Location details
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded bg-[#f8fbfd] p-3">
-            <p className="font-semibold text-gray-700">
-              {Address || "Address unavailable"}
-            </p>
-
-            <p className="mt-1 text-sm text-gray-500">
-              {[City, State, Country].filter(Boolean).join(", ")}
-            </p>
-          </div>
-        </div>
-      </div>
+      </SectionCard>
     </div>
   );
 };

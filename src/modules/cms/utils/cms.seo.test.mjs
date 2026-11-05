@@ -144,7 +144,7 @@ test("title: brand is not duplicated", () => {
     absolute: "Goa | Destonoway",
   });
   assert.equal(buildPageTitle("Goa Hotels"), "Goa Hotels");
-  assert.equal(buildPageTitle(""), "Destonoway");
+  assert.equal(buildPageTitle(""), "Destinoway");
 });
 
 test("canonical: saved value wins even when it looks truncated", () => {

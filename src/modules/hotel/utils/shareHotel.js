@@ -1,7 +1,7 @@
-import { message } from "antd";
 import { buildHotelUrl } from "./buildHotelUrl";
 
 export const shareHotel = async ({
+  message,
   hotelName,
   cityName,
   hotelId,
@@ -28,7 +28,7 @@ export const shareHotel = async ({
       title: hotelName,
       text: `Check out ${hotelName}${
         cityName ? ` in ${cityName}` : ""
-      } on Destonoway.`,
+      } on Destinoway.`,
       url: hotelUrl,
     };
 

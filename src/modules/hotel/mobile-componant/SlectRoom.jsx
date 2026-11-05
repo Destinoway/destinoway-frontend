@@ -62,7 +62,7 @@ const SlectRoom = ({ ratePlans = [], supplierData = {} }) => {
           >
             <div className="grid items-stretch gap-5 p-5 lg:grid-cols-[280px_1fr_280px]">
               {/* IMAGE */}
-              <div className="relative h-[240px] overflow-hidden rounded lg:h-full lg:min-h-[260px]">
+              <div className="relative h-60 overflow-hidden rounded lg:h-full lg:min-h-65">
                 <Image
                   src={image}
                   alt="room"
@@ -108,7 +108,7 @@ const SlectRoom = ({ ratePlans = [], supplierData = {} }) => {
                   )}
 
                   {ccRequired && (
-                    <span className="font-roboto rounded-full bg-red-100  py-0 p-1 !text-[12px] font-semibold text-red-600">
+                    <span className="font-roboto rounded-full bg-red-100  py-0 p-1 text-[12px]! font-semibold text-red-600">
                       Credit Card Required
                     </span>
                   )}
@@ -153,7 +153,7 @@ const SlectRoom = ({ ratePlans = [], supplierData = {} }) => {
               </div>
 
               {/* PRICE */}
-              <div className="flex h-full flex-col rounded border border-gray-100 bg-[#fafafa] p-4 lg:sticky lg:top-24 !-mt-5">
+              <div className="flex h-full flex-col rounded border border-gray-100 bg-[#fafafa] p-4 lg:sticky lg:top-24 -mt-5!">
                 <p className="mb-4 text-xs font-semibold tracking-wide text-gray-400 uppercase">
                   Price Breakdown
                 </p>
@@ -233,7 +233,7 @@ const SlectRoom = ({ ratePlans = [], supplierData = {} }) => {
                       ),
                     )
                   }
-                  className="!mt-5 !h-[58px] w-full rounded! buttion-background-color text-sm font-semibold tracking-wide text-white!"
+                  className="mt-5! h-14.5! w-full rounded! buttion-background-color text-sm font-semibold tracking-wide text-white!"
                 >
                   Select Room
                 </Button>
@@ -241,7 +241,7 @@ const SlectRoom = ({ ratePlans = [], supplierData = {} }) => {
             </div>
             {/* Cancellation Full Width */}
             {!!detail?.CancellationPolicy && (
-              <div className="mx-5 !-mt-2 mb-5 rounded border border-[#fde7cf] bg-[#fffaf5] p-5 shadow-sm">
+              <div className="mx-5 -mt-2! mb-5 rounded border border-[#fde7cf] bg-[#fffaf5] p-5 shadow-sm">
                 {/* Header */}
                 <div className="flex items-center gap-4">
                   <div className="h-2 w-2 rounded-full bg-[#ea580c]" />

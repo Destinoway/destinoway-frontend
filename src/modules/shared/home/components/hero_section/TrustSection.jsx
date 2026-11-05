@@ -70,7 +70,7 @@ const trustItems = [
 // columns on tablets, a single 6-column strip on desktop.
 export default function TrustSection() {
   return (
-    <section className="background-color-bg w-full pt-5 min-[778px]:pt-[30px] md:mt-[90px] xl:mt-[80px] 2xl:mt-[99px]">
+    <section className="background-color-bg w-full pt-5 min-[778px]:pt-7.5 md:mt-22.5 xl:mt-20 2xl:mt-24.75">
       <div className="mx-auto w-[94%] md:w-[92%] lg:w-[94%] xl:w-[82%]">
         {/* gap-px over a grey background draws hairline dividers at any column count */}
         <div className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 shadow-[0_4px_20px_rgba(15,23,42,0.06)] lg:grid-cols-6">
@@ -86,12 +86,12 @@ export default function TrustSection() {
               </span>
 
               <div className="min-w-0">
-                <h3 className="text-[12px] leading-[16px] font-bold text-(--theme-text-primary) sm:text-[13px] sm:leading-[18px]">
+                <h3 className="text-[12px] leading-4 font-bold text-(--theme-text-primary) sm:text-[13px] sm:leading-4.5">
                   <span className="sm:hidden">{item.shortTitle}</span>
                   <span className="hidden sm:inline">{item.title}</span>
                 </h3>
 
-                <p className="mt-0.5 hidden text-[11px] leading-[15px] text-gray-500 sm:block">
+                <p className="mt-0.5 hidden text-[11px] leading-3.75 text-gray-500 sm:block">
                   {item.description}
                 </p>
               </div>

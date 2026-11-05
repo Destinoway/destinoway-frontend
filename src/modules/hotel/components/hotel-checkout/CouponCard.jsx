@@ -36,7 +36,7 @@ export default function CouponCard({
   return (
     <Card
       variant={false}
-      className="rounded shadow-[0_6px_18px_rgba(0,0,0,0.08)] !mt-4"
+      className="rounded shadow-[0_6px_18px_rgba(0,0,0,0.08)] mt-4!"
       styles={{
         body: {
           padding: 20,
@@ -44,13 +44,13 @@ export default function CouponCard({
       }}
     >
       {/* Header */}
-      <div className="!mt-4 flex items-center gap-3">
+      <div className="mt-4! flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#ECFDF5]">
           <GiftOutlined className="text-xl text-[#0f766e]" />
         </div>
 
         <div>
-          <Title level={5} className="!mb-0">
+          <Title level={5} className="mb-0!">
             Offers & Coupons
           </Title>
 
@@ -80,7 +80,7 @@ export default function CouponCard({
                 }`}
               >
                 {/* Image */}
-                <div className="relative h-[110px] w-full">
+                <div className="relative h-27.5 w-full">
                   <Image
                     src={coupon.image || "/images/no-image.jpg"}
                     alt={coupon.title}
@@ -107,7 +107,7 @@ export default function CouponCard({
                     <div className="flex-1">
                       <Title
                         level={5}
-                        className="!mb-1 !text-[18px] !font-semibold"
+                        className="mb-1! text-[18px]! font-semibold!"
                       >
                         {coupon.title}
                       </Title>
@@ -172,7 +172,7 @@ export default function CouponCard({
                         block
                         size="large"
                         disabled
-                        className="!h-11 !rounded-xl !border-green-500 !bg-green-50 !font-semibold !text-green-700"
+                        className="h-11! rounded-xl! border-green-500! bg-green-50! font-semibold! text-green-700!"
                       >
                         ✓ Applied
                       </Button>
@@ -181,7 +181,7 @@ export default function CouponCard({
                         block
                         size="large"
                         loading={loading}
-                        className="!h-11 !rounded-xl !border-none text-white! !bg-[#0F766E] !font-semibold hover:!bg-[#115e59]"
+                        className="h-11! rounded-xl! border-none! text-white! bg-[#0F766E]! font-semibold! hover:bg-[#115e59]!"
                         onClick={() => handleApply(coupon)}
                       >
                         Apply Coupon

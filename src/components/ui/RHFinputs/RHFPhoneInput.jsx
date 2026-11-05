@@ -4,7 +4,7 @@ import { useCountries } from "@/modules/shared/home/hooks/useCountries";
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import { Dropdown, Input } from "antd";
 import { useMemo, useState } from "react";
-import { Controller, useFormContext, useWatch } from "react-hook-form";
+import { Controller, get, useFormContext, useWatch } from "react-hook-form";
 
 export default function RHFPhoneInput({
   name = "mobile",
@@ -59,15 +59,20 @@ export default function RHFPhoneInput({
     <div className="relative">
       {/* Floating Label */}
       <label
-        className={`pointer-events-none absolute left-3 z-10 bg-white px-1 transition-all duration-200 ${mobile || selectedCode
-            ? "-top-2 text-xs most-text-color"
+        className={`pointer-events-none absolute left-3 z-10 bg-white px-1 transition-all duration-200 ${
+          mobile || selectedCode
+            ? "most-text-color -top-2 text-xs"
             : "top-3 text-sm text-gray-500"
-          }`}
+        }`}
       >
         {label}
       </label>
 
-      <div className="flex h-10 overflow-hidden rounded border border-gray-300 bg-white">
+      <div
+        className={`flex h-11 overflow-hidden rounded border bg-white ${
+          get(errors, name) ? "border-red-500" : "border-gray-300"
+        }`}
+      >
         {/* Country Dropdown */}
         <Controller
           name={codeName}
@@ -78,17 +83,17 @@ export default function RHFPhoneInput({
               open={open}
               onOpenChange={setOpen}
               popupRender={() => (
-                <div className="w-[250px] rounded bg-white p-3 shadow-xl">
+                <div className="w-62.5 rounded bg-white p-3 shadow-xl">
                   <Input
                     allowClear
                     placeholder="Country Name or Code"
                     prefix={<SearchOutlined />}
                     value={search}
-                    className="[&_.ant-input]:!border-0 [&_.ant-input]:!shadow-none [&_.ant-input]:focus:!shadow-none"
+                    className="[&_.ant-input]:border-0! [&_.ant-input]:shadow-none! [&_.ant-input]:focus:shadow-none!"
                     onChange={(e) => setSearch(e.target.value)}
                   />
 
-                  <div className="mt-3 max-h-[250px] overflow-y-auto">
+                  <div className="mt-3 max-h-62.5 overflow-y-auto">
                     {filteredCountries.map((country) => (
                       <div
                         key={country._id}
@@ -102,10 +107,11 @@ export default function RHFPhoneInput({
                           setOpen(false);
                           setSearch("");
                         }}
-                        className={`flex cursor-pointer items-center justify-between rounded px-3 py-2 transition hover:bg-gray-100 ${selectedCode === country.phoneCode
+                        className={`flex cursor-pointer items-center justify-between rounded px-3 py-2 transition hover:bg-gray-100 ${
+                          selectedCode === country.phoneCode
                             ? "bg-gray-100"
                             : ""
-                          }`}
+                        }`}
                       >
                         <div className="flex items-center gap-3">
                           <img
@@ -134,7 +140,7 @@ export default function RHFPhoneInput({
             >
               <button
                 type="button"
-                className="flex min-w-[70px] items-center gap-1 border-r border-gray-300 px-2"
+                className="flex min-w-17.5 items-center gap-1 border-r border-gray-300 px-2"
               >
                 {selectedCountry && (
                   <>
@@ -164,14 +170,16 @@ export default function RHFPhoneInput({
             <Input
               {...field}
               placeholder={mobile ? "" : placeholder}
-              className="h-full border-0! shadow-none focus:shadow-none"
+              className="h-full border-0! text-[16px]! shadow-none focus:shadow-none"
             />
           )}
         />
       </div>
 
-      {errors?.[name] && (
-        <p className="mt-1 text-xs text-red-500">{errors[name]?.message}</p>
+      {get(errors, name) && (
+        <p className="mt-2 text-xs text-red-500">
+          {get(errors, name)?.message}
+        </p>
       )}
     </div>
   );

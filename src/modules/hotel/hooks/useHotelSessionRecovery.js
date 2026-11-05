@@ -1,23 +1,26 @@
 "use client";
 
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { searchHotels } from "../services/hotel.service";
 import { useSelectedHotelStore } from "../store/selectedHotel.store";
 import { useHotelSearchStore } from "../store/serchData.store";
 
 export const useHotelSessionRecovery = ({ hotelDetails, rawRatePlans }) => {
-  const [sessionExpired, setSessionExpired] = useState(false);
+  const isSessionExpired = Boolean(hotelDetails && rawRatePlans === null);
+  const [sessionExpired, setSessionExpired] = useState(isSessionExpired);
+  const [prevIsSessionExpired, setPrevIsSessionExpired] =
+    useState(isSessionExpired);
   const [reloadingHotels, setReloadingHotels] = useState(false);
   const { appliedSearchData } = useHotelSearchStore();
   const { selectedHotel, setSelectedHotel } = useSelectedHotelStore();
-  const isSessionExpired = hotelDetails && rawRatePlans === null;
 
-  useEffect(() => {
+  if (isSessionExpired !== prevIsSessionExpired) {
+    setPrevIsSessionExpired(isSessionExpired);
     if (isSessionExpired) {
       setSessionExpired(true);
     }
-  }, [isSessionExpired]);
+  }
 
   const handleReloadHotels = async () => {
     try {

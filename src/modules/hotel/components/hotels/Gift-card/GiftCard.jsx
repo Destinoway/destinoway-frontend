@@ -46,7 +46,7 @@ export default function GiftCard({ card }) {
   return (
     <div className="group overflow-hidden rounded border border-[#E5EEF5] bg-white shadow-[0_8px_25px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(0,0,0,0.14)]">
       {/* Image */}
-      <div className="relative h-[170px] overflow-hidden">
+      <div className="relative h-42.5 overflow-hidden">
         <Image
           src={card.image}
           alt={card.title}
@@ -58,7 +58,7 @@ export default function GiftCard({ card }) {
         <div className="absolute inset-0 bg-black/35" />
 
         {/* Bottom Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/35 to-transparent" />
 
         {/* Discount Badge */}
         <div className="absolute top-3 right-3 rounded-full bg-white/95 px-3 py-1 shadow-md backdrop-blur">
@@ -143,7 +143,7 @@ export default function GiftCard({ card }) {
         {/* CTA */}
         <button
           disabled={card.comingSoon}
-          className={`font-roboto h-[48px] w-full rounded-xl text-[15px] font-medium text-white! transition-all duration-300 ${card.comingSoon
+          className={`font-roboto h-12 w-full rounded-xl text-[15px] font-medium text-white! transition-all duration-300 ${card.comingSoon
             ? "cursor-not-allowed bg-gray-400"
             : "buttion-background-color hover:shadow-lg hover:brightness-110"
             }`}

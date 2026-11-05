@@ -38,7 +38,7 @@ const features = [
 
 export default function WhySection() {
   return (
-    <section className="background-color-bg mt-[-10px] overflow-hidden !px-0 py-10 sm:!px-0 sm:py-12 md:!px-2 md:py-16 lg:!px-3 lg:py-20 xl:!px-4 2xl:!px-0">
+    <section className="background-color-bg -mt-2.5 overflow-hidden px-0! py-10 sm:px-0! sm:py-12 md:px-2! md:py-16 lg:px-3! lg:py-20 xl:px-4! 2xl:px-0!">
       <div className="mx-auto mt-0 w-full px-2 sm:mt-2 sm:px-4 md:mt-4 lg:-mt-20 lg:w-[86%] lg:px-0 xl:mt-4">
         <SectionHeading
           title="Why Choose Our Platform"
@@ -46,7 +46,7 @@ export default function WhySection() {
         />
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_1fr] xl:gap-10">
-          <div className="relative min-h-[240px] overflow-hidden rounded-2xl shadow-xl sm:min-h-[320px] md:min-h-[420px] lg:min-h-[520px] lg:rounded-[32px] xl:min-h-[600px]">
+          <div className="relative min-h-60 overflow-hidden rounded-2xl shadow-xl sm:min-h-80 md:min-h-105 lg:min-h-130 lg:rounded-4xl xl:min-h-150">
             <Image
               src="/images/whySection.png"
               alt="Luxury Resort"
@@ -55,7 +55,7 @@ export default function WhySection() {
               className="object-cover"
             />
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/40 via-black/10 to-transparent" />
 
             <div className="absolute right-3 bottom-3 left-3 w-auto rounded-xl border border-white/40 bg-white/95 px-4 py-3 shadow-2xl backdrop-blur-md sm:right-auto sm:bottom-5 sm:left-5 sm:w-fit sm:px-5 sm:py-4 lg:rounded-2xl">
               <p className="text-sm font-medium text-gray-500">
@@ -67,7 +67,7 @@ export default function WhySection() {
                   4.9★
                 </p>
 
-                <div className="h-10 w-[1px] bg-gray-200" />
+                <div className="h-10 w-px bg-gray-200" />
 
                 <p className="text-xs leading-5 text-gray-600 sm:text-sm lg:text-base">
                   Rated highly for service,

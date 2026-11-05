@@ -20,10 +20,10 @@ export default function CTABlock({ data }) {
       {/* BACKGROUND OVERLAY */}
       {backgroundImage && <div className="absolute inset-0 bg-black/40" />}
 
-      <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-        <div className="flex min-h-[150px] items-center justify-between gap-8 md:min-h-[150px] lg:gap-12">
+      <div className="relative mx-auto max-w-350 px-4 sm:px-6 lg:px-8">
+        <div className="flex min-h-37.5 items-center justify-between gap-8 md:min-h-37.5 lg:gap-12">
           {/* LEFT CONTENT */}
-          <div className="max-w-[800px]">
+          <div className="max-w-200">
             {data?.title && (
               <h2 className="mb-3 text-[26px] leading-[1.2] font-bold text-white sm:text-[30px] md:text-[36px]">
                 {data.title}
@@ -31,7 +31,7 @@ export default function CTABlock({ data }) {
             )}
 
             {data?.description && (
-              <p className="max-w-[720px] text-[14px] leading-6 text-white/90 sm:text-[15px] sm:leading-7 md:text-[16px]">
+              <p className="max-w-180 text-[14px] leading-6 text-white/90 sm:text-[15px] sm:leading-7 md:text-[16px]">
                 {data.description}
               </p>
             )}
@@ -42,7 +42,7 @@ export default function CTABlock({ data }) {
             <div className="shrink-0">
               <Link
                 href={data?.buttonLink || "#"}
-                className="buttion-background-color inline-flex min-w-[150px] items-center justify-center rounded-lg px-7 py-3.5 text-sm font-semibold !text-white shadow-lg transition-all duration-300 hover:scale-[1.03] hover:shadow-xl"
+                className="buttion-background-color inline-flex min-w-37.5 items-center justify-center rounded-lg px-7 py-3.5 text-sm font-semibold text-white! shadow-lg transition-all duration-300 hover:scale-[1.03] hover:shadow-xl"
               >
                 {data.buttonText}
               </Link>

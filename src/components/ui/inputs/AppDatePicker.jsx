@@ -7,8 +7,8 @@ export default function AppDatePicker({ error, ...props }) {
     <div>
       <DatePicker
         size="large"
-        className={`!h-[43px] !w-full !rounded ${
-          error ? "!border-red-500" : ""
+        className={`h-10.75! w-full! rounded! ${
+          error ? "border-red-500!" : ""
         } `}
         {...props}
       />

@@ -1,6 +1,6 @@
 "use client";
 
-import { message } from "antd";
+import { App } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -31,6 +31,7 @@ const HOTEL_SEARCH_POLL_INTERVAL_MS = 400;
 const HOTEL_SEARCH_TIMEOUT_MS = 30000;
 
 export const useHotelDetailsPage = ({ initialPayload = null }) => {
+  const { message } = App.useApp();
   const router = useRouter();
   const [resolvedSearchId, setResolvedSearchId] = useState("");
   const { selectedHotel } = useSelectedHotelStore();
@@ -505,6 +506,7 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
       }
     });
   }, [
+    message,
     appliedSearchData,
     basePrice,
     isWishlisted,
@@ -518,6 +520,7 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
 
   const handleShare = useCallback(async () => {
     await shareHotel({
+      message,
       hotelName: hotel?.name || "",
       cityName: location?.city || appliedSearchData?.city || "",
       hotelId: payload?.hotelId,
@@ -525,7 +528,7 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
       supplierHotelId: payload?.supplierHotelId,
       hotelDetailId: payload?.hotelDetailId,
     });
-  }, [appliedSearchData?.city, hotel?.name, location?.city, payload]);
+  }, [appliedSearchData?.city, hotel?.name, location?.city, message, payload]);
 
   return {
     isMobile,

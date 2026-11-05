@@ -133,9 +133,9 @@ function HotelDetailsMobile({
   }, []);
 
   return (
-    <div className="min-h-screen !bg-[#eef3f8]">
+    <div className="min-h-screen bg-[#eef3f8]!">
       <div
-        className={`sticky top-0 z-50 flex items-center !justify-between p-2 transition-all duration-300 ${
+        className={`sticky top-0 z-50 flex items-center justify-between! p-2 transition-all duration-300 ${
           isScrolled ? "bg-white shadow-md" : "bg-transparent"
         }`}
       >
@@ -182,7 +182,7 @@ function HotelDetailsMobile({
               description={detailError}
             />
           )}
-          <div className="mx-auto w-full rounded-b-[24px] bg-white shadow-sm">
+          <div className="mx-auto w-full rounded-b-3xl bg-white shadow-sm">
             {/* Top Overlay Icons */}
 
             {/* Gallery */}
@@ -235,7 +235,7 @@ function HotelDetailsMobile({
                       {(supplierData?.Address ||
                         supplierData?.State ||
                         supplierData?.Country) && (
-                        <p className="m-0 text-sm leading-[1] text-gray-500">
+                        <p className="m-0 text-sm leading-none text-gray-500">
                           {[
                             supplierData?.Address,
                             supplierData?.State,
@@ -311,18 +311,21 @@ function HotelDetailsMobile({
 
           {/* CMS Section */}
 
-          <div className="mx-auto mt-8 w-full px-3">
-            <HotelCmsSection>
-              {cms ? (
-                <CMSContentRenderer cms={cms} />
-              ) : (
-                <DynamicHotelSeoFallback
-                  hotelName={supplierData?.HotelName}
-                  cityName={supplierData?.City}
-                />
-              )}
-            </HotelCmsSection>
-          </div>
+          {(cms || supplierData?.HotelName) && (
+            <div className="mx-auto mt-8 w-full px-3">
+              <HotelCmsSection>
+                {cms ? (
+                  <CMSContentRenderer cms={cms} />
+                ) : (
+                  <DynamicHotelSeoFallback
+                    hotelName={supplierData?.HotelName}
+                    cityName={supplierData?.City}
+                    amenities={amenities}
+                  />
+                )}
+              </HotelCmsSection>
+            </div>
+          )}
 
           {/* Related Hotels */}
 
@@ -347,70 +350,84 @@ function HotelDetailsMobile({
 
           {/* Sticky Bottom */}
 
-          <div className="teb-gradient sticky bottom-0 z-50 px-2 py-3 shadow-xl lg:hidden">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
+          <div className="sticky bottom-0 z-50 border-t border-gray-200 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur-sm lg:hidden">
+            <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+              <div className="min-w-0">
                 {isRoomsLoading ? (
                   <div
                     aria-label="Loading room price"
-                    className="mb-1 h-7 w-24 animate-pulse rounded bg-white/40"
+                    className="h-9 w-32 animate-pulse rounded-lg bg-slate-200"
                   />
                 ) : !featuredRoom ? (
-                  <span className="text-sm font-semibold text-white">
+                  <span className="text-sm font-semibold text-gray-500">
                     Price unavailable
                   </span>
                 ) : (
                   <>
-                    <span className="text-[10px] leading-none text-white/80">
+                    <p className="m-0 truncate text-[11px] font-medium text-gray-500">
                       {featuredRoom.isPreffered
                         ? "Recommended room"
-                        : "First available room"}
-                    </span>
-                    <h2 className="mb-1! text-2xl leading-none font-bold text-white">
+                        : "Starting from"}
+                    </p>
+                    <p className="m-0 text-[20px] leading-tight font-bold whitespace-nowrap text-(--theme-text-primary)">
                       {currencySymbol}{" "}
                       {Number(
                         featuredRoom?.pricing?.totalAmount ||
                           featuredRoom?.TotalAmount ||
                           0,
-                      ).toLocaleString()}
-                    </h2>
-
-                    <span className="text-[10px] leading-none text-white/80">
-                      incl. taxes
-                    </span>
+                      ).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                    <p className="m-0 text-[11px] text-gray-500">
+                      incl. taxes & fees
+                    </p>
                   </>
                 )}
               </div>
-              <Drawer
-                title="Select Room"
-                placement="right"
-                size="100%"
-                open={openDrawer}
-                onClose={() => setOpenDrawer(false)}
-              >
-                <RoomOptions
-                  ratePlans={ratePlans}
-                  hotelDetailId={payload?.hotelDetailId || ""}
-                  hotelImageFallback={
-                    hotelImages?.[0] || supplierData?.HotelImage
-                  }
-                  isRoomsLoading={isRoomsLoading}
-                  roomError={roomError}
-                  hasMore={hasMore}
-                  isLoadingMore={isFetchingNextPage}
-                  onLoadMore={loadMoreRooms}
-                  onRetry={onRetry}
-                />
-              </Drawer>
 
               <button
+                type="button"
                 onClick={() => setOpenDrawer(true)}
-                className="rounded-lg bg-white px-5 py-2 text-sm font-bold text-[#0a6cff]"
+                className="h-11 shrink-0 cursor-pointer rounded-xl border-none bg-(--theme-secondary)! px-6 text-[14px] font-bold text-white! shadow-[0_8px_20px_rgba(15,23,42,0.18)] transition hover:bg-(--theme-hover)!"
               >
-                SELECT ROOM
+                Select room
               </button>
             </div>
           </div>
+
+          <Drawer
+            title={
+              <span className="text-[16px] font-bold text-(--theme-text-primary)">
+                Select Room
+              </span>
+            }
+            placement="right"
+            size="100%"
+            open={openDrawer}
+            onClose={() => setOpenDrawer(false)}
+            styles={{
+              header: { padding: "14px 16px" },
+              body: { padding: 12, background: "#f8fafc" },
+            }}
+          >
+            <div className="mx-auto w-full max-w-3xl">
+              <RoomOptions
+                ratePlans={ratePlans}
+                hotelDetailId={payload?.hotelDetailId || ""}
+                hotelImageFallback={
+                  hotelImages?.[0] || supplierData?.HotelImage
+                }
+                isRoomsLoading={isRoomsLoading}
+                roomError={roomError}
+                hasMore={hasMore}
+                isLoadingMore={isFetchingNextPage}
+                onLoadMore={loadMoreRooms}
+                onRetry={onRetry}
+              />
+            </div>
+          </Drawer>
         </>
       )}
     </div>

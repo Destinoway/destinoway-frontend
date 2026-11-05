@@ -106,12 +106,12 @@ export const joinSiteUrl = (siteUrl, ...segments) => {
 
 const BRAND_PATTERN = /destinoway|destonoway/i;
 
-// Root layout appends " | Destonoway" via its title template. A title that already
+// Root layout appends " | Destinoway" via its title template. A title that already
 // carries the brand must bypass the template, otherwise the brand is repeated.
 export const buildPageTitle = (title) => {
   const value = typeof title === "string" ? title.trim() : "";
 
-  if (!value) return "Destonoway";
+  if (!value) return "Destinoway";
 
   return BRAND_PATTERN.test(value) ? { absolute: value } : value;
 };

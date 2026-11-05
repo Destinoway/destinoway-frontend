@@ -15,7 +15,7 @@ export default function HotelNotFound({
   };
 
   return (
-    <div className="flex min-h-[500px] w-full items-center justify-center px-4 py-10">
+    <div className="flex min-h-125 w-full items-center justify-center px-4 py-10">
       <div className="w-full max-w-2xl rounded-2xl bg-white px-6 py-12 text-center shadow-sm md:px-10">
 
         {/* Icon */}

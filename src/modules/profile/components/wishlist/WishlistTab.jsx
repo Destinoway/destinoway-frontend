@@ -6,14 +6,22 @@ import { CheckOutlined } from "@ant-design/icons";
 import { Card, Empty } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import WishlistSkeleton from "../../lodding/WishlistSkeleton";
+
+const subscribeToMount = () => () => {};
+const getClientMounted = () => true;
+const getServerMounted = () => false;
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1566073771259-6a8506099945";
 
 export default function WishlistTab() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribeToMount,
+    getClientMounted,
+    getServerMounted,
+  );
 
   const router = useRouter();
 
@@ -47,10 +55,6 @@ export default function WishlistTab() {
     return Array.from(uniqueDestinations.values());
   }, [data]);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const handleViewHotels = (cityId) => {
     router.push(
       `/profile?tab=wishlist-detail&cityId=${encodeURIComponent(cityId)}`
@@ -64,7 +68,7 @@ export default function WishlistTab() {
   // Loading
   if (isLoading) {
     return (
-      <div className="mt-[-17px] p-2 sm:p-3 md:p-4">
+      <div className="-mt-4.25 p-2 sm:p-3 md:p-4">
         <div className="mb-2 bg-white px-4 py-2 shadow-sm">
           <div className="h-7 w-32 animate-pulse rounded bg-gray-200" />
         </div>
@@ -107,10 +111,10 @@ export default function WishlistTab() {
   }
 
   return (
-    <div className="mt-[-17px] p-2 sm:p-3 md:p-4">
+    <div className="-mt-4.25 p-2 sm:p-3 md:p-4">
       {/* HEADER */}
       <div className="mb-2 flex flex-col gap-2 bg-white px-4 py-2 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <h2 className="font-roboto my-2! text-[20px] leading-[100%] font-semibold tracking-[0] text-gray-900">
+        <h2 className="font-roboto my-2! text-[20px] leading-[100%] font-semibold tracking-normal text-gray-900">
           Wishlist
         </h2>
       </div>
@@ -121,7 +125,7 @@ export default function WishlistTab() {
           <Card
             key={item.cityId}
             onClick={() => handleViewHotels(item.cityId)}
-            className="cursor-pointer overflow-hidden !rounded !border !border-[#E2E8F0] !pr-4 shadow-[0_2px_6px_rgba(0,0,0,0.05)]"
+            className="cursor-pointer overflow-hidden rounded! border! border-[#E2E8F0]! pr-4! shadow-[0_2px_6px_rgba(0,0,0,0.05)]"
             styles={{
               body: {
                 padding: 0,
@@ -130,8 +134,8 @@ export default function WishlistTab() {
           >
             <div className="flex flex-col xl:flex-row xl:items-stretch">
               {/* IMAGE */}
-              <div className="w-full shrink-0 p-2 xl:w-[200px]">
-                <div className="relative h-[160px] w-full overflow-hidden rounded">
+              <div className="w-full shrink-0 p-2 xl:w-50">
+                <div className="relative h-40 w-full overflow-hidden rounded">
                   <Image
                     src={item.coverImage}
                     alt={item.cityName}
@@ -195,22 +199,22 @@ export default function WishlistTab() {
                 </div>
 
                 {/* RIGHT SECTION */}
-                <div className="flex flex-col justify-between border-t border-[#ECECEC] px-2 py-2 md:w-[220px] md:border-t-0 md:border-l">
+                <div className="flex flex-col justify-between border-t border-[#ECECEC] px-2 py-2 md:w-55 md:border-t-0 md:border-l">
                   {/* SAVED HOTELS */}
-                  <div className="ml-auto w-[145px] rounded-[8px] border most-boder-colour px-2 py-1">
+                  <div className="ml-auto w-36.25 rounded-lg border most-boder-colour px-2 py-1">
                     <div className="flex items-center justify-between">
-                      <p className="!m-0 text-[11px] font-semibold most-text-color">
+                      <p className="m-0! text-[11px] font-semibold most-text-color">
                         Saved Hotels
                       </p>
 
-                      <div className="flex h-[20px] min-w-[28px] items-center justify-center rounded buttion-background-color px-1 text-[10px] font-bold text-white">
+                      <div className="flex h-5 min-w-7 items-center justify-center rounded buttion-background-color px-1 text-[10px] font-bold text-white">
                         {item.hotelCount}
                       </div>
                     </div>
                   </div>
 
                   {/* VIEW HOTELS BUTTON */}
-                  <div className="flex flex-col items-end gap-3 !py-3 sm:!py-3 md:!py-0 lg:!py-0">
+                  <div className="flex flex-col items-end gap-3 py-3! sm:py-3! md:py-0! lg:py-0!">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();

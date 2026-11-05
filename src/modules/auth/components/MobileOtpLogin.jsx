@@ -5,7 +5,7 @@ import RHFInput from "@/components/ui/RHFinputs/RHFInput";
 import OtpInput from "@/modules/auth/components/OtpInput";
 import { useSendOtp } from "@/modules/auth/hooks/useLogin";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { message } from "antd";
+import { App } from "antd";
 import { signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -17,6 +17,7 @@ const schema = z.object({
 });
 
 export default function MobileOtpLogin({ onSuccess }) {
+  const { message } = App.useApp();
   const [step, setStep] = useState("mobile");
   const [timer, setTimer] = useState(0);
   const [verifying, setVerifying] = useState(false);

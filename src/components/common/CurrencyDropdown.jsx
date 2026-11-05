@@ -36,7 +36,7 @@ export default function CurrencyDropdown({
       className={
         inline
           ? "w-full rounded-xl border border-gray-200 bg-white p-2"
-          : "w-[calc(100vw-24px)] max-w-[350px] rounded-xl bg-white p-3 shadow-[0_10px_30px_rgba(0,0,0,0.12)] sm:w-[350px]"
+          : "w-[calc(100vw-24px)] max-w-87.5 rounded-xl bg-white p-3 shadow-[0_10px_30px_rgba(0,0,0,0.12)] sm:w-87.5"
       }
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
@@ -47,7 +47,7 @@ export default function CurrencyDropdown({
         allowClear
         placeholder="Search Currency"
         value={search}
-        className="h-10 rounded-lg [&_.ant-input]:!border-0 [&_.ant-input]:!shadow-none [&_.ant-input]:focus:!shadow-none"
+        className="h-10 rounded-lg [&_.ant-input]:border-0! [&_.ant-input]:shadow-none! [&_.ant-input]:focus:shadow-none!"
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}

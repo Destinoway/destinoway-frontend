@@ -4,26 +4,26 @@ import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: "Travel Blog | Destonoway",
+  title: "Travel Blog",
   description:
-    "Explore travel guides, hotel tips and destination inspiration from Destonoway.",
+    "Explore travel guides, hotel tips and destination inspiration from Destinoway.",
   alternates: {
     canonical: `${siteUrl}/blog`,
   },
   robots: getRobotsMetadata(),
   openGraph: {
-    title: "Travel Blog | Destonoway",
+    title: "Travel Blog | Destinoway",
     description:
-      "Explore travel guides, hotel tips and destination inspiration from Destonoway.",
+      "Explore travel guides, hotel tips and destination inspiration from Destinoway.",
     url: `${siteUrl}/blog`,
-    siteName: "Destonoway",
+    siteName: "Destinoway",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Travel Blog | Destonoway",
+    title: "Travel Blog | Destinoway",
     description:
-      "Explore travel guides, hotel tips and destination inspiration from Destonoway.",
+      "Explore travel guides, hotel tips and destination inspiration from Destinoway.",
   },
 };
 

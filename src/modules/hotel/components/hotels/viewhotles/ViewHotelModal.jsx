@@ -1,7 +1,7 @@
 "use client";
 import { CloseOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 const ViewHotelModal = ({ open, onClose, images = [] }) => {
   const galleryImages = Array.isArray(images) ? images : [];
   const [active, setActive] = useState("All");
@@ -38,15 +38,18 @@ const ViewHotelModal = ({ open, onClose, images = [] }) => {
     }
     return normalizedImages.filter((img) => img?.description === active);
   }, [normalizedImages, active]);
-  useEffect(() => {
-    setCurrentIndex(0);
-  }, [active]);
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (!open) {
       setPreviewOpen(false);
       setCurrentIndex(0);
     }
-  }, [open]);
+  }
+  const selectCategory = (category) => {
+    setActive(category);
+    setCurrentIndex(0);
+  };
   const handlePrev = () => {
     if (filteredImages.length <= 1) {
       return;
@@ -100,7 +103,7 @@ const ViewHotelModal = ({ open, onClose, images = [] }) => {
                 <button
                   type="button"
                   key={category}
-                  onClick={() => setActive(category)}
+                  onClick={() => selectCategory(category)}
                   className={`border-b-2 px-8 py-2 text-[15px] font-semibold whitespace-nowrap transition-all ${active === category ? "border-[#64b5f6] text-[#64b5f6]" : "border-transparent text-[#222]"}`}
                 >
                   {category}
@@ -126,7 +129,7 @@ const ViewHotelModal = ({ open, onClose, images = [] }) => {
                     <img
                       src={img.url}
                       alt={img.description}
-                      className="h-[310px] w-full rounded-xl object-cover transition duration-300 hover:scale-105"
+                      className="h-77.5 w-full rounded-xl object-cover transition duration-300 hover:scale-105"
                     />
                   </div>
                 ))}

@@ -6,7 +6,7 @@ const ViewHotelMap = () => {
       <iframe
         title="map"
         src="https://www.google.com/maps?q=Candolim,Goa&output=embed"
-        className="w-full h-[200px]"
+        className="w-full h-50"
       />
     </div>
   );

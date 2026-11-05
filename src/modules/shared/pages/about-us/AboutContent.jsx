@@ -33,14 +33,14 @@ export default function AboutContent() {
         {/* First Paragraph */}
         <div className="mx-auto mt-1 sm:mt-4 md:mt-6 max-w-6xl">
           <p className="font-['Roboto'] font-light text-center text-[13px] leading-8 text-gray-600 sm:text-base sm:leading-8 md:text-lg md:leading-[140%] lg:text-[17px] lg:leading-10">
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset's Body Type sheets. It has survived not only many decades, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised thanks to these sheets and more recently with desktop publishing software including versions of Lorem Ipsum.
+            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&apos;s standard dummy text ever since 1966, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset&apos;s Body Type sheets. It has survived not only many decades, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised thanks to these sheets and more recently with desktop publishing software including versions of Lorem Ipsum.
           </p>
         </div>
 
         {/* Second Paragraph */}
         <div className="mx-auto mt-2 md:mt-4 max-w-6xl">
           <p className="!font-['Roboto'] font-light text-center text-[13px] leading-8 text-gray-600 sm:text-base sm:leading-8 md:text-lg md:leading-[140%] lg:text-[17px] lg:leading-10">
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset's Body Type sheets
+            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&apos;s standard dummy text ever since 1966, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset&apos;s Body Type sheets
           </p>
         </div>
 

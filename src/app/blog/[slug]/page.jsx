@@ -41,7 +41,7 @@ export async function generateMetadata({ params }) {
       title: blog.metaTitle || blog.title,
       description: blog.metaDescription || blog.description,
       url: canonical,
-      siteName: "Destonoway",
+      siteName: "Destinoway",
       type: "article",
 
       ...(blog.featuredImage

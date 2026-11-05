@@ -3,19 +3,19 @@ import TermsContent from "@/modules/shared/pages/Terms & Conditions/TermsContent
 import { getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 export const metadata = {
-  title: "Terms & Conditions | Destonoway",
+  title: "Terms & Conditions",
   description:
-    "Read the terms and conditions for using Destonoway travel booking services.",
+    "Read the terms and conditions for using Destinoway travel booking services.",
   alternates: {
     canonical: `${getSiteUrl()}/terms-conditions`,
   },
   openGraph: {
-    title: "Terms & Conditions | Destonoway",
+    title: "Terms & Conditions | Destinoway",
     description:
-      "Read the terms and conditions for using Destonoway travel booking services.",
+      "Read the terms and conditions for using Destinoway travel booking services.",
     url: `${getSiteUrl()}/terms-conditions`,
     type: "website",
-    siteName: "Destonoway",
+    siteName: "Destinoway",
   },
 };
 

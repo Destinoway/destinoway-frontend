@@ -38,13 +38,13 @@ const steps = [
 export default function GrievanceProcessSection() {
   return (
     <section className="bg-[#eef5fa] py-10 lg:py-12">
-      <div className="mx-auto max-w-[1400px] px-4">
+      <div className="mx-auto max-w-350 px-4">
         <div className="mb-8 text-center">
           <h2 className="text-[28px] font-bold text-black md:text-[36px]">
             Grievance Resolution Process
           </h2>
 
-          <p className="mx-auto mt-3 max-w-[500px] text-[15px] text-gray-600">
+          <p className="mx-auto mt-3 max-w-125 text-[15px] text-gray-600">
             Follow the escalation process below to ensure your concern is
             reviewed and resolved efficiently.
           </p>
@@ -57,7 +57,7 @@ export default function GrievanceProcessSection() {
             return (
               <div
                 key={index}
-                className="relative min-h-[220px] rounded-xl bg-white p-4 text-center shadow-[0_6px_20px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg md:p-5"
+                className="relative min-h-55 rounded-xl bg-white p-4 text-center shadow-[0_6px_20px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg md:p-5"
               >
                 <div className="mb-3 flex justify-center">
                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#eef5fa]">

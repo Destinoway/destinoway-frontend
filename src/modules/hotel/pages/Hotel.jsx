@@ -521,7 +521,13 @@ const handleSortChange = useCallback((value) => {
     return searchedCity === cmsCity || searchedCity === cms?.slug ? cms : null;
   }, [cms, appliedSearchData]);
 
-  if (!mounted) return <BookingWebsiteLoader />;
+  if (!mounted) {
+    return (
+      <div className="min-h-screen">
+        <BookingWebsiteLoader />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -546,11 +552,11 @@ const handleSortChange = useCallback((value) => {
         <div className="background-color-bg">
           <SearchBar searchData={draftSearchData} onSearch={handleSearch} />
 
-          <div className="relative mx-auto mt-[-39px] flex max-w-7xl gap-4 p-3 md:flex-nowrap">
+          <div className="relative mx-auto -mt-9.75 flex max-w-7xl gap-4 p-3 md:flex-nowrap">
             <div
               ref={sidebarRef}
-              className={`sticky top-[120px] h-[calc(100vh-132px)] min-h-[420px] w-full shrink-0 sm:w-64 md:w-72 ${
-                sidebarZ0 ? "z-0" : "!z-20"
+              className={`sticky top-30 h-[calc(100vh-132px)] min-h-105 w-full shrink-0 sm:w-64 md:w-72 ${
+                sidebarZ0 ? "z-0" : "z-20!"
               }`}
             >
               <SidebarFilters
@@ -566,8 +572,8 @@ const handleSortChange = useCallback((value) => {
               {/* SORT BAR */}
 
               <div
-                className={`sticky top-[120px] ${
-                  sidebarZ0 ? "!-z-10" : "!z-20"
+                className={`sticky top-30 ${
+                  sidebarZ0 ? "-z-10!" : "z-20!"
                 } `}
               >
                 <SortBar sort={sort} setSort={handleSortChange} />
@@ -575,8 +581,8 @@ const handleSortChange = useCallback((value) => {
 
               {hasActiveFilters && (
                 <div
-                  className={`sticky top-[163px] min-[700px]:max-[850px]:top-[155px] ${
-                    sidebarZ0 ? "!-z-10" : "z-12"
+                  className={`sticky top-40.75 min-[700px]:max-[850px]:top-38.75 ${
+                    sidebarZ0 ? "-z-10!" : "z-12"
                   } background-color-bg pt-3`}
                 >
                   <div className="flex flex-wrap items-center gap-2 rounded-lg bg-white px-3 py-2 shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
@@ -627,7 +633,7 @@ const handleSortChange = useCallback((value) => {
               <div className="relative">
                 <div
                   ref={cmsTriggerRef}
-                  className="pointer-events-none absolute top-0 left-0 h-[120px] w-full"
+                  className="pointer-events-none absolute top-0 left-0 h-30 w-full"
                   aria-hidden="true"
                 />
 
@@ -679,7 +685,7 @@ const handleSortChange = useCallback((value) => {
             <HotelMap hotels={hotelsForMap} />
           </div>
 
-          <div className="hidden overflow-y-auto border-l bg-white md:block md:w-[280px] lg:w-[340px]">
+          <div className="hidden overflow-y-auto border-l bg-white md:block md:w-70 lg:w-85">
             <SidebarFilters
               filters={filters}
               setFilters={handleFilterChange}

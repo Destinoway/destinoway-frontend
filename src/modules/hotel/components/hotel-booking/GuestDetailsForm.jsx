@@ -3,9 +3,13 @@
 import RHFInput from "@/components/ui/RHFinputs/RHFInput";
 import RHFPhoneInput from "@/components/ui/RHFinputs/RHFPhoneInput";
 import RHFSelect from "@/components/ui/RHFinputs/RHFSelect";
-import { DownOutlined, UpOutlined } from "@ant-design/icons";
+import SectionCard from "@/modules/hotel/components/hotels/viewhotles/HotelSections/SectionCard";
+import {
+  ContactsOutlined,
+  DownOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, Typography } from "antd";
 import {
   forwardRef,
   useEffect,
@@ -18,203 +22,181 @@ import { getPrimaryGuestSchema } from "../../schema/guest.schema";
 
 const GuestDetailsForm = forwardRef(
   ({ onSubmit, occupancy = [], isPANRequired = false }, ref) => {
-  const [roomOccupancy, setRoomOccupancy] = useState([]);
-  const [expandedRooms, setExpandedRooms] = useState({});
+    const [roomOccupancy, setRoomOccupancy] = useState([]);
+    const [expandedRooms, setExpandedRooms] = useState({});
 
-  useEffect(() => {
-    const normalized = occupancy.map((room, index) => {
-      const adults = Math.max(Number(room?.adults) || 0, 0);
-      const children = Math.max(Number(room?.children) || 0, 0);
+    useEffect(() => {
+      const normalized = occupancy.map((room, index) => {
+        const adults = Math.max(Number(room?.adults) || 0, 0);
+        const children = Math.max(Number(room?.children) || 0, 0);
 
-      return {
-        roomNo: Number(room?.roomNo) || index + 1,
-        adults,
-        children,
-      };
-    });
-
-    setRoomOccupancy(normalized);
-
-    setExpandedRooms((previous) => {
-      const next = {};
-
-      normalized.forEach((room, index) => {
-        next[room.roomNo] = previous[room.roomNo] ?? index === 0;
+        return {
+          roomNo: Number(room?.roomNo) || index + 1,
+          adults,
+          children,
+        };
       });
 
-      return next;
-    });
-  }, [occupancy]);
+      setRoomOccupancy(normalized);
 
-  const totalSelectedGuests = useMemo(
-    () =>
-      roomOccupancy.reduce(
-        (total, room) =>
-          total + (Number(room?.adults) || 0) + (Number(room?.children) || 0),
-        0,
-      ),
-    [roomOccupancy],
-  );
+      setExpandedRooms((previous) => {
+        const next = {};
 
-  const guestFields = useMemo(() => {
-    const fields = [];
-
-    roomOccupancy.forEach((room) => {
-      const roomNo = Number(room?.roomNo) || 1;
-      const adults = Math.max(Number(room?.adults) || 0, 0);
-      const children = Math.max(Number(room?.children) || 0, 0);
-
-      for (let index = 1; index <= adults; index += 1) {
-        fields.push({
-          key: `room-${roomNo}-adult-${index}`,
-          roomNo,
-          passengerTyp: `Adult ${index}`,
-          isChild: false,
+        normalized.forEach((room, index) => {
+          next[room.roomNo] = previous[room.roomNo] ?? index === 0;
         });
-      }
 
-      for (let index = 1; index <= children; index += 1) {
-        fields.push({
-          key: `room-${roomNo}-child-${index}`,
-          roomNo,
-          passengerTyp: `Child ${index}`,
-          isChild: true,
-        });
-      }
+        return next;
+      });
+    }, [occupancy]);
+
+    const totalSelectedGuests = useMemo(
+      () =>
+        roomOccupancy.reduce(
+          (total, room) =>
+            total + (Number(room?.adults) || 0) + (Number(room?.children) || 0),
+          0,
+        ),
+      [roomOccupancy],
+    );
+
+    const guestFields = useMemo(() => {
+      const fields = [];
+
+      roomOccupancy.forEach((room) => {
+        const roomNo = Number(room?.roomNo) || 1;
+        const adults = Math.max(Number(room?.adults) || 0, 0);
+        const children = Math.max(Number(room?.children) || 0, 0);
+
+        for (let index = 1; index <= adults; index += 1) {
+          fields.push({
+            key: `room-${roomNo}-adult-${index}`,
+            roomNo,
+            passengerTyp: `Adult ${index}`,
+            isChild: false,
+          });
+        }
+
+        for (let index = 1; index <= children; index += 1) {
+          fields.push({
+            key: `room-${roomNo}-child-${index}`,
+            roomNo,
+            passengerTyp: `Child ${index}`,
+            isChild: true,
+          });
+        }
+      });
+
+      return fields;
+    }, [roomOccupancy]);
+
+    const defaultValues = useMemo(() => {
+      const values = {
+        bookingFor: "myself",
+        customerAddress: "",
+        customerState: "",
+        customerCity: "",
+        customerPostalCode: "",
+        panNumber: "",
+        customerEmail: "",
+        customerMobile: "",
+        customerPhoneCode: "+91",
+        paxDetails: {},
+      };
+
+      guestFields.forEach((guest) => {
+        values.paxDetails[guest.key] = {
+          title: guest.isChild ? "Master" : "Mr",
+          firstName: "",
+          lastName: "",
+        };
+      });
+
+      return values;
+    }, [guestFields]);
+
+    const methods = useForm({
+      resolver: zodResolver(getPrimaryGuestSchema(isPANRequired)),
+      defaultValues,
+      mode: "onSubmit",
     });
 
-    return fields;
-  }, [roomOccupancy]);
+    const { handleSubmit, reset } = methods;
 
-  const defaultValues = useMemo(() => {
-    const values = {
-      bookingFor: "myself",
-      customerAddress: "",
-      customerState: "",
-      customerCity: "",
-      customerPostalCode: "",
-      panNumber: "",
-      customerEmail: "",
-      customerMobile: "",
-      customerPhoneCode: "+91",
-      paxDetails: {},
+    useEffect(() => {
+      reset(defaultValues);
+    }, [defaultValues, reset]);
+
+    const toggleRoom = (roomNo) => {
+      setExpandedRooms((previous) => ({
+        ...previous,
+        [roomNo]: !previous[roomNo],
+      }));
     };
 
-    guestFields.forEach((guest) => {
-      values.paxDetails[guest.key] = {
-        title: guest.isChild ? "Master" : "Mr",
-        firstName: "",
-        lastName: "",
-      };
-    });
+    useImperativeHandle(ref, () => ({
+      submitForm: () =>
+        new Promise((resolve, reject) => {
+          handleSubmit(
+            (data) => {
+              const paxDetails = guestFields.map((guest) => {
+                const guestData = data?.paxDetails?.[guest.key] || {};
 
-    return values;
-  }, [guestFields]);
+                return {
+                  firstName: guestData?.firstName || "",
+                  lastName: guestData?.lastName || "",
+                  title: guestData?.title || "Mr",
+                  isChild: guest.isChild,
+                  roomNo: guest.roomNo,
+                  passengerTyp: guest.passengerTyp,
+                };
+              });
 
-  const methods = useForm({
-    resolver: zodResolver(getPrimaryGuestSchema(isPANRequired)),
-    defaultValues,
-    mode: "onSubmit",
-  });
+              const guestData = {
+                customerAddress: data?.customerAddress || "",
+                customerState: data?.customerState || "",
+                customerCity: data?.customerCity || "",
+                customerPostalCode: data?.customerPostalCode || "",
+                panNumber: isPANRequired ? data?.panNumber || "" : "",
 
-  const { handleSubmit, reset } = methods;
+                customerMobile: data?.customerMobile || "",
+                customerEmail: data?.customerEmail || "",
+                passengerEmail: data?.customerEmail || "",
+                passengerMobile: data?.customerMobile || "",
 
-  useEffect(() => {
-    reset(defaultValues);
-  }, [defaultValues, reset]);
-
-  const toggleRoom = (roomNo) => {
-    setExpandedRooms((previous) => ({
-      ...previous,
-      [roomNo]: !previous[roomNo],
-    }));
-  };
-
-  useImperativeHandle(ref, () => ({
-    submitForm: () =>
-      new Promise((resolve, reject) => {
-        handleSubmit(
-          (data) => {
-            const paxDetails = guestFields.map((guest) => {
-              const guestData = data?.paxDetails?.[guest.key] || {};
-
-              return {
-                firstName: guestData?.firstName || "",
-                lastName: guestData?.lastName || "",
-                title: guestData?.title || "Mr",
-                isChild: guest.isChild,
-                roomNo: guest.roomNo,
-                passengerTyp: guest.passengerTyp,
+                paxDetails,
+                occupancy: roomOccupancy,
               };
-            });
 
-            const guestData = {
-              customerAddress: data?.customerAddress || "",
-              customerState: data?.customerState || "",
-              customerCity: data?.customerCity || "",
-              customerPostalCode: data?.customerPostalCode || "",
-              panNumber: isPANRequired ? data?.panNumber || "" : "",
+              onSubmit?.(guestData);
+              resolve(guestData);
+            },
+            (errors) => {
+              reject(errors);
+            },
+          )();
+        }),
+    }));
 
-              customerMobile: data?.customerMobile || "",
-              customerEmail: data?.customerEmail || "",
-              passengerEmail: data?.customerEmail || "",
-              passengerMobile: data?.customerMobile || "",
-
-              paxDetails,
-              occupancy: roomOccupancy,
-            };
-
-            onSubmit?.(guestData);
-            resolve(guestData);
-          },
-          (errors) => {
-            reject(errors);
-          },
-        )();
-      }),
-  }));
-
-  return (
-    <Card className="font-roboto !mb-2 rounded-xl border-0 !shadow-[0_4px_12px_rgba(0,0,0,0.16)]">
-      <div className="mb-6">
-        <Typography.Title
-          level={4}
-          className="font-roboto !mb-1 !text-[20px] font-bold"
-        >
-          Guest Details
-        </Typography.Title>
-
-        <Typography.Text className="text-sm text-[#666]">
-          Enter guest details exactly as they appear on the official ID.
-        </Typography.Text>
-      </div>
-
-      <FormProvider {...methods}>
-        <form>
-          <div className="mt-7">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <div className="text-[17px] font-bold text-[#151515]">
-                  Rooms & Guests
-                </div>
-
-                <div className="mt-1 text-sm text-[#666]">
-                  Enter the names for the guests selected in each room.
-                </div>
-              </div>
-
-              <div className="rounded-full bg-[#f3f6fa] px-3 py-1.5 text-xs font-semibold text-[#172033]">
-                {totalSelectedGuests}{" "}
-                {totalSelectedGuests === 1 ? "Guest" : "Guests"}
-              </div>
-            </div>
-
+    return (
+      <SectionCard
+        icon={<UserOutlined />}
+        title="Guest Details"
+        subtitle="Enter names exactly as they appear on the official ID"
+        action={
+          <span className="rounded-full bg-(--theme-secondary)/8 px-3 py-1 text-[12px] font-bold text-(--theme-secondary)">
+            {totalSelectedGuests}{" "}
+            {totalSelectedGuests === 1 ? "Guest" : "Guests"}
+          </span>
+        }
+      >
+        <FormProvider {...methods}>
+          <form className="space-y-5">
             <div className="space-y-3">
               {roomOccupancy.map((room) => {
                 const roomNo = Number(room?.roomNo) || 1;
                 const adultCount = Number(room?.adults) || 0;
                 const childCount = Number(room?.children) || 0;
-                const totalRoomGuests = adultCount + childCount;
                 const roomGuests = guestFields.filter(
                   (guest) => guest.roomNo === roomNo,
                 );
@@ -223,71 +205,67 @@ const GuestDetailsForm = forwardRef(
                 return (
                   <div
                     key={roomNo}
-                    className="overflow-hidden rounded-xl border border-[#e1e5eb] bg-white"
+                    className={`overflow-hidden rounded-xl border transition ${
+                      isExpanded
+                        ? "border-(--theme-secondary)/30"
+                        : "border-gray-200"
+                    }`}
                   >
                     <button
                       type="button"
+                      aria-expanded={Boolean(isExpanded)}
                       onClick={() => toggleRoom(roomNo)}
-                      className="flex w-full items-center justify-between bg-[#f7f9fc] px-5 py-4 text-left"
+                      className="flex w-full cursor-pointer items-center justify-between gap-3 border-none bg-slate-50! px-4 py-3.5 text-left sm:px-5"
                     >
-                      <div>
-                        <div className="text-[17px] font-bold text-[#151515]">
-                          Room {roomNo}
-                        </div>
-
-                        <div className="mt-1 text-sm text-[#666]">
-                          {adultCount} {adultCount === 1 ? "Adult" : "Adults"}
-                          {childCount > 0
-                            ? ` · ${childCount} ${
-                                childCount === 1 ? "Child" : "Children"
-                              }`
-                            : ""}
-                          <span className="ml-2 text-[#999]">({totalRoomGuests} guests)</span>
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-[13px] font-bold text-(--theme-secondary) shadow-sm">
+                          {roomNo}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="m-0 text-[15px] font-bold text-(--theme-text-primary)">
+                            Room {roomNo}
+                          </p>
+                          <p className="m-0 text-[12px] text-gray-500">
+                            {adultCount} {adultCount === 1 ? "Adult" : "Adults"}
+                            {childCount > 0
+                              ? ` · ${childCount} ${
+                                  childCount === 1 ? "Child" : "Children"
+                                }`
+                              : ""}
+                          </p>
                         </div>
                       </div>
 
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#dfe3e8] bg-white">
-                        {isExpanded ? (
-                          <UpOutlined className="!text-xs !text-[#555]" />
-                        ) : (
-                          <DownOutlined className="!text-xs !text-[#555]" />
-                        )}
-                      </div>
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white">
+                        <DownOutlined
+                          className={`text-[11px] text-gray-500 transition-transform ${
+                            isExpanded ? "rotate-180" : ""
+                          }`}
+                        />
+                      </span>
                     </button>
 
                     <div className={isExpanded ? "block" : "hidden"}>
-                      <div className="space-y-5 p-5">
+                      <div className="divide-y divide-gray-100 px-4 sm:px-5">
                         {roomGuests.map((guest) => (
-                          <div key={guest.key}>
-                            <div className="grid gap-5 md:grid-cols-3">
+                          <div key={guest.key} className="py-4">
+                            <p className="m-0 mb-3 text-[12px] font-bold tracking-[0.06em] text-gray-500 uppercase">
+                              {guest.passengerTyp}
+                            </p>
+                            <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-3 sm:grid-cols-[120px_minmax(0,1fr)_minmax(0,1fr)] sm:gap-4">
                               <RHFSelect
                                 name={`paxDetails.${guest.key}.title`}
                                 label="Title"
                                 options={
                                   guest.isChild
                                     ? [
-                                        {
-                                          label: "Master",
-                                          value: "Master",
-                                        },
-                                        {
-                                          label: "Miss",
-                                          value: "Miss",
-                                        },
+                                        { label: "Master", value: "Master" },
+                                        { label: "Miss", value: "Miss" },
                                       ]
                                     : [
-                                        {
-                                          label: "Mr",
-                                          value: "Mr",
-                                        },
-                                        {
-                                          label: "Mrs",
-                                          value: "Mrs",
-                                        },
-                                        {
-                                          label: "Miss",
-                                          value: "Miss",
-                                        },
+                                        { label: "Mr", value: "Mr" },
+                                        { label: "Mrs", value: "Mrs" },
+                                        { label: "Miss", value: "Miss" },
                                       ]
                                 }
                               />
@@ -297,10 +275,12 @@ const GuestDetailsForm = forwardRef(
                                 label="First Name"
                               />
 
-                              <RHFInput
-                                name={`paxDetails.${guest.key}.lastName`}
-                                label="Last Name"
-                              />
+                              <div className="col-span-2 sm:col-span-1">
+                                <RHFInput
+                                  name={`paxDetails.${guest.key}.lastName`}
+                                  label="Last Name"
+                                />
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -310,39 +290,42 @@ const GuestDetailsForm = forwardRef(
                 );
               })}
             </div>
-          </div>
 
-          <div className="mt-6 overflow-hidden rounded-xl border border-[#e1e5eb]">
-            <div className="border-b border-[#e1e5eb] bg-[#f7f9fc] px-5 py-4">
-              <div className="text-[17px] font-bold text-[#151515]">
-                Customer Information
+            <div className="overflow-hidden rounded-xl border border-gray-200">
+              <div className="flex items-center gap-3 border-b border-gray-100 bg-slate-50 px-4 py-3.5 sm:px-5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-(--theme-secondary) shadow-sm">
+                  <ContactsOutlined />
+                </span>
+                <div className="min-w-0">
+                  <p className="m-0 text-[15px] font-bold text-(--theme-text-primary)">
+                    Contact Information
+                  </p>
+                  <p className="m-0 text-[12px] text-gray-500">
+                    Your booking voucher will be sent here
+                  </p>
+                </div>
               </div>
 
-              <div className="mt-1 text-sm text-[#666]">
-                Required information for booking and communication.
+              <div className="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
+                <RHFInput name="customerEmail" label="Email" />
+                <RHFPhoneInput
+                  name="customerMobile"
+                  codeName="customerPhoneCode"
+                  label="Mobile No."
+                />
+                <RHFInput name="customerAddress" label="Address" />
+                <RHFInput name="customerCity" label="City" />
+                <RHFInput name="customerState" label="State" />
+                <RHFInput name="customerPostalCode" label="Postal Code" />
+                {isPANRequired && (
+                  <RHFInput name="panNumber" label="PAN Number" />
+                )}
               </div>
             </div>
-
-            <div className="grid gap-5 p-5 md:grid-cols-2">
-              <RHFInput name="customerAddress" label="Address" />
-              <RHFInput name="customerState" label="State" />
-              <RHFInput name="customerCity" label="City" />
-              <RHFInput name="customerPostalCode" label="Postal Code" />
-              {isPANRequired && (
-                <RHFInput name="panNumber" label="PAN Number" />
-              )}
-              <RHFInput name="customerEmail" label="Email" />
-              <RHFPhoneInput
-                name="customerMobile"
-                codeName="customerPhoneCode"
-                label="Mobile No."
-              />
-            </div>
-          </div>
-        </form>
-      </FormProvider>
-    </Card>
-  );
+          </form>
+        </FormProvider>
+      </SectionCard>
+    );
   },
 );
 

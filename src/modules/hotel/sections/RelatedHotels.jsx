@@ -88,7 +88,7 @@ export default function RelatedHotels({
   };
 
   return (
-    <div className="!mt-8">
+    <div className="mt-8!">
       <h3 className="mb-5 text-2xl font-semibold text-[#303030]">
         Similar Hotels
       </h3>

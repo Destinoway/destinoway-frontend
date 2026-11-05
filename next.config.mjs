@@ -10,7 +10,7 @@ const nextConfig = {
   reactCompiler: true,
 
   experimental: {
-    inlineCss: true,
+    inlineCss: false,
   },
 
   async headers() {

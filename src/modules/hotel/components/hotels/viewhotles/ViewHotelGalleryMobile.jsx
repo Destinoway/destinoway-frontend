@@ -31,7 +31,7 @@ const ViewHotelGalleryMobile = ({
   return (
     <div className="relative overflow-hidden rounded-b-[28px] bg-white">
       <div
-        className="grid gap-[3px] p-[6px]"
+        className="grid gap-0.75 p-1.5"
         style={{
           gridTemplateColumns: "2.2fr 1fr 1fr",
           gridTemplateRows: "127px 127px",

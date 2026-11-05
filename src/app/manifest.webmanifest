@@ -1,6 +1,6 @@
 {
-  "name": "Destonoway",
-  "short_name": "Destonoway",
+  "name": "Destinoway",
+  "short_name": "Destinoway",
   "description": "Booking platform",
   "start_url": "/",
   "display": "standalone",

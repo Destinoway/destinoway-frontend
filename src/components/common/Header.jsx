@@ -79,7 +79,7 @@ const navigationItems = [
   {
     id: "about",
     label: "About Us",
-    subtitle: "Know Destonoway",
+    subtitle: "Know Destinoway",
     href: "/about-us",
     icon: Info,
     desktop: true,
@@ -176,7 +176,7 @@ export default function Header() {
   ];
 
   const navLinkClass =
-    "relative transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-0 after:bg-[var(--theme-secondary)] after:transition-all after:duration-300 header-hover-most-text-color hover:after:w-full";
+    "relative transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-(--theme-secondary) after:transition-all after:duration-300 header-hover-most-text-color hover:after:w-full";
 
   const desktopNavigationItems = navigationItems.filter((item) => item.desktop);
 
@@ -204,11 +204,11 @@ export default function Header() {
           <Link href="/" className="flex items-center!">
             <Image
               src="/images/LOGO-DW.png"
-              alt="Destonoway"
+              alt="Destinoway"
               width={400}
               height={70}
               sizes="(max-width: 778px) 170px, 200px"
-              className="h-auto w-[170px] object-contain transition-all duration-300 min-[778px]:w-[200px]"
+              className="h-auto w-42.5 object-contain transition-all duration-300 min-[778px]:w-50"
             />
           </Link>
         </div>
@@ -305,7 +305,7 @@ export default function Header() {
 
           {/* Mobile Menu */}
           <button
-            className="most-text-color !text-[22px] transition-all duration-300 hover:scale-110 hover:text-gray-800! min-[901px]:hidden"
+            className="most-text-color text-[22px]! transition-all duration-300 hover:scale-110 hover:text-gray-800! min-[901px]:hidden"
             onClick={() => setMobileMenu(true)}
           >
             <MenuOutlined />
@@ -319,7 +319,7 @@ export default function Header() {
           <div className="flex items-center gap-2">
             <Image
               src="/images/LOGO-DW-Symbol.png"
-              alt="Destonoway"
+              alt="Destinoway"
               width={48}
               height={48}
             />

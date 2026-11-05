@@ -13,21 +13,21 @@ import { testimonials } from "./data/TestimonialData";
 
 export default function TestimonialsSection() {
   return (
-    <section className="background-color-bg !px-0 pt-10 pb-8 sm:!px-0 md:!px-2 md:pt-12 md:pb-10 lg:!px-3 lg:pt-16 lg:pb-12 xl:!px-4 2xl:!px-26">
+    <section className="background-color-bg px-0! pt-10 pb-8 sm:px-0! md:px-2! md:pt-12 md:pb-10 lg:px-3! lg:pt-16 lg:pb-12 xl:px-4! 2xl:px-26!">
       <div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-3 lg:grid-cols-2">
           <div>
-            <p className="text-[21px] font-semibold text-[#3B9BC6]">
+            <p className="text-[21px] font-semibold text-[#1F7AA3]">
               Our Testimonial
             </p>
 
-            <h2 className="mt-1 max-w-[550px] text-[24px] leading-[1.15] font-bold md:text-[30px] lg:text-[36px]">
+            <h2 className="mt-1 max-w-137.5 text-[24px] leading-[1.15] font-bold md:text-[30px] lg:text-[36px]">
               Real Feedback from Our Happy Travelers Worldwide
             </h2>
           </div>
 
           <div className="lg:pl-8">
-            <p className="max-w-[500px] text-[19px] leading-6 text-gray-600">
+            <p className="max-w-125 text-[19px] leading-6 text-gray-600">
               Contrary to popular belief, Lorem Ipsum is not simply random text.
               It has roots in a piece of classical Latin literature from 45 BC.
             </p>
@@ -64,10 +64,10 @@ export default function TestimonialsSection() {
             {testimonials.map((item) => (
               <SwiperSlide key={item.id}>
                 <div className="pt-12 pb-4">
-                  <div className="relative flex min-h-[320px] flex-col rounded-[22px] bg-white shadow-[0_8px_25px_rgba(0,0,0,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_15px_35px_rgba(0,0,0,0.15)] sm:min-h-[340px] lg:min-h-[360px]">
+                  <div className="relative flex min-h-80 flex-col rounded-[22px] bg-white shadow-[0_8px_25px_rgba(0,0,0,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_15px_35px_rgba(0,0,0,0.15)] sm:min-h-85 lg:min-h-90">
                     {/* Profile Image */}
                     <div className="absolute -top-10 left-6 z-10">
-                      <div className="relative h-[74px] w-[74px] overflow-hidden rounded-full border-4 border-white shadow-md">
+                      <div className="relative h-18.5 w-18.5 overflow-hidden rounded-full border-4 border-white shadow-md">
                         <Image
                           src={item.image}
                           alt={item.name}
@@ -87,7 +87,7 @@ export default function TestimonialsSection() {
                           className="text-[16px]"
                         />
 
-                        <MessageOutlined className="text-[42px] text-[#3B9BC6]" />
+                        <MessageOutlined className="text-[42px] text-[#1F7AA3]" />
                       </div>
 
                       <p className="mt-4 text-[15px] leading-7 font-medium text-[#222] sm:text-[16px]">

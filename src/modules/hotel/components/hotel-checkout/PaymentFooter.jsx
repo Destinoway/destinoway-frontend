@@ -41,7 +41,7 @@ export default function PaymentFooter({
       >
         <div className="flex items-center justify-center gap-2 text-[#15803d]">
           <SafetyCertificateFilled />
-          <Text className="!font-medium !text-[#15803d]">
+          <Text className="font-medium! text-[#15803d]!">
             Payment completed successfully
           </Text>
         </div>
@@ -64,7 +64,7 @@ export default function PaymentFooter({
       <div className="mb-4 flex items-center justify-center gap-2 text-[#15803d]">
         <SafetyCertificateFilled />
 
-        <Text className="!font-medium !text-[#15803d]">
+        <Text className="font-medium! text-[#15803d]!">
           100% Secure Payment via Razorpay
         </Text>
       </div>
@@ -83,7 +83,7 @@ export default function PaymentFooter({
           });
         }}
         icon={<LockOutlined />}
-        className="buttion-background-color !h-[52px] w-full !rounded-lg !text-[16px] !font-semibold"
+        className="buttion-background-color h-13! w-full rounded-lg! text-[16px]! font-semibold!"
       >
         Pay {currencySymbol} {formatPrice(payableAmount)}
       </Button>

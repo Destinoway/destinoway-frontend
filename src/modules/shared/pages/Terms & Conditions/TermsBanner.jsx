@@ -6,7 +6,7 @@ export default function TermsBanner() {
   return (
     <section className="relative w-full">
       {/* Banner Image */}
-      <div className="relative h-[220px] sm:h-[300px] md:h-[400px] !lg:h-[420px] w-full overflow-hidden">
+      <div className="relative h-55 sm:h-75 md:h-100 !lg:h-[420px] w-full overflow-hidden">
         <Image
           src="/images/Terms&ConditionsHeroimage.jpg"
           alt="Terms & Conditions"

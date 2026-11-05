@@ -2,7 +2,7 @@ import HotelBookingSuccess from "@/modules/hotel/pages/HotelBookingSuccess";
 import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 export const metadata = {
-  title: "Booking Confirmation | Destonoway",
+  title: "Booking Confirmation",
   alternates: { canonical: `${getSiteUrl()}/hotel-booking-success` },
   robots: getRobotsMetadata({ noindex: true }),
 };

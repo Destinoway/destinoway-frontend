@@ -2,7 +2,7 @@ import HotleBooking from "@/modules/hotel/pages/HotleBooking";
 import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 export const metadata = {
-  title: "Complete Your Hotel Booking | Destonoway",
+  title: "Complete Your Hotel Booking",
   alternates: { canonical: `${getSiteUrl()}/hotel-booking` },
   robots: getRobotsMetadata({ noindex: true }),
 };

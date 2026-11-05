@@ -26,7 +26,7 @@ const BlogCard = ({ blog, onClick }) => {
   return (
     <article className="group overflow-hidden rounded-[18px] border border-gray-100 bg-white shadow-[0_4px_18px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.10)]">
       {/* IMAGE */}
-      <div className="relative h-[210px] w-full overflow-hidden">
+      <div className="relative h-52.5 w-full overflow-hidden">
         <Image
           src={blog.image}
           alt={blog.title}
@@ -52,7 +52,7 @@ const BlogCard = ({ blog, onClick }) => {
         </div>
 
         {/* TITLE */}
-        <h3 className="group-hover:most-text-color mt-3 line-clamp-2 min-h-[52px] text-[19px] leading-[1.35] font-bold transition-colors duration-200">
+        <h3 className="group-hover:most-text-color mt-3 line-clamp-2 min-h-13 text-[19px] leading-[1.35] font-bold transition-colors duration-200">
           {blog.title}
         </h3>
 
@@ -154,7 +154,7 @@ const BlogPage = () => {
               loading="eager"
               fetchPriority="high"
               sizes="100vw"
-              className="object-cover object-center !opacity-50"
+              className="object-cover object-center opacity-50!"
             />
 
             {/* White filter on image */}
@@ -165,12 +165,12 @@ const BlogPage = () => {
           <div className="absolute inset-0" />
 
           {/* HERO CONTENT */}
-          <div className="relative mx-auto flex min-h-[300px] w-full max-w-7xl flex-col items-start justify-center px-4 py-10 text-left sm:px-6 lg:px-8">
+          <div className="relative mx-auto flex min-h-75 w-full max-w-7xl flex-col items-start justify-center px-4 py-10 text-left sm:px-6 lg:px-8">
             <span className="rounded-full bg-white/8 px-4 py-2 text-[12px] font-semibold tracking-wider text-white uppercase backdrop-blur-sm">
-              Destonoway TRAVEL BLOG
+              Destinoway TRAVEL BLOG
             </span>
 
-            <h1 className="!mt-4 max-w-4xl !text-[30px] leading-[1.12] font-bold tracking-tight text-white sm:text-[44px] lg:text-[52px]">
+            <h1 className="mt-4! max-w-4xl text-[30px]! leading-[1.12] font-bold tracking-tight text-white sm:text-[44px] lg:text-[52px]">
               Explore. Discover.
               <span className="most-text-color block">Travel More.</span>
             </h1>
@@ -201,7 +201,7 @@ const BlogPage = () => {
                 </h2>
               </div>
 
-              <div className="most-boder-colour flex h-[52px] w-full max-w-[320px] items-center rounded-full border bg-white px-4">
+              <div className="most-boder-colour flex h-13 w-full max-w-[320px] items-center rounded-full border bg-white px-4">
                 <input
                   type="text"
                   value={search}
@@ -256,7 +256,7 @@ const BlogPage = () => {
                 }}
                 className={`rounded-full border px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 ${
                   activeCategory === null
-                    ? "buttion-background-color border-transparent !text-white shadow-sm"
+                    ? "buttion-background-color border-transparent text-white! shadow-sm"
                     : "hover:most-text-color border-gray-200 bg-white text-[#555] hover:border-[#008cff]"
                 }`}
               >
@@ -277,7 +277,7 @@ const BlogPage = () => {
                     }}
                     className={`rounded-full border px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 ${
                       active
-                        ? "buttion-background-color border-transparent !text-white shadow-sm"
+                        ? "buttion-background-color border-transparent text-white! shadow-sm"
                         : "hover:most-text-color border-gray-200 bg-white text-[#555] hover:border-[#008cff]"
                     }`}
                   >
@@ -349,7 +349,7 @@ const BlogPage = () => {
                     setActiveCategory(null);
                     setPage(1);
                   }}
-                  className="mt-4 !rounded-lg"
+                  className="mt-4 rounded-lg!"
                 >
                   Clear Filters
                 </Button>
@@ -408,7 +408,7 @@ const BlogPage = () => {
                 <button
                   key={destination.name}
                   type="button"
-                  className="group relative h-[145px] overflow-hidden rounded-[15px] border-0 bg-gray-200 text-left"
+                  className="group relative h-36.25 overflow-hidden rounded-[15px] border-0 bg-gray-200 text-left"
                 >
                   <Image
                     src={destination.image}
@@ -419,7 +419,7 @@ const BlogPage = () => {
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.07]"
                   />
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/65 via-black/10 to-transparent" />
 
                   <span className="absolute bottom-3 left-3 text-[15px] font-bold text-white">
                     {destination.name}

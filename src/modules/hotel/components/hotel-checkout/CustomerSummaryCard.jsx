@@ -33,7 +33,7 @@ export default function CustomerSummaryCard({
         <div>
           <Title
             level={5}
-            className="font-roboto! !mb-0 !text-[16px] !font-bold !text-[#05144b]"
+            className="font-roboto! mb-0! text-[16px]! font-bold! text-[#05144b]!"
           >
             Customer Details
           </Title>
@@ -87,7 +87,7 @@ export default function CustomerSummaryCard({
       <div className="mb-0! flex items-center gap-2">
         <TeamOutlined className="text-[#0f766e]" />
 
-        <Title level={5} className="font-roboto! !mb-0 !text-[17px]">
+        <Title level={5} className="font-roboto! mb-0! text-[17px]!">
           Guest Details
         </Title>
       </div>

@@ -36,13 +36,13 @@ const timeline = [
 export default function ResolutionTimelineSection() {
   return (
     <section className="bg-white py-10 lg:py-12">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
+      <div className="mx-auto max-w-350 px-4 sm:px-6">
         <div className="mb-8 text-center">
           <h2 className="text-[28px] font-bold text-black md:text-[36px]">
             Resolution Timeline
           </h2>
 
-          <p className="mx-auto mt-3 max-w-[700px] text-[15px] text-gray-600">
+          <p className="mx-auto mt-3 max-w-175 text-[15px] text-gray-600">
             We aim to resolve all grievances as quickly and fairly as possible.
             Below is our standard resolution process timeline.
           </p>

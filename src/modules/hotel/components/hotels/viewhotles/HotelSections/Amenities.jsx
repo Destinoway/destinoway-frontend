@@ -1,5 +1,7 @@
 "use client";
 
+import SectionCard from "./SectionCard";
+
 import {
   AppstoreOutlined,
   CarOutlined,
@@ -99,22 +101,24 @@ const Amenities = ({ amenities = [] }) => {
     : normalizedAmenities.slice(0, 8);
 
   return (
-    <div className="rounded-xl border border-gray-300 p-6">
-      <h2 className="mb-5 text-xl font-semibold text-gray-800">Amenities</h2>
-
+    <SectionCard
+      icon={<AppstoreOutlined />}
+      title="Amenities"
+      subtitle="Facilities available at this property"
+    >
       {normalizedAmenities.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-2.5 min-[420px]:grid-cols-2 lg:grid-cols-4">
             {visibleAmenities.map((item, index) => (
               <div
                 key={item?.id || `${item?.name}-${index}`}
-                className="most-boder-colour flex items-center gap-3 rounded border bg-gray-50 p-3"
+                className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2.5 transition-colors hover:border-(--theme-secondary)/30 hover:bg-slate-50"
               >
-                <div className="most-text-color text-[18px]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--theme-secondary)/8 text-[15px] text-(--theme-secondary)">
                   {getAmenityIcon(item.name)}
-                </div>
+                </span>
 
-                <span className="text-sm font-medium text-gray-700">
+                <span className="min-w-0 truncate text-[13px] font-medium text-gray-700">
                   {item.name}
                 </span>
               </div>
@@ -122,23 +126,23 @@ const Amenities = ({ amenities = [] }) => {
           </div>
 
           {hasMore && (
-            <div className="mt-5">
-              <button
-                type="button"
-                onClick={() => setShowAll((prev) => !prev)}
-                className="cursor-pointer border-b border-dotted border-[#0f172a] pb-1 text-sm font-semibold text-[#0f172a]! transition hover:text-[#0ea5e9]"
-              >
-                {showAll ? "View Less Amenities" : "View All Amenities"}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowAll((prev) => !prev)}
+              className="mt-4 inline-flex h-10 cursor-pointer items-center rounded-full border border-(--theme-secondary)/30 bg-white px-4 text-[13px] font-semibold text-(--theme-secondary) transition-colors hover:bg-(--theme-secondary)/5"
+            >
+              {showAll
+                ? "View Less Amenities"
+                : `View All Amenities (${normalizedAmenities.length})`}
+            </button>
           )}
         </>
       ) : (
-        <div className="rounded border border-dashed p-6 text-center text-gray-500">
+        <p className="m-0 rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
           No amenities available
-        </div>
+        </p>
       )}
-    </div>
+    </SectionCard>
   );
 };
 

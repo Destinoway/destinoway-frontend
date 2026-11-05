@@ -41,7 +41,7 @@ export default function JourneySection() {
 
           {/* Image */}
           <div>
-            <div className="relative w-full h-[250px] sm:h-[350px] md:h-[450px] overflow-hidden rounded-2xl shadow-lg">
+            <div className="relative w-full h-62.5 sm:h-87.5 md:h-112.5 overflow-hidden rounded-2xl shadow-lg">
               <Image
                 src="/images/journeySectionimage.jpg" // apni image ka path yahan do
                 alt="Our Journey"

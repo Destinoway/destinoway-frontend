@@ -48,6 +48,7 @@ export default async function sitemap() {
     ["/terms-conditions", 0.5],
     ["/grievance-redressal", 0.5],
     ["/blog", 0.7],
+    ["/gift-cards", 0.6],
   ];
 
   const [cmsPages, blogs] = await Promise.all([

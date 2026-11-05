@@ -53,7 +53,7 @@ function MobileSortBar({ sort, setSort }) {
               type="button"
               aria-pressed={active}
               onClick={() => setSort(active ? null : option.value)}
-              className={`flex min-h-[52px] w-full cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-left shadow-sm transition-all duration-200 active:scale-[0.98] ${
+              className={`flex min-h-13 w-full cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-left shadow-sm transition-all duration-200 active:scale-[0.98] ${
                 active
                   ? "border-[#e98b00] bg-[#fff8ed]"
                   : "border-gray-300 bg-white hover:border-[#e98b00] hover:bg-[#fffaf3]"

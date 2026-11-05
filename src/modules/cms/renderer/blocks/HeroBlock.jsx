@@ -14,7 +14,7 @@ export default function HeroBlock({ data, titleAs: TitleTag = "h2" }) {
   return (
     <section className="w-full py-0">
       <div
-        className="relative mx-auto h-[220px] w-full overflow-hidden rounded bg-cover bg-center bg-no-repeat sm:h-[300px] md:h-[400px] lg:h-[420px]"
+        className="relative mx-auto h-55 w-full overflow-hidden rounded bg-cover bg-center bg-no-repeat sm:h-75 md:h-100 lg:h-105"
         style={{
           backgroundImage: imageUrl
             ? `
@@ -44,7 +44,7 @@ export default function HeroBlock({ data, titleAs: TitleTag = "h2" }) {
               : "items-center justify-start text-left"
           } `}
         >
-          <div className={`${hasButton ? "max-w-[820px]" : "max-w-[650px]"}`}>
+          <div className={`${hasButton ? "max-w-205" : "max-w-162.5"}`}>
             {/* TITLE */}
             {data?.title && (
               <TitleTag
@@ -73,7 +73,7 @@ export default function HeroBlock({ data, titleAs: TitleTag = "h2" }) {
             {hasButton && (
               <Link
                 href={buttonLink}
-                className="inline-flex h-12 min-w-[165px] items-center justify-center rounded-lg bg-[#5bb7ec] px-6 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:opacity-90"
+                className="inline-flex h-12 min-w-41.25 items-center justify-center rounded-lg bg-[#5bb7ec] px-6 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:opacity-90"
               >
                 {data.buttonText}
               </Link>

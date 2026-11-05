@@ -67,7 +67,7 @@ CANONICAL
 
   const description =
     cms?.metaDescription ||
-    "Find hotels, destinations and travel experiences on Destonoway.";
+    "Find hotels, destinations and travel experiences on Destinoway.";
 
   const keywords = Array.isArray(cms?.keywords) ? cms.keywords : [];
 
@@ -110,13 +110,13 @@ CANONICAL
     */
     authors: [
       {
-        name: "Destonoway",
+        name: "Destinoway",
       },
     ],
 
-    creator: "Destonoway",
+    creator: "Destinoway",
 
-    publisher: "Destonoway",
+    publisher: "Destinoway",
 
     category: "travel",
 
@@ -127,7 +127,7 @@ CANONICAL
       title: titleText,
       description,
       url: canonical,
-      siteName: "Destonoway",
+      siteName: "Destinoway",
       type: "website",
       locale: "en_IN",
 

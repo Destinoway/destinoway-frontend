@@ -74,7 +74,7 @@ export default function DynamicSeoFallback({ cityName }) {
       <div>
         <SectionTitle as="h2">Hotels in {city}</SectionTitle>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-600 sm:text-[15px]">
-          Looking for hotels in {city}? Destonoway helps you compare hotel
+          Looking for hotels in {city}? Destinoway helps you compare hotel
           prices, explore verified stays and find accommodation that matches
           your travel plans. Whether you are planning a business trip, family
           vacation or weekend getaway, discover hotel options with an easy
@@ -84,7 +84,7 @@ export default function DynamicSeoFallback({ cityName }) {
 
       {/* WHY BOOK */}
       <div>
-        <SectionTitle>Why Book Hotels with Destonoway</SectionTitle>
+        <SectionTitle>Why Book Hotels with Destinoway</SectionTitle>
 
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {WHY_BOOK.map((item) => (
@@ -117,7 +117,7 @@ export default function DynamicSeoFallback({ cityName }) {
                 key={tip}
                 className="flex items-start gap-3 rounded-xl border border-gray-100 bg-slate-50/70 px-3.5 py-3 text-[13px] leading-6 text-gray-700 sm:text-sm"
               >
-                <CheckCircleFilled className="mt-[5px] shrink-0 text-[14px] text-emerald-500" />
+                <CheckCircleFilled className="mt-1.25 shrink-0 text-[14px] text-emerald-500" />
                 <span>{tip}</span>
               </li>
             ))}

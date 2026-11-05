@@ -199,10 +199,10 @@ const HotelSectionsTabs = ({ activeTab = "Rooms", setActiveTab }) => {
 
       <div
         ref={ref}
-        className={`z-[8] w-full border border-gray-200 bg-white text-[#0ea5e9] shadow-[0_8px_20px_rgba(14,165,233,0.25)] ${
-         isFixed
-  ? "fixed top-[55px] left-0 w-full sm:top-[55px] md:top-[130px] lg:top-[130px] xl:top-[130px]"
-  : "relative"
+        className={`z-30 w-full border border-gray-200 bg-white shadow-[0_6px_20px_rgba(15,23,42,0.08)] ${
+          isFixed
+            ? "fixed top-13.75 left-0 w-full sm:top-13.75 md:top-32.5 lg:top-32.5 xl:top-32.5"
+            : "relative rounded-2xl"
         }`}
       >
         <div className="scrollbar-hide flex overflow-x-auto">
@@ -213,16 +213,16 @@ const HotelSectionsTabs = ({ activeTab = "Rooms", setActiveTab }) => {
               <button
                 key={tab}
                 onClick={() => handleScrollTo(tab)}
-                className={`font-roboto relative min-w-max flex-1 px-6 py-5 text-[15px] font-bold whitespace-nowrap transition ${
+                className={`relative min-w-max flex-1 cursor-pointer border-none bg-transparent px-5 py-4 text-[14px] font-bold whitespace-nowrap transition-colors sm:px-6 sm:py-5 sm:text-[15px] ${
                   active
-                    ? "teb-text-color"
-                    : "!text-gray-900 hover:text-[#0ea5e9]"
+                    ? "text-(--theme-secondary)!"
+                    : "text-gray-500! hover:text-(--theme-secondary)!"
                 }`}
               >
                 {tab}
 
                 {active && (
-                  <span className="teb-boder-colour absolute bottom-0 left-0 h-[3px] w-full rounded-full" />
+                  <span className="absolute bottom-0 left-1/2 h-0.75 w-[60%] -translate-x-1/2 rounded-full bg-(--theme-secondary)" />
                 )}
               </button>
             );

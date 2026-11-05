@@ -84,19 +84,19 @@ export const FILTER_THEME = {
 // Theme-coloured checkboxes and inputs, scoped to the filter panel.
 const FILTER_THEME_CLASSES = [
   // Checkbox colours
-  "[&_.ant-checkbox-inner]:!rounded-[5px]",
-  "[&_.ant-checkbox-checked_.ant-checkbox-inner]:!border-(--theme-secondary) [&_.ant-checkbox-checked_.ant-checkbox-inner]:!bg-(--theme-secondary)",
-  "[&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!border-(--theme-secondary)",
+  "[&_.ant-checkbox-inner]:rounded-[5px]!",
+  "[&_.ant-checkbox-checked_.ant-checkbox-inner]:border-(--theme-secondary)! [&_.ant-checkbox-checked_.ant-checkbox-inner]:bg-(--theme-secondary)!",
+  "[&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:border-(--theme-secondary)!",
   // Each option is a full-width row with hover/selected states
-  "[&_.ant-checkbox-wrapper]:!m-0 [&_.ant-checkbox-wrapper]:w-full [&_.ant-checkbox-wrapper]:rounded-lg [&_.ant-checkbox-wrapper]:px-2 [&_.ant-checkbox-wrapper]:py-[7px] [&_.ant-checkbox-wrapper]:text-gray-700 [&_.ant-checkbox-wrapper]:transition-colors",
+  "[&_.ant-checkbox-wrapper]:m-0! [&_.ant-checkbox-wrapper]:w-full [&_.ant-checkbox-wrapper]:rounded-lg [&_.ant-checkbox-wrapper]:px-2 [&_.ant-checkbox-wrapper]:py-1.75 [&_.ant-checkbox-wrapper]:text-gray-700 [&_.ant-checkbox-wrapper]:transition-colors",
   "[&_.ant-checkbox-wrapper:hover]:bg-slate-50",
   "[&_.ant-checkbox-wrapper-checked]:bg-(--theme-secondary)/5 [&_.ant-checkbox-wrapper-checked]:font-semibold [&_.ant-checkbox-wrapper-checked]:text-(--theme-secondary)",
   // Inputs
-  "[&_.ant-input-affix-wrapper-focused]:!border-(--theme-secondary) [&_.ant-input:focus]:!border-(--theme-secondary)",
+  "[&_.ant-input-affix-wrapper-focused]:border-(--theme-secondary)! [&_.ant-input:focus]:border-(--theme-secondary)!",
   // Sections separated by hairlines
   "[&_.ant-collapse-item]:border-b [&_.ant-collapse-item]:border-gray-100 [&_.ant-collapse-item:last-child]:border-b-0",
-  "[&_.ant-collapse-header]:!px-1 [&_.ant-collapse-header]:!py-3",
-  "[&_.ant-collapse-content-box]:!px-0 [&_.ant-collapse-content-box]:!pt-0 [&_.ant-collapse-content-box]:!pb-3",
+  "[&_.ant-collapse-header]:px-1! [&_.ant-collapse-header]:py-3!",
+  "[&_.ant-collapse-content-box]:px-0! [&_.ant-collapse-content-box]:pt-0! [&_.ant-collapse-content-box]:pb-3!",
 ].join(" ");
 
 const sectionTitleClass =
@@ -579,7 +579,7 @@ function SidebarFilters({
         {!hideMapSection && (
           <div
             onClick={() => onMapClick?.()}
-            className="group/map relative mb-3 h-[86px] shrink-0 cursor-pointer overflow-hidden rounded-xl ring-1 ring-gray-200 md:mb-4 md:h-[105px]"
+            className="group/map relative mb-3 h-21.5 shrink-0 cursor-pointer overflow-hidden rounded-xl ring-1 ring-gray-200 md:mb-4 md:h-26.25"
           >
             <Image
               src="/images/filterMap.png"
@@ -616,12 +616,12 @@ function SidebarFilters({
             placeholder="Search Hotel Name"
             value={currentFilters.search || ""}
             onChange={handleSearch}
-            className="h-10 rounded-xl border border-gray-200 bg-slate-50/60 md:h-11 [&_.ant-input]:!border-0 [&_.ant-input]:!bg-transparent [&_.ant-input]:!text-[13px] [&_.ant-input]:!shadow-none [&_.ant-input]:focus:!shadow-none md:[&_.ant-input]:!text-[14px] [&_.ant-input::placeholder]:!text-gray-400"
+            className="h-10 rounded-xl border border-gray-200 bg-slate-50/60 md:h-11 [&_.ant-input]:border-0! [&_.ant-input]:bg-transparent! [&_.ant-input]:text-[13px]! [&_.ant-input]:shadow-none! [&_.ant-input]:focus:shadow-none! md:[&_.ant-input]:text-[14px]! [&_.ant-input::placeholder]:text-gray-400!"
           />
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="min-h-0 flex-1 [scrollbar-width:thin] overflow-y-auto overscroll-contain scroll-smooth pr-1 pb-2 [-webkit-overflow-scrolling:touch]">
+          <div className="min-h-0 flex-1 scrollbar-thin overflow-y-auto overscroll-contain scroll-smooth pr-1 pb-2 [-webkit-overflow-scrolling:touch]">
             <Collapse
               defaultActiveKey={[
                 "popular",

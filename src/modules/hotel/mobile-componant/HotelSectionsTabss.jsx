@@ -148,9 +148,9 @@ const HotelSectionsTabss = ({ activeTab = "Amenities", setActiveTab }) => {
 
       <div
         ref={ref}
-        className={`z-[8] w-full border border-gray-200 bg-white text-[#0ea5e9] shadow-[0_8px_20px_rgba(14,165,233,0.25)] ${
+        className={`z-8 w-full border border-gray-200 bg-white text-[#0ea5e9] shadow-[0_8px_20px_rgba(14,165,233,0.25)] ${
           isFixed
-            ? "!lg:top-[55px] fixed top-[55px] left-0 w-full sm:top-[55px]  xl:top-[55px]"
+            ? "!lg:top-[55px] fixed top-13.75 left-0 w-full sm:top-13.75  xl:top-13.75"
             : "relative"
         }`}
       >
@@ -165,14 +165,14 @@ const HotelSectionsTabss = ({ activeTab = "Amenities", setActiveTab }) => {
                 className={`font-roboto relative min-w-max flex-1 px-6 py-5 text-[15px] font-bold whitespace-nowrap transition ${
                   active
                     ? "teb-text-color"
-                    : "hover:teb-text-color !text-gray-900"
+                    : "hover:teb-text-color text-gray-900!"
                 }`}
               >
                 
                 {tab}
 
                 {active && (
-                  <span className="teb-boder-colour absolute bottom-0 left-0 h-[3px] w-full rounded-full" />
+                  <span className="teb-boder-colour absolute bottom-0 left-0 h-0.75 w-full rounded-full" />
                 )}
               </button>
             );

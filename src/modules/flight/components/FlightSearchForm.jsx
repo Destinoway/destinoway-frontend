@@ -9,7 +9,7 @@ export default function FlightSearchForm() {
         <Input size="large" placeholder="From" />
         <Input size="large" placeholder="To" />
 
-        <DatePicker className="h-[60px] w-full" />
+        <DatePicker className="h-15 w-full" />
 
         <Select
           size="large"

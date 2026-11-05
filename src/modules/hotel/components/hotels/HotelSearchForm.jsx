@@ -96,7 +96,7 @@ export default function HotelSearchForm({
         </div>
 
         {/* Check-in / Check-out */}
-        <div className="relative z-[100] w-full">
+        <div className="relative z-100 w-full">
           <DateRangeField
             icon={<CalendarOutlined className="text-[18px] text-gray-400" />}
             variant="default"
@@ -115,7 +115,7 @@ export default function HotelSearchForm({
         {/* Rooms & Guests */}
         <div className="relative z-40 w-full">
           <GuestsField
-            icon={<TeamOutlined className="text-[22px] !text-gray-900" />}
+            icon={<TeamOutlined className="text-[22px] text-gray-900!" />}
             variant="default"
             value={draftSearchData}
             open={guestOpen}
