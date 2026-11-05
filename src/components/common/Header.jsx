@@ -203,7 +203,7 @@ export default function Header() {
         <div className="flex items-center">
           <Link href="/" className="flex items-center!">
             <Image
-              src="/images/LOGO-DW.png"
+              src="/images/LOGO-DW.webp"
               alt="Destinoway"
               width={400}
               height={70}
@@ -318,7 +318,7 @@ export default function Header() {
         title={
           <div className="flex items-center gap-2">
             <Image
-              src="/images/LOGO-DW-Symbol.png"
+              src="/images/LOGO-DW-Symbol.webp"
               alt="Destinoway"
               width={48}
               height={48}

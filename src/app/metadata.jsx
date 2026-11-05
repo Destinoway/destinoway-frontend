@@ -2,7 +2,7 @@ import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 const SITE_URL = getSiteUrl();
 
-const OG_IMAGE = "/images/OGIMAGE1.png";
+const OG_IMAGE = "/images/OGIMAGE1.webp";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),

@@ -48,7 +48,7 @@ export default function WhySection() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_1fr] xl:gap-10">
           <div className="relative min-h-60 overflow-hidden rounded-2xl shadow-xl sm:min-h-80 md:min-h-105 lg:min-h-130 lg:rounded-4xl xl:min-h-150">
             <Image
-              src="/images/whySection.png"
+              src="/images/whySection.webp"
               alt="Luxury Resort"
               fill
               sizes="(max-width: 1023px) 100vw, 50vw"
@@ -63,7 +63,10 @@ export default function WhySection() {
               </p>
 
               <div className="mt-1 flex items-center gap-3">
-                <p aria-label="Rated 4.9 out of 5" className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
+                <p
+                  aria-label="Rated 4.9 out of 5"
+                  className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl"
+                >
                   4.9★
                 </p>
 

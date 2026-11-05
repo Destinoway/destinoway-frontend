@@ -10,7 +10,7 @@ const ViewHotelGalleryMobile = ({
   isWishlisted,
 }) => {
   const getHDImage = (url) => {
-    if (!url) return "/images/heroimage.jpg";
+    if (!url) return "/images/heroimage.webp";
     return url.replace("_t.", "_y.").replace("_b.", "_y.");
   };
 
@@ -21,7 +21,7 @@ const ViewHotelGalleryMobile = ({
         : item?.url || item?.ImageURL || item?.image || item?.src || "",
     )
     .filter(Boolean);
-  const fallbackImage = imageUrls[0] || "/images/heroimage.jpg";
+  const fallbackImage = imageUrls[0] || "/images/heroimage.webp";
   const gallery = Array.from({ length: 5 }, (_, index) =>
     getHDImage(imageUrls[index] || fallbackImage),
   );

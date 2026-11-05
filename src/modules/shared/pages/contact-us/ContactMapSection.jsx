@@ -138,7 +138,7 @@ export default function ContactMapSection() {
                       className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.75 hover:shadow-lg"
                     >
                       <Image
-                        src="/images/icons/LinkedIn-logo.svg"
+                        src="/images/icons/linkedin-logo.svg"
                         alt="Instagram"
                         width={20}
                         height={20}

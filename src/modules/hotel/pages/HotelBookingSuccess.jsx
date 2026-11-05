@@ -17,6 +17,7 @@ import dayjs from "dayjs";
 import { useBookingDetails } from "@/modules/profile/hooks/useBookingDetails";
 import { Button, Card } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useHotelBookingStore } from "../store/booking.store";
 
 // Defined outside the component so it is not recreated on every render.
 const PriceRow = ({ label, value, last = false, valueClass = "" }) => (
@@ -38,6 +39,9 @@ const PriceRow = ({ label, value, last = false, valueClass = "" }) => (
 );
 
 export default function HotelBookingSuccess() {
+  const clearBookingData = useHotelBookingStore(
+    (state) => state.clearBookingData,
+  );
   const router = useRouter();
   const searchParams = useSearchParams();
   const bookingRefNo = searchParams.get("bookingRefNo");

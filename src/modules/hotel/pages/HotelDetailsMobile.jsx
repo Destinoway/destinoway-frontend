@@ -220,7 +220,7 @@ function HotelDetailsMobile({
                     {/* Map Image */}
                     <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg bg-[#F5F7FA] p-1">
                       <img
-                        src="/images/location.png"
+                        src="/images/location.webp"
                         alt="Location"
                         className="max-h-full max-w-full object-contain"
                       />

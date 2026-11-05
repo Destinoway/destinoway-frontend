@@ -28,7 +28,7 @@ import {
 } from "@/modules/shared/home/utils/heroBanner";
 
 const SITE_URL = getSiteUrl();
-const OG_IMAGE = `${SITE_URL}/images/OGIMAGE1.png`;
+const OG_IMAGE = `${SITE_URL}/images/OGIMAGE1.webp`;
 
 export async function generateMetadata() {
   const homeCms = await fetchCmsBySlug("home");

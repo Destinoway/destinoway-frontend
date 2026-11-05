@@ -148,7 +148,7 @@ const BlogPage = () => {
           {/* BACKGROUND IMAGE */}
           <div className="absolute inset-0 overflow-hidden bg-[#092f49]">
             <Image
-              src="/images/heroimage.jpg"
+              src="/images/heroimage.webp"
               alt=""
               fill
               loading="eager"

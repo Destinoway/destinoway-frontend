@@ -29,11 +29,11 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden background-color-bg ">
+    <div className="background-color-bg min-h-screen overflow-x-hidden">
       {/* Banner */}
       <div className="relative h-45 w-full overflow-hidden sm:h-50 md:h-55">
         <img
-          src="/images/profile-bg.png"
+          src="/images/profile-bg.webp"
           alt="background"
           className="h-full w-full object-cover"
         />
@@ -42,7 +42,7 @@ export default function ProfilePage() {
 
       {/* Mobile Header */}
       <div className="sticky top-0 z-40 flex items-center justify-between bg-white px-4 py-3 shadow md:hidden">
-        <h2 className="text-lg font-semibold most-text-color">My Account</h2>
+        <h2 className="most-text-color text-lg font-semibold">My Account</h2>
 
         <Button
           type="text"

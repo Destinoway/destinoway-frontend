@@ -582,7 +582,7 @@ function SidebarFilters({
             className="group/map relative mb-3 h-21.5 shrink-0 cursor-pointer overflow-hidden rounded-xl ring-1 ring-gray-200 md:mb-4 md:h-26.25"
           >
             <Image
-              src="/images/filterMap.png"
+              src="/images/filterMap.webp"
               alt="Explore on Map"
               fill
               sizes="(max-width: 777px) 85vw, 288px"

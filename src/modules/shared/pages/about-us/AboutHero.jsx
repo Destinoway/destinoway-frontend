@@ -8,7 +8,7 @@ export default function AboutHero() {
       {/* Hero Section */}
       <section className="relative h-70 w-full overflow-hidden sm:h-80 md:h-50 lg:h-75 xl:h-100">
         <Image
-          src="/images/heroimage.jpg"
+          src="/images/heroimage.webp"
           alt=""
           fill
           priority
@@ -45,7 +45,7 @@ export default function AboutHero() {
             <div className="relative overflow-hidden rounded-2xl shadow-lg">
               <div className="relative h-65 w-full sm:h-57.5 md:h-80 lg:h-100">
                 <Image
-                  src="/images/aboutsection.jpg"
+                  src="/images/aboutsection.webp"
                   alt="Destinoway travel experiences"
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"

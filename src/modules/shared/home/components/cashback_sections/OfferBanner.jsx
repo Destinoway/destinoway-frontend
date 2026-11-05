@@ -7,7 +7,7 @@ export default function OfferBanner() {
     <div className="!sm:-mt-[92px] background-color-bg mx-auto -mt-10 flex items-center justify-center px-1! px-3 py-0 sm:px-1! sm:px-4 sm:py-1 md:-mt-12 md:px-2! md:px-9 md:py-0 lg:-mt-2.5 lg:px-3! xl:px-4! 2xl:px-0!">
       <div className="relative h-65 w-full overflow-hidden rounded-[20px] sm:h-80 sm:rounded-[25px] md:h-95 md:rounded-[20px] lg:h-107.5 lg:w-[85.87%]">
         <Image
-          src="/images/cashback_banner.png"
+          src="/images/cashback_banner.webp"
           alt="banner"
           fill
           sizes="(max-width: 1023px) 100vw, 86vw"
@@ -17,7 +17,7 @@ export default function OfferBanner() {
         <div className="absolute inset-0 z-10 bg-black/10" />
 
         <Image
-          src="/images/luggage.png"
+          src="/images/luggage.webp"
           alt="luggage"
           width={600}
           height={600}
@@ -27,7 +27,7 @@ export default function OfferBanner() {
 
         <div className="absolute top-2 left-2 z-20 h-12.5 w-12.5 sm:top-4 sm:left-4 sm:h-22.5 sm:w-22.5 md:top-6 md:left-6 md:h-35 md:w-35 lg:top-10 lg:left-10 lg:h-45 lg:w-45">
           <Image
-            src="/images/offer.png"
+            src="/images/offer.webp"
             alt="offer badge"
             fill
             sizes="(max-width: 639px) 50px, (max-width: 767px) 90px, (max-width: 1023px) 140px, 180px"

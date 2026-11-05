@@ -5,7 +5,7 @@ export default function GiftCardBanner() {
     <section className="relative h-55 sm:h-65 md:h-75 lg:h-87.5 w-full overflow-hidden">
       {/* Background Image */}
       <Image
-        src="/images/GiftCardBanner.png"
+        src="/images/GiftCardBanner.webp"
         alt="Gift Cards Banner"
         fill
         priority
