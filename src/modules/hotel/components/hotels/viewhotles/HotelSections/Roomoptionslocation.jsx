@@ -165,7 +165,7 @@ const locationSections = [
     <div className=" p-6">
 
       {/* ================= AMENITIES ================= */}
-      <div className="bg-white rounded-lg p-6 mb-6 !max-w-6.5xl">
+      <div className="bg-white rounded-lg p-6 mb-6 max-w-6.5xl!">
         <h2 className="text-[20px] font-bold text-[#2d4b3f] mb-5">
           Amenities
         </h2>
@@ -284,7 +284,7 @@ const locationSections = [
         </h3>
 
         <p className="text-[#555] leading-7 text-sm md:text-[17px]">
-          Guests highly praise the property's location, admiring its proximity
+          Guests highly praise the property&apos;s location, admiring its proximity
           to Candolim Beach and local attractions. Many noted that the area
           remains peaceful while being conveniently close to bustling markets
           and dining options.
@@ -294,7 +294,7 @@ const locationSections = [
       {/* MAP + RIGHT SIDEBAR */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4">
         {/* MAP */}
-        <div className="overflow-hidden rounded-2xl border border-[#ddd] h-[350px] md:h-[550px]">
+        <div className="overflow-hidden rounded-2xl border border-[#ddd] h-87.5 md:h-137.5">
           <iframe
             title="map"
             src="https://maps.google.com/maps?q=Candolim%20Beach&t=&z=13&ie=UTF8&iwloc=&output=embed"
@@ -348,12 +348,12 @@ const locationSections = [
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-[75px] h-[75px] rounded-xl object-cover"
+                        className="w-18.75 h-18.75 rounded-xl object-cover"
                       />
 
                       {/* TEXT */}
                       <div className="flex-1 min-w-0">
-                        <span className="bg-[#eaf2ff] text-[#4d8dff] text-[10px] px-2 py-[2px] rounded-md">
+                        <span className="bg-[#eaf2ff] text-[#4d8dff] text-[10px] px-2 py-0.5 rounded-md">
                           Popular
                         </span>
 
@@ -406,14 +406,14 @@ const locationSections = [
             {/* DO'S */}
             <div>
               <div className="flex items-center gap-3 mb-5">
-                <CheckOutlined className="!text-[#22c55e] text-[22px]" />
+                <CheckOutlined className="text-[#22c55e]! text-[22px]" />
 
                 <h3 className="text-[18px] font-bold text-[#333]">
                   DO’s
                 </h3>
               </div>
 
-              <ul className="list-disc pl-6 space-y-5 text-[14px] leading-[14px] text-[#444]">
+              <ul className="list-disc pl-6 space-y-5 text-[14px] leading-3.5 text-[#444]">
                 <li>
                   Unmarried couples/guests with Local IDs are allowed.
                   (Couple Friendly)
@@ -433,14 +433,14 @@ const locationSections = [
             {/* DON'TS */}
             <div>
               <div className="flex items-center gap-3 mb-5">
-                <CloseOutlined className="!text-red-500 text-[18px]" />
+                <CloseOutlined className="text-red-500! text-[18px]" />
 
                 <h3 className="text-[18px] font-bold text-[#333]">
                   Don’t s
                 </h3>
               </div>
 
-              <ul className="list-disc pl-6 space-y-5 text-[14px] leading-[14px] text-[#444]">
+              <ul className="list-disc pl-6 space-y-5 text-[14px] leading-3.5 text-[#444]">
                 <li>Pets are not allowed</li>
 
                 <li>Outside food is not allowed</li>
@@ -453,7 +453,7 @@ const locationSections = [
           {/* Read More Button */}
           <button
             onClick={() => setOpen(true)}
-            className="mt-10 !text-[#3ba7ff] text-[20px] font-semibold border-b border-dashed border-[#3ba7ff] hover:text-blue-700 transition"
+            className="mt-10 text-[#3ba7ff]! text-[20px] font-semibold border-b border-dashed border-[#3ba7ff] hover:text-blue-700 transition"
           >
             Read All Property Rules
           </button>
@@ -473,7 +473,7 @@ const locationSections = [
             All Property Rules
           </h2>
 
-          <div className="space-y-4 text-[17px] leading-[32px] text-[#444]">
+          <div className="space-y-4 text-[17px] leading-8 text-[#444]">
             <p>✔ Couples are welcome</p>
 
             <p>✔ Guests should carry valid ID proof</p>
@@ -494,7 +494,7 @@ const locationSections = [
     </div>
      <div className="w-full bg-white  p-4 md:p-6 mb-6">
       {/* HEADING */}
-      <h2 className="text-[24px] md:text-[28px] font-[700] text-[#2b2b2b] mb-5">
+      <h2 className="text-[24px] md:text-[28px] font-bold text-[#2b2b2b] mb-5">
         Photos by Guests
       </h2>
 
@@ -503,7 +503,7 @@ const locationSections = [
         {galleryImages.map((item, index) => (
           <div
             key={item.id}
-            className="relative overflow-hidden rounded-[16px] h-[140px] md:h-[175px] group cursor-pointer"
+            className="relative overflow-hidden rounded-2xl h-35 md:h-43.75 group cursor-pointer"
           >
             {/* IMAGE */}
             <img
@@ -518,7 +518,7 @@ const locationSections = [
                 onClick={handleOpenPopup}
                 className="absolute inset-0 bg-black/45 flex items-center justify-center cursor-pointer"
               >
-                <h3 className="text-white text-[22px] md:text-[32px] font-[700] text-center leading-tight">
+                <h3 className="text-white text-[22px] md:text-[32px] font-bold text-center leading-tight">
                   +700 Guest Photos
                 </h3>
               </div>
@@ -536,7 +536,7 @@ const locationSections = [
         width={700}
       >
         <div className="py-10 text-center">
-          <h2 className="text-[28px] font-[700] text-[#2b2b2b] mb-3">
+          <h2 className="text-[28px] font-bold text-[#2b2b2b] mb-3">
             All Guest Photos
           </h2>
 
@@ -547,7 +547,7 @@ const locationSections = [
 
           {/* BUTTON */}
           <button
-            className="mt-6 bg-black text-white px-6 py-3 rounded-xl text-[15px] font-[600] hover:opacity-90 transition-all"
+            className="mt-6 bg-black text-white px-6 py-3 rounded-xl text-[15px] font-semibold hover:opacity-90 transition-all"
             onClick={() => {
               // YAHAN LINK LGAO
               // Example:

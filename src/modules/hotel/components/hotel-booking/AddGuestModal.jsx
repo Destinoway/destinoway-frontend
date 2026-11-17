@@ -35,9 +35,11 @@ export default function AddGuestModal({ open, onClose, onSave, guestNo }) {
   return (
     <Modal open={open} footer={null} onCancel={onClose} width={820} centered>
       <div className="m-5 p-5">
-        <h2 className="mb-0! text-[24px] font-roboto font-semibold">Add Guest {guestNo}</h2>
+        <h2 className="font-roboto mb-0! text-[24px] font-semibold">
+          Add Guest {guestNo}
+        </h2>
 
-        <p className="mb-7 text-[#555] font-roboto">
+        <p className="font-roboto mb-7 text-[#555]">
           Name should be as per official govt. ID & travelers below 18 years of
           age cannot travel alone
         </p>
@@ -77,7 +79,7 @@ export default function AddGuestModal({ open, onClose, onSave, guestNo }) {
               />
             </div>
 
-            <div className="mt-5 font-semibold font-roboto">
+            <div className="font-roboto mt-5 font-semibold">
               <Checkbox
                 checked={watch("isChild")}
                 onChange={(e) => setValue("isChild", e.target.checked)}
@@ -89,7 +91,7 @@ export default function AddGuestModal({ open, onClose, onSave, guestNo }) {
             <Button
               htmlType="submit"
               type="primary"
-              className="!mt-7 !h-[46px] !rounded-xl"
+              className="mt-7! h-11.5! rounded-xl!"
             >
               Save Details
             </Button>

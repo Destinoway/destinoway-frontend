@@ -37,10 +37,12 @@ function HotelList({
     data,
     isLoading,
     isError,
+    isSearchProcessing,
+    searchId,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteHotels(payload);
+  } = useInfiniteHotels(payload, filters, sort);
 
   useEffect(() => {
     onLoadingChange?.(isLoading);
@@ -80,28 +82,39 @@ function HotelList({
   const hotels = useMemo(() => {
     const allHotels =
       data?.pages?.flatMap((page) => {
-        const hotelDetailId = page?.data?.hotelDetailId || "";
-
-        return (page?.data?.hotels || []).map((hotel) => ({
+        return (page?.data?.items || []).map((hotel) => ({
           ...hotel,
-          hotelDetailId,
+          hotelDetailId:
+            page?.data?.hotelDetailId ||
+            page?.data?.hotelDetailID ||
+            page?.data?.HotelDetailId ||
+            page?.data?.HotelDetailID ||
+            hotel?.hotelDetailId ||
+            hotel?.hotelDetailID ||
+            hotel?.HotelDetailId ||
+            hotel?.HotelDetailID ||
+            "",
         }));
       }) || [];
 
     return Array.from(
       new Map(
         allHotels.map((hotel, index) => [
-          hotel?.id || hotel?.hotelId || hotel?.HotelId || `hotel-${index}`,
+          hotel?.supplierHotelId ||
+            hotel?.id ||
+            hotel?.hotelId ||
+            hotel?.HotelId ||
+            `hotel-${index}`,
           hotel,
         ]),
       ).values(),
     );
   }, [data]);
 
-  const currencySymbol =
-    data?.pages?.[0]?.data?.currencySymbol ||
-    data?.pages?.[0]?.data?.CurrencySymbol ||
-    "₹";
+  const currencyCode =
+    data?.pages?.[0]?.data?.items?.[0]?.price?.currency || "INR";
+
+  const currencySymbol = currencyCode === "INR" ? "₹" : currencyCode;
 
   const searchKey =
     data?.pages?.[0]?.data?.searchKey ||
@@ -113,8 +126,9 @@ function HotelList({
       hotels,
       currencySymbol,
       searchKey,
+      searchId,
     });
-  }, [hotels, currencySymbol, searchKey]);
+  }, [hotels, currencySymbol, searchKey, searchId]);
 
   useEffect(() => {
     onHotelsChange?.(mappedHotels);
@@ -124,18 +138,28 @@ function HotelList({
     onResultChange?.(mappedHotels.length > 0);
   }, [mappedHotels, onResultChange]);
 
-  if (isLoading) {
+  if (isLoading || isSearchProcessing) {
     return <HotelContentLoader />;
   }
 
   if (isError) {
     return <HotelNotFound type="error" />;
   }
+  if (!payload && searchData?.city) {
+    return (
+      <HotelNotFound
+        type="error"
+        message="We couldn’t load hotels because destination details are incomplete. Please select the destination again and retry."
+      />
+    );
+  }
+  if (isSearchProcessing) {
+    return <div>Searching hotels... Please wait.</div>;
+  }
 
   if (!mappedHotels.length) {
     return <HotelNotFound type="not-found" />;
   }
-
   return (
     <div className="w-full space-y-4">
       {mappedHotels.map((hotel, index) => (

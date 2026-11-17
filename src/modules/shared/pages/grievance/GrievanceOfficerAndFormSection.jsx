@@ -5,7 +5,7 @@ import RHFSelect from "@/components/ui/RHFinputs/RHFSelect";
 import RHFTextarea from "@/components/ui/RHFinputs/RHFTextarea";
 import { useAuthModalStore } from "@/modules/auth/store/authModal.store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { message } from "antd";
+import { App } from "antd";
 import { FormProvider, useForm } from "react-hook-form";
 import { useCreateGrievance } from "./hooks/useGrievance";
 import { grievanceSchema } from "./schema/grievanceSchema";
@@ -38,6 +38,7 @@ const grievanceCategories = [
 ];
 
 export default function GrievanceOfficerAndFormSection() {
+  const { message } = App.useApp();
   const methods = useForm({
     resolver: zodResolver(grievanceSchema),
     mode: "onSubmit",
@@ -110,14 +111,10 @@ export default function GrievanceOfficerAndFormSection() {
     }
   };
 
-  const onError = (errors) => {
-    console.log("ERRORS", errors);
-    console.log("isSubmitted", methods.formState.isSubmitted);
-  };
-  console.log("FORM ERRORS", methods.formState.errors);
+  const onError = () => {};
   return (
     <section className="bg-[#eef5fa] py-12 lg:py-16">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
+      <div className="mx-auto max-w-350 px-4 sm:px-6">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.2fr] lg:gap-8">
           <div className="rounded bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.06)] lg:p-8">
             <div className="mb-6">
@@ -126,7 +123,7 @@ export default function GrievanceOfficerAndFormSection() {
               </span>
             </div>
 
-            <h2 className="mb-3 text-[28px] font-bold most-text-color">
+            <h2 className="most-text-color mb-3 text-[28px] font-bold">
               Grievance Officer
             </h2>
 
@@ -159,10 +156,10 @@ export default function GrievanceOfficerAndFormSection() {
                 </p>
 
                 <a
-                  href="mailto:grievance@panjourney.com"
+                  href="mailto:grievance@destinoway.com"
                   className="mt-1 block text-[14px] font-semibold text-[#0f6b78] hover:underline"
                 >
-                  grievance@panjourney.com
+                  grievance@destinoway.com
                 </a>
               </div>
 
@@ -272,7 +269,7 @@ export default function GrievanceOfficerAndFormSection() {
 
                 <button
                   type="submit"
-                  className="w-full rounded-lg buttion-background-color px-8 py-3.5 font-medium text-white! transition-all duration-300 hover:shadow-lg"
+                  className="buttion-background-color w-full rounded-lg px-8 py-3.5 font-medium text-white! transition-all duration-300 hover:shadow-lg"
                 >
                   Submit Grievance
                 </button>

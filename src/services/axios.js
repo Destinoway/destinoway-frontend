@@ -1,6 +1,12 @@
+import {
+  clearCachedSession,
+  getCachedSession,
+  refreshCachedSession,
+} from "@/lib/sessionTokenCache";
+// import { recordHotelSearchActivity } from "@/modules/hotel/utils/hotelSearchSession";
 import { useCurrencyStore } from "@/modules/shared/store/currency.store";
 import axios from "axios";
-import { getSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
 
 const baseURL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
@@ -11,8 +17,15 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
+    if (
+      config.method?.toLowerCase() === "post" &&
+      config.url?.split("?")[0].replace(/\/+$/, "") === "/hotelSearch/search"
+    ) {
+      // recordHotelSearchActivity();
+    }
+
     try {
-      const session = await getSession();
+      const session = await getCachedSession();
 
       if (session?.accessToken) {
         config.headers.Authorization = `Bearer ${session.accessToken}`;
@@ -25,7 +38,7 @@ api.interceptors.request.use(
 
       return config;
     } catch (error) {
-      console.error("Request Interceptor Error:", error);
+      console.error("Unable to read the current session for this request.");
       return config;
     }
   },
@@ -38,17 +51,13 @@ api.interceptors.response.use(
   async (error) => {
     const status = error?.response?.status;
 
-    console.log("❌ API ERROR:", status);
-
     if (status === 401) {
-      console.log("⚠️ 401 received");
-
       try {
-        const session = await getSession();
+        const session = await refreshCachedSession();
 
         // Refresh completely failed
         if (session?.error === "RefreshAccessTokenError") {
-          console.log("❌ Refresh failed → logout");
+          clearCachedSession();
 
           await signOut({
             redirect: false,
@@ -58,8 +67,8 @@ api.interceptors.response.use(
             window.location.href = "/";
           }
         }
-      } catch (err) {
-        console.error("401 Handler Error:", err);
+      } catch {
+        console.error("Session recovery failed after an unauthorized response.");
       }
     }
 

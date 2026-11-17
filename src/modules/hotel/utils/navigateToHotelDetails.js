@@ -28,13 +28,17 @@ export const navigateToHotelDetails = ({
   const hotelId = hotel?.id || hotel?.hotelId || hotel?.HotelId || "";
 
   const hotelDetailId = hotel?.hotelDetailId || "";
+  const searchId = hotel?.searchId || "";
+  const supplierHotelId =
+    hotel?.supplierHotelId ||
+    hotel?.supplierHotelID ||
+    hotel?.id ||
+    hotel?.hotelId ||
+    hotel?.HotelId ||
+    "";
 
-  if (!hotelId || !hotelDetailId) {
-    console.error("Hotel id or hotelDetailId not found", {
-      hotelId,
-      hotelDetailId,
-      hotel,
-    });
+  if (!hotelId && !supplierHotelId) {
+    console.error("Hotel details navigation is missing required search data.");
 
     return;
   }
@@ -46,5 +50,13 @@ export const navigateToHotelDetails = ({
     }),
   );
 
-  router.push(`/hotel-details/${citySlug}/${hotelSlug}`);
+  const query = new URLSearchParams();
+
+  if (searchId) query.set("searchId", String(searchId));
+  if (hotelId) query.set("hid", String(hotelId));
+  if (hotelDetailId) query.set("hotelDetailId", String(hotelDetailId));
+
+  router.push(
+    `/hotel-details/${citySlug}/${hotelSlug}?${query.toString()}`,
+  );
 };

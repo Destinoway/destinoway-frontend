@@ -1,9 +1,15 @@
 "use client";
 
-import { Button, Col, Row } from "antd";
+import { App, Button } from "antd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import { useHotelBooking } from "../../hooks/useHotelBooking";
 import { useHotelBookingStore } from "../../store/booking.store";
@@ -20,21 +26,36 @@ import SpecialRequestCard from "./SpecialRequestCard";
 import StaySummaryCard from "./StaySummaryCard";
 
 import HotelBookingContents from "../../mobile-componant/HotelBookingContents";
+import PriceBreakupCard from "./PriceBreakupCard";
+
+const subscribeToMount = () => () => {};
+const getClientMountSnapshot = () => true;
+const getServerMountSnapshot = () => false;
 
 export default function HotelBookingContent({
   hotelBookingData = {},
   hotelDetailId = "",
   roomId = "",
+  onPricingRefresh,
 }) {
+  const { message } = App.useApp();
   const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribeToMount,
+    getClientMountSnapshot,
+    getServerMountSnapshot,
+  );
   const [agreement, setAgreement] = useState(false);
   const guestFormRef = useRef(null);
+  const bookingSubmissionRef = useRef(false);
   const { mutate: bookHotel, isPending } = useHotelBooking();
   const router = useRouter();
   const { data: session } = useSession();
-  const { bookingData: storeBookingData, setBookingData } =
-    useHotelBookingStore();
+  const {
+    bookingData: storeBookingData,
+    setBookingData,
+    setItineraryData,
+  } = useHotelBookingStore();
   const searchData = storeBookingData?.searchData || null;
   const bookingData = useMemo(
     () => ({
@@ -48,26 +69,48 @@ export default function HotelBookingContent({
   );
 
   const occupancy = useMemo(() => {
-    const apiGuests = Array.isArray(hotelBookingData?.rooms?.guests)
-      ? hotelBookingData.rooms.guests
+    if (
+      Array.isArray(hotelBookingData?.occupancies) &&
+      hotelBookingData.occupancies.length
+    ) {
+      return hotelBookingData.occupancies;
+    }
+
+    if (Array.isArray(searchData?.roomGuests) && searchData.roomGuests.length) {
+      return searchData.roomGuests.map((room, index) => ({
+        roomNo: index + 1,
+        adults: Math.max(Number(room?.adults) || 1, 1),
+        children: Array.isArray(room?.children)
+          ? room.children.length
+          : Math.max(Number(room?.children) || 0, 0),
+      }));
+    }
+    const responseRooms = Array.isArray(hotelBookingData?.rooms)
+      ? hotelBookingData.rooms
       : [];
+    const apiGuests = responseRooms.flatMap((room) =>
+      Array.isArray(room?.occupancies)
+        ? room.occupancies.map((guest) => ({
+            ...guest,
+            roomNo: room?.roomNo,
+          }))
+        : [],
+    );
 
     if (apiGuests.length > 0) {
       return apiGuests.map((room, index) => ({
         roomNo: index + 1,
-        adults: Math.max(Number(room?.adults) || 0, 0),
+        adults: Math.max(Number(room?.adults ?? room?.numOfAdults) || 0, 0),
         children: Array.isArray(room?.children)
           ? room.children.length
-          : Math.max(Number(room?.children) || 0, 0),
+          : Math.max(Number(room?.children ?? room?.numOfChildren) || 0, 0),
       }));
     }
 
     // 2. Old API / existing structure fallback
     const oldApiRooms = Array.isArray(hotelBookingData?.guestDetails?.rooms)
       ? hotelBookingData.guestDetails.rooms
-      : Array.isArray(hotelBookingData?.rooms)
-        ? hotelBookingData.rooms
-        : [];
+      : [];
 
     if (oldApiRooms.length > 0) {
       return oldApiRooms.map((room, index) => ({
@@ -111,7 +154,6 @@ export default function HotelBookingContent({
   }, [hotelBookingData, searchData]);
 
   useEffect(() => {
-    setMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -135,12 +177,15 @@ export default function HotelBookingContent({
   };
 
   const handleBooking = async () => {
+    if (isPending || bookingSubmissionRef.current) return;
+    bookingSubmissionRef.current = true;
     let latestGuestData;
 
     try {
       latestGuestData = await guestFormRef.current.submitForm();
-    } catch (errors) {
-      console.log("GUEST FORM ERRORS:", errors);
+    } catch {
+      bookingSubmissionRef.current = false;
+      message.error("Please complete the required guest and contact details.");
       return;
     }
 
@@ -158,24 +203,26 @@ export default function HotelBookingContent({
 
     bookHotel(payload, {
       onSuccess: (response) => {
-        const bookingRefNo =
-          response?.data?.BookingRefNo ||
-          response?.data?.bookingRefNo ||
-          response?.BookingRefNo ||
-          response?.bookingRefNo;
+        const itinerary = response?.data;
+        const bookingId = itinerary?.bookingRefNo || itinerary?.bookingId;
 
-        if (!bookingRefNo) {
-          console.error("BOOKING REF NO NOT FOUND:", response);
+        if (!bookingId) {
+          bookingSubmissionRef.current = false;
+          message.error(
+            "Booking was submitted, but no booking reference was returned.",
+          );
           return;
         }
 
-        setBookingData({
-          bookingRefNo,
-        });
+        setItineraryData(itinerary);
 
         router.push(
-          `/hotel-checkout?bookingRefNo=${encodeURIComponent(bookingRefNo)}`,
+          `/hotel-itinerary?bookingId=${encodeURIComponent(bookingId)}`,
         );
+      },
+      onError: (error) => {
+        bookingSubmissionRef.current = false;
+        message.error(error?.message || "Unable to continue with booking.");
       },
     });
   };
@@ -191,73 +238,70 @@ export default function HotelBookingContent({
     storeBookingData,
     handleGuestSubmit,
     handleRequestChange,
+    handleCouponUpdate: onPricingRefresh,
     handleBooking,
     isPending,
     session,
   };
 
   if (!mounted) {
-    return null;
+    return <div className="min-h-screen" />;
   }
 
   return (
     <>
       {isMobile ? (
-        <HotelBookingContents {...bookingProps} />
+        <HotelBookingContents {...bookingProps} occupancy={occupancy} />
       ) : (
-        <div className="w-full">
+        <div className="w-full pb-10">
           <BackgroundSection />
 
-          <div className="mx-auto max-w-[1250px] !pb-6 sm:px-4">
-            <Row gutter={[14, 23]}>
-              <Col xs={24} lg={15}>
-                <div className="-mt-10! space-y-4 px-1 sm:space-y-5 sm:px-0">
-                  <GuestDetailsForm
-                    ref={guestFormRef}
-                    onSubmit={handleGuestSubmit}
-                    occupancy={occupancy}
-                  />
+          <div className="relative mx-auto -mt-12 max-w-312.5 px-4">
+            <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px]">
+              <div className="min-w-0 space-y-4">
+                <BookingHeaderCard bookingData={bookingData} />
+                <StaySummaryCard
+                  bookingData={bookingData}
+                  occupancy={occupancy}
+                />
+                <RoomPackageCard bookingData={bookingData} />
+                <GuestDetailsForm
+                  ref={guestFormRef}
+                  onSubmit={handleGuestSubmit}
+                  occupancy={occupancy}
+                  isPANRequired={bookingData?.isPANRequired}
+                />
+                <SpecialRequestCard
+                  value={storeBookingData?.requestData || {}}
+                  onChange={handleRequestChange}
+                />
+                <ImportantInfoCard bookingData={bookingData} />
+                <BookingAgreement
+                  checked={agreement}
+                  onChange={setAgreement}
+                  bookingData={bookingData}
+                >
+                  <Button
+                    type="primary"
+                    size="large"
+                    loading={isPending}
+                    disabled={!agreement}
+                    onClick={handleBooking}
+                    className="buttion-background-color h-12! w-full rounded-xl! px-8! text-[15px]! font-semibold sm:w-auto"
+                  >
+                    Continue To Booking
+                  </Button>
+                </BookingAgreement>
+              </div>
 
-                  <SpecialRequestCard
-                    value={storeBookingData?.requestData || {}}
-                    onChange={handleRequestChange}
-                  />
-
-                  <ImportantInfoCard bookingData={bookingData} />
-
-                  <BookingAgreement
-                    checked={agreement}
-                    onChange={setAgreement}
-                    bookingData={bookingData}
-                  />
-
-                  <div className="mb-[36px] pt-1 md:mb-[49px] xl:mb-0">
-                    <Button
-                      type="primary"
-                      size="large"
-                      loading={isPending}
-                      disabled={!agreement}
-                      onClick={handleBooking}
-                      className="buttion-background-color !h-[44px] w-full !rounded-lg !text-sm sm:!h-[48px] sm:w-auto sm:!rounded-xl sm:!text-base"
-                    >
-                      Continue To Booking
-                    </Button>
-                  </div>
-                </div>
-              </Col>
-
-              <Col xs={24} lg={8}>
-                <div className="-mt-10! space-y-4 px-1 sm:space-y-5 sm:px-0">
-                  <BookingHeaderCard bookingData={bookingData} />
-                  <StaySummaryCard
-                    bookingData={bookingData}
-                    occupancy={occupancy}
-                  />
-                  <RoomPackageCard bookingData={bookingData} />
-                  <CouponsBankOffers bookingData={bookingData} />
-                </div>
-              </Col>
-            </Row>
+              <aside className="min-w-0 space-y-4 lg:sticky lg:top-24">
+                <PriceBreakupCard bookingData={bookingData} />
+                <CouponsBankOffers
+                  bookingData={bookingData}
+                  onCouponUpdate={onPricingRefresh}
+                />
+              </aside>
+            </div>
           </div>
         </div>
       )}

@@ -10,16 +10,29 @@ import RoomOptions from "./HotelSections/RoomOptions";
 const HotelSectionsContent = ({
   supplierData = {},
   ratePlans = [],
+  hotelImageFallback = "",
   amenities = [],
   hotelDetailId = "",
+  isRoomsLoading = false,
+  roomError = null,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
+  onRetry,
 }) => {
   return (
     <div className="space-y-6">
       <section id="rooms-section" className="scroll-mt-36">
         <RoomOptions
           ratePlans={ratePlans}
-          supplierData={supplierData}
           hotelDetailId={hotelDetailId}
+          hotelImageFallback={hotelImageFallback}
+          isRoomsLoading={isRoomsLoading}
+          roomError={roomError}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={onLoadMore}
+          onRetry={onRetry}
         />
       </section>
 

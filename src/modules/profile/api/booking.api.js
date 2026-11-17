@@ -1,13 +1,18 @@
 import { api } from "@/services/axios";
+import { normalizeBooking } from "../utils/normalizeBooking";
 
-export const getMyBookingsApi = async (bookingRefNo = "") => {
-  const url = bookingRefNo
-    ? `/hotel/mybookings?bookingRefNo=${bookingRefNo}`
-    : "/hotel/mybookings";
-
-  const response = await api.get(url);
+export const getMyBookingsApi = async () => {
+  const response = await api.get("/get-booking-details");
 
   return response?.data?.data;
+};
+
+export const getBookingByIdApi = async (bookingRefNo) => {
+  const response = await api.get(
+    `/get-booking-details/${encodeURIComponent(bookingRefNo)}`,
+  );
+
+  return normalizeBooking(response?.data?.data);
 };
 
 export const downloadInvoiceApi = async (bookingRefNo) => {
@@ -18,10 +23,14 @@ export const downloadInvoiceApi = async (bookingRefNo) => {
   return response.data;
 };
 
-export const cancelBookingApi = async (bookingRefNo) => {
-  const response = await api.post("/hotel/cancel", {
-    bookingRefNo,
-  });
+export const cancelBookingApi = async ({ bookingRefNo, remarks }) => {
+  const response = await api.post(
+    `/cancel-booking/${encodeURIComponent(bookingRefNo)}`,
+    {
+      confirmCancellation: true,
+      remarks,
+    },
+  );
 
   return response.data;
 };

@@ -15,8 +15,6 @@ export default function PriceSummaryCard({
       maximumFractionDigits: 2,
     });
 
-  console.log("priceSummary", priceSummary);
-
   const {
     baseAmount = 0,
     platformChargeandTax = 0,
@@ -31,14 +29,15 @@ export default function PriceSummaryCard({
 
   return (
     <Card
-      className="rounded-xl border-0 shadow-[0_4px_16px_rgba(0,0,0,0.12)]"
+      className="rounded-xl border border-[#E5EEF7] bg-white shadow-[0_10px_35px_rgba(5,20,75,0.08)]"
       styles={{
         body: {
-          padding: 18,
+          padding: 20,
         },
       }}
+      variant="borderless"
     >
-      <Title level={4} className="!mb-4 !text-[20px]">
+      <Title level={4} className="mb-4! text-[20px]! text-[#05144b]!">
         Price Summary
       </Title>
 
@@ -88,7 +87,7 @@ export default function PriceSummaryCard({
         )}
       </div>
 
-      <Divider className="!my-4" />
+      <Divider className="my-4!" />
 
       {/* Total */}
       <div className="flex items-center justify-between rounded-lg bg-[#F6FFED] px-4 py-3">
@@ -98,7 +97,7 @@ export default function PriceSummaryCard({
           <Text className="text-xs text-gray-400">Inclusive of taxes</Text>
         </div>
 
-        <Title level={3} className="!mb-0 !text-[#15803D]">
+        <Title level={3} className="mb-0! text-[#15803D]!">
           {currencySymbol} {formatPrice(payableAmount)}
         </Title>
       </div>

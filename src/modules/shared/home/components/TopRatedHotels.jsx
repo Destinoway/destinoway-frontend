@@ -6,12 +6,13 @@ import { Card, Rate } from "antd";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
-import { buildSearchData } from "@/modules/hotel/utils/buildSearchData";
-import { navigateToHotels } from "@/modules/hotel/utils/hotelNavigation";
+import { searchHotelsFromCard } from "@/modules/hotel/utils/searchFromCard";
 import { useRouter } from "next/navigation";
 
+const EMPTY_HOTELS = [];
+
 export default function TopRatedHotels({ hotels }) {
-  const data = hotels?.items || [];
+  const data = hotels?.items || EMPTY_HOTELS;
 
   const { draftSearchData } = useHotelSearchStore();
   const router = useRouter();
@@ -109,22 +110,19 @@ export default function TopRatedHotels({ hotels }) {
     }
   };
 
-  const handleSearch = (hotel) => {
-    const searchData = buildSearchData({
+  const handleSearch = (hotel) =>
+    searchHotelsFromCard({
+      router,
+      item: hotel,
       baseSearchData: draftSearchData,
-      city: hotel.city,
-      cityId: hotel.cityId,
     });
 
-    navigateToHotels(router, searchData);
-  };
-
   // CARD
-  const renderCard = (hotel, idx) => (
+  const renderCard = (hotel) => (
     <div
       onClick={() => handleSearch(hotel)}
       key={hotel._id}
-      className="flex w-1/2 flex-shrink-0 px-1 md:w-1/3 lg:w-1/4 xl:w-1/5"
+      className="flex w-1/2 shrink-0 px-1 md:w-1/3 lg:w-1/4 xl:w-1/5"
     >
       <Card
         hoverable
@@ -135,15 +133,12 @@ export default function TopRatedHotels({ hotels }) {
         }}
         className="flex h-full w-full flex-col overflow-hidden rounded-xl border-0 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
         cover={
-          <div className="relative h-[180px] overflow-hidden sm:h-[180px] md:h-[210px] lg:h-[240px]">
+          <div className="relative h-45 overflow-hidden sm:h-45 md:h-52.5 lg:h-60">
             <Image
               src={hotel.image}
               alt={hotel.alt || hotel.name}
               fill
-              priority={idx < 2}
-              loading={idx < 2 ? "eager" : "lazy"}
-              quality={75}
-              sizes="(max-width:768px) 50vw,(max-width:1200px) 33vw,20vw"
+              sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, 20vw"
               className="object-cover transition duration-500 hover:scale-105"
             />
           </div>
@@ -166,7 +161,7 @@ export default function TopRatedHotels({ hotels }) {
   );
 
   return (
-    <div className="background-color-bg !mt-[-10px] px-0 py-8 md:py-12">
+    <div className="background-color-bg -mt-2.5! px-0 py-8 md:py-12">
       <div className="teb-gradient mx-auto w-full rounded-lg px-0 py-10 sm:rounded-xl sm:px-0 md:rounded-2xl md:px-8 md:py-14 lg:w-[85.87%] lg:rounded-3xl lg:px-8 xl:px-10">
         {/* HEADING */}
         <div className="mb-8 text-center text-white md:mb-10">
@@ -208,7 +203,7 @@ export default function TopRatedHotels({ hotels }) {
               transform: `translateX(-${topIndex * (100 / perRow)}%)`,
             }}
           >
-            {topData.map((hotel, idx) => renderCard(hotel, idx))}
+            {topData.map((hotel) => renderCard(hotel))}
           </div>
         </div>
 
@@ -244,7 +239,7 @@ export default function TopRatedHotels({ hotels }) {
               transform: `translateX(-${bottomIndex * (100 / perRow)}%)`,
             }}
           >
-            {bottomData.map((hotel, idx) => renderCard(hotel, idx))}
+            {bottomData.map((hotel) => renderCard(hotel))}
           </div>
         </div>
       </div>

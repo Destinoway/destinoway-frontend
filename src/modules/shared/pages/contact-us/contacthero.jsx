@@ -33,18 +33,18 @@ const contactCards = [
   {
     icon: MailFilled,
     title: "Booking Support",
-    value: "booking@panjourney.com",
+    value: "booking@destinoway.com",
     subText: "Response within 24 Hours",
-    href: "mailto:booking@panjourney.com",
+    href: "mailto:booking@destinoway.com",
     badge: "Email",
     badgeColor: "bg-blue-100 text-blue-700",
   },
   {
     icon: TeamOutlined,
     title: "Business Partnership",
-    value: "business@panjourney.com",
+    value: "business@destinoway.com",
     subText: "Hotels & Collaborations",
-    href: "mailto:business@panjourney.com",
+    href: "mailto:business@destinoway.com",
     badge: "Business",
     badgeColor: "bg-orange-100 text-orange-700",
   },
@@ -54,9 +54,9 @@ export default function ContactSection() {
   return (
     <section className="relative">
       {/* Hero Banner */}
-      <div className="relative h-[321px] w-full overflow-hidden">
+      <div className="relative h-80.25 w-full overflow-hidden">
         <Image
-          src="/images/concacthero.jpg"
+          src="/images/concacthero.webp"
           alt="Contact Banner"
           fill
           priority
@@ -69,14 +69,14 @@ export default function ContactSection() {
 
         {/* Content */}
         <div className="absolute inset-0 z-20 flex items-center">
-          <div className="mx-auto w-full max-w-[1400px] px-6 md:px-10 lg:px-16">
-            <div className="max-w-[600px]">
+          <div className="mx-auto w-full max-w-350 px-6 md:px-10 lg:px-16">
+            <div className="max-w-150">
               <h1 className="text-[32px] leading-tight font-bold text-white md:text-[42px] lg:text-[52px]">
                 Contact Us
               </h1>
 
               <p className="mt-3 text-[15px] leading-relaxed text-white/90 md:text-[17px] lg:text-[18px]">
-                We're here to help with your bookings, travel plans, and any
+                We&apos;re here to help with your bookings, travel plans, and any
                 questions you may have. Reach out to our support team anytime.
               </p>
             </div>
@@ -84,11 +84,10 @@ export default function ContactSection() {
         </div>
       </div>
 
-
       {/* Contact Cards */}
-      <div className="absolute top-[280px] left-1/2 z-30 w-full max-w-[1400px] -translate-x-1/2 px-3">
+      <div className="absolute top-70 left-1/2 z-30 w-full max-w-350 -translate-x-1/2 px-3">
         {/* Mobile Scroll */}
-        <div className="overflow-x-auto min-[951px]:overflow-visible scrollbar-hide">
+        <div className="scrollbar-hide overflow-x-auto min-[951px]:overflow-visible">
           <div className="flex gap-4 min-[951px]:grid min-[951px]:grid-cols-4 md:gap-6">
             {contactCards.map((card, index) => {
               const Icon = card.icon;
@@ -98,18 +97,19 @@ export default function ContactSection() {
                   key={index}
                   href={card.href}
                   target={card.target}
-                  className="group block min-w-[300px] shrink-0 min-[951px]:min-w-0"
+                  className="group block min-w-75 shrink-0 min-[951px]:min-w-0"
                 >
                   <div
-                    className={`rounded-md bg-white px-4 py-3 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl md:px-5 ${card.cardClass || ""
-                      }`}
+                    className={`rounded-md bg-white px-4 py-3 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl md:px-5 ${
+                      card.cardClass || ""
+                    }`}
                   >
                     {/* Header */}
                     <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Icon className="text-[20px] most-text-color transition-transform duration-300 group-hover:scale-110 md:text-[24px] lg:text-[26px]" />
+                        <Icon className="most-text-color text-[20px] transition-transform duration-300 group-hover:scale-110 md:text-[24px] lg:text-[26px]" />
 
-                        <h3 className="m-0 text-[16px] font-medium most-text-color md:text-[18px]">
+                        <h3 className="most-text-color m-0 text-[16px] font-medium md:text-[18px]">
                           {card.title}
                         </h3>
                       </div>
@@ -131,7 +131,7 @@ export default function ContactSection() {
                     </div>
 
                     {/* Value */}
-                    <p className="break-all text-[15px] font-medium text-[#444] md:text-[16px]">
+                    <p className="text-[15px] font-medium break-all text-[#444] md:text-[16px]">
                       {card.value}
                     </p>
                   </div>
@@ -141,7 +141,6 @@ export default function ContactSection() {
           </div>
         </div>
       </div>
-
     </section>
   );
 }

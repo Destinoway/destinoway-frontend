@@ -4,36 +4,20 @@ import LoginSuccessModal from "@/components/common/LoginSuccessModal";
 import { useUpdateProfile } from "@/modules/profile/hooks/useProfile";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 export default function ProfileCompletionHandler() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const alreadyCheckedRef = useRef(false);
+  const [closed, setClosed] = useState(false);
   // UPDATE PROFILE
   const { mutate: updateProfile, isPending } = useUpdateProfile();
 
   // CHECK POPUP
-  useEffect(() => {
-    if (status !== "authenticated") {
-      return;
-    }
-
-    // PREVENT MULTIPLE RUNS
-    if (alreadyCheckedRef.current) {
-      return;
-    }
-
-    alreadyCheckedRef.current = true;
-
-    const shouldShow =
-      session?.user?.profileCompleted === false &&
-      session?.user?.profilePopupDismissed === false;
-
-    if (shouldShow) {
-      setOpen(true);
-    }
-  }, [session, status]);
+  const shouldShow =
+    status === "authenticated" &&
+    session?.user?.profileCompleted === false &&
+    session?.user?.profilePopupDismissed === false;
+  const open = shouldShow && !closed;
 
   // CONTINUE BROWSING
   const handleClose = () => {
@@ -43,7 +27,7 @@ export default function ProfileCompletionHandler() {
       },
       {
         onSuccess: () => {
-          setOpen(false);
+          setClosed(true);
         },
       },
     );
@@ -51,7 +35,7 @@ export default function ProfileCompletionHandler() {
 
   // PROFILE
   const handleProfile = () => {
-    setOpen(false);
+    setClosed(true);
 
     router.push("/profile");
   };

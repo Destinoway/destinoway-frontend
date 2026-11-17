@@ -1,7 +1,6 @@
 "use client";
 
 import useIsMobile from "@/hooks/useIsMobile";
-import LoginModal from "@/modules/auth/components/LoginFormModal";
 import { useLogout } from "@/modules/auth/hooks/useAuth";
 import { useAuthGuard } from "@/modules/auth/hooks/useAuthGuard";
 import { useCurrency } from "@/modules/shared/home/hooks/useCurrency";
@@ -26,11 +25,17 @@ import {
   Plane,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import CurrencyDropdown from "./CurrencyDropdown";
+
+const LoginModal = dynamic(
+  () => import("@/modules/auth/components/LoginFormModal"),
+  { ssr: false },
+);
 
 const navigationItems = [
   {
@@ -45,7 +50,7 @@ const navigationItems = [
   },
   {
     id: "flight",
-    label: "Flight Booking",
+    label: "Flight",
     subtitle: "Available Soon",
     icon: Plane,
     desktop: true,
@@ -54,7 +59,7 @@ const navigationItems = [
   },
   {
     id: "bus",
-    label: "Bus Booking",
+    label: "Bus ",
     subtitle: "Available Soon",
     icon: Bus,
     desktop: true,
@@ -74,7 +79,7 @@ const navigationItems = [
   {
     id: "about",
     label: "About Us",
-    subtitle: "Know PAN Journey",
+    subtitle: "Know Destinoway",
     href: "/about-us",
     icon: Info,
     desktop: true,
@@ -171,7 +176,7 @@ export default function Header() {
   ];
 
   const navLinkClass =
-    "relative transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-0 after:bg-[var(--theme-secondary)] after:transition-all after:duration-300 header-hover-most-text-color hover:after:w-full";
+    "relative transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-(--theme-secondary) after:transition-all after:duration-300 header-hover-most-text-color hover:after:w-full";
 
   const desktopNavigationItems = navigationItems.filter((item) => item.desktop);
 
@@ -192,32 +197,23 @@ export default function Header() {
     <div className="w-full">
       {/* Navbar */}
       <header
-        className={`flex justify-between bg-white shadow-sm ${
-          isMobile
-            ? "h-14 px-5 py-1 pt-0"
-            : "h-18 px-6 py-1 pt-0 md:px-10 lg:px-8 xl:px-30 2xl:px-30"
-        }`}
+        className="flex h-14 items-center justify-between bg-white px-5 shadow-sm min-[778px]:h-18 min-[778px]:px-10 lg:px-8 xl:px-6 2xl:px-32"
       >
         {/* Logo */}
-        <div className={isMobile ? "" : "flex items-center justify-start"}>
-          <Link href="/" className="flex items-center">
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center!">
             <Image
-              src="/images/LOGO-DW.png"
-              alt="PAN Journey"
+              src="/images/LOGO-DW.webp"
+              alt="Destinoway"
               width={400}
-              height={970}
-              priority
-              unoptimized
-              className={`object-contain transition-all duration-300 ${
-                isMobile
-                  ? "absolute top-0 left-2 h-[50px] w-[170px]"
-                  : "h-[200px] w-[200px]"
-              }`}
+              height={70}
+              sizes="(max-width: 778px) 170px, 200px"
+              className="h-auto w-42.5 object-contain transition-all duration-300 min-[778px]:w-50"
             />
           </Link>
         </div>
 
-        <nav className="font-roboto hidden items-center justify-center gap-7 font-semibold text-[#051449] min-[901px]:flex lg:gap-4 xl:gap-7 2xl:gap-7">
+        <nav className="font-roboto hidden items-center justify-center gap-5 text-[13px] font-semibold text-[#051449] min-[901px]:flex min-[1100px]:gap-6 min-[1100px]:text-[13.5px] min-[1200px]:gap-7 min-[1200px]:text-[14px] min-[1400px]:gap-8 min-[1400px]:text-[19px]">
           {desktopNavigationItems.map((item) =>
             item.type === "comingSoon" ? (
               <Tooltip
@@ -236,7 +232,7 @@ export default function Header() {
         </nav>
 
         {/* Right Side */}
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-2 md:gap-4">
           {/* Wishlist */}
           <button
             onClick={() =>
@@ -244,7 +240,7 @@ export default function Header() {
                 router.push("/profile?tab=wishlist");
               })
             }
-            className="group teb-border-color most-text-color background-color hidden cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 hover:-translate-y-0.5 hover:text-white! md:flex"
+            className="group teb-border-color most-text-color background-color hidden cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 text-[15px] font-medium transition-all duration-300 hover:-translate-y-0.5 hover:text-white! md:flex"
           >
             {wishlistCount > 0 && (
               <span className="buttion-background-color group-hover:text-most-text-color ml-1 rounded-full px-2 py-0.5 text-xs font-semibold text-white transition-colors duration-300 group-hover:bg-white">
@@ -261,7 +257,7 @@ export default function Header() {
             getPopupContainer={(trigger) => trigger.parentElement}
             popupRender={() => currencyDropdownContent}
           >
-            <button className="group teb-border-color most-text-color background-color hidden cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 hover:-translate-y-0.5 hover:text-white! md:flex">
+            <button className="group teb-border-color most-text-color background-color hidden cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 text-[15px] font-medium transition-all duration-300 hover:-translate-y-0.5 hover:text-white! md:flex">
               <span>{hydrated ? selectedCurrency?.symbol : "₹"}</span>
               <span className="max-w-20 truncate">
                 {hydrated ? selectedCurrency?.code : "INR"}
@@ -274,26 +270,18 @@ export default function Header() {
           {!session ? (
             <button
               onClick={() => setOpen(true)}
-              className={`buttion-background-color flex items-center rounded-lg text-white! transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${
-                isMobile
-                  ? "gap-3 px-4 py-2 text-[13px]"
-                  : "gap-2 px-3 py-2 text-sm"
-              }`}
+              className="buttion-background-color flex items-center gap-3 rounded-lg px-4 py-2 text-[13px] text-white! transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg min-[778px]:gap-2 min-[778px]:px-3 min-[778px]:text-sm"
             >
-              <UserOutlined
-                className={isMobile ? "text-[12px]" : "text-[18px]"}
-              />
+              <UserOutlined className="text-[12px] min-[778px]:text-[18px]" />
 
-              {!isMobile && <span>Login</span>}
+              <span className="hidden min-[778px]:inline">Login</span>
             </button>
           ) : (
             <Dropdown menu={{ items }} placement="bottomRight">
               <div className="flex cursor-pointer items-center gap-2 transition-all duration-300 hover:scale-105">
                 {/* ✅ PERFECT ROUND AVATAR */}
                 <div
-                  className={`teb-border-color flex items-center justify-center overflow-hidden rounded-full border-2 bg-gray-100 transition-all duration-300 ${
-                    isMobile ? "h-7! w-7!" : "h-9 w-9"
-                  }`}
+                  className="teb-border-color flex h-7! w-7! items-center justify-center overflow-hidden rounded-full border-2 bg-gray-100 transition-all duration-300 min-[778px]:h-9! min-[778px]:w-9!"
                 >
                   {user?.image ? (
                     <Image
@@ -305,9 +293,7 @@ export default function Header() {
                     />
                   ) : (
                     <span
-                      className={`font-semibold text-[#4A9BB5] ${
-                        isMobile ? "text-xs" : "text-sm"
-                      }`}
+                      className="text-xs font-semibold text-[#4A9BB5] min-[778px]:text-sm"
                     >
                       {getInitials(user?.name)}
                     </span>
@@ -319,7 +305,7 @@ export default function Header() {
 
           {/* Mobile Menu */}
           <button
-            className="most-text-color !text-[22px] transition-all duration-300 hover:scale-110 hover:text-gray-800! min-[901px]:hidden"
+            className="most-text-color text-[22px]! transition-all duration-300 hover:scale-110 hover:text-gray-800! min-[901px]:hidden"
             onClick={() => setMobileMenu(true)}
           >
             <MenuOutlined />
@@ -332,8 +318,8 @@ export default function Header() {
         title={
           <div className="flex items-center gap-2">
             <Image
-              src="/images/LOGO-DW-Symbol.png"
-              alt="PAN Journey"
+              src="/images/LOGO-DW-Symbol.webp"
+              alt="Destinoway"
               width={48}
               height={48}
             />
@@ -406,15 +392,21 @@ export default function Header() {
               );
             })}
 
-            {/* Currency */}
-            <Dropdown
-              trigger={["click"]}
-              open={mobileCurrencyOpen}
-              onOpenChange={setMobileCurrencyOpen}
-              getPopupContainer={(trigger) => trigger.parentElement}
-              popupRender={() => currencyDropdownContent}
-            >
-              <div className={drawerItemClass}>
+            {/* Currency: expands inline; a popup overflows the narrow drawer */}
+            <div>
+              <div
+                role="button"
+                tabIndex={0}
+                aria-expanded={mobileCurrencyOpen}
+                className={drawerItemClass}
+                onClick={() => setMobileCurrencyOpen((open) => !open)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setMobileCurrencyOpen((open) => !open);
+                  }
+                }}
+              >
                 <div className="flex items-center gap-1">
                   <div className="boder most-boder-colour flex h-10 w-10 items-center justify-center rounded-xl">
                     <Banknote size={20} className="most-text-color" />
@@ -438,7 +430,18 @@ export default function Header() {
                   }`}
                 />
               </div>
-            </Dropdown>
+
+              {mobileCurrencyOpen && (
+                <div className="mt-2">
+                  <CurrencyDropdown
+                    inline
+                    currencies={currencies}
+                    setCurrency={setCurrency}
+                    closeDropdown={() => setMobileCurrencyOpen(false)}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Footer */}
@@ -458,14 +461,16 @@ export default function Header() {
       </Drawer>
 
       {/* Modals */}
-      <LoginModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onSuccess={() => {
-          setOpen(false);
-          setShowSuccess(true);
-        }}
-      />
+      {open && (
+        <LoginModal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          onSuccess={() => {
+            setOpen(false);
+            setShowSuccess(true);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -27,7 +27,7 @@ export default function SupportTicketCard({ ticket, onView }) {
   return (
     <Card
       hoverable
-      className="overflow-hidden !rounded-xl !border !border-[#E2E8F0] shadow-sm transition-all duration-300 hover:shadow-md"
+      className="overflow-hidden rounded-xl! border! border-[#E2E8F0]! shadow-sm transition-all duration-300 hover:shadow-md"
       styles={{
         body: {
           padding: 0,
@@ -41,21 +41,21 @@ export default function SupportTicketCard({ ticket, onView }) {
           <div className="mb-5 flex flex-wrap items-center gap-2">
             <Tag
               color="blue"
-              className="!rounded-full !px-3 !py-1 !text-xs !font-semibold"
+              className="rounded-full! px-3! py-1! text-xs! font-semibold!"
             >
               Ticket #{ticket?.ticketId}
             </Tag>
 
             <Tag
               color={getStatusColor(ticket?.status)}
-              className="!rounded-full !px-3 !py-1 !text-xs !font-semibold"
+              className="rounded-full! px-3! py-1! text-xs! font-semibold!"
             >
               {ticket?.status}
             </Tag>
 
             <Tag
               color="cyan"
-              className="!rounded-full !px-3 !py-1 !text-xs !font-semibold"
+              className="rounded-full! px-3! py-1! text-xs! font-semibold!"
             >
               {ticket?.supportCategory?.replaceAll("_", " ")}
             </Tag>
@@ -64,7 +64,7 @@ export default function SupportTicketCard({ ticket, onView }) {
           {/* SUBJECT */}
           <Typography.Title
             level={4}
-            className="font-roboto !mb-2 !text-[20px] !leading-[28px] !font-semibold !text-[#1F2937]"
+            className="font-roboto mb-2! text-[20px]! leading-7! font-semibold! text-[#1F2937]!"
           >
             {ticket?.subject}
           </Typography.Title>
@@ -74,14 +74,14 @@ export default function SupportTicketCard({ ticket, onView }) {
             {ticket?.Type && (
               <Tag
                 icon={<TagOutlined />}
-                className="!m-0 !rounded-full !border-[#E2E8F0] !bg-gray-50 !px-3 !py-1 !text-xs !font-medium !text-gray-700"
+                className="m-0! rounded-full! border-[#E2E8F0]! bg-gray-50! px-3! py-1! text-xs! font-medium! text-gray-700!"
               >
                 {ticket.Type.toUpperCase()}
               </Tag>
             )}
 
             {ticket?.BookingRefNo && (
-              <Tag className="!m-0 !rounded-full !border-blue-100 !bg-blue-50 !px-3 !py-1 !text-xs !font-medium !text-blue-700">
+              <Tag className="m-0! rounded-full! border-blue-100! bg-blue-50! px-3! py-1! text-xs! font-medium! text-blue-700!">
                 Booking Ref: {ticket.BookingRefNo}
               </Tag>
             )}
@@ -89,7 +89,7 @@ export default function SupportTicketCard({ ticket, onView }) {
         </div>
 
         {/* RIGHT */}
-        <div className="flex min-w-[260px] flex-col justify-between border-t bg-[#FAFCFF] p-5 lg:border-t-0 lg:border-l">
+        <div className="flex min-w-65 flex-col justify-between border-t bg-[#FAFCFF] p-5 lg:border-t-0 lg:border-l">
           <div>
             <p className="font-roboto mb-4 text-[12px] font-semibold tracking-wider text-gray-400 uppercase">
               Ticket Information
@@ -131,7 +131,7 @@ export default function SupportTicketCard({ ticket, onView }) {
             type="primary"
             icon={<EyeOutlined />}
             size="large"
-            className="font-roboto mt-6 !h-[44px] !rounded-lg !border-none buttion-background-color !font-semibold "
+            className="font-roboto mt-6 h-11! rounded-lg! border-none! buttion-background-color font-semibold! "
             onClick={() => onView(ticket)}
           >
             View Details

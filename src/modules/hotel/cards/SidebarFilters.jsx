@@ -1,30 +1,73 @@
 "use client";
 
-import { Checkbox, Collapse, Input } from "antd";
+import {
+  EnvironmentFilled,
+  FilterOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import { Checkbox, Collapse, ConfigProvider, Input } from "antd";
+import debounce from "lodash/debounce";
 import Image from "next/image";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
-// options (OUTSIDE COMPONENT)
-const suggestedOptions = [
-  "5 Star",
-  "Breakfast Included",
-  "Couple Friendly",
-  "Free Cancellation",
+const popularOptions = [
+  { label: "Akbar Choice", key: "isRecommended" },
+  { label: "Free Cancellation", key: "freeCancellation" },
+  { label: "Breakfast Available", key: "freeBreakfast" },
+  { label: "Wifi", key: "wifi" },
 ];
 
-const propertyOptions = ["Hotel", "Villa", "Resort", "Apartment", "Homestay"];
-
-const userRatingOptions = ["Excellent: 4.2+", "Very Good: 4+", "Good: 3.5+"];
-
-const locationOptions = [
-  "North Goa",
-  "Calangute",
-  "Baga",
-  "Candolim",
-  "Anjuna",
+const customerRatingOptions = [
+  { label: "4.5 & Above Excellent", value: 4.5 },
+  { label: "4 & Above Very Good", value: 4 },
+  { label: "3.5 & Above Good", value: 3.5 },
 ];
 
-const starOptions = [3, 4, 5];
+const starOptions = [
+  { label: "★★★★★", value: 5 },
+  { label: "★★★★", value: 4 },
+  { label: "★★★", value: 3 },
+  { label: "★★", value: 2 },
+  { label: "★", value: 1 },
+  { label: "General", value: 0 },
+];
+
+const amenityOptions = [
+  "Conveniences",
+  "Room Service",
+  "Air Conditioning",
+  "Medical",
+  "Parking",
+  "Breakfast",
+  "Internet",
+  "Garden",
+  "Spa",
+  "Restaurant",
+];
+
+const chainOptions = [
+  "Independent",
+  "Marriott",
+  "Louvre Hotels",
+  "Independent Hotel",
+  "No chain",
+];
+
+const propertyOptions = [
+  "Hotel",
+  "Resort",
+  "GuestHouse",
+  "Bed & breakfast",
+  "Hostel",
+];
 
 const priceRanges = [
   { label: "₹ 0 - ₹ 3000", min: 0, max: 3000 },
@@ -33,151 +76,307 @@ const priceRanges = [
   { label: "₹ 10000+", min: 10000, max: 50000 },
 ];
 
+// Match the site font (antd uses its own system font stack by default).
+export const FILTER_THEME = {
+  token: { fontFamily: "var(--font-roboto), sans-serif" },
+};
+
+// Theme-coloured checkboxes and inputs, scoped to the filter panel.
+const FILTER_THEME_CLASSES = [
+  // Checkbox colours
+  "[&_.ant-checkbox-inner]:rounded-[5px]!",
+  "[&_.ant-checkbox-checked_.ant-checkbox-inner]:border-(--theme-secondary)! [&_.ant-checkbox-checked_.ant-checkbox-inner]:bg-(--theme-secondary)!",
+  "[&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:border-(--theme-secondary)!",
+  // Each option is a full-width row with hover/selected states
+  "[&_.ant-checkbox-wrapper]:m-0! [&_.ant-checkbox-wrapper]:w-full [&_.ant-checkbox-wrapper]:rounded-lg [&_.ant-checkbox-wrapper]:px-2 [&_.ant-checkbox-wrapper]:py-1.75 [&_.ant-checkbox-wrapper]:text-gray-700 [&_.ant-checkbox-wrapper]:transition-colors",
+  "[&_.ant-checkbox-wrapper:hover]:bg-slate-50",
+  "[&_.ant-checkbox-wrapper-checked]:bg-(--theme-secondary)/5 [&_.ant-checkbox-wrapper-checked]:font-semibold [&_.ant-checkbox-wrapper-checked]:text-(--theme-secondary)",
+  // Inputs
+  "[&_.ant-input-affix-wrapper-focused]:border-(--theme-secondary)! [&_.ant-input:focus]:border-(--theme-secondary)!",
+  // Sections separated by hairlines
+  "[&_.ant-collapse-item]:border-b [&_.ant-collapse-item]:border-gray-100 [&_.ant-collapse-item:last-child]:border-b-0",
+  "[&_.ant-collapse-header]:px-1! [&_.ant-collapse-header]:py-3!",
+  "[&_.ant-collapse-content-box]:px-0! [&_.ant-collapse-content-box]:pt-0! [&_.ant-collapse-content-box]:pb-3!",
+].join(" ");
+
+const sectionTitleClass =
+  "text-[12px] font-bold tracking-[0.08em] text-(--theme-text-primary) uppercase";
+
+const MOBILE_QUERY = "(max-width: 777px)";
+const subscribeToMobile = (onChange) => {
+  const media = window.matchMedia(MOBILE_QUERY);
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+};
+const getMobileSnapshot = () => window.matchMedia(MOBILE_QUERY).matches;
+const getServerMobileSnapshot = () => false;
+
+const viewAllButtonClass =
+  "mt-1 ml-2 self-start cursor-pointer border-none bg-transparent p-0 text-xs font-semibold text-(--theme-secondary) underline-offset-2 transition-colors hover:text-(--theme-hover) hover:underline";
+
+export const DEFAULT_HOTEL_FILTERS = {
+  search: "",
+  minPrice: "",
+  maxPrice: "",
+  isRecommended: false,
+  freeCancellation: false,
+  freeBreakfast: false,
+  minReviewRating: undefined,
+  starRatings: [],
+  amenities: [],
+  chainProperties: [],
+  propertyType: [],
+  availableOnly: false,
+};
+
 function SidebarFilters({
-  filters,
+  filters = {},
   setFilters,
   onMapClick,
   onClose,
   hideMapSection = false,
 }) {
-  const [tempFilters, setTempFilters] = useState(filters);
-  const [isMobile, setIsMobile] = useState(false);
+  const [tempFilters, setTempFilters] = useState({
+    ...DEFAULT_HOTEL_FILTERS,
+    ...filters,
+  });
+  const [searchInputValue, setSearchInputValue] = useState(
+    filters?.search || "",
+  );
+  const [customPriceDraft, setCustomPriceDraft] = useState({
+    minPrice: filters?.minPrice ?? "",
+    maxPrice: filters?.maxPrice ?? "",
+  });
+  // Read synchronously so the mobile footer doesn't pop in after first paint.
+  const isMobile = useSyncExternalStore(
+    subscribeToMobile,
+    getMobileSnapshot,
+    getServerMobileSnapshot,
+  );
+  const [showAllAmenities, setShowAllAmenities] = useState(false);
+  const [showAllChains, setShowAllChains] = useState(false);
+  const [showAllProperties, setShowAllProperties] = useState(false);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-
-    check();
-    window.addEventListener("resize", check);
-
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  useEffect(() => {
-    setTempFilters(filters);
+    const nextFilters = { ...DEFAULT_HOTEL_FILTERS, ...filters };
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync the local form draft after committed filters change externally.
+    setTempFilters(nextFilters);
+    setSearchInputValue(nextFilters.search || "");
+    setCustomPriceDraft({
+      minPrice: nextFilters.minPrice ?? "",
+      maxPrice: nextFilters.maxPrice ?? "",
+    });
   }, [filters]);
 
-  const updateFilters = (callback) => {
-    if (isMobile) {
-      setTempFilters(callback);
-    } else {
-      setFilters(callback);
-    }
-  };
-
-  const handleSearch = useCallback(
-    (e) => {
-      const value = e.target.value;
-
-      updateFilters((prev) => ({
-        ...prev,
-        search: value,
-      }));
+  const updateFilters = useCallback(
+    (updater) => {
+      if (isMobile) {
+        setTempFilters((previous) => {
+          const base = { ...DEFAULT_HOTEL_FILTERS, ...previous };
+          return typeof updater === "function"
+            ? updater(base)
+            : { ...base, ...updater };
+        });
+      } else {
+        setFilters?.((previous) => {
+          const base = { ...DEFAULT_HOTEL_FILTERS, ...(previous || {}) };
+          return typeof updater === "function"
+            ? updater(base)
+            : { ...base, ...updater };
+        });
+      }
     },
+    [isMobile, setFilters],
+  );
+
+  const debouncedSearchUpdate = useMemo(
+    () =>
+      debounce((nextSearch) => {
+        setSearchInputValue(nextSearch);
+        updateFilters({ search: nextSearch });
+      }, 1000),
     [updateFilters],
   );
 
-  const currentFilters = isMobile ? tempFilters : filters;
-  const handleCheckbox = useCallback(
+  const debouncedPriceUpdate = useMemo(
+    () =>
+      debounce((nextPriceRange) => {
+        updateFilters((previous) => ({
+          ...previous,
+          ...nextPriceRange,
+        }));
+      }, 1000),
+    [updateFilters],
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedSearchUpdate.cancel();
+      debouncedPriceUpdate.cancel();
+    };
+  }, [debouncedPriceUpdate, debouncedSearchUpdate]);
+
+  const currentFilters = useMemo(
+    () =>
+      isMobile
+        ? {
+            ...DEFAULT_HOTEL_FILTERS,
+            ...filters,
+            ...tempFilters,
+            search: searchInputValue,
+            minPrice: customPriceDraft.minPrice,
+            maxPrice: customPriceDraft.maxPrice,
+          }
+        : {
+            ...DEFAULT_HOTEL_FILTERS,
+            ...filters,
+            search: searchInputValue,
+            minPrice: customPriceDraft.minPrice,
+            maxPrice: customPriceDraft.maxPrice,
+          },
+    [customPriceDraft, filters, isMobile, searchInputValue, tempFilters],
+  );
+
+  const handleSearch = useCallback(
+    (event) => {
+      const nextSearch = event.target.value;
+      setSearchInputValue(nextSearch);
+      debouncedSearchUpdate(nextSearch);
+    },
+    [debouncedSearchUpdate],
+  );
+
+  const toggleArrayValue = useCallback(
     (key, value) => {
-      updateFilters((prev) => {
-        const current = prev[key] || [];
-
-        const updated = current.includes(value)
-          ? current.filter((v) => v !== value)
-          : [...current, value];
-
-        return { ...prev, [key]: updated };
+      updateFilters((previous) => {
+        const current = Array.isArray(previous[key]) ? previous[key] : [];
+        return {
+          ...previous,
+          [key]: current.includes(value)
+            ? current.filter((item) => item !== value)
+            : [...current, value],
+        };
       });
     },
     [updateFilters],
   );
 
-  const handleStarRating = useCallback(
-    (rating) => {
-      updateFilters((prev) => ({
-        ...prev,
-        starCategory:
-          prev.starCategory === String(rating) ? "" : String(rating),
-      }));
-    },
+  const toggleBoolean = useCallback(
+    (key) =>
+      updateFilters((previous) => ({ ...previous, [key]: !previous[key] })),
     [updateFilters],
   );
 
-  const handleFreeCancellation = useCallback(() => {
-    updateFilters((prev) => ({
-      ...prev,
-      freeCancellation: !prev.freeCancellation,
-    }));
-  }, [updateFilters]);
+  const handleCustomerRating = useCallback(
+    (value) =>
+      updateFilters((previous) => ({
+        ...previous,
+        minReviewRating: previous.minReviewRating === value ? undefined : value,
+      })),
+    [updateFilters],
+  );
 
   const handlePriceRange = useCallback(
     (min, max) => {
-      updateFilters((prev) => ({
-        ...prev,
-        minPrice: String(min),
-        maxPrice: String(max),
-      }));
+      const isSelected =
+        Number(currentFilters.minPrice) === min &&
+        Number(currentFilters.maxPrice) === max &&
+        currentFilters.minPrice !== "" &&
+        currentFilters.maxPrice !== "";
+      const nextRange = isSelected
+        ? { minPrice: "", maxPrice: "" }
+        : { minPrice: String(min), maxPrice: String(max) };
+
+      debouncedPriceUpdate.cancel();
+      setCustomPriceDraft(nextRange);
+      updateFilters((previous) => ({ ...previous, ...nextRange }));
     },
-    [updateFilters],
+    [
+      currentFilters.maxPrice,
+      currentFilters.minPrice,
+      debouncedPriceUpdate,
+      updateFilters,
+    ],
   );
 
   const handleCustomPrice = useCallback(
     (key, value) => {
-      updateFilters((prev) => ({
-        ...prev,
-        [key]: value || "",
-      }));
+      const nextValue = value === undefined || value === null ? "" : value;
+      const nextRange = {
+        minPrice: key === "minPrice" ? nextValue : customPriceDraft.minPrice,
+        maxPrice: key === "maxPrice" ? nextValue : customPriceDraft.maxPrice,
+      };
+
+      setCustomPriceDraft(nextRange);
+      debouncedPriceUpdate(nextRange);
     },
-    [updateFilters],
+    [
+      customPriceDraft.maxPrice,
+      customPriceDraft.minPrice,
+      debouncedPriceUpdate,
+    ],
+  );
+
+  const handlePopularFilter = useCallback(
+    (key) => {
+      if (key === "wifi") {
+        toggleArrayValue("amenities", "Internet");
+        return;
+      }
+      toggleBoolean(key);
+    },
+    [toggleArrayValue, toggleBoolean],
   );
 
   const filterSections = useMemo(() => {
+    const visibleAmenities = showAllAmenities
+      ? amenityOptions
+      : amenityOptions.slice(0, 5);
+    const visibleChains = showAllChains
+      ? chainOptions
+      : chainOptions.slice(0, 5);
+    const visibleProperties = showAllProperties
+      ? propertyOptions
+      : propertyOptions.slice(0, 5);
+
     return [
       {
-        key: "suggested",
-        title: "Suggested For You",
+        key: "popular",
+        title: "POPULAR FILTER",
         content: (
-          <div className="flex flex-col gap-2 text-[13px] md:text-sm">
-            {suggestedOptions.map((option) => (
-              <Checkbox
-                key={option}
-                checked={currentFilters?.suggested?.includes(option) || false}
-                onChange={() => handleCheckbox("suggested", option)}
-              >
-                {option}
-              </Checkbox>
-            ))}
+          <div className="flex flex-col gap-0.5 text-[13px] md:text-sm">
+            {popularOptions.map((option) => {
+              const checked =
+                option.key === "wifi"
+                  ? currentFilters.amenities?.includes("Internet") || false
+                  : Boolean(currentFilters[option.key]);
+              return (
+                <Checkbox
+                  key={option.key}
+                  checked={checked}
+                  onChange={() => handlePopularFilter(option.key)}
+                >
+                  {option.label}
+                </Checkbox>
+              );
+            })}
           </div>
         ),
       },
-
-      {
-        key: "freeCancellation",
-        title: "Free Cancellation",
-        content: (
-          <div className="flex flex-col gap-2">
-            <Checkbox
-              checked={currentFilters?.freeCancellation || false}
-              onChange={handleFreeCancellation}
-            >
-              Free Cancellation
-            </Checkbox>
-          </div>
-        ),
-      },
-
       {
         key: "price",
-        title: "Price Per Night",
+        title: "PRICE PER NIGHT",
         content: (
           <>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-0.5 text-[13px] md:text-sm">
               {priceRanges.map((item) => (
                 <Checkbox
                   key={item.label}
                   checked={
-                    Number(currentFilters?.minPrice) === item.min &&
-                    Number(currentFilters?.maxPrice) === item.max
+                    Number(currentFilters.minPrice) === item.min &&
+                    Number(currentFilters.maxPrice) === item.max &&
+                    currentFilters.minPrice !== "" &&
+                    currentFilters.maxPrice !== ""
                   }
                   onChange={() => handlePriceRange(item.min, item.max)}
                 >
@@ -185,26 +384,32 @@ function SidebarFilters({
                 </Checkbox>
               ))}
             </div>
-
-            <div className="mt-4">
-              <p className="mb-2 text-xs font-medium text-gray-500">
+            <div className="mt-3 rounded-xl bg-slate-50 p-3">
+              <p className="mb-2 text-[11px] font-semibold tracking-wide text-gray-500 uppercase">
                 Custom Range
               </p>
-
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 <Input
+                  type="number"
+                  min={0}
+                  prefix={<span className="text-gray-400">₹</span>}
+                  className="rounded-lg"
                   placeholder="Min"
-                  value={currentFilters?.minPrice}
-                  onChange={(e) =>
-                    handleCustomPrice("minPrice", e.target.value)
+                  value={currentFilters.minPrice ?? ""}
+                  onChange={(event) =>
+                    handleCustomPrice("minPrice", event.target.value)
                   }
                 />
-
+                <span className="shrink-0 text-gray-400">–</span>
                 <Input
+                  type="number"
+                  min={0}
+                  prefix={<span className="text-gray-400">₹</span>}
+                  className="rounded-lg"
                   placeholder="Max"
-                  value={currentFilters?.maxPrice}
-                  onChange={(e) =>
-                    handleCustomPrice("maxPrice", e.target.value)
+                  value={currentFilters.maxPrice ?? ""}
+                  onChange={(event) =>
+                    handleCustomPrice("maxPrice", event.target.value)
                   }
                 />
               </div>
@@ -212,192 +417,279 @@ function SidebarFilters({
           </>
         ),
       },
-
       {
-        key: "propertyType",
-        title: "Property Type",
+        key: "customerRatings",
+        title: "CUSTOMER RATINGS",
         content: (
-          <div className="font-roboto! flex flex-col gap-2">
-            {propertyOptions.map((option) => (
+          <div className="flex flex-col gap-0.5 text-[13px] md:text-sm">
+            {customerRatingOptions.map((option) => (
+              <Checkbox
+                key={option.value}
+                checked={currentFilters.minReviewRating === option.value}
+                onChange={() => handleCustomerRating(option.value)}
+              >
+                {option.label}
+              </Checkbox>
+            ))}
+          </div>
+        ),
+      },
+      {
+        key: "starRatings",
+        title: "STAR RATING",
+        content: (
+          <div className="flex flex-col gap-0.5 text-[13px] md:text-sm">
+            {starOptions.map((option) => (
+              <Checkbox
+                key={option.value}
+                checked={
+                  currentFilters.starRatings?.includes(option.value) || false
+                }
+                onChange={() => toggleArrayValue("starRatings", option.value)}
+              >
+                <span className="text-amber-500">{option.label}</span>
+                {option.value > 0 && (
+                  <span className="ml-2 text-gray-600">
+                    {option.value} Star
+                  </span>
+                )}
+              </Checkbox>
+            ))}
+          </div>
+        ),
+      },
+      {
+        key: "amenities",
+        title: "AMENITIES",
+        content: (
+          <div className="flex flex-col gap-0.5 text-[13px] md:text-sm">
+            {visibleAmenities.map((option) => (
+              <Checkbox
+                key={option}
+                checked={currentFilters.amenities?.includes(option) || false}
+                onChange={() => toggleArrayValue("amenities", option)}
+              >
+                {option}
+              </Checkbox>
+            ))}
+            {amenityOptions.length > 5 && (
+              <button
+                type="button"
+                className={viewAllButtonClass}
+                onClick={() => setShowAllAmenities((value) => !value)}
+              >
+                {showAllAmenities ? "View less" : "View all"}
+              </button>
+            )}
+          </div>
+        ),
+      },
+      {
+        key: "chainProperties",
+        title: "CHAIN PROPERTIES",
+        content: (
+          <div className="flex flex-col gap-0.5 text-[13px] md:text-sm">
+            {visibleChains.map((option) => (
               <Checkbox
                 key={option}
                 checked={
-                  currentFilters?.propertyType?.includes(option) || false
+                  currentFilters.chainProperties?.includes(option) || false
                 }
-                onChange={() => handleCheckbox("propertyType", option)}
+                onChange={() => toggleArrayValue("chainProperties", option)}
               >
                 {option}
               </Checkbox>
             ))}
-          </div>
-        ),
-      },
-
-      {
-        key: "starCategory",
-        title: "Star Category",
-        content: (
-          <div className="flex flex-col gap-2">
-            {starOptions.map((rating) => (
-              <Checkbox
-                key={rating}
-                checked={currentFilters?.starCategory === String(rating)}
-                onChange={() => handleStarRating(rating)}
+            {chainOptions.length > 5 && (
+              <button
+                type="button"
+                className={viewAllButtonClass}
+                onClick={() => setShowAllChains((value) => !value)}
               >
-                {rating} Star
-              </Checkbox>
-            ))}
+                {showAllChains ? "View less" : "View all"}
+              </button>
+            )}
           </div>
         ),
       },
-
       {
-        key: "rating",
-        title: "User Rating",
+        key: "propertyType",
+        title: "PROPERTY TYPE",
         content: (
-          <div className="flex flex-col gap-2">
-            {userRatingOptions.map((option) => (
+          <div className="flex flex-col gap-0.5 text-[13px] md:text-sm">
+            {visibleProperties.map((option) => (
               <Checkbox
                 key={option}
-                checked={currentFilters?.rating?.includes(option) || false}
-                onChange={() => handleCheckbox("rating", option)}
+                checked={currentFilters.propertyType?.includes(option) || false}
+                onChange={() => toggleArrayValue("propertyType", option)}
               >
                 {option}
               </Checkbox>
             ))}
-          </div>
-        ),
-      },
-
-      {
-        key: "locations",
-        title: "Top Locations",
-        content: (
-          <div className="flex flex-col gap-2">
-            {locationOptions.map((option) => (
-              <Checkbox
-                key={option}
-                checked={currentFilters?.locations?.includes(option) || false}
-                onChange={() => handleCheckbox("locations", option)}
+            {propertyOptions.length > 5 && (
+              <button
+                type="button"
+                className={viewAllButtonClass}
+                onClick={() => setShowAllProperties((value) => !value)}
               >
-                {option}
-              </Checkbox>
-            ))}
+                {showAllProperties ? "View less" : "View all"}
+              </button>
+            )}
           </div>
         ),
       },
     ];
   }, [
     currentFilters,
-    handleCheckbox,
-    handleStarRating,
+    handlePopularFilter,
     handlePriceRange,
     handleCustomPrice,
-    handleFreeCancellation,
+    handleCustomerRating,
+    toggleArrayValue,
+    showAllAmenities,
+    showAllChains,
+    showAllProperties,
   ]);
 
+  const resetFilters = useCallback(() => {
+    const reset = {
+      ...DEFAULT_HOTEL_FILTERS,
+      starRatings: [],
+      amenities: [],
+      chainProperties: [],
+      propertyType: [],
+    };
+    debouncedSearchUpdate.cancel();
+    debouncedPriceUpdate.cancel();
+    setSearchInputValue("");
+    setCustomPriceDraft({ minPrice: "", maxPrice: "" });
+    if (isMobile) setTempFilters(reset);
+    else setFilters?.(reset);
+  }, [debouncedPriceUpdate, debouncedSearchUpdate, isMobile, setFilters]);
+
   return (
-    <div
-      className={`boder flex h-full flex-col rounded-[6px] bg-white p-3 shadow-md md:p-4`}
-    >
-      {!hideMapSection && (
-        <div
-          onClick={() => onMapClick?.()}
-          className="relative mb-4 h-[80px] cursor-pointer overflow-hidden rounded sm:h-[70px] md:h-[105px]"
-        >
-          <Image
-            src="/images/filterMap.png"
-            alt="Explore on Map"
-            fill
-            className="object-cover"
-          />
-
-          <div className="absolute inset-0 flex items-center justify-center">
-            <button
-              type="button"
-              className="buttion-background-color most-boder-colour most-text-color background-color cursor-pointer rounded border bg-white px-2 py-1 text-[10px] font-semibold shadow-md transition-all duration-200 sm:px-3 sm:py-1.5 sm:text-[11px] md:px-4 md:py-2 md:text-xs lg:px-5 lg:py-2.5 lg:text-sm"
-            >
-              Explore on Map
-            </button>
-          </div>
-        </div>
-      )}
-      <div className="mb-3 md:mb-4">
-        <Input
-          allowClear
-          placeholder="Search Hotel Name"
-          value={currentFilters?.search || ""}
-          onChange={handleSearch}
-          className="h-8 rounded-lg border border-gray-200 md:h-11 [&_.ant-input]:!border-0 [&_.ant-input]:!text-[13px] [&_.ant-input]:!shadow-none [&_.ant-input]:focus:!shadow-none md:[&_.ant-input]:!text-[14px] [&_.ant-input::placeholder]:!text-gray-400"
-        />
-      </div>
-
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto pr-1">
-          <Collapse
-            defaultActiveKey={[
-              "suggested",
-              "freeCancellation",
-              "price",
-              "propertyType",
-              "starCategory",
-              "rating",
-              "locations",
-            ]}
-            ghost
-            expandIconPlacement="end"
-            items={filterSections.map((section) => ({
-              key: section.key,
-              label: (
-                <span className="text-[13px] font-semibold text-gray-800 md:text-sm">
-                  {section.title}
-                </span>
-              ),
-              children: section.content,
-            }))}
-          />
-        </div>
-
-        {isMobile && (
-          <div className="sticky right-0 bottom-0 left-0 mt-3 border-t bg-white p-3 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
-            <div className="flex gap-3">
+    <ConfigProvider theme={FILTER_THEME}>
+      <div
+        className={`flex h-full min-h-0 flex-col overflow-hidden bg-white p-3 md:p-4 ${
+          isMobile
+            ? ""
+            : "rounded-2xl border border-gray-200 shadow-[0_2px_12px_rgba(15,23,42,0.06)]"
+        } ${FILTER_THEME_CLASSES}`}
+      >
+        {!hideMapSection && (
+          <div
+            onClick={() => onMapClick?.()}
+            className="group/map relative mb-3 h-21.5 shrink-0 cursor-pointer overflow-hidden rounded-xl ring-1 ring-gray-200 md:mb-4 md:h-26.25"
+          >
+            <Image
+              src="/images/filterMap.webp"
+              alt="Explore on Map"
+              fill
+              sizes="(max-width: 777px) 85vw, 288px"
+              className="object-cover transition-transform duration-500 group-hover/map:scale-105"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-linear-to-t from-black/25 to-black/0">
               <button
-                onClick={() => {
-                  const resetFilters = {
-                    freeCancellation: false,
-                    search: "",
-                    starCategory: "",
-                    minPrice: "",
-                    maxPrice: "",
-                    suggested: [],
-                    propertyType: [],
-                    rating: [],
-                    locations: [],
-                  };
-
-                  setTempFilters(resetFilters);
-
-                  onClose?.();
-                }}
-                className="h-8 flex-1 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:border-[#0B5ED7] hover:text-[#0B5ED7]"
+                type="button"
+                className="flex cursor-pointer items-center gap-1.5 rounded-full border-none bg-white px-4 py-2 text-[12px] font-semibold text-(--theme-secondary) shadow-[0_4px_14px_rgba(0,0,0,0.18)] transition-all duration-200 group-hover/map:-translate-y-0.5 group-hover/map:shadow-[0_8px_20px_rgba(0,0,0,0.22)] md:text-[13px]"
               >
-                Reset
-              </button>
-
-              <button
-                onClick={() => {
-                  setFilters(tempFilters);
-                  onClose?.();
-                }}
-                className="h-8 flex-1 rounded bg-[#0B6CFF] text-sm font-semibold text-white! transition hover:bg-[#0953be]"
-              >
-                View Properties
+                <EnvironmentFilled className="text-[13px]" />
+                Explore on Map
               </button>
             </div>
           </div>
         )}
+
+        {!isMobile && (
+          <div className="mb-3 flex items-center gap-2 px-1">
+            <FilterOutlined className="text-[14px] text-(--theme-secondary)" />
+            <span className="text-[15px] font-bold text-(--theme-text-primary)">
+              Filters
+            </span>
+          </div>
+        )}
+
+        <div className="mb-2 shrink-0 md:mb-3">
+          <Input
+            allowClear
+            prefix={<SearchOutlined className="mr-1 text-gray-400" />}
+            placeholder="Search Hotel Name"
+            value={currentFilters.search || ""}
+            onChange={handleSearch}
+            className="h-10 rounded-xl border border-gray-200 bg-slate-50/60 md:h-11 [&_.ant-input]:border-0! [&_.ant-input]:bg-transparent! [&_.ant-input]:text-[13px]! [&_.ant-input]:shadow-none! [&_.ant-input]:focus:shadow-none! md:[&_.ant-input]:text-[14px]! [&_.ant-input::placeholder]:text-gray-400!"
+          />
+        </div>
+
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="min-h-0 flex-1 scrollbar-thin overflow-y-auto overscroll-contain scroll-smooth pr-1 pb-2 [-webkit-overflow-scrolling:touch]">
+            <Collapse
+              defaultActiveKey={[
+                "popular",
+                "price",
+                "customerRatings",
+                "starRatings",
+                "amenities",
+                "chainProperties",
+                "propertyType",
+                "available",
+              ]}
+              ghost
+              expandIconPlacement="end"
+              items={[
+                ...filterSections.map((section) => ({
+                  key: section.key,
+                  label: (
+                    <span className={sectionTitleClass}>{section.title}</span>
+                  ),
+                  children: section.content,
+                })),
+                {
+                  key: "available",
+                  label: (
+                    <span className={sectionTitleClass}>AVAILABILITY</span>
+                  ),
+                  children: (
+                    <Checkbox
+                      checked={currentFilters.availableOnly || false}
+                      onChange={() => toggleBoolean("availableOnly")}
+                    >
+                      Show only available hotels
+                    </Checkbox>
+                  ),
+                },
+              ]}
+            />
+          </div>
+
+          {isMobile && (
+            <div className="-mx-3 -mb-3 shrink-0 border-t border-gray-200 bg-white px-3 pt-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] shadow-[0_-6px_16px_rgba(15,23,42,0.06)]">
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="flex h-11 w-[38%] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-gray-300 bg-white text-[14px] font-semibold text-gray-700 transition-all duration-200 hover:border-(--theme-secondary) hover:text-(--theme-secondary) active:scale-[0.97]"
+                >
+                  <ReloadOutlined className="text-[13px]" />
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    debouncedSearchUpdate.flush();
+                    debouncedPriceUpdate.flush();
+                    setFilters?.({ ...currentFilters });
+                    onClose?.();
+                  }}
+                  className="flex h-11 min-w-0 flex-1 cursor-pointer items-center justify-center rounded-xl border-none bg-(--theme-secondary) px-3 text-[14px] font-semibold whitespace-nowrap text-(--theme-white)! shadow-[0_4px_12px_rgba(15,23,42,0.18)] transition-all duration-200 hover:bg-(--theme-hover) active:scale-[0.97]"
+                >
+                  View Properties
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </ConfigProvider>
   );
 }
 

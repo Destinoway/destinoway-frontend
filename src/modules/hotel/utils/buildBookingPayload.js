@@ -1,44 +1,49 @@
-export const buildBookingPayload = ({
-  bookingData = {},
-  guestData = {},
-  requestData = {},
-  hotelDetailId = "",
-  roomId = "",
-}) => {
-  const paxDetails = Array.isArray(guestData?.paxDetails)
-    ? guestData.paxDetails
-    : [];
-
-  const primaryGuest = paxDetails[0] || {};
-
-  const specialRequestRemarks = [
-    ...(requestData?.common || []),
-    requestData?.other || "",
-  ]
-    .filter(Boolean)
-    .join(", ");
-
-  return {
-    hotelDetailId: hotelDetailId || bookingData?.hotelDetailId || "",
-    roomId: roomId || bookingData?.roomId || "",
-
-    customerAddress: guestData?.customerAddress || "",
-    customerMobile: guestData?.customerMobile || primaryGuest?.mobile || "",
-    customerPostalCode: guestData?.customerPostalCode || "",
-
-    paxDetails: paxDetails.map((guest) => ({
-      employeeID: "1",
+export const buildBookingPayload = ({ bookingData = {}, guestData = {}, requestData = {} }) => {
+  const guests = Array.isArray(guestData?.paxDetails) ? guestData.paxDetails : [];
+  const roomCount = Math.max(1, ...(guests.map((guest) => Number(guest?.roomNo) || 1)));
+  const rooms = Array.from({ length: roomCount }, (_, index) => {
+    const roomGuests = guests.filter((guest) => Number(guest?.roomNo) === index + 1);
+    const toGuest = (guest) => ({
+      title: guest?.title || (guest?.isChild ? "Master" : "Mr"),
       firstName: guest?.firstName || "",
       lastName: guest?.lastName || "",
-      passengerTyp: guest?.passengerTyp || "",
-      roomNo: String(guest?.roomNo || ""),
-      title: String(guest?.title || "Mr").toLowerCase(),
-    })),
+    });
+    return {
+      adults: roomGuests.filter((guest) => !guest?.isChild).map(toGuest),
+      children: roomGuests.filter((guest) => guest?.isChild).map(toGuest),
+    };
+  });
+  const primaryGuest = guests.find((guest) => !guest?.isChild) || guests[0] || {};
+  const specialServiceRequest = [
+    ...(Array.isArray(requestData?.common) ? requestData.common : []),
+    requestData?.other || "",
+  ].filter(Boolean).join(", ");
 
-    passengerEmail: guestData?.passengerEmail || primaryGuest?.email || "",
-    passengerMobile: guestData?.passengerMobile || primaryGuest?.mobile || "",
-    remarks: "Book",
-    specialRequestRemarks,
-    panNumber: guestData?.panNumber || "",
+  const itineraryId =
+    bookingData?.itineraryId ||
+    bookingData?.selectedRoom?.itineraryId ||
+    bookingData?.rooms?.[0]?.itineraryId;
+
+  return {
+    searchId: bookingData?.searchId || "",
+    supplierHotelId: bookingData?.supplierHotelId || "",
+    recommendationId: bookingData?.recommendationId || "",
+    ...(itineraryId ? { itineraryId } : {}),
+    contactInfo: {
+      title: primaryGuest?.title || "Mr",
+      firstName: primaryGuest?.firstName || "",
+      lastName: primaryGuest?.lastName || "",
+      mobile: guestData?.customerMobile || "",
+      email: guestData?.customerEmail || "",
+      ...(bookingData?.isPANRequired
+        ? { panNumber: guestData?.panNumber || "" }
+        : {}),
+      address: guestData?.customerAddress || "",
+      state: guestData?.customerState || "",
+      city: guestData?.customerCity || "",
+      pin: guestData?.customerPostalCode || "",
+    },
+    rooms,
+    specialServiceRequest,
   };
 };

@@ -8,8 +8,6 @@ const API_BASE =
 
 async function refreshAccessToken(token) {
   try {
-    console.log("🔄 REFRESH API CALLED");
-
     const res = await fetch(`${API_BASE}/customer/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -24,15 +22,13 @@ async function refreshAccessToken(token) {
 
     const decoded = jwtDecode(data.accessToken);
 
-    console.log("✅ REFRESH RESPONSE --- responce:", decoded);
-
     return {
       ...token,
       accessToken: data.accessToken,
       accessTokenExpires: decoded.exp * 1000,
     };
-  } catch (err) {
-    console.log("❌ REFRESH ERROR:", err.message);
+  } catch {
+    console.error("Authentication token refresh failed.");
 
     return {
       ...token,
@@ -40,10 +36,6 @@ async function refreshAccessToken(token) {
     };
   }
 }
-console.log("NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET);
-console.log("AUTH_SECRET:", process.env.AUTH_SECRET);
-
-console.log("NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET);
 
 export const authOptions = {
   providers: [
@@ -86,7 +78,7 @@ export const authOptions = {
 
           return data.data;
         } catch (err) {
-          console.log("❌ AUTHORIZE ERROR:", err.message);
+          console.error("OTP authorization failed.");
           throw err;
         }
       },
@@ -116,8 +108,6 @@ export const authOptions = {
       // 🔥 GOOGLE LOGIN
       if (account?.provider === "google") {
         try {
-          console.log("🔥 GOOGLE LOGIN START");
-
           const res = await fetch(`${API_BASE}/customer/auth/google`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -130,8 +120,6 @@ export const authOptions = {
           });
 
           const data = await res.json();
-
-          console.log("📡 GOOGLE BACKEND:", data);
 
           if (res.ok && data?.data) {
             const decoded = jwtDecode(data.data.accessToken);
@@ -151,10 +139,10 @@ export const authOptions = {
             };
           }
 
-          console.log("❌ GOOGLE FAILED:", data.message);
+          console.error("Google authentication request failed.");
           return token;
-        } catch (err) {
-          console.log("❌ GOOGLE ERROR:", err.message);
+        } catch {
+          console.error("Google authentication failed.");
           return token;
         }
       }
@@ -162,8 +150,6 @@ export const authOptions = {
       // 🔹 OTP / EMAIL LOGIN
       if (user) {
         const decoded = jwtDecode(user.accessToken);
-
-        console.log("📡 BACKEND logn with otp:", user);
 
         return {
           ...token,
@@ -185,8 +171,6 @@ export const authOptions = {
       if (Date.now() < token.accessTokenExpires) {
         return token;
       }
-
-      console.log("⚠️ TOKEN EXPIRED");
 
       return await refreshAccessToken(token);
     },

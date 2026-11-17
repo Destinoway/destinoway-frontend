@@ -1,39 +1,25 @@
-// import { serverApi } from "@/services/serverApi";
 
-// export const getThemeServer = async () => {
-//   try {
-//     const { data } = await serverApi.get("/theme");
 
-//     return data?.data ?? null;
-//   } catch (error) {
-//     console.error(
-//       "Server Theme Fetch Error:",
-//       error?.response?.data || error?.message,
-//     );
-
-//     return null;
-//   }
-// };
+import { unstable_cache } from "next/cache";
 
 import { serverApi } from "@/services/serverApi";
 
-export const getThemeServer = async () => {
-  const start = Date.now();
-
-  try {
+// The theme is requested by the root layout on every page view; cache it for
+// a minute so pages do not wait on the API each time.
+const fetchThemeCached = unstable_cache(
+  async () => {
     const { data } = await serverApi.get("/theme");
-
-    console.log("🔥 THEME API TIME:", Date.now() - start, "ms");
-
     return data?.data ?? null;
-  } catch (error) {
-    console.error(
-      "Server Theme Fetch Error:",
-      error?.response?.data || error?.message,
-    );
+  },
+  ["server-theme"],
+  { revalidate: 60, tags: ["theme"] },
+);
 
-    console.log("🔥 THEME API FAILED AFTER:", Date.now() - start, "ms");
-
+export const getThemeServer = async () => {
+  try {
+    return await fetchThemeCached();
+  } catch {
+    console.error("Server theme could not be loaded.");
     return null;
   }
 };

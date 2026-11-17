@@ -11,7 +11,6 @@ import { getThemeCSSVariables } from "@/modules/theme/theme.variables";
 import "@/styles/cms-content.css";
 
 import { App as AntdApp } from "antd";
-import "antd/dist/reset.css";
 
 import { Jost, Roboto } from "next/font/google";
 import Script from "next/script";
@@ -26,7 +25,7 @@ const roboto = Roboto({
   variable: "--font-roboto",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  display: "swap",
+  display: "optional",
 });
 
 const jost = Jost({
@@ -51,14 +50,12 @@ export default async function RootLayout({ children }) {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <link rel="preload" as="image" href="/images/homepage/home.svg" />
-
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-DYY7076V0W"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
 
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag() {

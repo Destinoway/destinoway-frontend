@@ -1,141 +1,111 @@
 "use client";
-import { StarFilled } from "@ant-design/icons";
-import { Card, Typography } from "antd";
+
+import { EnvironmentOutlined, StarFilled } from "@ant-design/icons";
 import Image from "next/image";
-const { Title, Text } = Typography;
+
 export default function BookingHeaderCard({ bookingData }) {
   const hotelName = bookingData?.name || "Hotel";
   const location = bookingData?.location || {};
   const address = location?.address || "";
+
   const fullLocation = [location?.city, location?.state, location?.country]
     .filter(Boolean)
     .join(", ");
+
   const hotelImage = bookingData?.image || "/no-room.jpg";
+
   const rating = Math.min(
     Math.max(Number(bookingData?.starCategory || 0), 0),
     5,
   );
+
   const room = bookingData?.rooms?.[0] || bookingData?.selectedRoom || {};
   const roomName = room?.roomType || room?.GroupName || "Selected Room";
+
+  const facilities = (
+    Array.isArray(bookingData?.facilities) ? bookingData.facilities : []
+  )
+    .map((facility) =>
+      typeof facility === "string"
+        ? facility
+        : facility?.name || facility?.description || "",
+    )
+    .filter(Boolean);
+
   return (
-    <Card
-      className="!mb-3 !overflow-hidden !rounded-xl !border !border-gray-200 !bg-white !shadow-[0_2px_10px_rgba(0,0,0,0.06)]"
-      styles={{ body: { padding: 0 } }}
-    >
-      <div className="flex gap-3 p-5 lg:hidden">
-        <div className="relative h-[96px] w-[105px] shrink-0 overflow-hidden rounded-lg sm:h-[115px] sm:w-[125px]">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
+      <div className="flex gap-3 p-3 sm:gap-5 sm:p-4">
+        <div className="relative min-h-35 w-27 shrink-0 overflow-hidden rounded-xl bg-slate-100 sm:min-h-42.5 sm:w-50 lg:w-57.5">
           <Image
             src={hotelImage}
             alt={hotelName}
             fill
-            sizes="125px"
-            className="object-cover"
-          />
-        </div>
-        <div className="min-w-0 flex-1 py-[1px]">
-          <div className="flex items-start justify-between gap-2">
-            <Title
-              level={5}
-              className="!mb-1.5 !truncate !text-[15px] !leading-[20px] !font-semibold !text-[#172033]"
-            >
-              {hotelName}
-            </Title>
-          </div>
-          <div className="mb-2 flex flex-wrap items-center gap-1.5">
-            {rating > 0 && (
-              <div className="flex items-center gap-[2px]">
-                {[1, 2, 3, 4, 5].map((item) => (
-                  <StarFilled
-                    key={item}
-                    className={`!text-[10px] ${item <= rating ? "!text-[#F5A623]" : "!text-[#D9DEE7]"}`}
-                  />
-                ))}
-              </div>
-            )}
-            <span className="h-3 w-px bg-gray-200" />
-            <span className="rounded-full bg-gray-100 px-2 py-[2px] text-[10px] font-medium text-gray-600">
-              Selected
-            </span>
-            <span className="rounded-full bg-emerald-50 px-2 py-[2px] text-[10px] font-medium text-emerald-600">
-              Confirming
-            </span>
-          </div>
-          {address && (
-            <Text className="!block !truncate !text-[11px] !leading-[17px] !text-gray-500">
-              {address}
-            </Text>
-          )}
-          {fullLocation && (
-            <Text className="!block !truncate !text-[11px] !leading-[17px] !text-gray-400">
-              {fullLocation}
-            </Text>
-          )}
-          <div className="mt-2.5">
-            <span className="inline-block max-w-full truncate rounded-md bg-blue-50 px-2 py-1 text-[10px] font-medium text-blue-600">
-              {roomName}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div className="hidden lg:block">
-        <div className="relative h-[165px] w-full overflow-hidden">
-          <Image
-            src={hotelImage}
-            alt={hotelName}
-            fill
-            sizes="(min-width: 1024px) 400px, 100vw"
+            sizes="(min-width: 1024px) 230px, (min-width: 640px) 200px, 108px"
             className="object-cover"
             priority
           />
         </div>
-        <div className="px-4 py-4">
-          <Title
-            level={4}
-            className="!mb-2.5 !text-[18px] !leading-[24px] !font-semibold !text-[#172033]"
-          >
+
+        <div className="flex min-w-0 flex-1 flex-col py-0.5">
+          {rating > 0 && (
+            <div className="mb-1.5 flex items-center gap-0.5">
+              {[1, 2, 3, 4, 5].map((item) => (
+                <StarFilled
+                  key={item}
+                  className={`text-[11px] sm:text-[12px] ${
+                    item <= rating ? "text-[#F5A623]!" : "text-[#D9DEE7]!"
+                  }`}
+                />
+              ))}
+              <span className="ml-1.5 text-[11px] font-semibold text-gray-500">
+                {rating}-star hotel
+              </span>
+            </div>
+          )}
+
+          <h2 className="m-0 text-[16px] leading-snug font-bold text-(--theme-text-primary) sm:text-[20px]">
             {hotelName}
-          </Title>
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            {rating > 0 && (
-              <div className="flex items-center gap-[3px]">
-                {[1, 2, 3, 4, 5].map((item) => (
-                  <StarFilled
-                    key={item}
-                    className={`!text-[12px] ${item <= rating ? "!text-[#F5A623]" : "!text-[#D9DEE7]"}`}
-                  />
-                ))}
-              </div>
-            )}
-            <span className="h-3.5 w-px bg-gray-200" />
-            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-medium text-gray-600">
-              Selected
-            </span>
-            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-medium text-emerald-600">
-              Confirming
-            </span>
-          </div>
-          <div className="space-y-0.5">
-            {address && (
-              <Text className="!block !text-[12px] !leading-[18px] !text-gray-600">
-                {address}
-              </Text>
-            )}
-            {fullLocation && (
-              <Text className="!block !text-[11px] !leading-[17px] !text-gray-400">
-                {fullLocation}
-              </Text>
-            )}
-          </div>
-          <div className="mt-3 flex items-center justify-between gap-3 border-t border-gray-100 pt-3">
-            <span className="shrink-0 text-[11px] font-medium text-gray-400">
-              Room
-            </span>
-            <span className="truncate text-right text-[12px] font-medium text-[#172033]">
-              {roomName}
-            </span>
+          </h2>
+
+          {(address || fullLocation) && (
+            <p className="m-0 mt-1.5 flex items-start gap-1.5 text-[12px] leading-5 text-gray-500 sm:text-[13px]">
+              <EnvironmentOutlined className="mt-1 shrink-0 text-(--theme-secondary)" />
+              <span className="min-w-0">
+                {[address, fullLocation].filter(Boolean).join(", ")}
+              </span>
+            </p>
+          )}
+
+          {facilities.length > 0 && (
+            <div className="mt-2.5 hidden flex-wrap gap-1.5 sm:flex">
+              {facilities.slice(0, 4).map((facility) => (
+                <span
+                  key={facility}
+                  className="rounded-full border border-gray-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-gray-600"
+                >
+                  {facility}
+                </span>
+              ))}
+              {facilities.length > 4 && (
+                <span className="rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-500">
+                  +{facilities.length - 4} more
+                </span>
+              )}
+            </div>
+          )}
+
+          <div className="mt-auto pt-3">
+            <div className="inline-flex max-w-full flex-col rounded-xl border border-(--theme-secondary)/15 bg-(--theme-secondary)/5 px-3 py-2">
+              <span className="text-[10px] font-bold tracking-[0.08em] text-gray-500 uppercase">
+                Your room
+              </span>
+              <span className="truncate text-[13px] font-bold text-(--theme-secondary) sm:text-[14px]">
+                {roomName}
+              </span>
+            </div>
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

@@ -1,64 +1,41 @@
 "use client";
 
-import {
-  BankOutlined,
-  EnvironmentOutlined,
-  StarFilled,
-} from "@ant-design/icons";
+import { BankOutlined, EnvironmentOutlined } from "@ant-design/icons";
 
 const ViewHotelTabs = ({ supplierData = {} }) => {
   const city = supplierData?.City || "";
 
   const cards = [
     {
-      icon: <StarFilled className="text-[20px] text-[#f59e0b]" />,
-      title: "Very Good",
-      sub: "All Reviews",
-      badge: "4.5",
-      blue: true,
-    },
-    {
-      icon: <BankOutlined className="text-[20px] text-[#0ea5e9]" />,
+      icon: <BankOutlined />,
       title: "Property Highlights",
       sub: "Best features & stay benefits",
     },
     {
-      icon: <EnvironmentOutlined className="text-[20px] text-[#0ea5e9]" />,
+      icon: <EnvironmentOutlined />,
       title: "Nearby Attractions",
       sub: `Explore ${city || "location"}`,
     },
   ];
 
   return (
-    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {cards.map((card, i) => (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {cards.map((card) => (
         <div
-          key={i}
-          className={`flex h-[52px] items-center gap-3 rounded border px-4 py-3 shadow-sm transition duration-300 hover:shadow-md ${card.blue
-            ? "most-boder-colour "
-            : "border-[#d8e7f0] bg-white !hover:most-boder-colour "
-            }`}
+          key={card.title}
+          className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-[0_2px_12px_rgba(15,23,42,0.05)] transition-shadow duration-300 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
         >
-          {/* Left Icon / Badge */}
-          {card.badge ? (
-            <div className="flex h-7 w-11 shrink-0 items-center justify-center rounded buttion-background-color text-sm font-semibold text-white">
-              {card.badge}
-            </div>
-          ) : (
-            <div className="most-text-color flex h-7 w-11 shrink-0 items-center justify-center rounded  text-[18px]">
-              {card.icon}
-            </div>
-          )}
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--theme-secondary)/8 text-[18px] text-(--theme-secondary)">
+            {card.icon}
+          </span>
 
-          {/* Text */}
-          <div className="flex flex-col justify-center gap-2">
-            <span className="text-sm font-semibold leading-[16px] text-gray-800">
+          <div className="min-w-0">
+            <p className="m-0 truncate text-[14px] font-bold text-(--theme-text-primary)">
               {card.title}
-            </span>
-
-            <span className="text-xs leading-[14px] text-gray-500">
+            </p>
+            <p className="m-0 mt-0.5 truncate text-[12px] text-gray-500">
               {card.sub}
-            </span>
+            </p>
           </div>
         </div>
       ))}

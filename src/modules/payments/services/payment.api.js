@@ -1,14 +1,16 @@
 import { api } from "@/services/axios";
 
 // Create Razorpay Order
-export const createBookingOrderApi = async (payload) => {
-  console.log("API Payload:", payload);
-  const response = await api.post("/payment/create-booking", payload);
+export const createBookingOrderApi = async ({ bookingId }) => {
+  const response = await api.post(
+    `/hotel-payments/bookings/${encodeURIComponent(bookingId)}/order`,
+    { gateway: "razorpay" },
+  );
   return response.data.data;
 };
 
 // Verify Razorpay Payment
 export const verifyBookingPaymentApi = async (payload) => {
-  const response = await api.post("/payment/booking-payment-verify", payload);
-  return response.data.data;
+  const response = await api.post("/hotel-payments/verify", payload);
+  return response.data;
 };

@@ -4,7 +4,11 @@ import { Tooltip } from "antd";
 
 export default function Tabs({ tabs, activeTab, setActiveTab }) {
   return (
-    <div className="-mt-12 mb-4 flex justify-center gap-3 pb-2 sm:-mt-14 sm:gap-4 md:-mt-19 md:mb-5 md:gap-10 md:pb-3">
+    <div
+      role="group"
+      aria-label="Choose a travel service"
+      className="-mt-12 mb-4 flex justify-center gap-3 pb-2 sm:-mt-14 sm:gap-4 md:-mt-19 md:mb-5 md:gap-10 md:pb-3"
+    >
       {tabs.map((tab) => {
         const isDisabled = !tab.enabled;
         const isActive = activeTab === tab.key;
@@ -13,6 +17,9 @@ export default function Tabs({ tabs, activeTab, setActiveTab }) {
           <div key={tab.key} className="flex flex-col items-center">
             <button
               type="button"
+              aria-label={`${tab.label}${isDisabled ? ", coming soon" : ""}`}
+              aria-pressed={isActive}
+              disabled={isDisabled}
               onClick={() => {
                 if (isDisabled) return;
                 setActiveTab(tab.key);

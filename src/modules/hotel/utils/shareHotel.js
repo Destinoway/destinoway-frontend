@@ -1,12 +1,22 @@
-import { message } from "antd";
 import { buildHotelUrl } from "./buildHotelUrl";
 
-export const shareHotel = async ({ hotelName, cityName, hotelId }) => {
+export const shareHotel = async ({
+  message,
+  hotelName,
+  cityName,
+  hotelId,
+  searchId,
+  supplierHotelId,
+  hotelDetailId,
+}) => {
   try {
     const hotelUrl = buildHotelUrl({
       hotelName,
       cityName,
       hotelId,
+      searchId,
+      supplierHotelId,
+      hotelDetailId,
     });
 
     if (!hotelUrl) {
@@ -18,7 +28,7 @@ export const shareHotel = async ({ hotelName, cityName, hotelId }) => {
       title: hotelName,
       text: `Check out ${hotelName}${
         cityName ? ` in ${cityName}` : ""
-      } on PAN Journey.`,
+      } on Destinoway.`,
       url: hotelUrl,
     };
 

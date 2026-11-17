@@ -3,7 +3,7 @@
 export default function BookingWebsiteLoader() {
   return (
     <div
-      className="fixed inset-0 z-[999999] flex items-center justify-center bg-white"
+      className="fixed inset-0 z-999999 flex items-center justify-center bg-white"
       role="status"
       aria-label="Loading"
     >

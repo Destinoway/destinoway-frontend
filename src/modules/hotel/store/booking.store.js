@@ -25,6 +25,9 @@ export const useHotelBookingStore = create(
       },
 
       ticketingData: null,
+      itineraryData: null,
+
+      setItineraryData: (data) => set({ itineraryData: data }),
 
       setBookingData: (data) =>
         set((state) => ({
@@ -77,6 +80,7 @@ export const useHotelBookingStore = create(
           },
 
           ticketingData: null,
+          itineraryData: null,
         }),
     }),
     {

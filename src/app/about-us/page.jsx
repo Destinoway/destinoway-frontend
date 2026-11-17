@@ -9,7 +9,8 @@ import AboutHero from "@/modules/shared/pages/about-us/AboutHero";
 import JourneySection from "@/modules/shared/pages/about-us/JourneySection";
 
 import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
-import { getCmsBySlug } from "@/modules/cms/services/cms.service";
+import { fetchCmsBySlug } from "@/modules/cms/services/cmsFetch";
+import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 const PAGE_SLUG = "about-us";
 
@@ -19,20 +20,20 @@ const PAGE_SLUG = "about-us";
 |--------------------------------------------------------------------------
 */
 export async function generateMetadata() {
-  const cms = await getCmsBySlug(PAGE_SLUG);
+  const cms = await fetchCmsBySlug(PAGE_SLUG);
 
   const title =
     cms?.metaTitle ||
-    "About PAN Journey | Trusted Travel & Hotel Booking Platform";
+    "About Destinoway | Trusted Travel & Hotel Booking Platform";
 
   const description =
-    cms?.metaDescription || "Learn about PAN Journey and our travel mission.";
+    cms?.metaDescription || "Learn about Destinoway and our travel mission.";
 
   const keywords = cms?.keywords || [];
-
-  const canonical = `https://panjourney.com/${cms?.slug || PAGE_SLUG}`;
+  const canonical = `${getSiteUrl()}/${cms?.slug || PAGE_SLUG}`;
 
   return {
+    metadataBase: new URL(getSiteUrl()),
     title,
     description,
     keywords,
@@ -40,25 +41,14 @@ export async function generateMetadata() {
     alternates: {
       canonical,
     },
-    robots: {
-      index: false,
-      follow: false,
-      nocache: true,
-      googleBot: {
-        index: false,
-        follow: false,
-        noimageindex: true,
-        "max-image-preview": "none",
-        "max-snippet": -1,
-      },
-    },
+    robots: getRobotsMetadata(),
 
     openGraph: {
       title,
       description,
       url: canonical,
       type: "website",
-      siteName: "PAN Journey",
+      siteName: "Destinoway",
     },
 
     twitter: {
@@ -75,9 +65,7 @@ export async function generateMetadata() {
 |--------------------------------------------------------------------------
 */
 export default async function AboutUsPage() {
-  const cms = await getCmsBySlug(PAGE_SLUG);
-
-  console.log("LIVE FAQ", cms?.data?.blocks?.[0]?.data?.items?.[0]);
+  const cms = await fetchCmsBySlug(PAGE_SLUG);
 
   /*
   |--------------------------------------------------------------------------
