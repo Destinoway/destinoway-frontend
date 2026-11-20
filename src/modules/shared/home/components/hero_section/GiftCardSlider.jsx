@@ -231,7 +231,7 @@ export default function GiftCardSlider({ giftCards = [] }) {
                         </svg>
                       </div>
 
-                      <span className="absolute top-3 right-3 z-20 rounded-full bg-[#e11d2e] px-2.5 py-1 text-[11px] font-bold text-white shadow-[0_4px_12px_rgba(225,29,46,0.35)]">
+                      <span className="absolute top-3 right-3 z-20 rounded-full bg-amber-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
                         {getDiscountText(card)}
                       </span>
 

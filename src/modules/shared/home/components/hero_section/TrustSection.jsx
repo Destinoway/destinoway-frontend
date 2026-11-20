@@ -21,7 +21,7 @@ const trustItems = [
     icon: <SafetyCertificateOutlined />,
     tone: "navy",
     title: "Secure Payments",
-    shortTitle: "Secure Payments",
+    shortTitle: "Secure",
     description: "Your payment information is safe with us.",
   },
   {
@@ -36,7 +36,7 @@ const trustItems = [
     id: 3,
     icon: <CustomerServiceOutlined />,
     tone: "navy",
-    title: "24/7 Support",
+    title: "24/7 Customer Support",
     shortTitle: "24/7 Support",
     description: "We're here to help you anytime, anywhere.",
   },
@@ -44,7 +44,7 @@ const trustItems = [
     id: 4,
     icon: <TagsOutlined />,
     tone: "gold",
-    title: "Easy Booking",
+    title: "Easy & Hassle-Free Booking",
     shortTitle: "Easy Booking",
     description: "Book in just a few clicks with a hassle-free experience.",
   },
@@ -61,7 +61,7 @@ const trustItems = [
     icon: <SafetyOutlined />,
     tone: "gold",
     title: "Safe & Trusted",
-    shortTitle: "Safe & Trusted",
+    shortTitle: "Safe",
     description: "Trusted by millions of travelers worldwide.",
   },
 ];
@@ -91,7 +91,7 @@ export default function TrustSection() {
                   <span className="hidden sm:inline">{item.title}</span>
                 </h3>
 
-                <p className="mt-0.5 hidden text-[11px] leading-3.75 text-gray-500 sm:block">
+                <p className="mt-0.5 hidden text-[12px] leading-4 text-gray-500 sm:block">
                   {item.description}
                 </p>
               </div>
