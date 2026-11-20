@@ -59,12 +59,13 @@ const navigationItems = [
   },
   {
     id: "bus",
-    label: "Bus ",
-    subtitle: "Available Soon",
+    label: "Bus",
+    subtitle: "Book Bus Tickets",
+    href: "/bus",
     icon: Bus,
     desktop: true,
     mobile: true,
-    type: "comingSoon",
+    type: "link",
   },
   {
     id: "offers",
