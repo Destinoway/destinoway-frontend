@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { footerData } from "./footerData";
@@ -9,18 +7,19 @@ function FooterColumn({ title, links }) {
     <div>
       <h3 className="mb-4 text-lg font-semibold">{title}</h3>
 
-     <ul className="flex flex-wrap gap-x-2 gap-y-2 text-sm">
-  {links.map((item, index) => (
-    <li key={item.label}>
-      <Link
-        href={item.href}
-        className="footer-hover-most-text-color relative inline-block transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-0 after:bg-[var(--theme-secondary)] after:transition-all after:duration-300 hover:after:w-full"
-      >
-        {item.label}
-        {index < links.length - 1 && ","}
-      </Link>
-    </li>  ))}
-</ul>
+      <ul className="flex flex-wrap gap-x-2 gap-y-2 text-sm">
+        {links.map((item, index) => (
+          <li key={item.label}>
+            <Link
+              href={item.href}
+              className="footer-hover-most-text-color relative inline-block transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-(--theme-secondary) after:transition-all after:duration-300 hover:after:w-full"
+            >
+              {item.label}
+              {index < links.length - 1 && ","}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -50,11 +49,11 @@ const socialLinks = [
 
 export default function FooterLinks() {
   return (
-    <div className="font-roboto! grid grid-cols-1 gap-10 font-semibold sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+    <div className="grid grid-cols-1 gap-10 text-white/90 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
       {/* About */}
-      <div className="max-w-[340px]">
-        <p className="footer-backgound-color text-[15px] leading-7">
-          PAN Journey helps travelers discover and book hotels with ease,
+      <div className="max-w-85">
+        <p className="footer-backgound-color text-[15px] leading-7 text-white/90!">
+          Destinoway helps travelers discover and book hotels with ease,
           offering secure payments, verified stays, and dedicated customer
           support.
         </p>
@@ -62,15 +61,15 @@ export default function FooterLinks() {
         {/* Contact */}
         <div className="footer-backgound-color mt-6 space-y-2 text-sm">
           <a
-            href="mailto:support@panjourney.com"
-            className="!most-text-color block font-medium transition-colors footer-hover-most-text-color"
+            href="mailto:support@destinoway.com"
+            className="!most-text-color footer-hover-most-text-color block font-medium transition-colors"
           >
-            support@panjourney.com
+            support@destinoway.com
           </a>
 
           <a
             href="tel:+91 9876543210"
-            className="!most-text-color block font-medium transition-colors footer-hover-most-text-color"
+            className="!most-text-color footer-hover-most-text-color block font-medium transition-colors"
           >
             +91 9876543210
           </a>
@@ -92,7 +91,7 @@ export default function FooterLinks() {
         </div>
 
         {/* Small trust text */}
-        <p className="footer-backgound-color mt-5 text-xs leading-6">
+        <p className="footer-backgound-color mt-5 text-xs leading-6 text-white/90!">
           Trusted platform for discovering and booking hotels with a seamless
           and secure travel experience.
         </p>

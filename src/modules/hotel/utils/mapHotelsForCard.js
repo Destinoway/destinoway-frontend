@@ -2,15 +2,11 @@ const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80&auto=format&fit=crop";
 
 const cleanImageUrl = (value) => {
-  if (typeof value !== "string") {
-    return "";
-  }
+  if (typeof value !== "string") return "";
 
   const cleaned = value.trim();
 
-  if (!cleaned) {
-    return "";
-  }
+  if (!cleaned) return "";
 
   return cleaned;
 };
@@ -19,40 +15,71 @@ export const mapHotelsForCard = ({
   hotels = [],
   currencySymbol = "₹",
   searchKey = "",
+  searchId = "",
 }) => {
   return hotels.map((hotel) => {
-    const location = hotel?.location || {};
-    const pricing = hotel?.pricing || {};
-    const rating = hotel?.rating || {};
+    const price = hotel?.price || {};
+    const userReview = hotel?.userReview || {};
+    const geoCode = hotel?.geoCode || {};
 
     const rawImage =
-      hotel?.image || hotel?.thumbnail || hotel?.hotelImage || "";
+      cleanImageUrl(hotel?.heroImage) ||
+      cleanImageUrl(hotel?.image) ||
+      cleanImageUrl(hotel?.thumbnail) ||
+      cleanImageUrl(hotel?.hotelImage);
 
-    const image = cleanImageUrl(rawImage) || DEFAULT_IMAGE;
+    const image = rawImage || DEFAULT_IMAGE;
 
     const additionalImages = Array.isArray(hotel?.images)
-      ? hotel.images.map(cleanImageUrl).filter(Boolean)
+      ? hotel.images
+          .map((item) =>
+            typeof item === "string"
+              ? cleanImageUrl(item)
+              : cleanImageUrl(item?.url || item?.uri),
+          )
+          .filter(Boolean)
       : [];
 
-    const images = additionalImages.length > 0 ? additionalImages : [image];
+    const images =
+      additionalImages.length > 0
+        ? [...new Set([image, ...additionalImages])]
+        : [image];
 
-    const hotelId = hotel?.id || hotel?.hotelId || hotel?.HotelId || "";
-    const hotelDetailId = hotel?.hotelDetailId || "";
+    const hotelId =
+      hotel?.supplierHotelId ||
+      hotel?.id ||
+      hotel?.hotelId ||
+      hotel?.HotelId ||
+      "";
+
+    const hotelDetailId =
+      hotel?.hotelDetailId ||
+      hotel?.hotelDetailID ||
+      hotel?.HotelDetailId ||
+      hotel?.HotelDetailID ||
+      "";
+    const supplierHotelId =
+      hotel?.supplierHotelId ||
+      hotel?.supplierHotelID ||
+      hotel?.id ||
+      hotel?.hotelId ||
+      hotel?.HotelId ||
+      "";
 
     const hotelName =
       hotel?.name || hotel?.hotelName || hotel?.HotelName || "Hotel Name";
 
-    const latitude = Number(location?.latitude ?? hotel?.latitude ?? 0);
+    const latitude = Number(geoCode?.lat ?? hotel?.latitude ?? 0);
 
-    const longitude = Number(location?.longitude ?? hotel?.longitude ?? 0);
+    const longitude = Number(geoCode?.long ?? hotel?.longitude ?? 0);
 
-    const address = location?.address || hotel?.address || "";
+    const address = hotel?.address || "";
 
-    const city = location?.city || hotel?.city || "";
+    const city = hotel?.city || "";
 
-    const state = location?.state || hotel?.state || "";
+    const state = hotel?.state || "";
 
-    const country = location?.country || hotel?.country || "";
+    const country = hotel?.country || hotel?.countryCode || "";
 
     const locationText =
       [city, state, country].filter(Boolean).join(", ") ||
@@ -73,19 +100,36 @@ export const mapHotelsForCard = ({
 
     const tags = facilities.slice(0, 3);
 
-    const basicAmount = Number(pricing?.basicAmount) || 0;
+    const basicAmount =
+      Number(price?.basePrice ?? hotel?.pricing?.basicAmount) || 0;
 
-    const tax = Number(pricing?.tax) || 0;
+    const tax =
+      Number(
+        price?.["platform&servicetax"] ??
+          price?.taxes ??
+          hotel?.pricing?.tax,
+      ) || 0;
 
-    const totalAmount = Number(pricing?.totalAmount) || basicAmount + tax;
+    const totalAmount =
+      Number(price?.totalPrice ?? hotel?.pricing?.totalAmount) ||
+      basicAmount + tax;
 
-    const ratingValue = Number(rating?.id) || 0;
+    const ratingValue = Number(userReview?.rating ?? hotel?.rating?.id ?? 0);
+
+    const reviewCount = Number(userReview?.count ?? hotel?.reviewCount ?? 0);
+
+    const actualCurrency = price?.currency || "";
+
+    const resolvedCurrencySymbol =
+      actualCurrency === "INR" ? "₹" : actualCurrency || currencySymbol;
 
     return {
       id: hotelId,
+      supplierHotelId,
       hotelDetailId,
+      searchId: hotel?.searchId || searchId,
 
-      currencySymbol,
+      currencySymbol: resolvedCurrencySymbol,
 
       name: hotelName,
 
@@ -96,41 +140,35 @@ export const mapHotelsForCard = ({
       location: locationText,
 
       address,
-
       city,
-
       state,
-
       country,
 
       latitude,
-
       longitude,
 
+      // Guest review rating and property star rating are different.
       rating: ratingValue,
-
-      reviews: Number(hotel?.reviewCount) || 0,
-
-      starRating: ratingValue || "",
+      reviews: reviewCount,
+      starRating: Number(hotel?.starRating) || "",
 
       price: basicAmount,
-
       oldPrice: Number(hotel?.oldPrice) || 0,
-
       tax,
-
       totalAmount,
+      priceDetails: price,
 
       facilities,
-
       tags,
 
       propertyType: hotel?.propertyType || "Hotel",
 
+      isRecommended: Boolean(hotel?.isRecommended),
+      roomsLeft: Number(hotel?.roomsLeft) || 0,
+
       searchKey,
 
       image,
-
       images,
 
       freeCancellation: Boolean(hotel?.freeCancellation),

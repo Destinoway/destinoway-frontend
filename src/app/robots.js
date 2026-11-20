@@ -1,41 +1,18 @@
-// export default function robots() {
-//   const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-
-//   return {
-//     rules: [
-//       {
-//         userAgent: "*",
-
-//         allow: ["/"],
-
-//         disallow: [
-//           "/dashboard/",
-//           "/admin/",
-//           "/api/",
-//           "/profile/",
-//           "/booking/",
-//           "/preview/",
-//         ],
-//       },
-//     ],
-
-//     sitemap: `${siteUrl}/sitemap.xml`,
-
-//     host: siteUrl,
-//   };
-// }
+import { getSiteUrl, isIndexableSite } from "@/modules/cms/utils/seoUrl";
 
 export default function robots() {
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = getSiteUrl();
+  const indexable = isIndexableSite();
 
   return {
     rules: [
       {
         userAgent: "*",
-        disallow: "/",
+        allow: "/",
+        disallow: ["/api/"],
       },
     ],
-
+    ...(indexable ? { sitemap: `${siteUrl}/sitemap.xml` } : {}),
     host: siteUrl,
   };
 }

@@ -1,332 +1,252 @@
 "use client";
 
-import {
-  CheckOutlined,
-  DownOutlined,
-  RightOutlined,
-  TagOutlined,
-} from "@ant-design/icons";
+import { updateHotelItineraryCoupon } from "@/modules/hotel/services/hotelItineraryCoupon.service";
+import { CheckOutlined, DownOutlined, TagOutlined } from "@ant-design/icons";
+import { App } from "antd";
 import { useState } from "react";
 
-const CouponsBankOffers = () => {
-  const [couponCode, setCouponCode] = useState("BESTDEAL");
-  const [appliedCoupon, setAppliedCoupon] = useState("BESTDEAL");
+const VISIBLE_COUNT = 3;
+
+const CouponsBankOffers = ({ bookingData = {}, onCouponUpdate }) => {
+  const { message } = App.useApp();
+  const [couponCode, setCouponCode] = useState("");
   const [showMore, setShowMore] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const offers = [
-    {
-      code: "TRAVEL10",
-      badge: "10% OFF",
-      badgeColor: "green",
-      title: "Flat 10% OFF up to ₹1,500",
-      description: "Valid on luxury & resort stays",
-    },
-    {
-      code: "HOTELNOW",
-      badge: "SAVE ₹500",
-      badgeColor: "orange",
-      title: "Flat ₹500 instant discount",
-      description: "On pre-paid domestic hotel stays",
-    },
-    {
-      code: "WELCOME",
-      badge: "NEW USER",
-      badgeColor: "blue",
-      title: "Special welcome discount",
-      description: "Applicable on your first 3 bookings",
-    },
-    {
-      code: "FIRST20",
-      badge: "20% OFF",
-      badgeColor: "purple",
-      title: "Flat 20% OFF on selected hotels",
-      description: "Valid on selected premium properties",
-    },
-    {
-      code: "STAY500",
-      badge: "SAVE ₹500",
-      badgeColor: "orange",
-      title: "Extra ₹500 off on hotel bookings",
-      description: "Applicable on selected stays",
-    },
-  ];
+  const availableCoupons = Array.isArray(bookingData?.availableCoupons)
+    ? bookingData.availableCoupons
+    : [];
+  const pricing =
+    bookingData?.rooms?.[0]?.pricing || bookingData?.pricing || {};
+  const priceDetails = pricing?.priceDetails || pricing;
+  const appliedCoupon =
+    bookingData?.appliedCoupon ?? priceDetails?.appliedCouponCode ?? "";
+  const couponDiscount = Number(
+    bookingData?.couponDiscount ?? priceDetails?.couponDiscount ?? 0,
+  );
+  const totalSaved = Number.isFinite(couponDiscount) ? couponDiscount : 0;
+  const currency = bookingData?.currency || priceDetails?.currency || "INR";
+  const currencySymbol =
+    currency === "INR" || currency === "₹" ? "₹" : currency;
+  const visibleCoupons = showMore
+    ? availableCoupons
+    : availableCoupons.slice(0, VISIBLE_COUNT);
 
-  const visibleOffers = showMore ? offers : offers.slice(0, 3);
+  const appliedCouponDetails = availableCoupons.find(
+    (coupon) => coupon?.code === appliedCoupon,
+  );
 
-  // ------------------------------------------------------------
-  // APPLY COUPON
-  // ------------------------------------------------------------
+  const handleCouponUpdate = async (code) => {
+    const normalizedCode =
+      typeof code === "string" ? code.trim().toUpperCase() : null;
 
-  const handleApplyCoupon = () => {
-    const code = couponCode.trim().toUpperCase();
+    if (typeof code === "string" && !normalizedCode) return;
 
-    if (!code) return;
+    setIsUpdating(true);
+    try {
+      await updateHotelItineraryCoupon({
+        itineraryId: bookingData?.itineraryId,
+        couponCode: normalizedCode,
+      });
+    } catch (error) {
+      message.error(error?.message || "Unable to update the coupon.");
+      setIsUpdating(false);
+      return;
+    }
 
-    setAppliedCoupon(code);
-  };
-
-  // ------------------------------------------------------------
-  // APPLY OFFER
-  // ------------------------------------------------------------
-
-  const handleOfferApply = (code) => {
-    setCouponCode(code);
-    setAppliedCoupon(code);
-  };
-
-  // ------------------------------------------------------------
-  // REMOVE COUPON
-  // ------------------------------------------------------------
-
-  const handleRemove = () => {
-    setAppliedCoupon("");
     setCouponCode("");
-  };
-
-  // ------------------------------------------------------------
-  // BADGE CLASS
-  // ------------------------------------------------------------
-
-  const getBadgeClass = (color) => {
-    switch (color) {
-      case "green":
-        return "bg-[#eafaf4] text-[#079b6d]";
-
-      case "orange":
-        return "bg-[#fff5e8] text-[#d97706]";
-
-      case "blue":
-        return "bg-[#edf7ff] text-[#1681c4]";
-
-      case "purple":
-        return "bg-[#f4efff] text-[#7c3aed]";
-
-      default:
-        return "bg-gray-100 text-gray-600";
+    try {
+      // Coupon changes the price, so re-fetch itinerary pricing.
+      await onCouponUpdate?.();
+      message.success(
+        normalizedCode ? "Coupon applied successfully" : "Coupon removed",
+      );
+    } catch (error) {
+      message.error(
+        error?.message ||
+          "Coupon updated, but the latest price could not be loaded.",
+      );
+    } finally {
+      setIsUpdating(false);
     }
   };
 
+  const formatAmount = (amount) =>
+    Number(amount || 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+  const getDiscountLabel = (coupon) => {
+    if (coupon?.discountType === "percent") {
+      return `UP TO ${coupon?.discountValue ?? coupon?.discount}% OFF`;
+    }
+
+    return `SAVE ${currencySymbol}${formatAmount(coupon?.discount)}`;
+  };
+
   return (
-    <div className="w-full overflow-hidden rounded-[12px] border border-[#edf0f4] bg-white px-4 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)] sm:px-5 sm:py-[18px]">
-      {/* ======================================================
-          HEADER
-      ====================================================== */}
-
-      <div className="flex items-center justify-between gap-3">
-        {/* LEFT */}
-
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
+      <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-4 py-4 sm:px-5">
         <div className="flex min-w-0 items-center gap-3">
-          {/* ICON */}
-
-          <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[9px] bg-[#fff7ed]">
-            <TagOutlined className="text-[18px] text-[#c6571d]" />
-          </div>
-
-          {/* TITLE */}
-
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--theme-secondary)/8 text-[18px] text-(--theme-secondary)">
+            <TagOutlined />
+          </span>
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="m-0 text-[18px] leading-[22px] font-bold text-[#172033] sm:text-[20px] sm:leading-[24px]">
-                Coupons & Offers
-              </h2>
-
-              <span className="rounded-full bg-[#fff4e9] px-2.5 py-[3px] text-[10px] font-bold tracking-wide text-[#c6571d]">
-                5 OFFERS
-              </span>
-            </div>
-
-            <p className="mt-[2px] mb-0 text-[12px] leading-4 text-[#697386] sm:text-[13px]">
+            <h2 className="m-0 text-[17px] leading-snug font-bold text-(--theme-text-primary)">
+              Coupons & Offers
+            </h2>
+            <p className="m-0 mt-0.5 text-[12px] text-gray-500">
               Save extra on your hotel stay
             </p>
           </div>
         </div>
-
-        {/* VIEW ALL */}
-
-        <button
-          type="button"
-          onClick={() => setShowMore(true)}
-          className="hidden shrink-0 items-center gap-1 border-none bg-transparent p-0 text-[13px] font-semibold text-[#c6571d] transition hover:text-[#a94312] sm:flex"
-        >
-          View All (5)
-          <RightOutlined className="text-[10px]" />
-        </button>
+        {availableCoupons.length > 0 && (
+          <span className="shrink-0 rounded-full bg-(--theme-secondary)/8 px-2.5 py-1 text-[11px] font-bold text-(--theme-secondary)">
+            {availableCoupons.length}{" "}
+            {availableCoupons.length === 1 ? "offer" : "offers"}
+          </span>
+        )}
       </div>
 
-      {/* ======================================================
-          COUPON INPUT
-      ====================================================== */}
+      <div className="space-y-4 px-4 py-4 sm:px-5">
+        {/* MANUAL CODE */}
 
-      <div className="mt-4 flex h-[50px] items-center rounded-[8px] border-2 border-dashed border-[#d1d7df] bg-white px-2.5">
-        <TagOutlined className="mr-3 ml-1 shrink-0 text-[18px] text-[#a5afbd]" />
-
-        <input
-          type="text"
-          value={couponCode}
-          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleApplyCoupon();
+        <div className="flex h-12 items-center gap-2 rounded-xl border border-gray-200 bg-slate-50 pr-1.5 pl-3 transition focus-within:border-(--theme-secondary) focus-within:bg-white">
+          <TagOutlined className="text-[16px] text-gray-400" />
+          <input
+            type="text"
+            value={couponCode}
+            onChange={(event) =>
+              setCouponCode(event.target.value.toUpperCase())
             }
-          }}
-          placeholder="ENTER COUPON CODE"
-          className="h-full min-w-0 flex-1 border-none bg-transparent text-[14px] font-bold tracking-wide text-[#172033] outline-none placeholder:text-[#a1aab7]"
-        />
-
-        <button
-          type="button"
-          onClick={handleApplyCoupon}
-          disabled={!couponCode.trim()}
-          className="h-[38px] min-w-[88px] rounded-[7px] bg-[#c6571d] px-4 text-[13px] font-bold text-white transition-all duration-200 hover:bg-[#ad4715] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          APPLY
-        </button>
-      </div>
-
-      {/* ======================================================
-          APPLIED COUPON
-      ====================================================== */}
-
-      {appliedCoupon && (
-        <div className="flex h-[70px] items-center justify-between gap-3 rounded-b-[10px] border border-t-0 border-[#62e6b3] bg-[#effff8] px-4 sm:px-[18px]">
-          {/* LEFT */}
-
-          <div className="flex min-w-0 items-center gap-3">
-            {/* CHECK */}
-
-            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-[#079b6d]">
-              <CheckOutlined className="text-[14px] font-bold text-white" />
-            </div>
-
-            {/* TEXT */}
-
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="m-0 text-[14px] font-bold text-[#075c43]">
-                  {appliedCoupon} Applied!
-                </p>
-
-                <span className="rounded-[4px] bg-[#079b6d] px-2 py-[2px] text-[9px] font-bold tracking-wide text-white">
-                  APPLIED
-                </span>
-              </div>
-
-              <p className="mt-[2px] mb-0 text-[12px] text-[#28745d] sm:text-[13px]">
-                You saved ₹1,000 with this coupon!
-              </p>
-            </div>
-          </div>
-
-          {/* REMOVE */}
-
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                handleCouponUpdate(couponCode);
+              }
+            }}
+            placeholder="Enter coupon code"
+            aria-label="Coupon code"
+            className="h-full w-full min-w-0 border-none bg-transparent p-0 text-[14px] font-semibold tracking-wide text-gray-900 uppercase outline-none placeholder:font-normal placeholder:tracking-normal placeholder:text-gray-400 placeholder:normal-case"
+          />
           <button
             type="button"
-            onClick={handleRemove}
-            className="shrink-0 border-none bg-transparent p-0 text-[13px] font-bold text-[#ff1744] transition-colors hover:text-[#d9002f]"
+            onClick={() => handleCouponUpdate(couponCode)}
+            disabled={!couponCode.trim() || isUpdating}
+            className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border-none bg-(--theme-secondary)! px-4 text-[12px] font-bold text-white! transition hover:bg-(--theme-hover)! disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Remove
+            APPLY
           </button>
         </div>
-      )}
 
-      {/* ======================================================
-          MORE OFFERS
-      ====================================================== */}
+        {/* APPLIED */}
 
-      <div className="mt-4">
-        <p className="m-0 text-[12px] font-bold tracking-wide text-[#98a2b2] uppercase">
-          More Offers For You
-        </p>
-
-        {/* ====================================================
-            OFFER LIST
-        ==================================================== */}
-
-        <div className="mt-3 space-y-2.5">
-          {visibleOffers.map((offer) => (
-            <div
-              key={offer.code}
-              className="flex h-[68px] items-center rounded-[9px] border border-dashed border-[#ccd3dd] bg-white px-3 transition-all duration-200 hover:border-[#c6571d] hover:shadow-[0_2px_8px_rgba(15,23,42,0.05)] sm:px-3.5"
+        {appliedCoupon && (
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
+                <CheckOutlined className="text-[13px]" />
+              </span>
+              <div className="min-w-0">
+                <p className="m-0 text-[13px] font-bold break-all text-emerald-800">
+                  {appliedCoupon} applied
+                </p>
+                <p className="m-0 text-[12px] text-emerald-700">
+                  {totalSaved > 0
+                    ? `You saved ${currencySymbol} ${formatAmount(totalSaved)}`
+                    : appliedCouponDetails?.title || "Coupon applied"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleCouponUpdate(null)}
+              disabled={isUpdating}
+              className="shrink-0 cursor-pointer border-none bg-transparent p-0 text-[12px] font-bold text-red-600 disabled:opacity-50"
             >
-              {/* ==================================================
-                  LEFT CODE
-              ================================================== */}
+              Remove
+            </button>
+          </div>
+        )}
 
-              <div className="flex h-full w-[90px] shrink-0 flex-col items-center justify-center border-r border-dashed border-[#d5dbe3] pr-2 sm:w-[105px]">
-                <p className="m-0 text-[14px] font-bold tracking-wide text-[#293446]">
-                  {offer.code}
-                </p>
+        {/* LIST */}
 
-                <span
-                  className={`mt-[2px] rounded-[4px] px-2 py-[2px] text-[9px] font-bold ${getBadgeClass(
-                    offer.badgeColor,
-                  )} `}
-                >
-                  {offer.badge}
-                </span>
-              </div>
+        <div>
+          <p className="m-0 text-[11px] font-bold tracking-[0.08em] text-gray-400 uppercase">
+            Available offers
+          </p>
 
-              {/* ==================================================
-                  MIDDLE CONTENT
-              ================================================== */}
+          {availableCoupons.length ? (
+            <div className="mt-3 space-y-2.5">
+              {visibleCoupons.map((coupon) => {
+                const isApplied = coupon?.code === appliedCoupon;
 
-              <div className="min-w-0 flex-1 px-3 sm:px-3.5">
-                <p className="m-0 truncate text-[13px] leading-5 font-bold text-[#293446] sm:text-[14px]">
-                  {offer.title}
-                </p>
+                return (
+                  <div
+                    key={coupon.code}
+                    className={`relative flex items-center gap-3 overflow-hidden rounded-xl border px-3 py-3 transition ${
+                      isApplied
+                        ? "border-emerald-300 bg-emerald-50/50"
+                        : "border-gray-200 bg-white hover:border-(--theme-secondary)/40"
+                    }`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`absolute inset-y-0 left-0 w-1 ${isApplied ? "bg-emerald-500" : "bg-(--theme-secondary)"}`}
+                    />
 
-                <p className="mt-0 truncate text-[11px] leading-4 text-[#687385] sm:text-[12px]">
-                  {offer.description}
-                </p>
-              </div>
+                    <div className="min-w-0 flex-1 pl-1">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="rounded-md border border-dashed border-gray-300 bg-slate-50 px-2 py-0.5 text-[12px] font-bold tracking-wide text-gray-800">
+                          {coupon?.code}
+                        </span>
+                        <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                          {getDiscountLabel(coupon)}
+                        </span>
+                      </div>
+                      <p className="m-0 mt-1.5 line-clamp-2 text-[12px] leading-4.25 text-gray-600">
+                        {coupon?.title || coupon?.code}
+                      </p>
+                    </div>
 
-              {/* ==================================================
-                  APPLY BUTTON
-              ================================================== */}
-
-              <button
-                type="button"
-                onClick={() => handleOfferApply(offer.code)}
-                className="h-[36px] min-w-[76px] shrink-0 rounded-full border-[1.5px] border-[#c6571d] bg-white px-3 text-[12px] font-bold text-[#c6571d] transition-all duration-200 hover:bg-[#c6571d] hover:text-white"
-              >
-                APPLY
-              </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCouponUpdate(coupon?.code)}
+                      disabled={isUpdating || isApplied}
+                      className={`inline-flex h-8 min-w-18 shrink-0 cursor-pointer items-center justify-center rounded-full border px-3 text-[11px] font-bold transition disabled:cursor-not-allowed ${
+                        isApplied
+                          ? "border-emerald-500 bg-emerald-500! text-white!"
+                          : "border-(--theme-secondary) bg-white! text-(--theme-secondary)! hover:bg-(--theme-secondary)! hover:text-white! disabled:opacity-50"
+                      }`}
+                    >
+                      {isApplied ? "APPLIED" : "APPLY"}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          ) : (
+            <p className="m-0 mt-3 rounded-xl bg-slate-50 p-3 text-[13px] text-gray-500">
+              No coupons are available for this stay.
+            </p>
+          )}
         </div>
-      </div>
 
-      {/* ======================================================
-          SEE MORE COUPONS
-      ====================================================== */}
-
-      {!showMore && offers.length > 3 && (
-        <div className="mt-4 border-t border-[#edf0f4] pt-3">
+        {availableCoupons.length > VISIBLE_COUNT && (
           <button
             type="button"
-            onClick={() => setShowMore(true)}
-            className="mx-auto flex items-center justify-center gap-2 border-none bg-transparent text-[13px] font-bold text-[#172b4d] transition-colors hover:text-[#c6571d]"
+            onClick={() => setShowMore((value) => !value)}
+            className="mx-auto flex cursor-pointer items-center justify-center gap-1.5 border-none bg-transparent p-0 text-[13px] font-semibold text-(--theme-secondary)"
           >
-            See more coupons (3)
-            <DownOutlined className="text-[10px] text-[#687385]" />
+            {showMore
+              ? "Show fewer coupons"
+              : `See ${availableCoupons.length - VISIBLE_COUNT} more coupons`}
+            <DownOutlined
+              className={`text-[10px] transition-transform ${showMore ? "rotate-180" : ""}`}
+            />
           </button>
-        </div>
-      )}
-
-      {/* ======================================================
-          MOBILE VIEW ALL
-      ====================================================== */}
-
-      {!showMore && (
-        <button
-          type="button"
-          onClick={() => setShowMore(true)}
-          className="mt-2.5 flex w-full items-center justify-center gap-1 border-none bg-transparent text-[12px] font-semibold text-[#c6571d] sm:hidden"
-        >
-          View All (5)
-          <RightOutlined className="text-[9px]" />
-        </button>
-      )}
+        )}
+      </div>
     </div>
   );
 };

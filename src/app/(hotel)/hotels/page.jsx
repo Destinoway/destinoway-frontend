@@ -1,19 +1,20 @@
+import BookingWebsiteLoader from "@/components/common/loder/BookingWebsiteLoader";
 import {
   buildHotelDescription,
   buildHotelKeywords,
   buildHotelTitle,
 } from "@/modules/cms/seo/cmsDynamicSeo";
 import { buildCmsMetadata } from "@/modules/cms/seo/cmsSeo";
-import { fetchCmsBySlug } from "@/modules/cms/services/cmsFetch";
+import { fetchCityCms } from "@/modules/cms/services/cmsFetch";
 import HotelContent from "@/modules/hotel/pages/Hotel";
 import { Suspense } from "react";
+import { buildPageTitle, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 export async function generateMetadata({ searchParams }) {
   const query = await searchParams;
 
-  console.log("SEARCH PAGE QUERY:", query);
   const preview = query?.preview === "true";
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   const rawCity = query?.cityName || query?.city || "";
   const cityName = rawCity?.split(",")?.[0]?.trim() || "Hotels";
   const citySlug = cityName
@@ -21,7 +22,7 @@ export async function generateMetadata({ searchParams }) {
     ?.replace(/[^a-z0-9\s-]/g, "")
     ?.replace(/\s+/g, "-");
 
-  const cms = citySlug ? await fetchCmsBySlug(citySlug) : null;
+  const cms = citySlug ? await fetchCityCms(citySlug) : null;
 
   if (cms) {
     const metadata = buildCmsMetadata(cms);
@@ -46,7 +47,7 @@ export async function generateMetadata({ searchParams }) {
 
   return {
     metadataBase: new URL(siteUrl),
-    title: buildHotelTitle(cityName),
+    title: buildPageTitle(buildHotelTitle(cityName)),
     description: buildHotelDescription(cityName),
     keywords: buildHotelKeywords(cityName),
     alternates: {
@@ -70,7 +71,7 @@ export async function generateMetadata({ searchParams }) {
       title: buildHotelTitle(cityName),
       description: buildHotelDescription(cityName),
       url: canonical,
-      siteName: "PAN Journey",
+      siteName: "Destinoway",
       type: "website",
     },
   };
@@ -84,11 +85,16 @@ export default async function Page({ searchParams }) {
     ?.toLowerCase()
     ?.replace(/[^a-z0-9\s-]/g, "")
     ?.replace(/\s+/g, "-");
-  const cms = citySlug ? await fetchCmsBySlug(citySlug) : null;
+  const cms = citySlug ? await fetchCityCms(citySlug) : null;
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <HotelContent cms={cms} />
-    </Suspense>
+    <>
+      <h1 className="sr-only">
+        {cityName ? `Hotels in ${cityName}` : "Book Hotels Online"}
+      </h1>
+      <Suspense fallback={<BookingWebsiteLoader />}>
+        <HotelContent cms={cms} />
+      </Suspense>
+    </>
   );
 }

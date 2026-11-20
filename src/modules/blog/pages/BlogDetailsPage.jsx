@@ -7,6 +7,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Button } from "antd";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
@@ -41,7 +42,7 @@ const BlogDetailsPage = ({ blog }) => {
       })
     : "";
 
-  const authorName = blog?.createdByName || "Pan Journey";
+  const authorName = blog?.createdByName || "Destinoway";
 
   return (
     <>
@@ -50,10 +51,14 @@ const BlogDetailsPage = ({ blog }) => {
         {/* BACKGROUND IMAGE */}
         <div className="absolute inset-0">
           {blog?.featuredImage && (
-            <img
+            <Image
               src={blog.featuredImage}
-              alt={blog.title}
-              className="h-full w-full object-cover opacity-50"
+              alt={blog.featuredImageAlt || blog.title || ""}
+              fill
+              loading="eager"
+              fetchPriority="high"
+              sizes="100vw"
+              className="object-cover opacity-50"
             />
           )}
         </div>
@@ -62,12 +67,12 @@ const BlogDetailsPage = ({ blog }) => {
         <div className="absolute inset-0 bg-[#06283d]/30" />
 
         {/* HERO CONTENT */}
-        <div className="relative mx-auto flex min-h-[320px] w-full max-w-7xl flex-col justify-center px-4 py-10 sm:px-6 lg:px-8">
+        <div className="relative mx-auto flex min-h-80 w-full max-w-7xl flex-col justify-center px-4 py-10 sm:px-6 lg:px-8">
           {/* BACK BUTTON */}
           <button
             type="button"
             onClick={() => router.push("/blog")}
-            className="most-text-color !mb-5 flex w-fit cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-sm font-semibold transition-all duration-200 hover:text-white"
+            className="most-text-color mb-5! flex w-fit cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-sm font-semibold transition-all duration-200 hover:text-white"
           >
             <ArrowLeftOutlined />
             Back to Blogs
@@ -81,7 +86,7 @@ const BlogDetailsPage = ({ blog }) => {
           )}
 
           {/* TITLE */}
-          <h1 className="!mt-4 max-w-4xl !text-[30px] leading-[1.15] font-bold tracking-tight text-white sm:text-[40px] lg:text-[48px]">
+          <h1 className="mt-4! max-w-4xl text-[30px]! leading-[1.15] font-bold tracking-tight text-white sm:text-[40px] lg:text-[48px]">
             {blog.title}
           </h1>
 
@@ -143,7 +148,7 @@ const BlogDetailsPage = ({ blog }) => {
             <Button
               onClick={handleShare}
               icon={<ShareAltOutlined />}
-              className="!h-[42px] !rounded-lg !border-gray-200 !font-semibold"
+              className="h-10.5! rounded-lg! border-gray-200! font-semibold!"
             >
               Share Article
             </Button>

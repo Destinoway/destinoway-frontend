@@ -1,4 +1,14 @@
+/*
+ * Layer order (lowest -> highest priority):
+ *   theme, base (Tailwind preflight + antd reset), antd (antd components),
+ *   components, utilities (Tailwind classes).
+ * antd's reset.css and component styles used to be unlayered, and unlayered
+ * CSS always beats layered CSS, so Tailwind classes needed `!` to apply.
+ */
+@layer theme, base, antd, components, utilities;
+
 @import "tailwindcss";
+@import "antd/dist/reset.css" layer(base);
 @config "../../tailwind.config.js";
 
 :root {
@@ -64,6 +74,15 @@
 
 body {
   font-family: var(--font-roboto), sans-serif;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 :where(.css-dev-only-do-not-override-xogyor).ant-modal .ant-modal-container {
@@ -305,6 +324,32 @@ body {
 
 .gift-card-swiper .swiper-slide {
   height: auto;
+  /* Phones: show a sliver of the next card so it reads as swipeable. */
+  width: 86%;
+}
+
+@media (min-width: 640px) {
+  .gift-card-swiper .swiper-slide {
+    width: calc(50% - 5px);
+  }
+}
+
+@media (min-width: 768px) {
+  .gift-card-swiper .swiper-slide {
+    width: calc(50% - 6px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .gift-card-swiper .swiper-slide {
+    width: calc(33.333333% - 8px);
+  }
+}
+
+@media (min-width: 1280px) {
+  .gift-card-swiper .swiper-slide {
+    width: calc(25% - 9px);
+  }
 }
 
 /* =========================================================

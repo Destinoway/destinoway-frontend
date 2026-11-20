@@ -1,22 +1,35 @@
 export const buildHotelDetailsPayload = ({ selectedHotel, initialPayload }) => {
-  const selectedHotelMeta = selectedHotel?.hotelMeta || {};
-
+  const hasInitialPayload = initialPayload != null;
+  const fallbackSelectedHotel = hasInitialPayload ? {} : selectedHotel || {};
+  const selectedHotelMeta = fallbackSelectedHotel?.hotelMeta || {};
   const initialHotelMeta = initialPayload?.hotelMeta || {};
 
-  const hotelId = selectedHotelMeta?.hotelId || initialPayload?.hotelId || "";
+  const hotelId = initialPayload?.hotelId || selectedHotelMeta?.hotelId || "";
 
   const hotelDetailId =
-    selectedHotelMeta?.hotelDetailId ||
     initialPayload?.hotelDetailId ||
     initialHotelMeta?.hotelDetailId ||
+    selectedHotelMeta?.hotelDetailId ||
+    fallbackSelectedHotel?.hotelDetailId ||
+    "";
+  const searchId =
+    initialPayload?.searchId ||
+    selectedHotelMeta?.searchId ||
+    fallbackSelectedHotel?.searchId ||
+    "";
+  const supplierHotelId =
+    initialPayload?.supplierHotelId ||
+    selectedHotelMeta?.supplierHotelId ||
+    fallbackSelectedHotel?.supplierHotelId ||
+    hotelId ||
     "";
 
   const payload = {
     hotelDetailId,
     hotelId,
+    searchId,
+    supplierHotelId,
   };
-
-  console.log("BUILD HOTEL DETAILS PAYLOAD:", payload);
 
   return payload;
 };

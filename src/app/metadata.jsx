@@ -1,20 +1,22 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
-const OG_IMAGE = "/images/OGIMAGE1.png";
+const SITE_URL = getSiteUrl();
+
+const OG_IMAGE = "/images/OGIMAGE1.webp";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default: "PAN Journey",
-    template: "%s | PAN Journey",
+    default: "Destinoway",
+    template: "%s | Destinoway",
   },
 
   description:
-    "Book hotels, flights and buses easily with PAN Journey. Find the best travel deals and destinations.",
+    "Book hotels, flights and buses easily with Destinoway. Find the best travel deals and destinations.",
 
   keywords: [
-    "PAN Journey",
+    "Destinoway",
     "hotels",
     "flights",
     "bus booking",
@@ -27,10 +29,10 @@ export const metadata = {
   },
 
   openGraph: {
-    title: "PAN Journey - Travel & Booking",
-    description: "Book hotels, flights and travel packages with PAN Journey.",
+    title: "Destinoway - Travel & Booking",
+    description: "Book hotels, flights and travel packages with Destinoway.",
     url: "/",
-    siteName: "PAN Journey",
+    siteName: "Destinoway",
     locale: "en_IN",
     type: "website",
 
@@ -39,15 +41,15 @@ export const metadata = {
         url: OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: "PAN Journey - Travel & Booking",
+        alt: "Destinoway - Travel & Booking",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "PAN Journey - Travel & Booking",
-    description: "Book hotels, flights and travel packages with PAN Journey.",
+    title: "Destinoway - Travel & Booking",
+    description: "Book hotels, flights and travel packages with Destinoway.",
     images: [OG_IMAGE],
   },
 
@@ -80,21 +82,5 @@ export const metadata = {
 
   manifest: "/manifest.webmanifest",
 
-  /*
-   * IMPORTANT:
-   * Currently PAN Journey should NOT be indexed by search engines.
-   */
-  robots: {
-    index: false,
-    follow: false,
-    nocache: true,
-
-    googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
-      "max-image-preview": "none",
-      "max-snippet": -1,
-    },
-  },
+  robots: getRobotsMetadata(),
 };

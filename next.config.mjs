@@ -9,6 +9,24 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig = {
   reactCompiler: true,
 
+  experimental: {
+    inlineCss: false,
+  },
+
+  async headers() {
+    const staticAssetCache = [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=2592000, stale-while-revalidate=86400",
+      },
+    ];
+
+    return [
+      { source: "/images/icons/:path*", headers: staticAssetCache },
+      { source: "/images/payments/:path*", headers: staticAssetCache },
+    ];
+  },
+
   images: {
     remotePatterns: [
       {
@@ -21,6 +39,14 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "destinoway-media-dev.s3.ap-south-1.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "dc706kweo6g1.cloudfront.net",
+      },
+      {
+        protocol: "https",
         hostname: "images.unsplash.com",
       },
 
@@ -28,6 +54,34 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "i.travelapi.com",
+      },
+      {
+        protocol: "https",
+        hostname: "hg-static.hyperguest.com",
+      },
+      {
+        protocol: "https",
+        hostname: "hotel-extranet-new.s3.ap-southeast-1.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "hotel-extranet-new.s3.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "rukmini-ct.flixcart.com",
+      },
+      {
+        protocol: "https",
+        hostname: "photos.hotelbeds.com",
+      },
+      {
+        protocol: "https",
+        hostname: "static-images.webbeds.com",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.xconnect.in",
       },
       {
         protocol: "https",
@@ -45,13 +99,27 @@ const nextConfig = {
         protocol: "https",
         hostname: "www.tboholidays.com",
       },
+      {
+        protocol: "http",
+        hostname: "cdnh.octanio.com",
+        pathname: "/images/hotels/**",
+      },
+      // Hotel suppliers return images from changing CDN domains. Keep the
+      // optimizer limited to HTTPS while allowing those supplier hosts.
+      {
+        protocol: "https",
+        hostname: "**",
+        pathname: "/**",
+      },
     ],
 
     formats: ["image/avif", "image/webp"],
 
+    qualities: [60, 75],
+
     minimumCacheTTL: 60 * 60 * 24 * 30,
 
-    deviceSizes: [320, 420, 640, 768, 1024, 1200, 1440, 1920],
+    deviceSizes: [320, 420, 640, 768, 1024, 1200, 1400, 1440, 1920],
 
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },

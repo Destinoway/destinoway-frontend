@@ -5,15 +5,15 @@ import Image from "next/image";
 export default function ContactMapSection() {
   return (
     <section className="bg-[#eef5fa] py-12 lg:py-16">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
+      <div className="mx-auto max-w-350 px-4 sm:px-6">
         {/* Heading */}
         <div className="mb-10 text-center">
           <h2 className="text-[28px] font-bold text-black md:text-[36px]">
             Visit Our Office
           </h2>
 
-          <p className="mx-auto mt-3 max-w-[500px] text-[15px] text-gray-600">
-            We'd love to hear from you. Reach out to us through any of the
+          <p className="mx-auto mt-3 max-w-125 text-[15px] text-gray-600">
+            We&apos;d love to hear from you. Reach out to us through any of the
             channels below or visit our office during business hours.
           </p>
         </div>
@@ -53,17 +53,17 @@ export default function ContactMapSection() {
             {/* Stats */}
             <div className="mb-8 grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-[24px] font-bold most-text-color">24h</p>
+                <p className="most-text-color text-[24px] font-bold">24h</p>
                 <p className="text-xs text-gray-500">Response Time</p>
               </div>
 
               <div>
-                <p className="text-[24px] font-bold most-text-color">24/7</p>
+                <p className="most-text-color text-[24px] font-bold">24/7</p>
                 <p className="text-xs text-gray-500">Support</p>
               </div>
 
               <div>
-                <p className="text-[24px] font-bold most-text-color">98%</p>
+                <p className="most-text-color text-[24px] font-bold">98%</p>
                 <p className="text-xs text-gray-500">Satisfaction</p>
               </div>
             </div>
@@ -86,10 +86,10 @@ export default function ContactMapSection() {
                   <p>
                     <span className="font-medium text-gray-500">Email:</span>{" "}
                     <a
-                      href="mailto:support@panjourney.com"
+                      href="mailto:support@destinoway.com"
                       className="font-semibold text-[#0f6b78]"
                     >
-                      support@panjourney.com
+                      support@destinoway.com
                     </a>
                   </p>
                 </div>
@@ -102,10 +102,10 @@ export default function ContactMapSection() {
 
                   <div className="flex flex-wrap items-center gap-3">
                     <a
-                      href="https://instagram.com/panjourney"
+                      href="https://instagram.com/destinoway"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[3px] hover:shadow-lg"
+                      className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.75 hover:shadow-lg"
                     >
                       <Image
                         src="/images/icons/instagram-logo.svg"
@@ -117,10 +117,10 @@ export default function ContactMapSection() {
                     </a>
 
                     <a
-                      href="https://facebook.com/panjourney"
+                      href="https://facebook.com/destinoway"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[3px] hover:shadow-lg"
+                      className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.75 hover:shadow-lg"
                     >
                       <Image
                         src="/images/icons/facebook-logo.svg"
@@ -132,13 +132,13 @@ export default function ContactMapSection() {
                     </a>
 
                     <a
-                      href="https://www.linkedin.com/panjourney"
+                      href="https://www.linkedin.com/destinoway"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[3px] hover:shadow-lg"
+                      className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.75 hover:shadow-lg"
                     >
                       <Image
-                        src="/images/icons/LinkedIn-logo.svg"
+                        src="/images/icons/linkedin-logo.svg"
                         alt="Instagram"
                         width={20}
                         height={20}
@@ -147,10 +147,10 @@ export default function ContactMapSection() {
                     </a>
 
                     <a
-                      href="https://www.whatsapp.com/panjourney"
+                      href="https://www.whatsapp.com/destinoway"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[3px] hover:shadow-lg"
+                      className="group flex h-9 w-9 transform-gpu items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.75 hover:shadow-lg"
                     >
                       <Image
                         src="/images/icons/whatsapp-logo.svg"
@@ -169,11 +169,11 @@ export default function ContactMapSection() {
           {/* Google Map */}
           <div className="overflow-hidden rounded-xl bg-white shadow-[0_8px_40px_rgba(0,0,0,0.08)]">
             <iframe
-              title="PAN Journey Office Location"
+              title="Destinoway Office Location"
               src="https://www.google.com/maps?q=Jaipur,Rajasthan,India&output=embed"
               width="100%"
               height="100%"
-              className="min-h-[420px] border-0"
+              className="min-h-105 border-0"
               loading="lazy"
               allowFullScreen
             />

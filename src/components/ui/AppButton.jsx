@@ -13,7 +13,7 @@ export default function AppButton({
       htmlType={htmlType}
       loading={loading}
       onClick={onClick}
-      className="w-full !h-[45px] !rounded-lg !text-white buttion-background-color "
+      className="w-full h-11.25! rounded-lg! text-white! buttion-background-color "
       style={{
        border: "none",
       }}

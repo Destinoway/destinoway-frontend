@@ -6,8 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
-import { buildSearchData } from "@/modules/hotel/utils/buildSearchData";
-import { navigateToHotels } from "@/modules/hotel/utils/hotelNavigation";
+import { searchHotelsFromCard } from "@/modules/hotel/utils/searchFromCard";
 
 export default function VacationType({ activeTab, vibes = [] }) {
   const [index, setIndex] = useState(0);
@@ -21,11 +20,6 @@ export default function VacationType({ activeTab, vibes = [] }) {
   const data = selectedCategory?.items || [];
   const { draftSearchData } = useHotelSearchStore();
 
-  // useEffect(() => {
-  //   setMounted(true);
-  // }, []);
-
-  // Responsive Cards
   useEffect(() => {
     const updatePerPage = () => {
       const width = window.innerWidth;
@@ -46,9 +40,13 @@ export default function VacationType({ activeTab, vibes = [] }) {
     return () => window.removeEventListener("resize", updatePerPage);
   }, [data.length]);
 
-  useEffect(() => {
+  // Go back to the first page when the tab changes. Done during render
+  // instead of in an effect to avoid an extra re-render.
+  const [prevTab, setPrevTab] = useState(activeTab);
+  if (activeTab !== prevTab) {
+    setPrevTab(activeTab);
     setIndex(0);
-  }, [activeTab]);
+  }
 
   const next = () => {
     if (index + perPage < data.length) {
@@ -65,41 +63,29 @@ export default function VacationType({ activeTab, vibes = [] }) {
   const visibleData =
     perPage === data.length ? data : data.slice(index, index + perPage);
 
-  // if (!mounted) return null;
-
-  const handleSearch = (item) => {
-    const searchData = buildSearchData({
-      baseSearchData: draftSearchData,
-      city: item.city,
-      cityId: item.cityId,
-    });
-
-    navigateToHotels(router, searchData);
-  };
+  const handleSearch = (item) =>
+    searchHotelsFromCard({ router, item, baseSearchData: draftSearchData });
   return (
-    <div className="xs:px-1 !sm:-mt-[50px] -mt-7 px-0 py-2 sm:px-1 md:mt-[2px] md:px-2 lg:mt-[2px] lg:px-4 xl:px-4">
+    <div className="xs:px-1 !sm:-mt-[50px] -mt-7 px-0 py-2 sm:px-1 md:mt-0.5 md:px-2 lg:mt-0.5 lg:px-4 xl:px-4">
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* PREV BUTTON - Hide on Mobile */}
         <button
           onClick={prev}
           disabled={index === 0}
-          className="hidden h-10 w-10 items-center justify-center !text-[27px] !text-black lg:flex"
+          className="hidden h-10 w-10 items-center justify-center text-[27px]! text-black! lg:flex"
         >
           <LeftOutlined />
         </button>
 
-        {/* Cards */}
         <div className="flex-1 overflow-hidden">
-          {/* Mobile Scroll */}
           <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-4 lg:hidden">
             {data.map((item, idx) => {
               return (
                 <div
                   key={item._id}
-                  className="!m-0 max-w-[159px] min-w-[159px] overflow-hidden rounded-[2px] bg-white !p-0 shadow-sm transition"
+                  className="m-0! max-w-39.75 min-w-39.75 overflow-hidden rounded-xs bg-white p-0! shadow-sm transition"
                 >
                   {/* Image */}
-                  <div className="relative h-[150px] overflow-hidden">
+                  <div className="relative h-37.5 overflow-hidden">
                     <Image
                       src={item.image}
                       alt={item.alt || item.name}
@@ -126,7 +112,7 @@ export default function VacationType({ activeTab, vibes = [] }) {
                       View Details
                     </button>
 
-                    <div className="mx-auto mt-1 w-20 border-b border-dotted !border-[#5FA8C9]" />
+                    <div className="mx-auto mt-1 w-20 border-b border-dotted border-[#5FA8C9]!" />
                   </div>
                 </div>
               );
@@ -141,7 +127,7 @@ export default function VacationType({ activeTab, vibes = [] }) {
                   key={item._id}
                   className="overflow-hidden rounded-[5px] bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
                 >
-                  <div className="relative h-[302px] overflow-hidden">
+                  <div className="relative h-75.5 overflow-hidden">
                     <Image
                       src={item.image}
                       alt={item.alt || item.name}
@@ -151,17 +137,17 @@ export default function VacationType({ activeTab, vibes = [] }) {
                     />
                   </div>
 
-                  <div className="mt-[-10px] bg-white px-4 py-5 text-center">
+                  <div className="-mt-2.5 bg-white px-4 py-5 text-center">
                     <h2 className="text-[22px] font-semibold text-gray-900">
                       {item.name}
                     </h2>
 
-                    <p className="mt-[-7px] text-[14px] text-gray-700">
+                    <p className="-mt-1.75 text-[14px] text-gray-700">
                       {item.city}
                     </p>
                     <button
                       onClick={() => handleSearch(item)}
-                      className="most-text-color hover:!text-most-text-color flex w-full items-center justify-center gap-1 !text-[18px] font-medium transition-colors duration-200"
+                      className="most-text-color hover:text-most-text-color! flex w-full items-center justify-center gap-1 text-[18px]! font-medium transition-colors duration-200"
                     >
                       View Details →
                     </button>
@@ -178,7 +164,7 @@ export default function VacationType({ activeTab, vibes = [] }) {
         <button
           onClick={next}
           disabled={index + perPage >= data.length}
-          className="hidden h-10 w-10 items-center justify-center !text-[27px] !text-black lg:flex"
+          className="hidden h-10 w-10 items-center justify-center text-[27px]! text-black! lg:flex"
         >
           <RightOutlined />
         </button>

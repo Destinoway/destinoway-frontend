@@ -9,6 +9,8 @@ const guestFieldsSchema = z.object({
 export const primaryGuestSchema = z.object({
   bookingFor: z.string(),
   customerAddress: z.string().trim().min(2, "Address required"),
+  customerState: z.string().trim().min(2, "State required"),
+  customerCity: z.string().trim().min(2, "City required"),
   customerPostalCode: z
     .string()
     .trim()
@@ -20,6 +22,16 @@ export const primaryGuestSchema = z.object({
   customerPhoneCode: z.string().optional(),
   paxDetails: z.record(guestFieldsSchema),
 });
+
+export const getPrimaryGuestSchema = (isPANRequired) =>
+  isPANRequired
+    ? primaryGuestSchema.extend({
+        panNumber: z
+          .string()
+          .trim()
+          .regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/i, "Enter a valid PAN number"),
+      })
+    : primaryGuestSchema;
 
 export const guestSchema = guestFieldsSchema.extend({
   isChild: z.boolean().optional(),

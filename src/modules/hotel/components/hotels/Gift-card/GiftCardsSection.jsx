@@ -8,7 +8,7 @@ export default function GiftCardsSection() {
 
   return (
     <section className="background-color-bg  py-10 sm:py-12 lg:py-16">
-      <div className="mx-auto max-w-[1300px] px-3 sm:px-4 md:px-3 lg:px-6">
+      <div className="mx-auto max-w-325 px-3 sm:px-4 md:px-3 lg:px-6">
         {giftCards.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 min-[700px]:grid-cols-3 sm:grid-cols-2 md:gap-3 lg:gap-6 xl:grid-cols-4">
             {giftCards.map((card) => (
@@ -16,7 +16,7 @@ export default function GiftCardsSection() {
             ))}
           </div>
         ) : (
-          <div className="flex min-h-[200px] items-center justify-center">
+          <div className="flex min-h-50 items-center justify-center">
             <p className="text-center text-base font-medium text-gray-500">
               Currently no gift cards
             </p>

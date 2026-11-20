@@ -2,26 +2,24 @@
 
 import SectionHeading from "@/components/common/SectionHeading";
 import { useHotelSearchStore } from "@/modules/hotel/store/serchData.store";
-import { buildSearchData } from "@/modules/hotel/utils/buildSearchData";
-import { navigateToHotels } from "@/modules/hotel/utils/hotelNavigation";
+import { searchHotelsFromCard } from "@/modules/hotel/utils/searchFromCard";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ButtonTab from "./vacation_sections/ButtonTab";
 
 export default function DestinationsSection({ destinations }) {
   const categories = destinations?.categories || [];
 
   const [activeTab, setActiveTab] = useState(categories[0]?.category || "");
-
-  useEffect(() => {
-    if (categories.length > 0 && !activeTab) {
-      setActiveTab(categories[0].category);
-    }
-  }, [categories, activeTab]);
+  const activeCategory = categories.some(
+    (item) => item.category === activeTab,
+  )
+    ? activeTab
+    : categories[0]?.category || "";
 
   const selectedCategory = categories.find(
-    (item) => item.category === activeTab,
+    (item) => item.category === activeCategory,
   );
 
   const activeDestinations = selectedCategory?.items || [];
@@ -31,8 +29,8 @@ export default function DestinationsSection({ destinations }) {
   }
 
   return (
-    <section className="background-color-bg !mt-[-30px] overflow-hidden !px-0 px-3 py-0 text-black sm:!mt-[-30px] sm:!px-0 sm:py-0 md:!mt-[-30px] md:!px-2 md:py-24 lg:!mt-[-70px] lg:!px-3 xl:!mt-[-90px] xl:!px-4 2xl:!mt-[-50px] 2xl:!px-0">
-      <div className="mx-auto w-full lg:!mt-[-170px] lg:w-[88.87%] xl:!mt-[10px]">
+    <section className="background-color-bg -mt-7.5! overflow-hidden px-0! px-3 py-0 text-black sm:-mt-7.5! sm:px-0! sm:py-0 md:-mt-7.5! md:px-2! md:py-24 lg:-mt-17.5! lg:px-3! xl:-mt-22.5! xl:px-4! 2xl:-mt-12.5! 2xl:px-0!">
+      <div className="mx-auto w-full lg:-mt-17.5! lg:w-[88.87%] xl:mt-2.5!">
         <SectionHeading
           title={destinations?.title || "Popular Destinations"}
           description="We’re committed to offering more than just products we provide exceptional experiences."
@@ -42,7 +40,7 @@ export default function DestinationsSection({ destinations }) {
           <div className="scrollbar-hide flex max-w-full items-center gap-4 overflow-x-auto pb-2 whitespace-nowrap sm:gap-6 lg:gap-8">
             <ButtonTab
               tabs={categories}
-              activeTab={activeTab}
+              activeTab={activeCategory}
               setActiveTab={setActiveTab}
             />
           </div>
@@ -51,7 +49,7 @@ export default function DestinationsSection({ destinations }) {
         <div className="mt-4 md:hidden">
           <div className="scrollbar-hide flex gap-4 overflow-x-auto pb-2">
             {activeDestinations.map((item) => (
-              <div key={item._id} className="w-[230px] flex-shrink-0">
+              <div key={item._id} className="w-57.5 shrink-0">
                 <DestinationCard item={item} />
               </div>
             ))}
@@ -98,32 +96,25 @@ function DestinationCard({ item }) {
   const router = useRouter();
   const { draftSearchData } = useHotelSearchStore();
 
-  const handleSearch = () => {
-    const searchData = buildSearchData({
-      baseSearchData: draftSearchData,
-      city: item.city,
-      cityId: item.cityId,
-    });
-
-    navigateToHotels(router, searchData);
-  };
+  const handleSearch = () =>
+    searchHotelsFromCard({ router, item, baseSearchData: draftSearchData });
 
   return (
     <div
       onClick={handleSearch}
-      className={`group relative h-[260px] cursor-pointer overflow-hidden rounded-xl shadow-md transition-all duration-500 hover:shadow-xl sm:h-[300px] sm:rounded-2xl md:h-[340px] lg:rounded-[20px] ${item.height} `}
+      className={`group relative h-65 cursor-pointer overflow-hidden rounded-xl shadow-md transition-all duration-500 hover:shadow-xl sm:h-75 sm:rounded-2xl md:h-85 lg:rounded-[20px] ${item.height} `}
     >
       <Image
         src={item.image}
         alt={item.alt || item.name}
         fill
         quality={75}
-        sizes="(max-width:768px)100vw,33vw"
+        sizes="(max-width: 767px) 230px, (max-width: 1279px) 46vw, 45vw"
         loading="lazy"
         className="object-cover"
       />
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
 
       <div className="absolute bottom-3 left-3 z-10 sm:bottom-5 sm:left-5 lg:bottom-7 lg:left-7">
         <h3 className="text-lg font-bold text-white sm:text-2xl md:text-3xl lg:text-4xl">

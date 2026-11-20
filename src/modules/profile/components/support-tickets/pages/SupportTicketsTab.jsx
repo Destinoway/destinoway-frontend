@@ -66,51 +66,51 @@ export default function SupportTicketsTab() {
         {/* Header */}
         <div className="mb-2 flex flex-col gap-3 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
-            <h2 className="font-roboto !mb-1 text-[20px] font-semibold text-gray-900">
+            <h2 className="font-roboto mb-1! text-[20px] font-semibold text-gray-900">
               My Support Tickets
             </h2>
 
-            <p className="!mb-0 text-sm text-gray-500">
+            <p className="mb-0! text-sm text-gray-500">
               View and track the status of your support requests.
             </p>
           </div>
 
           {/* RIGHT */}
           <div className="flex flex-wrap gap-2">
-            <div className="min-w-[60px] rounded-lg border bg-slate-50 px-3 py-2 text-center">
-              <p className="font-roboto !mb-0 text-[11px] font-semibold text-gray-500">
+            <div className="min-w-15 rounded-lg border bg-slate-50 px-3 py-2 text-center">
+              <p className="font-roboto mb-0! text-[11px] font-semibold text-gray-500">
                 Total
               </p>
 
-              <p className="!mb-0 text-lg font-bold">{tickets.length}</p>
+              <p className="mb-0! text-lg font-bold">{tickets.length}</p>
             </div>
 
-            <div className="min-w-[60px] rounded-lg border bg-blue-50 px-3 py-2 text-center">
-              <p className="font-roboto !mb-0 text-[11px] font-semibold text-blue-600">
+            <div className="min-w-15 rounded-lg border bg-blue-50 px-3 py-2 text-center">
+              <p className="font-roboto mb-0! text-[11px] font-semibold text-blue-600">
                 Open
               </p>
 
-              <p className="!mb-0 text-lg font-bold text-blue-600">
+              <p className="mb-0! text-lg font-bold text-blue-600">
                 {openCount}
               </p>
             </div>
 
-            <div className="min-w-[60px]! rounded-lg border bg-orange-50 px-3 py-2 text-center">
-              <p className="font-roboto !mb-0 text-[11px] font-semibold text-orange-600">
+            <div className="min-w-15! rounded-lg border bg-orange-50 px-3 py-2 text-center">
+              <p className="font-roboto mb-0! text-[11px] font-semibold text-orange-600">
                 In Progress
               </p>
 
-              <p className="!mb-0 text-lg font-bold text-orange-600">
+              <p className="mb-0! text-lg font-bold text-orange-600">
                 {progressCount}
               </p>
             </div>
 
-            <div className="min-w-[60px] rounded-lg border bg-green-50 px-3 py-2 text-center">
-              <p className="font-roboto !mb-0 text-[11px] font-semibold text-green-600">
+            <div className="min-w-15 rounded-lg border bg-green-50 px-3 py-2 text-center">
+              <p className="font-roboto mb-0! text-[11px] font-semibold text-green-600">
                 Resolved
               </p>
 
-              <p className="!mb-0 text-lg font-bold text-green-600">
+              <p className="mb-0! text-lg font-bold text-green-600">
                 {resolvedCount}
               </p>
             </div>
@@ -142,24 +142,24 @@ export default function SupportTicketsTab() {
               {/* Header */}
               <div className="border-b pb-4">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <Tag color="geekblue" className="!rounded-full !px-3 !py-1">
+                  <Tag color="geekblue" className="rounded-full! px-3! py-1!">
                     Ticket #{selected.ticketId}
                   </Tag>
 
                   <Tag
                     color={getStatusColor(selected.status)}
-                    className="!rounded-full !px-3 !py-1"
+                    className="rounded-full! px-3! py-1!"
                   >
                     {selected.status}
                   </Tag>
 
-                  <Tag color="cyan" className="!rounded-full !px-3 !py-1">
+                  <Tag color="cyan" className="rounded-full! px-3! py-1!">
                     {selected.supportCategory?.replaceAll("_", " ")}
                   </Tag>
 
                   <Tag
                     icon={<TagOutlined />}
-                    className="!rounded-full !px-3 !py-1"
+                    className="rounded-full! px-3! py-1!"
                   >
                     {selected.Type?.toUpperCase()}
                   </Tag>
@@ -169,7 +169,7 @@ export default function SupportTicketsTab() {
                   Subject
                 </p>
 
-                <h2 className="!mb-0 font-roboto mb-0 text-[24px] font-semibold text-[#1F2937]">
+                <h2 className="mb-0! font-roboto mb-0 text-[24px] font-semibold text-[#1F2937]">
                   {selected.subject}
                 </h2>
               </div>

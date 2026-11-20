@@ -3,7 +3,8 @@ import {
   buildHotelDescription,
   buildHotelTitle,
 } from "@/modules/cms/seo/hotelSeo";
-import { fetchCmsBySlug } from "@/modules/cms/services/cmsFetch";
+import { fetchHotelCms } from "@/modules/cms/services/cmsFetch";
+import { getSiteUrl } from "@/modules/cms/utils/seoUrl";
 import HotelDetails from "@/modules/hotel/pages/hotelDetails";
 
 export async function generateMetadata({ params, searchParams }) {
@@ -13,10 +14,14 @@ export async function generateMetadata({ params, searchParams }) {
 
   const preview = query?.preview === "true";
 
-  const cms = await fetchCmsBySlug(slug, preview);
+  const cms = await fetchHotelCms(city, slug, preview);
 
   if (cms) {
     const metadata = buildCmsMetadata(cms);
+    const siteUrl = getSiteUrl();
+    const canonical = `${siteUrl}/hotel-details/${encodeURIComponent(city)}/${encodeURIComponent(slug)}`;
+    metadata.alternates = { ...metadata.alternates, canonical };
+    metadata.openGraph = { ...metadata.openGraph, url: canonical };
 
     if (preview) {
       metadata.robots = {
@@ -31,7 +36,7 @@ export async function generateMetadata({ params, searchParams }) {
 
     return metadata;
   }
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   const hotelSlug =
     slug?.replace(/-/g, " ")?.replace(/\b\w/g, (l) => l.toUpperCase()) ||
     "Hotel";
@@ -59,14 +64,14 @@ export async function generateMetadata({ params, searchParams }) {
     },
     authors: [
       {
-        name: "PAN Journey",
+        name: "Destinoway",
       },
     ],
     openGraph: {
       title: buildHotelTitle(hotelSlug, cityName),
       description: buildHotelDescription(hotelSlug, city),
       url: canonical,
-      siteName: "PAN Journey",
+      siteName: "Destinoway",
       type: "website",
     },
 
@@ -75,18 +80,18 @@ export async function generateMetadata({ params, searchParams }) {
       title: buildHotelTitle(hotelSlug, cityName),
       description: buildHotelDescription(hotelSlug, city),
     },
-    creator: "PAN Journey",
-    publisher: "PAN Journey",
+    creator: "Destinoway",
+    publisher: "Destinoway",
   };
 }
 
 export default async function Page({ params, searchParams }) {
   const { slug, city } = await params;
   const query = await searchParams;
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   const preview = query?.preview === "true";
 
-  const cms = await fetchCmsBySlug(slug, preview);
+  const cms = await fetchHotelCms(city, slug, preview);
   const hotelName =
     cms?.data?.hotelMeta?.hotelName ||
     slug?.replace(/-/g, " ")?.replace(/\b\w/g, (l) => l.toUpperCase());
@@ -131,7 +136,7 @@ export default async function Page({ params, searchParams }) {
 
         description:
           cms?.metaDescription ||
-          "Hotel details and booking information on PAN Journey.",
+          "Hotel details and booking information on Destinoway.",
 
         url: `${siteUrl}/hotel-details/${city}/${slug}`,
 
@@ -175,18 +180,18 @@ export default async function Page({ params, searchParams }) {
         publisher: {
           "@type": "Organization",
 
-          name: "PAN Journey",
+          name: "Destinoway",
         },
       },
 
       {
         "@type": "Organization",
-        name: "PAN Journey",
+        name: "Destinoway",
         url: siteUrl,
       },
     ],
   };
-  const hotelId = cms?.entityId || query?.hid;
+  const hotelId = query?.hid || cms?.entityId;
   return (
     <>
       <script
@@ -199,6 +204,10 @@ export default async function Page({ params, searchParams }) {
       <HotelDetails
         initialPayload={{
           hotelId,
+          searchId: query?.searchId || "",
+          // Accept legacy URLs while allowing new URLs to rely on hid.
+          supplierHotelId: query?.supplierHotelId || query?.hid || "",
+          hotelDetailId: query?.hotelDetailId || "",
           hotelMeta: {
             hotelName: cms?.data?.hotelMeta?.hotelName || hotelName,
             hotelSlug: slug,

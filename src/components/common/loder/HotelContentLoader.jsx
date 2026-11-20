@@ -16,7 +16,7 @@ export default function HotelContentLoader() {
             {/* IMAGE */}
             <Skeleton.Image
               active
-              className="!h-[220px] !w-full md:!w-[320px]"
+              className="h-55! w-full! md:w-[320px]!"
             />
 
             {/* CONTENT */}
@@ -38,18 +38,18 @@ export default function HotelContentLoader() {
                 <div>
                   <Skeleton.Input
                     active
-                    className="!mb-2 !h-4 !w-20"
+                    className="mb-2! h-4! w-20!"
                   />
 
                   <Skeleton.Input
                     active
-                    className="!h-8 !w-28"
+                    className="h-8! w-28!"
                   />
                 </div>
 
                 <Skeleton.Button
                   active
-                  className="!h-12 !w-32 !rounded"
+                  className="h-12! w-32! rounded!"
                 />
               </div>
             </div>

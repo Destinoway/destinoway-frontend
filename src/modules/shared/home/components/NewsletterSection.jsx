@@ -1,52 +1,86 @@
+
 "use client";
 
 import { useNewsletter } from "@/modules/shared/home/hooks/useNewsletter";
 import { MailOutlined } from "@ant-design/icons";
-import { message } from "antd";
+import { App } from "antd";
 import { useState } from "react";
+
 export default function NewsletterSection() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+
   const { mutate: subscribe, isPending } = useNewsletter();
+
+  const { message } = App.useApp();
+
+  // Email validation
   const validateEmail = (value) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(value);
   };
 
   const handleSubscribe = () => {
-    if (!email.trim()) {
+    const trimmedEmail = email.trim();
+
+    // Empty email
+    if (!trimmedEmail) {
       setError("Email is required");
-      message.error("Email is required");
+
+      message.error({
+        content: "Email is required",
+        key: "newsletter-validation",
+        duration: 3,
+      });
+
       return;
     }
 
-    if (!validateEmail(email)) {
+    // Invalid email
+    if (!validateEmail(trimmedEmail)) {
       setError("Please enter a valid email address");
+
+      message.error({
+        content: "Please enter a valid email address",
+        key: "newsletter-validation",
+        duration: 3,
+      });
+
       return;
     }
 
+    // Clear validation error
     setError("");
 
     subscribe(
       {
-        email: email.trim(),
+        email: trimmedEmail,
       },
       {
         onSuccess: (res) => {
           setEmail("");
+          setError("");
 
-          message.success(res?.message || "Subscribed successfully");
+          message.success({
+            content: res?.message || "Subscribed successfully",
+            key: "newsletter-success",
+            duration: 3,
+          });
         },
 
         onError: (error) => {
-          message.error(
-            error?.response?.data?.message ||
+          message.error({
+            content:
+              error?.response?.data?.message ||
               "Something went wrong. Please try again.",
-          );
+            key: "newsletter-api-error",
+            duration: 3,
+          });
         },
       },
     );
   };
+
   return (
     <section className="bg-[#dce9f0] py-10 sm:py-12 lg:py-14">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -63,15 +97,23 @@ export default function NewsletterSection() {
           </div>
 
           {/* Right Content */}
-          <div className="w-full lg:max-w-[620px]">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-3">
+          <div className="w-full lg:max-w-155">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-3">
               <div className="w-full">
                 <input
+                  id="newsletter-email"
                   type="email"
+                  aria-label="Email address for newsletter"
+                  aria-invalid={Boolean(error)}
+                  aria-describedby={error ? "newsletter-email-error" : undefined}
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    if (error) setError("");
+
+                    // Remove validation error when typing
+                    if (error) {
+                      setError("");
+                    }
                   }}
                   placeholder="Write Email"
                   className={`w-full flex-1 border-0 border-b bg-transparent py-3 text-[15px] transition-all outline-none placeholder:text-[#8b8b8b] ${
@@ -80,14 +122,20 @@ export default function NewsletterSection() {
                       : "border-black focus:border-[#137C9C]"
                   }`}
                 />
-                {error && <p className="mt-2! text-sm text-red-500">{error}</p>}
+
+                {/* Input validation error */}
+                {error && (
+                    <p id="newsletter-email-error" role="alert" className="mt-2 text-sm text-red-500">
+                    {error}
+                  </p>
+                )}
               </div>
 
               <button
+                type="button"
                 onClick={handleSubscribe}
                 disabled={isPending}
-                className="flex w-[150px] items-center justify-center self-start rounded-md px-5 py-3 text-[15px] font-medium !text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[180px] buttion-background-color "
-
+                className="flex w-37.5 items-center justify-center self-start rounded-md px-5 py-3 text-[15px] font-medium text-white! transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-45 buttion-background-color"
               >
                 {isPending ? "Subscribing..." : "Subscribe Now"}
               </button>
@@ -98,3 +146,4 @@ export default function NewsletterSection() {
     </section>
   );
 }
+

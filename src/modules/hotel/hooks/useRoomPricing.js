@@ -1,21 +1,36 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getRoomPricing } from "../services/roomPricing.service";
+import { checkRoomPrice } from "../services/roomPricing.service";
 
-export const useRoomPricing = ({ hotelDetailId = "", roomId = "" }) => {
+export const useRoomPricing = ({
+  hotelDetailId = "",
+  searchId = "",
+  supplierHotelId = "",
+  recommendationId = "",
+}) => {
   return useQuery({
-    queryKey: ["hotel-room-pricing", hotelDetailId, roomId],
-
+    queryKey: [
+      "hotel-room-price-check",
+      searchId,
+      supplierHotelId,
+      recommendationId,
+    ],
     queryFn: () =>
-      getRoomPricing({
+      checkRoomPrice({
         hotelDetailId,
-        roomId,
+        searchId,
+        supplierHotelId,
+        recommendationId,
       }),
 
-    enabled: Boolean(hotelDetailId && roomId),
+    enabled: Boolean(searchId && supplierHotelId && recommendationId),
 
     staleTime: 0,
+
+    // Price-check is a POST that creates an itinerary; React Query's default
+    // retry (3x) would silently create extra itineraries on failure.
+    retry: false,
 
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

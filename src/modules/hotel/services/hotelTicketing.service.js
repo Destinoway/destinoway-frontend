@@ -6,7 +6,7 @@ export const hotelTicketing = async (payload) => {
 
     return response.data;
   } catch (error) {
-    console.error("HOTEL TICKETING ERROR:", error);
+    console.error("Hotel ticketing request failed.");
 
     throw new Error(error?.response?.data?.message || "Hotel ticketing failed");
   }

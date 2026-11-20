@@ -15,7 +15,6 @@ export const useSendOtp = () =>
 export const useSendEmailotp = () =>
   useMutation({
     mutationFn: (data) => {
-      console.log("HOOK SEND OTP:", data);
       return sendEmailOtpApi(data); // ✅ NO WRAP
     },
   });
@@ -24,7 +23,6 @@ export const useSendEmailotp = () =>
 export const useVerifyOtp = () =>
   useMutation({
     mutationFn: (data) => {
-      console.log("HOOK VERIFY OTP:", data);
       return verifyOtpApi(data); // ✅ NO WRAP
     },
   });

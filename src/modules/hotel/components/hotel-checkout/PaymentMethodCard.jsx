@@ -52,7 +52,7 @@ export default function PaymentMethodCard() {
           />
 
           <div>
-            <Title level={5} className="!mb-0 !text-[16px] !font-semibold">
+            <Title level={5} className="mb-0! text-[16px]! font-semibold!">
               Razorpay
             </Title>
 

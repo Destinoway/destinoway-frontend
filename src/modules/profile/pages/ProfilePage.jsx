@@ -29,11 +29,11 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden background-color-bg ">
+    <div className="background-color-bg min-h-screen overflow-x-hidden">
       {/* Banner */}
-      <div className="relative h-[180px] w-full overflow-hidden sm:h-[200px] md:h-[220px]">
+      <div className="relative h-45 w-full overflow-hidden sm:h-50 md:h-55">
         <img
-          src="/images/profile-bg.png"
+          src="/images/profile-bg.webp"
           alt="background"
           className="h-full w-full object-cover"
         />
@@ -42,7 +42,7 @@ export default function ProfilePage() {
 
       {/* Mobile Header */}
       <div className="sticky top-0 z-40 flex items-center justify-between bg-white px-4 py-3 shadow md:hidden">
-        <h2 className="text-lg font-semibold most-text-color">My Account</h2>
+        <h2 className="most-text-color text-lg font-semibold">My Account</h2>
 
         <Button
           type="text"
@@ -75,7 +75,7 @@ export default function ProfilePage() {
       </Drawer>
 
       {/* Main Section */}
-      <div className="relative mx-auto mt-8 max-w-[1300px] px-1 pb-10 sm:-mt-6 sm:px-4 md:-mt-12 md:px-1 md:pb-12 lg:px-6">
+      <div className="relative mx-auto mt-8 max-w-325 px-1 pb-10 sm:-mt-6 sm:px-4 md:-mt-12 md:px-1 md:pb-12 lg:px-6">
         {/* Tablet Sidebar */}
         <div className="mb-5 hidden overflow-x-auto md:block lg:hidden">
           <div className="flex min-w-max gap-3">

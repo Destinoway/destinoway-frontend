@@ -22,8 +22,6 @@ export default function Sidebar({ activeTab, setActiveTab, horizontal }) {
   const [avatarError, setAvatarError] = useState(false);
   const user = session?.user;
 
-  console.log("🚀 USER:", user);
-
   const handleLogout = () => {
     logout(session?.refreshToken);
   };
@@ -59,8 +57,6 @@ export default function Sidebar({ activeTab, setActiveTab, horizontal }) {
       .toUpperCase()
       .slice(0, 2);
   };
-  console.log("USER IMAGE", user?.image);
-
   return (
     <>
       <div
@@ -91,7 +87,7 @@ export default function Sidebar({ activeTab, setActiveTab, horizontal }) {
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="font-roboto! mb-0 truncate text-center text-[16px] font-bold text-gray-700 sm:text-left sm:text-[18px]">
+              <p className="font-roboto! mb-0! truncate text-center text-[16px] font-bold text-gray-700 sm:text-left sm:text-[18px]">
                 {user?.name || "User"}
               </p>
               <p className="font-roboto! text-center text-[13px] font-semibold text-gray-500 sm:text-left sm:text-[14px]">
@@ -126,7 +122,7 @@ export default function Sidebar({ activeTab, setActiveTab, horizontal }) {
                   ? "whitespace-nowrap px-2 py-1"
                   : "px-3 py-3 sm:px-3 sm:py-3"
                   } ${isActive
-                    ? " !border-[3px] most-boder-colour"
+                    ? " border-[3px]! most-boder-colour"
                     : "border-gray-200 hover:bg-gray-50"
                   }`}
               >

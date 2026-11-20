@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { preload } from "react-dom";
+import { getImageProps } from "next/image";
 import Herobanner from "@/modules/shared/home/components/cashback_sections/OfferBanner";
 import ComingSoonSection from "@/modules/shared/home/components/ComingSoonSection";
 import DestinationsSection from "@/modules/shared/home/components/DestinationsSection";
@@ -10,25 +13,31 @@ import WhySection from "@/modules/shared/home/components/why_sections/WhySection
 import CMSContentRenderer from "@/modules/cms/renderer/CMSContentRenderer";
 import { fetchCmsBySlug } from "@/modules/cms/services/cmsFetch";
 
-import ScrollToTopButton from "@/modules/hotel/ScrollToTopButton";
-
-import GiftCardSlider from "@/modules/shared/home/components/hero_section/GiftCardSlider";
 import Hero from "@/modules/shared/home/components/hero_section/Hero";
 import TrustSection from "@/modules/shared/home/components/hero_section/TrustSection";
 
 import { fetchHomeContent } from "@/modules/shared/home/services/homeContentFetch";
+import GiftCardSliderServer from "@/modules/shared/home/components/hero_section/GiftCardSliderServer";
+import GiftCardSliderFallback from "@/modules/shared/home/components/hero_section/GiftCardSliderFallback";
+import { getRobotsMetadata, getSiteUrl } from "@/modules/cms/utils/seoUrl";
+import {
+  HERO_DESKTOP_MEDIA,
+  HERO_QUALITY,
+  getHeroBannerSrc,
+  isPreOptimizedImage,
+} from "@/modules/shared/home/utils/heroBanner";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-const OG_IMAGE = `${SITE_URL}/images/OGIMAGE1.png`;
+const SITE_URL = getSiteUrl();
+const OG_IMAGE = `${SITE_URL}/images/OGIMAGE1.webp`;
 
 export async function generateMetadata() {
   const homeCms = await fetchCmsBySlug("home");
   const title =
     homeCms?.metaTitle ||
-    "PAN Journey – Book Hotels, Flights & Travel Deals Online";
+    "Destinoway – Book Hotels, Flights & Travel Deals Online";
   const description =
     homeCms?.metaDescription ||
-    "Book hotels, flights and travel packages with PAN Journey.";
+    "Book hotels, flights and travel packages with Destinoway.";
   const keywords = Array.isArray(homeCms?.keywords)
     ? homeCms.keywords.join(", ")
     : homeCms?.keywords || undefined;
@@ -41,25 +50,13 @@ export async function generateMetadata() {
       canonical: SITE_URL,
     },
 
-    robots: {
-      index: false,
-      follow: false,
-      nocache: true,
-
-      googleBot: {
-        index: false,
-        follow: false,
-        noimageindex: true,
-        "max-image-preview": "none",
-        "max-snippet": -1,
-      },
-    },
+    robots: getRobotsMetadata(),
 
     openGraph: {
       title,
       description,
       url: SITE_URL,
-      siteName: "PAN Journey",
+      siteName: "Destinoway",
       type: "website",
       locale: "en_IN",
 
@@ -68,7 +65,7 @@ export async function generateMetadata() {
           url: OG_IMAGE,
           width: 1200,
           height: 630,
-          alt: "PAN Journey - Travel & Booking",
+          alt: "Destinoway - Travel & Booking",
         },
       ],
     },
@@ -83,6 +80,16 @@ export async function generateMetadata() {
 }
 
 export default async function Page() {
+  preload("/images/heromobile.avif", {
+    as: "image",
+    imageSrcSet:
+      "/images/heromobile.avif 390w, /images/heromobile-2x.avif 780w",
+    imageSizes: "100vw",
+    media: "(max-width: 777px)",
+    fetchPriority: "high",
+    type: "image/avif",
+  });
+
   const [homeCms, homeContent] = await Promise.all([
     fetchCmsBySlug("home"),
     fetchHomeContent(),
@@ -90,6 +97,32 @@ export default async function Page() {
 
   const { banner, placesAsPerYourVibe, topRatedHotels, popularDestinations } =
     homeContent ?? {};
+
+  // Desktop hero is the LCP image: start downloading it with the HTML instead
+  // of waiting for the browser to reach the <img> deep in the document.
+  const heroSrc = getHeroBannerSrc(banner);
+  if (isPreOptimizedImage(heroSrc)) {
+    preload(heroSrc, {
+      as: "image",
+      media: HERO_DESKTOP_MEDIA,
+      fetchPriority: "high",
+    });
+  } else {
+    const { props: heroImage } = getImageProps({
+      src: heroSrc,
+      alt: "",
+      fill: true,
+      sizes: "100vw",
+      quality: HERO_QUALITY,
+    });
+    preload(heroImage.src, {
+      as: "image",
+      imageSrcSet: heroImage.srcSet,
+      imageSizes: "100vw",
+      media: HERO_DESKTOP_MEDIA,
+      fetchPriority: "high",
+    });
+  }
   const faqBlock = homeCms?.data?.blocks?.find((block) => block.type === "faq");
   const faqItems = faqBlock?.data?.items ?? [];
 
@@ -115,7 +148,7 @@ export default async function Page() {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "PAN Journey",
+    name: "Destinoway",
     url: SITE_URL,
     potentialAction: {
       "@type": "SearchAction",
@@ -127,7 +160,7 @@ export default async function Page() {
   const orgSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "PAN Journey",
+    name: "Destinoway",
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
   };
@@ -157,10 +190,11 @@ export default async function Page() {
         />
       )}
 
-      <ScrollToTopButton />
       <Hero banner={banner} />
       <TrustSection />
-      <GiftCardSlider />
+      <Suspense fallback={<GiftCardSliderFallback />}>
+        <GiftCardSliderServer />
+      </Suspense>
       <VacationSection vibes={placesAsPerYourVibe} />
       <Herobanner />
       <WhySection />

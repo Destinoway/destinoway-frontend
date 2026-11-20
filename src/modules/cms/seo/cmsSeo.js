@@ -1,9 +1,17 @@
+import { resolveSavedCanonical } from "../utils/canonical";
+import { getRobotsMetadata, getSiteUrl } from "../utils/seoUrl";
+import {
+  buildPageTitle,
+  joinSiteUrl,
+  titleToText,
+} from "../utils/seoUrl";
+
 export const buildCmsMetadata = (cms) => {
   if (!cms) {
     return {};
   }
 
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = getSiteUrl();
 
   const slug = cms?.slug || "";
 
@@ -14,36 +22,52 @@ CANONICAL
 
   switch (cms?.entityType) {
     case "hotelCity":
-      canonical = `${siteUrl}/hotels/${slug}`;
+      canonical = joinSiteUrl(siteUrl, "hotels", slug);
       break;
 
-    case "hotel":
-      canonical = `${siteUrl}/hotel-details/${slug}`;
+    case "hotel": {
+      const citySlug = String(cms?.data?.cityMeta?.destination || "")
+        .split(",")[0]
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-");
+
+      canonical = citySlug
+        ? joinSiteUrl(siteUrl, "hotel-details", citySlug, slug)
+        : joinSiteUrl(siteUrl, "hotel-details", slug);
       break;
+    }
 
     case "city":
-      canonical = `${siteUrl}/hotels/${slug}`;
+      canonical = joinSiteUrl(siteUrl, "hotels", slug);
       break;
 
     case "marketing":
-      canonical = `${siteUrl}/${slug}`;
+      canonical = joinSiteUrl(siteUrl, slug);
       break;
 
     case "static":
-      canonical = `${siteUrl}/${slug}`;
+      canonical = joinSiteUrl(siteUrl, slug);
       break;
 
     default:
-      canonical = `${siteUrl}/${slug}`;
+      canonical = joinSiteUrl(siteUrl, slug);
   }
+  const savedCanonical = resolveSavedCanonical(cms?.canonicalUrl, siteUrl);
+  if (savedCanonical && new URL(savedCanonical).origin === new URL(siteUrl).origin) {
+    canonical = savedCanonical;
+  }
+
   /*
   BASIC
   */
-  const title = cms?.metaTitle || cms?.title || "PAN Journey";
+  const title = buildPageTitle(cms?.metaTitle || cms?.title);
+  const titleText = titleToText(title);
 
   const description =
     cms?.metaDescription ||
-    "Find hotels, destinations and travel experiences on PAN Journey.";
+    "Find hotels, destinations and travel experiences on Destinoway.";
 
   const keywords = Array.isArray(cms?.keywords) ? cms.keywords : [];
 
@@ -53,18 +77,7 @@ CANONICAL
     cms?.data?.coverImage ||
     "/images/default-og.jpg";
 
-  const robots = {
-    index: false,
-    follow: false,
-    nocache: true,
-    googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
-      "max-image-preview": "none",
-      "max-snippet": -1,
-    },
-  };
+  const robots = getRobotsMetadata();
 
   return {
     /*
@@ -83,7 +96,8 @@ CANONICAL
     CANONICAL
     */
     alternates: {
-      canonical: new URL(canonical),
+      // Must stay a string: Next treats a URL instance as a base and swaps in the page pathname.
+      canonical,
     },
 
     /*
@@ -96,13 +110,13 @@ CANONICAL
     */
     authors: [
       {
-        name: "PAN Journey",
+        name: "Destinoway",
       },
     ],
 
-    creator: "PAN Journey",
+    creator: "Destinoway",
 
-    publisher: "PAN Journey",
+    publisher: "Destinoway",
 
     category: "travel",
 
@@ -110,10 +124,10 @@ CANONICAL
     OPEN GRAPH
     */
     openGraph: {
-      title,
+      title: titleText,
       description,
       url: canonical,
-      siteName: "PAN Journey",
+      siteName: "Destinoway",
       type: "website",
       locale: "en_IN",
 
@@ -123,7 +137,7 @@ CANONICAL
               url: image,
               width: 1200,
               height: 630,
-              alt: title,
+              alt: titleText,
             },
           ]
         : [],
@@ -134,7 +148,7 @@ CANONICAL
     */
     twitter: {
       card: "summary_large_image",
-      title,
+      title: titleText,
       description,
       images: image ? [image] : [],
     },

@@ -111,7 +111,7 @@ export default function HotelMap({ hotels = [] }) {
                 <img
                   src={hotel.image}
                   alt={hotel.name}
-                  className="w-[120px] flex-shrink-0 object-cover"
+                  className="w-30 shrink-0 object-cover"
                 />
 
                 {/* DETAILS */}

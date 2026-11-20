@@ -33,13 +33,23 @@ export const buildWishlistPayload = ({
   const countryName = supplierData?.Country || "";
   const address = hotel?.address || supplierData?.Address || "";
   const starRating = Number(hotel?.rating || supplierData?.StarRating || 0);
-  const facilities =
+  const rawFacilities =
     hotel?.facilities ||
     (supplierData?.Amenities
       ? supplierData.Amenities.split(",")
           .map((item) => item.trim())
           .filter(Boolean)
       : []);
+  const facilities = Array.isArray(rawFacilities)
+    ? rawFacilities
+        .map((facility) =>
+          typeof facility === "string"
+            ? facility
+            : facility?.name || facility?.title || facility?.description || "",
+        )
+        .map((facility) => facility.trim())
+        .filter(Boolean)
+    : [];
 
   const savedPrice = pricing?.basePrice ?? hotel?.price ?? 0;
   const savedTax = pricing?.platformFeeAndTax ?? hotel?.tax ?? 0;

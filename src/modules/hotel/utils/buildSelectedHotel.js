@@ -1,16 +1,19 @@
 import { slugify } from "@/utils/slug/slugify";
 
 export const buildSelectedHotel = ({ hotel = {}, searchData = {} }) => {
-  const hotelId =
-    hotel?.id || hotel?.hotelId || hotel?.HotelId || "";
+  const hotelId = hotel?.id || hotel?.hotelId || hotel?.HotelId || "";
 
   const hotelDetailId = hotel?.hotelDetailId || "";
-
-  const hotelName =
-    hotel?.name ||
-    hotel?.hotelName ||
-    hotel?.HotelName ||
+  const searchId = hotel?.searchId || "";
+  const supplierHotelId =
+    hotel?.supplierHotelId ||
+    hotel?.supplierHotelID ||
+    hotel?.id ||
+    hotel?.hotelId ||
+    hotel?.HotelId ||
     "";
+
+  const hotelName = hotel?.name || hotel?.hotelName || hotel?.HotelName || "";
 
   const cityData = searchData?.cityData || {};
 
@@ -24,38 +27,29 @@ export const buildSelectedHotel = ({ hotel = {}, searchData = {} }) => {
     "";
 
   const stateName =
-    cityData?.state ||
-    cityData?.stateName ||
-    hotelLocation?.state ||
-    "";
+    cityData?.state || cityData?.stateName || hotelLocation?.state || "";
 
-  const country =
-    cityData?.country ||
-    hotelLocation?.country ||
-    "";
+  const country = cityData?.country || hotelLocation?.country || "";
 
   const countryCode = cityData?.countryCode || "";
 
   return {
-    hotelKey:
-      hotel?.hotelKey ||
-      hotel?.HotelKey ||
-      hotel?.hotelkey ||
-      "",
+    searchId,
+    supplierHotelId,
+    hotelDetailId,
+    hotelKey: hotel?.hotelKey || hotel?.HotelKey || hotel?.hotelkey || "",
 
-    searchKey:
-      hotel?.searchKey ||
-      hotel?.SearchKey ||
-      "",
+    searchKey: hotel?.searchKey || hotel?.SearchKey || "",
 
     hotelMeta: {
       hotelId,
+      hotelName,
 
       hotelDetailId,
+      searchId,
+      supplierHotelId,
 
-      hotelSlug:
-        hotel?.hotelSlug ||
-        slugify(hotelName),
+      hotelSlug: hotel?.hotelSlug || slugify(hotelName),
 
       cityId: cityData?.id || "",
 
@@ -67,11 +61,21 @@ export const buildSelectedHotel = ({ hotel = {}, searchData = {} }) => {
 
       countryCode,
 
-      destinationType:
-        cityData?.type || "city",
+      destinationType: cityData?.type || "city",
 
-      displayName:
-        cityData?.displayName || cityName,
+      displayName: cityData?.displayName || cityName,
+      address: hotel?.address || "",
+      city: hotel?.city || hotelLocation?.city || cityName,
+      state: hotel?.state || hotelLocation?.state || stateName,
+      country: hotel?.country || hotelLocation?.country || country,
+
+      image:
+        hotel?.image ||
+        hotel?.hotelImage ||
+        hotel?.images?.[0]?.url ||
+        hotel?.images?.[0] ||
+        "",
+      images: Array.isArray(hotel?.images) ? hotel.images : [],
     },
   };
 };

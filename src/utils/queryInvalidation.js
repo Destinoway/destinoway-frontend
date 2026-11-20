@@ -4,8 +4,14 @@ export const invalidateCurrencyQueries = async (queryClient) => {
       queryKey: ["hotels"],
     }),
 
+    // Hotel details page room prices
     queryClient.invalidateQueries({
-      queryKey: ["hotel-details"],
+      queryKey: ["hotel-rooms"],
+    }),
+
+    // Hotel booking page price & coupons
+    queryClient.invalidateQueries({
+      queryKey: ["hotel-itinerary-pricing"],
     }),
 
     // Future
