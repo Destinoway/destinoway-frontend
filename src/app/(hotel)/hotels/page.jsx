@@ -41,7 +41,8 @@ export async function generateMetadata({ searchParams }) {
     return metadata;
   }
 
-  const canonical = citySlug
+  // cityName defaults to "Hotels" when no city is searched; don't turn that into /hotels/hotels.
+  const canonical = rawCity.trim() && citySlug
     ? `${siteUrl}/hotels/${citySlug}`
     : `${siteUrl}/hotels`;
 

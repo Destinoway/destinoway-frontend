@@ -15,23 +15,18 @@ export default function TestimonialsSection() {
   return (
     <section className="background-color-bg px-0! pt-10 pb-8 sm:px-0! md:px-2! md:pt-12 md:pb-10 lg:px-3! lg:pt-16 lg:pb-12 xl:px-4! 2xl:px-26!">
       <div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-3 lg:grid-cols-2">
-          <div>
-            <p className="text-[21px] font-semibold text-[#1F7AA3]">
-              Our Testimonial
-            </p>
+        <div className="text-center">
+          <p className="text-[21px] font-semibold text-[#1F7AA3]">
+            Our Testimonial
+          </p>
 
-            <h2 className="mt-1 max-w-137.5 text-[24px] leading-[1.15] font-bold md:text-[30px] lg:text-[36px]">
-              Real Feedback from Our Happy Travelers Worldwide
-            </h2>
-          </div>
+          <h2 className="mt-1 mx-auto text-[24px] leading-[1.15] font-bold md:text-[30px] lg:text-[36px]">
+            Real Feedback from Our Happy Travelers Worldwide
+          </h2>
 
-          <div className="lg:pl-8">
-            <p className="max-w-125 text-[19px] leading-6 text-gray-600">
-              Contrary to popular belief, Lorem Ipsum is not simply random text.
-              It has roots in a piece of classical Latin literature from 45 BC.
-            </p>
-          </div>
+          <p className="mx-auto mt-3 max-w-2xl text-[16px] leading-6 text-gray-600">
+            Discover what our guests say about their unforgettable travel experiences with us.
+          </p>
         </div>
 
         {/* Slider */}

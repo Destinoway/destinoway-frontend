@@ -1,4 +1,5 @@
 import { resolveSavedCanonical } from "../utils/canonical";
+import { isCmsPageIndexable } from "../utils/cmsIndexing";
 import { getRobotsMetadata, getSiteUrl } from "../utils/seoUrl";
 import {
   buildPageTitle,
@@ -77,7 +78,8 @@ CANONICAL
     cms?.data?.coverImage ||
     "/images/default-og.jpg";
 
-  const robots = getRobotsMetadata();
+  // Same rule as sitemap.js: empty or noindex-flagged CMS pages are never indexed.
+  const robots = getRobotsMetadata({ noindex: !isCmsPageIndexable(cms) });
 
   return {
     /*

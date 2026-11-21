@@ -14,7 +14,8 @@ export async function generateMetadata({ params }) {
   const blog = await fetchBlogBySlug(slug);
 
   if (!blog) {
-    return {};
+    // Missing post renders not-found: don't inherit the root "index, follow".
+    return { title: "Page Not Found", robots: getRobotsMetadata({ noindex: true }) };
   }
 
   const siteUrl = getSiteUrl();
