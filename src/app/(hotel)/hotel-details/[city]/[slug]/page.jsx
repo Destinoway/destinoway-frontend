@@ -4,7 +4,7 @@ import {
   buildHotelTitle,
 } from "@/modules/cms/seo/hotelSeo";
 import { fetchHotelCms } from "@/modules/cms/services/cmsFetch";
-import { getSiteUrl } from "@/modules/cms/utils/seoUrl";
+import { buildPageTitle, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 import HotelDetails from "@/modules/hotel/pages/hotelDetails";
 
 export async function generateMetadata({ params, searchParams }) {
@@ -45,7 +45,8 @@ export async function generateMetadata({ params, searchParams }) {
     city?.replace(/-/g, " ")?.replace(/\b\w/g, (l) => l.toUpperCase()) || "";
   return {
     metadataBase: new URL(siteUrl),
-    title: buildHotelTitle(hotelSlug, cityName),
+    // Title already ends with "| Destinoway"; bypass the root template.
+    title: buildPageTitle(buildHotelTitle(hotelSlug, cityName)),
     description: buildHotelDescription(hotelSlug, city),
     alternates: {
       canonical,

@@ -137,17 +137,17 @@ export default function VacationType({ activeTab, vibes = [] }) {
                     />
                   </div>
 
-                  <div className="-mt-2.5 bg-white px-4 py-5 text-center">
+                  <div className="-mt-2.5 bg-white px-4 py-6 text-center">
                     <h2 className="text-[22px] font-semibold text-gray-900">
                       {item.name}
                     </h2>
 
-                    <p className="-mt-1.75 text-[14px] text-gray-700">
+                    <p className="mt-1 text-[14px] text-gray-700">
                       {item.city}
                     </p>
                     <button
                       onClick={() => handleSearch(item)}
-                      className="most-text-color hover:text-most-text-color! flex w-full items-center justify-center gap-1 text-[18px]! font-medium transition-colors duration-200"
+                      className="buttion-background-color mt-4 h-9 w-full rounded-lg text-[16px] font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:opacity-90 active:scale-[0.98]"
                     >
                       View Details →
                     </button>

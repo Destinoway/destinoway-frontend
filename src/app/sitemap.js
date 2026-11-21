@@ -1,5 +1,6 @@
 import { fetchAllPublicBlogs } from "@/modules/blog/api/blog.server";
 import { getAllCmsPages } from "@/modules/cms/services/cms.service";
+import { isCmsPageIndexable } from "@/modules/cms/utils/cmsIndexing";
 import { getSiteUrl, isIndexableSite } from "@/modules/cms/utils/seoUrl";
 
 export const revalidate = 3600;
@@ -64,13 +65,8 @@ export default async function sitemap() {
   );
 
   for (const page of cmsPages) {
-    if (
-      page?.noindex === true ||
-      page?.isIndexable === false ||
-      page?.robots?.index === false ||
-      page?.isPublished === false ||
-      page?.status === "draft"
-    ) {
+    // Drafts, unpublished, noindex-flagged and empty (no renderable content) pages.
+    if (!isCmsPageIndexable(page)) {
       continue;
     }
     const path = getCmsSitemapPath(page);

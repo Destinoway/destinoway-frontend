@@ -70,61 +70,101 @@ const withEnvironment = (values, callback) => {
   }
 };
 
-test("SEO environment: only aligned production origins are indexable", () => {
+test("SEO environment: APP_ENV=production is indexable with production origin", () => {
   withEnvironment(
     {
       NODE_ENV: "production",
-      DEPLOYMENT_ENV: "production",
-      NEXT_PUBLIC_SITE_URL: "https://destinoway.com",
+      APP_ENV: "production",
+      NEXT_PUBLIC_SITE_URL: "https://www.destinoway.com",
       NEXTAUTH_URL: "https://destinoway.com",
     },
     () => {
       assert.equal(isIndexableSite(), true);
-      assert.equal(getRobotsMetadata().index, true);
+      const robots = getRobotsMetadata();
+      assert.equal(robots.index, true);
+      assert.equal(robots.follow, true);
+      assert.equal(robots.googleBot.index, true);
+      assert.equal(robots.googleBot.follow, true);
       assert.equal(getSiteUrl(), "https://destinoway.com");
     },
   );
 });
 
-test("SEO environment: staging and mismatched origins fail closed", () => {
+test("SEO environment: page-level noindex still wins in production", () => {
   withEnvironment(
-    {
-      NODE_ENV: "production",
-      DEPLOYMENT_ENV: "staging",
-      NEXT_PUBLIC_SITE_URL: "https://dev.destinoway.com",
-      NEXTAUTH_URL: "https://dev.destinoway.com",
-    },
+    { NODE_ENV: "production", APP_ENV: "production", NEXTAUTH_URL: "https://destinoway.com" },
     () => {
-      assert.equal(isIndexableSite(), false);
-      assert.equal(getRobotsMetadata().index, false);
-      assert.equal(getSiteUrl(), "https://dev.destinoway.com");
+      const robots = getRobotsMetadata({ noindex: true });
+      assert.equal(robots.index, false);
+      assert.equal(robots.googleBot.index, false);
     },
   );
+});
 
+test("SEO environment: development and UAT are noindex, nofollow", () => {
+  for (const [appEnv, origin] of [
+    ["development", "https://dev.destinoway.com"],
+    ["uat", "https://uat.destinoway.com"],
+  ]) {
+    withEnvironment(
+      {
+        NODE_ENV: "production",
+        APP_ENV: appEnv,
+        NEXT_PUBLIC_SITE_URL: origin,
+        NEXTAUTH_URL: origin,
+      },
+      () => {
+        assert.equal(isIndexableSite(), false);
+        const robots = getRobotsMetadata();
+        assert.equal(robots.index, false);
+        assert.equal(robots.follow, false);
+        assert.equal(robots.googleBot.index, false);
+        assert.equal(robots.googleBot.follow, false);
+        assert.equal(getSiteUrl(), origin);
+      },
+    );
+  }
+});
+
+test("SEO environment: misconfiguration fails closed", () => {
+  // Missing / unknown APP_ENV
+  for (const appEnv of ["", "prod", "staging"]) {
+    withEnvironment(
+      { NODE_ENV: "production", APP_ENV: appEnv, NEXTAUTH_URL: "https://destinoway.com" },
+      () => assert.equal(isIndexableSite(), false),
+    );
+  }
+
+  // APP_ENV=production copied onto a UAT branch
   withEnvironment(
     {
       NODE_ENV: "production",
-      DEPLOYMENT_ENV: "production",
-      NEXT_PUBLIC_SITE_URL: "https://destinoway.com",
-      NEXTAUTH_URL: "https://dev.destinoway.com",
+      APP_ENV: "production",
+      NEXT_PUBLIC_SITE_URL: "https://uat.destinoway.com",
+      NEXTAUTH_URL: "https://uat.destinoway.com",
     },
     () => {
       assert.equal(isIndexableSite(), false);
+      // Canonicals still never point at UAT when APP_ENV=production
       assert.equal(getSiteUrl(), "https://destinoway.com");
     },
   );
 
+  // Non-production env must not resolve to the production origin
   withEnvironment(
     {
       NODE_ENV: "production",
-      DEPLOYMENT_ENV: "staging",
-      NEXT_PUBLIC_SITE_URL: "https://dev.destinoway.com",
-      NEXTAUTH_URL: "https://destinoway.com",
+      APP_ENV: "uat",
+      NEXT_PUBLIC_SITE_URL: "https://destinoway.com",
+      NEXTAUTH_URL: "https://uat.destinoway.com",
     },
-    () => {
-      assert.equal(isIndexableSite(), false);
-      assert.equal(getSiteUrl(), "https://dev.destinoway.com");
-    },
+    () => assert.equal(getSiteUrl(), "https://uat.destinoway.com"),
+  );
+
+  // next dev is never indexable
+  withEnvironment(
+    { NODE_ENV: "development", APP_ENV: "production", NEXTAUTH_URL: "https://destinoway.com" },
+    () => assert.equal(isIndexableSite(), false),
   );
 });
 
@@ -157,4 +197,42 @@ test("canonical: saved value wins even when it looks truncated", () => {
 test("canonical must be a string: Next replaces the path of URL instances", () => {
   const saved = resolveSavedCanonical("https://x.amplifyapp.com/my-", SITE);
   assert.equal(typeof saved, "string");
+});
+
+import { hasCmsContent, isCmsPageIndexable } from "./cmsIndexing.js";
+
+test("cms indexing: empty standalone pages are excluded", () => {
+  // Shape of the test entries in the CMS (e.g. /df, /dasdss): no blocks, no content.
+  const empty = { slug: "df", entityType: "blog", isPublished: true, data: { cityMeta: {} } };
+  assert.equal(hasCmsContent(empty), false);
+  assert.equal(isCmsPageIndexable(empty), false);
+  assert.equal(isCmsPageIndexable({ ...empty, entityType: "static", data: { blocks: [] } }), false);
+  assert.equal(isCmsPageIndexable({ ...empty, data: { content: "<p>&nbsp;</p>" } }), false);
+});
+
+test("cms indexing: published pages with content stay indexable", () => {
+  const page = {
+    slug: "privacy-policy",
+    entityType: "static",
+    isPublished: true,
+    data: { blocks: [{ type: "content", data: { content: "<p>Policy</p>" } }] },
+  };
+  assert.equal(isCmsPageIndexable(page), true);
+  assert.equal(isCmsPageIndexable({ slug: "x", entityType: "static", data: { content: "<p>Legacy</p>" } }), true);
+});
+
+test("cms indexing: listing pages never count as empty", () => {
+  for (const entityType of ["hotel", "hotelCity", "city"]) {
+    assert.equal(isCmsPageIndexable({ slug: "goa", entityType, isPublished: true, data: {} }), true);
+  }
+});
+
+test("cms indexing: draft, unpublished and noindex flags are excluded", () => {
+  const base = { slug: "p", entityType: "static", data: { blocks: [{ type: "content" }] } };
+  assert.equal(isCmsPageIndexable({ ...base, isPublished: false }), false);
+  assert.equal(isCmsPageIndexable({ ...base, status: "draft" }), false);
+  assert.equal(isCmsPageIndexable({ ...base, noindex: true }), false);
+  assert.equal(isCmsPageIndexable({ ...base, isIndexable: false }), false);
+  assert.equal(isCmsPageIndexable({ ...base, robots: { index: false } }), false);
+  assert.equal(isCmsPageIndexable(null), false);
 });
