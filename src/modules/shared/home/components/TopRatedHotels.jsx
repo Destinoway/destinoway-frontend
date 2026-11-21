@@ -34,10 +34,8 @@ export default function TopRatedHotels({ hotels }) {
         setPerRow(2);
       } else if (width < 1024) {
         setPerRow(3);
-      } else if (width < 1440) {
-        setPerRow(4);
       } else {
-        setPerRow(5);
+        setPerRow(4);
       }
     };
 
@@ -122,7 +120,7 @@ export default function TopRatedHotels({ hotels }) {
     <div
       onClick={() => handleSearch(hotel)}
       key={hotel._id}
-      className="flex w-1/2 shrink-0 px-1 md:w-1/3 lg:w-1/4 xl:w-1/5"
+      className="flex w-1/2 shrink-0 px-1 md:w-1/3 lg:w-1/4"
     >
       <Card
         hoverable
@@ -177,7 +175,7 @@ export default function TopRatedHotels({ hotels }) {
 
         {/* TOP ROW */}
         <div
-          className="relative cursor-grab overflow-hidden active:cursor-grabbing"
+          className="relative cursor-grab overflow-hidden active:cursor-grabbing pl-0 md:pl-2 lg:pl-0"
           onMouseDown={(e) => {
             setIsDraggingTop(true);
             topStartX.current = e.clientX;
