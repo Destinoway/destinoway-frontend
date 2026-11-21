@@ -1,70 +1,59 @@
 const FALLBACK_SITE_URL = "http://localhost:3000";
 
+// Single source of truth for production canonicals, robots.txt and sitemap URLs.
+export const PRODUCTION_SITE_URL = "https://destinoway.com";
+
+const APP_ENVS = ["development", "uat", "production"];
+
 const isProductionHostname = (hostname) =>
   hostname === "destinoway.com" || hostname === "www.destinoway.com";
 
+const hostnameOf = (value) => {
+  try {
+    return new URL(String(value).trim()).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+};
+
+// APP_ENV is a server-only variable (no NEXT_PUBLIC_ prefix). On Amplify it is
+// written to .env.production in amplify.yml so it exists at build and runtime.
+// Unknown or missing values fail closed to "development" (noindex).
+export const getAppEnv = () => {
+  const value = String(process.env.APP_ENV || "").trim().toLowerCase();
+  return APP_ENVS.includes(value) ? value : "development";
+};
+
+export const isProductionEnv = () => getAppEnv() === "production";
+
 export const getSiteUrl = () => {
-  const publicUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  const authUrl = process.env.NEXTAUTH_URL;
-  const normalizedPublicUrl = normalizeSiteUrl(publicUrl);
-  const normalizedAuthUrl = normalizeSiteUrl(authUrl);
+  if (isProductionEnv()) return PRODUCTION_SITE_URL;
 
-  if (publicUrl && authUrl && normalizedPublicUrl === normalizedAuthUrl) {
-    return normalizedPublicUrl;
-  }
-
-  if (process.env.DEPLOYMENT_ENV === "staging") {
-    const stagingUrl = publicUrl || authUrl;
-    try {
-      if (stagingUrl && !isProductionHostname(new URL(stagingUrl).hostname.toLowerCase())) {
-        return normalizeSiteUrl(stagingUrl);
-      }
-      if (authUrl && !isProductionHostname(new URL(authUrl).hostname.toLowerCase())) {
-        return normalizeSiteUrl(authUrl);
-      }
-    } catch {
-      return FALLBACK_SITE_URL;
+  // Non-production environments must never resolve to the production origin.
+  for (const candidate of [process.env.NEXT_PUBLIC_SITE_URL, process.env.NEXTAUTH_URL]) {
+    const hostname = candidate ? hostnameOf(candidate) : null;
+    if (hostname && !isProductionHostname(hostname)) {
+      return normalizeSiteUrl(candidate);
     }
-    return FALLBACK_SITE_URL;
   }
 
-  if (process.env.DEPLOYMENT_ENV === "production") {
-    for (const candidate of [publicUrl, authUrl]) {
-      try {
-        if (candidate && isProductionHostname(new URL(candidate).hostname.toLowerCase())) {
-          return normalizeSiteUrl(candidate);
-        }
-      } catch {
-        // Try the other configured URL; indexability still requires both to match.
-      }
-    }
-    return FALLBACK_SITE_URL;
-  }
-
-  return normalizeSiteUrl(authUrl || publicUrl);
+  return FALLBACK_SITE_URL;
 };
 
 export const isIndexableSite = () => {
-  if (
-    process.env.NODE_ENV !== "production" ||
-    process.env.DEPLOYMENT_ENV !== "production" ||
-    !process.env.NEXT_PUBLIC_SITE_URL ||
-    !process.env.NEXTAUTH_URL
-  ) {
+  if (process.env.NODE_ENV !== "production" || !isProductionEnv()) {
     return false;
   }
 
-  try {
-    const siteUrl = new URL(normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL));
-    const authUrl = new URL(normalizeSiteUrl(process.env.NEXTAUTH_URL));
-    const hostname = siteUrl.hostname.toLowerCase();
-    const sameOrigin = siteUrl.origin === authUrl.origin;
-    const isProductionHost = isProductionHostname(hostname);
-
-    return sameOrigin && isProductionHost;
-  } catch {
-    return false;
+  // Guard against APP_ENV=production being copied onto a dev/UAT branch:
+  // if the auth URL points at a non-production host, stay noindex.
+  const authUrl = process.env.NEXTAUTH_URL;
+  if (authUrl) {
+    const hostname = hostnameOf(authUrl);
+    if (!hostname || !isProductionHostname(hostname)) return false;
   }
+
+  return true;
 };
 
 export const getRobotsMetadata = ({ noindex = false } = {}) => {
