@@ -10,7 +10,7 @@ import { getThemeCSSVariables } from "@/modules/theme/theme.variables";
 
 import "@/styles/cms-content.css";
 
-import { App as AntdApp } from "antd";
+import AntdApp from "./AntdAppProvider";
 
 import { Jost, Roboto } from "next/font/google";
 import Script from "next/script";
