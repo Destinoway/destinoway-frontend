@@ -89,6 +89,7 @@ const FILTER_THEME_CLASSES = [
   "[&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:border-(--theme-secondary)!",
   // Each option is a full-width row with hover/selected states
   "[&_.ant-checkbox-wrapper]:m-0! [&_.ant-checkbox-wrapper]:w-full [&_.ant-checkbox-wrapper]:rounded-lg [&_.ant-checkbox-wrapper]:px-2 [&_.ant-checkbox-wrapper]:py-1.75 [&_.ant-checkbox-wrapper]:text-gray-700 [&_.ant-checkbox-wrapper]:transition-colors",
+  "[&_.ant-checkbox-wrapper]:flex! [&_.ant-checkbox-wrapper]:items-center [&_.ant-checkbox-wrapper]:gap-2.5",
   "[&_.ant-checkbox-wrapper:hover]:bg-slate-50",
   "[&_.ant-checkbox-wrapper-checked]:bg-(--theme-secondary)/5 [&_.ant-checkbox-wrapper-checked]:font-semibold [&_.ant-checkbox-wrapper-checked]:text-(--theme-secondary)",
   // Inputs
