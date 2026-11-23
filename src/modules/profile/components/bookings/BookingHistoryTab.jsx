@@ -5,15 +5,18 @@ import {
   CalendarOutlined,
   CheckCircleFilled,
   ClockCircleOutlined,
+  DownloadOutlined,
   EnvironmentOutlined,
   HomeOutlined,
+  LoadingOutlined,
   SearchOutlined,
   StarFilled,
 } from "@ant-design/icons";
-import { Input, Skeleton } from "antd";
+import { App, Input, Skeleton } from "antd";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { useDownloadInvoice } from "../../hooks/useDownloadInvoice";
 import { useMyBookings } from "../../hooks/useMyBookings";
 import {
   getBookingStatusMeta,
@@ -38,6 +41,35 @@ export default function BookingHistoryTab() {
 
   const { data, isLoading, isError, refetch } = useMyBookings();
 
+  const { message } = App.useApp();
+  const { mutate: downloadInvoice, isPending, variables } =
+    useDownloadInvoice();
+  // Only the card whose invoice is downloading shows the loading state.
+  const downloadingRef = isPending ? variables : null;
+
+  const handleDownloadInvoice = (bookingRefNo) => {
+    if (isPending) return;
+
+    downloadInvoice(bookingRefNo, {
+      onSuccess: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = `invoice-${bookingRefNo}.pdf`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.URL.revokeObjectURL(url);
+      },
+      onError: () => {
+        message.error("Unable to download invoice");
+      },
+    });
+  };
+
   const bookings = useMemo(() => {
     const list = Array.isArray(data) ? data : [];
 
@@ -48,6 +80,7 @@ export default function BookingHistoryTab() {
         checkIn.isValid() && checkOut.isValid()
           ? Math.max(checkOut.diff(checkIn, "day"), 1)
           : 0;
+      const status = getBookingStatusMeta(item.status);
 
       return {
         key: `${item.bookingRefNo}-${index}`,
@@ -61,7 +94,13 @@ export default function BookingHistoryTab() {
         checkInDay: checkIn.isValid() ? checkIn.format("ddd") : "",
         checkOutDay: checkOut.isValid() ? checkOut.format("ddd") : "",
         nights,
-        status: getBookingStatusMeta(item.status),
+        status,
+        // Same rule as the booking details page (paid), plus confirmed
+        // bookings in case the list API omits paymentStatus.
+        canDownloadInvoice:
+          Boolean(item.bookingRefNo) &&
+          (String(item.paymentStatus ?? "").toLowerCase() === "paid" ||
+            status.group === "confirmed"),
       };
     });
   }, [data]);
@@ -228,18 +267,38 @@ export default function BookingHistoryTab() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() =>
-                  router.push(
-                    `/profile?tab=booking-details&bookingRefNo=${encodeURIComponent(item.bookingRefNo)}`,
-                  )
-                }
-                className="buttion-background-color flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg px-5 text-[14px]! font-semibold text-white! transition-all md:w-37.5"
-              >
-                View Booking
-                <ArrowRightOutlined />
-              </button>
+              <div className="flex shrink-0 flex-col gap-2 sm:flex-row md:flex-col">
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(
+                      `/profile?tab=booking-details&bookingRefNo=${encodeURIComponent(item.bookingRefNo)}`,
+                    )
+                  }
+                  className="buttion-background-color flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 text-[14px]! leading-none font-semibold whitespace-nowrap text-white! transition-all sm:flex-1 md:w-44 md:flex-none"
+                >
+                  View Booking
+                  <ArrowRightOutlined />
+                </button>
+
+                {item.canDownloadInvoice && (
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadInvoice(item.bookingRefNo)}
+                    disabled={downloadingRef === item.bookingRefNo}
+                    className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#05144b] bg-white px-4 text-[14px]! leading-none font-semibold whitespace-nowrap text-[#05144b] transition-all hover:bg-[#05144b] hover:text-white! disabled:cursor-wait disabled:opacity-60 sm:flex-1 md:w-44 md:flex-none"
+                  >
+                    {downloadingRef === item.bookingRefNo ? (
+                      <LoadingOutlined />
+                    ) : (
+                      <DownloadOutlined />
+                    )}
+                    {downloadingRef === item.bookingRefNo
+                      ? "Downloading..."
+                      : "Download Invoice"}
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="mx-5 mb-5 grid grid-cols-1 gap-3 rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] p-4 sm:grid-cols-2 lg:grid-cols-4">

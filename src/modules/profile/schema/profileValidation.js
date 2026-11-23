@@ -1,8 +1,6 @@
 import dayjs from "dayjs";
 import { z } from "zod";
 
-import { countryStateCityData } from "@/modules/shared/home/components/data/profileData";
-
 export const profileSchema = z
   .object({
     firstName: z
@@ -65,24 +63,6 @@ export const profileSchema = z
 
     anniversary: z.any().nullable().optional(),
   })
-
-  .refine(
-    (data) => {
-      if (!data.nationality || !data.state || !data.city) {
-        return true;
-      }
-
-      return (
-        countryStateCityData[data.nationality]?.[data.state]?.includes(
-          data.city,
-        ) || false
-      );
-    },
-    {
-      message: "Selected city does not belong to selected state",
-      path: ["city"],
-    },
-  )
 
   .refine(
     (data) => {
