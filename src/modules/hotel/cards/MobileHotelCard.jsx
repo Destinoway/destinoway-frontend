@@ -137,31 +137,14 @@ function MobileHotelCard({ hotel, wishlistIds }) {
   const handleWishlist = (e) => {
     e.stopPropagation();
 
-    requireAuth(async () => {
-      const payload = {
-        hotelId: hotel.id?.toString(),
-        hotelName: hotel.name,
-        hotelSlug: slugify(hotel.name || hotel.hotelName),
-        hotelImage: hotel.image,
-        address: hotel.address || "",
-        starRating: Number(hotel.starRating || 0),
-        facilities,
-        freeCancellation: hotel.freeCancellation || false,
-        savedPrice: Number(hotel.price) || 0,
-        savedTax: Number(hotel.tax) || 0,
-        cityId: appliedSearchData?.cityData?.id,
-        cityName: appliedSearchData?.city || "",
-        stateName: appliedSearchData?.cityData?.stateName || "",
-        countryCode: appliedSearchData?.cityData?.countryCode || "",
-        countryName: appliedSearchData?.cityData?.country || "",
-        searchType: appliedSearchData?.cityData?.type || "",
-      };
+    if (!hotel?.id) return;
 
+    requireAuth(async () => {
       try {
-        await mutateAsync(payload);
+        const response = await mutateAsync({ hotelId: hotel.id });
 
         message.success(
-          isWishlisted ? "Removed from wishlist" : "Added to wishlist",
+          response.data.wishlisted ? "Added to wishlist" : "Removed from wishlist",
         );
       } catch (error) {
         message.error(

@@ -1,6 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toggleWishlist } from "../services/wishlist.service";
 
+const updateWishlistIds = (queryClient, hotelId, wishlisted) => {
+  const id = String(hotelId);
+  queryClient.setQueryData(["wishlist-ids"], (ids = []) => {
+    if (!wishlisted) return ids.filter((savedId) => savedId !== id);
+    return ids.includes(id) ? ids : [...ids, id];
+  });
+};
+
 export const useToggleWishlist = () => {
   const queryClient = useQueryClient();
 
@@ -12,25 +20,20 @@ export const useToggleWishlist = () => {
         queryKey: ["wishlist-ids"],
       });
 
-      const previousIds = queryClient.getQueryData(["wishlist-ids"]) || [];
-
-      queryClient.setQueryData(["wishlist-ids"], (old = []) => {
-        const ids = Array.isArray(old) ? old : [];
-
-        const exists = ids.includes(String(hotelId));
-
-        if (exists) {
-          return ids.filter((id) => id !== String(hotelId));
-        }
-
-        return [...ids, String(hotelId)];
-      });
-
-      return { previousIds };
+      const ids = queryClient.getQueryData(["wishlist-ids"]) || [];
+      const wasWishlisted = ids.includes(String(hotelId));
+      updateWishlistIds(queryClient, hotelId, !wasWishlisted);
+      return { wasWishlisted };
     },
 
-    onError: (_, __, context) => {
-      queryClient.setQueryData(["wishlist-ids"], context?.previousIds || []);
+    onSuccess: (response, { hotelId }) => {
+      updateWishlistIds(queryClient, hotelId, response.data.wishlisted);
+    },
+
+    onError: (_, { hotelId }, context) => {
+      if (context) {
+        updateWishlistIds(queryClient, hotelId, context.wasWishlisted);
+      }
     },
 
     onSettled: async () => {
