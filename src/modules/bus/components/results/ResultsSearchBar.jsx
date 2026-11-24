@@ -3,11 +3,11 @@
 import { RESULTS_IMG } from "@/modules/bus/data/busResultsData";
 import { useBusSearchStore } from "@/modules/bus/store/busSearch.store";
 import { busSearchHref } from "@/modules/bus/utils/busSearchHref";
-import { App, DatePicker } from "antd";
+import { App, DatePicker, Select } from "antd";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 
 function Field({ label, icon, iconSize, children, className = "" }) {
@@ -34,8 +34,53 @@ export default function ResultsSearchBar({ query }) {
   const [from, setFrom] = useState(query.from);
   const [to, setTo] = useState(query.to);
   const [date, setDate] = useState(query.date);
+  const [fromOptions, setFromOptions] = useState([]);
+  const [toOptions, setToOptions] = useState([]);
+  const [fromLoading, setFromLoading] = useState(false);
+  const [toLoading, setToLoading] = useState(false);
   const selected = dayjs(date);
   const today = dayjs().startOf("day");
+
+  const searchStations = useCallback(async (term, type) => {
+    if (!term || term.length < 2) return [];
+    try {
+      const response = await fetch("/api/v1/bus/stations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ term, type }),
+      });
+      const json = await response.json();
+      if (json.success && json.data) {
+        return json.data.map((station) => ({
+          label: station.name,
+          value: station.name,
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching stations:", error);
+    }
+    return [];
+  }, []);
+
+  const handleFromSearch = useCallback(
+    async (val) => {
+      setFromLoading(true);
+      const options = await searchStations(val, "from");
+      setFromOptions(options);
+      setFromLoading(false);
+    },
+    [searchStations]
+  );
+
+  const handleToSearch = useCallback(
+    async (val) => {
+      setToLoading(true);
+      const options = await searchStations(val, "to");
+      setToOptions(options);
+      setToLoading(false);
+    },
+    [searchStations]
+  );
 
   const submit = (e) => {
     e.preventDefault();
@@ -52,8 +97,10 @@ export default function ResultsSearchBar({ query }) {
     router.push(busSearchHref({ from, to, date }));
   };
 
-  const inputCls =
-    "w-full truncate bg-transparent text-base leading-6 font-bold text-[#0f172a] outline-none placeholder:text-[#94a3b8] sm:text-xl";
+  const selectStyle = {
+    width: "100%",
+    backgroundColor: "transparent",
+  };
 
   return (
     <form
@@ -61,7 +108,17 @@ export default function ResultsSearchBar({ query }) {
       className="relative grid grid-cols-1 gap-2 rounded-md bg-[#d5e0e6] p-2 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] md:grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)_minmax(0,1fr)_188px] lg:items-center lg:gap-x-6 lg:px-7"
     >
       <Field label="From City" icon={`${RESULTS_IMG}/sb-search.svg`} iconSize={[16.67, 16.67]} className="border-[#969696]">
-        <input aria-label="From city" value={from} onChange={(e) => setFrom(e.target.value)} className={inputCls} placeholder="From" />
+        <Select
+          value={from || undefined}
+          onChange={setFrom}
+          onSearch={handleFromSearch}
+          loading={fromLoading}
+          options={fromOptions}
+          filterOption={false}
+          placeholder="From"
+          style={selectStyle}
+          className="ant-select-no-border"
+        />
       </Field>
 
       <button
@@ -77,7 +134,17 @@ export default function ResultsSearchBar({ query }) {
       </button>
 
       <Field label="To Destination" icon={`${RESULTS_IMG}/sb-pin.svg`} iconSize={[14.85, 18.52]}>
-        <input aria-label="To destination" value={to} onChange={(e) => setTo(e.target.value)} className={inputCls} placeholder="To" />
+        <Select
+          value={to || undefined}
+          onChange={setTo}
+          onSearch={handleToSearch}
+          loading={toLoading}
+          options={toOptions}
+          filterOption={false}
+          placeholder="To"
+          style={selectStyle}
+          className="ant-select-no-border"
+        />
       </Field>
 
       <Field label="Journey Date" icon={`${RESULTS_IMG}/sb-calendar.svg`} iconSize={[16.69, 18.52]} className="md:col-span-2 lg:col-span-1">
