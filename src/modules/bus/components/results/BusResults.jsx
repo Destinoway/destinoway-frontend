@@ -5,11 +5,13 @@ import {
   DEPARTURE_SLOTS,
   QUICK_FILTERS,
   countBy,
-  generateBuses,
   toDuration,
 } from "@/modules/bus/data/busResultsData";
-import { Drawer } from "antd";
-import { useMemo, useState } from "react";
+import { useBusSearch } from "@/modules/bus/hooks/useBusSearch";
+import { useBusSearchResults } from "@/modules/bus/hooks/useBusSearchResults";
+import { Drawer, Spin } from "antd";
+import dayjs from "dayjs";
+import { useEffect, useMemo, useState } from "react";
 import BusCard from "./BusCard";
 import DateStrip from "./DateStrip";
 import FiltersPanel from "./FiltersPanel";
@@ -32,6 +34,39 @@ const EMPTY_FILTERS = {
 
 const slotOf = (mins) => DEPARTURE_SLOTS.find((s) => mins / 60 >= s.from && mins / 60 < s.to)?.key;
 const cityName = (v) => v.split(",")[0].trim();
+
+// Transform API bus response to match existing format
+const transformApiBus = (apiBus) => {
+  const departure = dayjs(apiBus.departureTime);
+  const arrival = dayjs(apiBus.arrivalTime);
+  const depMins = departure.hour() * 60 + departure.minute();
+  const arrMins = arrival.hour() * 60 + arrival.minute();
+
+  return {
+    id: apiBus.busServiceId,
+    operatorName: apiBus.operatorName,
+    operatorShort: apiBus.operatorName.substring(0, 3).toUpperCase(),
+    busType: apiBus.busType,
+    types: [apiBus.busType],
+    from: apiBus.from,
+    to: apiBus.to,
+    depMins,
+    arrMins,
+    duration: apiBus.durationMinutes,
+    price: apiBus.customerFare,
+    availableSeats: apiBus.availableSeats,
+    freeCancellation: apiBus.zeroCancellation,
+    partialCancellation: apiBus.partialCancellation,
+    refundable: apiBus.refundable,
+    pickups: apiBus.pickups.map((p) => ({ name: p.address, time: p.time })),
+    drops: apiBus.dropoffs.map((d) => ({ name: d.address, time: d.time })),
+    amenities: [],
+    tags: [],
+    rating: 4.5,
+    departureTime: apiBus.departureTime,
+    arrivalTime: apiBus.arrivalTime,
+  };
+};
 
 function applyFilters(buses, f) {
   return buses.filter(
@@ -104,12 +139,42 @@ function Pagination({ page, pages, total, shown, onPage }) {
 }
 
 export default function BusResults({ query }) {
-  const buses = useMemo(() => generateBuses(query), [query]);
   const [filters, setFiltersState] = useState(EMPTY_FILTERS);
   const [sort, setSort] = useState({ key: "departure", dir: "asc" });
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [tui, setTui] = useState(null);
+
+  // Initiate search
+  const { mutate: searchBuses, isPending: searchPending } = useBusSearch();
+
+  // Fetch results
+  const { data: searchData, isLoading: resultsLoading, isError } = useBusSearchResults(tui, Boolean(tui));
+
+  // Start search on mount (prevent duplicate calls)
+  useEffect(() => {
+    if (tui) return; // Already searching or have results
+
+    const timer = setTimeout(() => {
+      searchBuses(
+        { from: query.from, to: query.to, onward: query.date },
+        {
+          onSuccess: (data) => {
+            setTui(data.tui);
+          },
+        }
+      );
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [query.from, query.to, query.date]);
+
+  // Transform API buses to UI format
+  const buses = useMemo(() => {
+    if (!searchData?.buses) return [];
+    return searchData.buses.map(transformApiBus);
+  }, [searchData]);
 
   const setFilters = (next) => {
     setFiltersState(next);
@@ -120,6 +185,7 @@ export default function BusResults({ query }) {
   const toCity = cityName(query.to);
 
   const priceBounds = useMemo(() => {
+    if (!buses.length) return [0, 1000];
     const prices = buses.map((b) => b.price);
     return [Math.floor(Math.min(...prices) / 25) * 25, Math.ceil(Math.max(...prices) / 25) * 25];
   }, [buses]);
@@ -151,7 +217,6 @@ export default function BusResults({ query }) {
   const pageItems = results.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
   const fastest = results.length ? toDuration(Math.min(...results.map((b) => b.duration))) : null;
 
-  // Chips shown at the top of the filter panel, each removable.
   const without = (key, value) => ({ ...filters, [key]: filters[key].filter((v) => v !== value) });
   const activeChips = [
     ...(filters.freeCancel ? [{ key: "fc", label: "Free Cancellation", remove: () => setFilters({ ...filters, freeCancel: false }) }] : []),
@@ -198,6 +263,7 @@ export default function BusResults({ query }) {
   );
 
   const queryKey = `${query.from}|${query.to}|${query.date}`;
+  const isLoading = searchPending || resultsLoading;
 
   return (
     <div className="min-h-screen bg-[#d5e0e6] pb-16">
@@ -214,44 +280,58 @@ export default function BusResults({ query }) {
 
         <div id="bus-results" className="flex min-w-0 scroll-mt-4 flex-col gap-3">
           <DateStrip key={queryKey} query={query} />
-          <ResultsToolbar
-            sort={sort}
-            setSort={setSort}
-            quick={filters.quick}
-            toggleQuick={toggleQuick}
-            total={results.length}
-            from={fromCity}
-            to={toCity}
-            fastest={fastest}
-            onOpenFilters={() => setDrawerOpen(true)}
-            filterCount={activeChips.length}
-          />
 
-          {pageItems.length > 0 ? (
-            pageItems.map((bus) => (
-              <BusCard
-                key={bus.id}
-                bus={bus}
-                query={query}
-                expanded={expandedId === bus.id}
-                onToggle={() => setExpandedId(expandedId === bus.id ? null : bus.id)}
-              />
-            ))
-          ) : (
-            <div className="flex flex-col items-center gap-3 rounded-md border border-[rgba(198,197,209,0.3)] bg-white px-6 py-14 text-center">
-              <p className="text-base font-bold text-[#0b1c30]">No buses match these filters</p>
-              <p className="text-sm text-[#45464f]">Try removing a filter or picking another date.</p>
-              <button
-                type="button"
-                onClick={() => setFilters(EMPTY_FILTERS)}
-                className="cursor-pointer rounded-lg bg-[#e58a00] px-5 py-2 text-sm font-bold text-white"
-              >
-                Reset all filters
-              </button>
+          {isLoading ? (
+            <div className="flex items-center justify-center rounded-md bg-white p-16">
+              <Spin size="large" description="Fetching buses..." />
             </div>
-          )}
+          ) : isError ? (
+            <div className="flex flex-col items-center gap-3 rounded-md border border-[rgba(198,197,209,0.3)] bg-white px-6 py-14 text-center">
+              <p className="text-base font-bold text-[#0b1c30]">Error loading buses</p>
+              <p className="text-sm text-[#45464f]">Please try searching again.</p>
+            </div>
+          ) : (
+            <>
+              <ResultsToolbar
+                sort={sort}
+                setSort={setSort}
+                quick={filters.quick}
+                toggleQuick={toggleQuick}
+                total={results.length}
+                from={fromCity}
+                to={toCity}
+                fastest={fastest}
+                onOpenFilters={() => setDrawerOpen(true)}
+                filterCount={activeChips.length}
+              />
 
-          <Pagination page={current} pages={pages} total={results.length} shown={pageItems.length} onPage={goToPage} />
+              {pageItems.length > 0 ? (
+                pageItems.map((bus) => (
+                  <BusCard
+                    key={bus.id}
+                    bus={bus}
+                    query={query}
+                    expanded={expandedId === bus.id}
+                    onToggle={() => setExpandedId(expandedId === bus.id ? null : bus.id)}
+                  />
+                ))
+              ) : (
+                <div className="flex flex-col items-center gap-3 rounded-md border border-[rgba(198,197,209,0.3)] bg-white px-6 py-14 text-center">
+                  <p className="text-base font-bold text-[#0b1c30]">No buses match these filters</p>
+                  <p className="text-sm text-[#45464f]">Try removing a filter or picking another date.</p>
+                  <button
+                    type="button"
+                    onClick={() => setFilters(EMPTY_FILTERS)}
+                    className="cursor-pointer rounded-lg bg-[#e58a00] px-5 py-2 text-sm font-bold text-white"
+                  >
+                    Reset all filters
+                  </button>
+                </div>
+              )}
+
+              <Pagination page={current} pages={pages} total={results.length} shown={pageItems.length} onPage={goToPage} />
+            </>
+          )}
         </div>
       </div>
 
