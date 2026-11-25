@@ -1,7 +1,9 @@
 import { api } from "@/services/axios";
 
-export const toggleWishlist = async (payload) => {
-  const { data } = await api.post("/wishlist/toggle", payload);
+export const toggleWishlist = async ({ hotelId }) => {
+  const { data } = await api.post("/wishlist/toggle", {
+    hotelId: String(hotelId),
+  });
 
   return data;
 };
@@ -21,7 +23,7 @@ export const getWishlist = async () => {
 export const getWishlistIds = async () => {
   const { data } = await api.get("/wishlist/hotel-ids");
 
-  return data?.data || [];
+  return Array.isArray(data?.data) ? data.data.map(String) : [];
 };
 
 export const getWishlistCity = async (cityId) => {
