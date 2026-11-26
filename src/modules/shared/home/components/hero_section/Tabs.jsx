@@ -1,8 +1,10 @@
 "use client";
 
 import { Tooltip } from "antd";
+import { useRouter } from "next/navigation";
 
 export default function Tabs({ tabs, activeTab, setActiveTab }) {
+  const router = useRouter();
   return (
     <div
       role="group"
@@ -22,6 +24,10 @@ export default function Tabs({ tabs, activeTab, setActiveTab }) {
               disabled={isDisabled}
               onClick={() => {
                 if (isDisabled) return;
+                if (tab.href) {
+                  router.push(tab.href);
+                  return;
+                }
                 setActiveTab(tab.key);
               }}
               className={`flex h-14 w-14 items-center justify-center rounded-xl transition-all duration-300 sm:h-16 sm:w-16 md:h-17 md:w-17 ${

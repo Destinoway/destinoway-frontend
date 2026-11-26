@@ -15,6 +15,8 @@ export const HOME_TABS = [
     key: "bus",
     label: "Bus",
     icon: "/images/icons/bus_icon.svg",
-    enabled: false,
+    enabled: true,
+    // Opens the dedicated bus landing page instead of switching the form.
+    href: "/bus",
   },
 ];
