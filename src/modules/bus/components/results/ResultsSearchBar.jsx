@@ -1,5 +1,7 @@
 "use client";
 
+import { api } from "@/services/axios";
+
 import { RESULTS_IMG } from "@/modules/bus/data/busResultsData";
 import { useBusSearchStore } from "@/modules/bus/store/busSearch.store";
 import { busSearchHref } from "@/modules/bus/utils/busSearchHref";
@@ -44,12 +46,7 @@ export default function ResultsSearchBar({ query }) {
   const searchStations = useCallback(async (term, type) => {
     if (!term || term.length < 2) return [];
     try {
-      const response = await fetch("/api/v1/bus/stations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ term, type }),
-      });
-      const json = await response.json();
+      const { data: json } = await api.post("/bus/stations", { term, type });
       if (json.success && json.data) {
         return json.data.map((station) => ({
           label: station.name,

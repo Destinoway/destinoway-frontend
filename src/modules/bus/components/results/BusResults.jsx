@@ -1,15 +1,13 @@
 "use client";
 
 import {
-  AMENITIES,
   DEPARTURE_SLOTS,
-  QUICK_FILTERS,
   countBy,
-  generateBuses,
   toDuration,
 } from "@/modules/bus/data/busResultsData";
+import { searchBuses } from "@/modules/bus/services/busSearch";
 import { Drawer } from "antd";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import BusCard from "./BusCard";
 import DateStrip from "./DateStrip";
 import FiltersPanel from "./FiltersPanel";
@@ -26,8 +24,6 @@ const EMPTY_FILTERS = {
   boarding: [],
   drop: [],
   operators: [],
-  amenities: [],
-  quick: [],
 };
 
 const slotOf = (mins) => DEPARTURE_SLOTS.find((s) => mins / 60 >= s.from && mins / 60 < s.to)?.key;
@@ -42,17 +38,14 @@ function applyFilters(buses, f) {
       (!f.price || (b.price >= f.price[0] && b.price <= f.price[1])) &&
       (!f.boarding.length || b.pickups.some((p) => f.boarding.includes(p.name))) &&
       (!f.drop.length || b.drops.some((p) => f.drop.includes(p.name))) &&
-      (!f.operators.length || f.operators.includes(b.operatorShort)) &&
-      f.amenities.every((a) => b.amenities.includes(a)) &&
-      f.quick.every((q) => b.tags.includes(q)),
+      (!f.operators.length || f.operators.includes(b.operatorShort)),
   );
 }
 
 const SORTERS = {
   departure: (a, b) => a.depMins - b.depMins,
   duration: (a, b) => a.duration - b.duration,
-  arrival: (a, b) => a.arrMins - b.arrMins,
-  rating: (a, b) => a.rating - b.rating,
+  arrival: (a, b) => a.arrivalTimestamp - b.arrivalTimestamp,
   price: (a, b) => a.price - b.price,
 };
 
@@ -104,11 +97,26 @@ function Pagination({ page, pages, total, shown, onPage }) {
 }
 
 export default function BusResults({ query }) {
-  const buses = useMemo(() => generateBuses(query), [query]);
+  const { from, to, date } = query;
+  const [search, setSearch] = useState({ status: "loading", buses: [] });
+  const [attempt, setAttempt] = useState(0);
+  const { status, buses } = search;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    searchBuses({ from, to, date }, controller.signal).then(
+      (buses) => {
+        if (!controller.signal.aborted) setSearch({ status: "ready", buses });
+      },
+      () => {
+        if (!controller.signal.aborted) setSearch({ status: "error", buses: [] });
+      },
+    );
+    return () => controller.abort();
+  }, [from, to, date, attempt]);
   const [filters, setFiltersState] = useState(EMPTY_FILTERS);
   const [sort, setSort] = useState({ key: "departure", dir: "asc" });
   const [page, setPage] = useState(1);
-  const [expandedId, setExpandedId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const setFilters = (next) => {
@@ -120,20 +128,20 @@ export default function BusResults({ query }) {
   const toCity = cityName(query.to);
 
   const priceBounds = useMemo(() => {
+    if (!buses.length) return [0, 25];
     const prices = buses.map((b) => b.price);
-    return [Math.floor(Math.min(...prices) / 25) * 25, Math.ceil(Math.max(...prices) / 25) * 25];
+    const min = Math.floor(Math.min(...prices) / 25) * 25;
+    const max = Math.ceil(Math.max(...prices) / 25) * 25;
+    return [min, Math.max(min + 25, max)];
   }, [buses]);
 
   const facets = useMemo(() => {
     const slots = {};
     for (const b of buses) slots[slotOf(b.depMins)] = (slots[slotOf(b.depMins)] || 0) + 1;
-    const amenities = {};
-    for (const b of buses) for (const a of b.amenities) amenities[a] = (amenities[a] || 0) + 1;
     return {
       fromCity,
       toCity,
       slots,
-      amenities,
       boarding: countBy(buses, (b) => b.pickups.map((p) => p.name)).sort((a, b) => b.count - a.count),
       drop: countBy(buses, (b) => b.drops.map((p) => p.name)).sort((a, b) => b.count - a.count),
       operators: countBy(buses, (b) => b.operatorShort).sort((a, b) => b.count - a.count),
@@ -156,11 +164,6 @@ export default function BusResults({ query }) {
   const activeChips = [
     ...(filters.freeCancel ? [{ key: "fc", label: "Free Cancellation", remove: () => setFilters({ ...filters, freeCancel: false }) }] : []),
     ...filters.types.map((t) => ({ key: `t-${t}`, label: t, remove: () => setFilters(without("types", t)) })),
-    ...filters.quick.map((q) => ({
-      key: `q-${q}`,
-      label: q === "primo" ? "4.5+ ★" : QUICK_FILTERS.find((x) => x.key === q)?.label,
-      remove: () => setFilters(without("quick", q)),
-    })),
     ...filters.slots.map((s) => ({
       key: `s-${s}`,
       label: DEPARTURE_SLOTS.find((x) => x.key === s)?.chip,
@@ -170,19 +173,10 @@ export default function BusResults({ query }) {
     ...filters.boarding.map((v) => ({ key: `b-${v}`, label: v, remove: () => setFilters(without("boarding", v)) })),
     ...filters.drop.map((v) => ({ key: `d-${v}`, label: v, remove: () => setFilters(without("drop", v)) })),
     ...filters.operators.map((v) => ({ key: `o-${v}`, label: v, remove: () => setFilters(without("operators", v)) })),
-    ...filters.amenities.map((v) => ({
-      key: `a-${v}`,
-      label: AMENITIES.find((x) => x.key === v)?.label,
-      remove: () => setFilters(without("amenities", v)),
-    })),
   ];
-
-  const toggleQuick = (k) =>
-    setFilters({ ...filters, quick: filters.quick.includes(k) ? filters.quick.filter((q) => q !== k) : [...filters.quick, k] });
 
   const goToPage = (p) => {
     setPage(p);
-    setExpandedId(null);
     document.getElementById("bus-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -209,33 +203,39 @@ export default function BusResults({ query }) {
 
       <div className="mx-auto -mt-4 grid max-w-[1280px] grid-cols-1 items-start gap-3 px-3 sm:px-4 lg:grid-cols-[295px_minmax(0,1fr)]">
         <aside className="sticky top-3 hidden max-h-[calc(100vh-24px)] overflow-y-auto rounded-md [scrollbar-width:thin] lg:block">
-          {panel}
+          {status === "ready" && buses.length > 0 && panel}
         </aside>
 
         <div id="bus-results" className="flex min-w-0 scroll-mt-4 flex-col gap-3">
           <DateStrip key={queryKey} query={query} />
-          <ResultsToolbar
-            sort={sort}
-            setSort={setSort}
-            quick={filters.quick}
-            toggleQuick={toggleQuick}
-            total={results.length}
-            from={fromCity}
-            to={toCity}
-            fastest={fastest}
-            onOpenFilters={() => setDrawerOpen(true)}
-            filterCount={activeChips.length}
-          />
+          {status === "ready" && buses.length > 0 && (
+            <ResultsToolbar
+              sort={sort}
+              setSort={setSort}
+              total={results.length}
+              from={fromCity}
+              to={toCity}
+              fastest={fastest}
+              onOpenFilters={() => setDrawerOpen(true)}
+              filterCount={activeChips.length}
+            />
+          )}
 
-          {pageItems.length > 0 ? (
+          {status === "loading" ? (
+            <p role="status" className="rounded-md bg-white p-8 text-center">Searching for buses…</p>
+          ) : status === "error" ? (
+            <div role="alert" className="rounded-md bg-white p-8 text-center">
+              <p>We couldn't load bus results. Please try again.</p>
+              <button type="button" className="mt-3 font-bold text-[#ba611e]" onClick={() => {
+                setSearch({ status: "loading", buses: [] });
+                setAttempt((value) => value + 1);
+              }}>Retry</button>
+            </div>
+          ) : !buses.length ? (
+            <p className="rounded-md bg-white p-8 text-center">No buses available for this route and date.</p>
+          ) : pageItems.length > 0 ? (
             pageItems.map((bus) => (
-              <BusCard
-                key={bus.id}
-                bus={bus}
-                query={query}
-                expanded={expandedId === bus.id}
-                onToggle={() => setExpandedId(expandedId === bus.id ? null : bus.id)}
-              />
+              <BusCard key={bus.id} bus={bus} />
             ))
           ) : (
             <div className="flex flex-col items-center gap-3 rounded-md border border-[rgba(198,197,209,0.3)] bg-white px-6 py-14 text-center">
