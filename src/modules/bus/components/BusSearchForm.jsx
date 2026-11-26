@@ -1,54 +1,24 @@
 "use client";
 
-import { api } from "@/services/axios";
-
 import { DatePicker, Select } from "antd";
 import { useBusSearchStore } from "@/modules/bus/store/busSearch.store";
-import { useCallback, useMemo, useState } from "react";
+import { useBusStationSearch } from "@/modules/bus/hooks/useBusStationSearch";
+import { useState } from "react";
 import dayjs from "dayjs";
 
 export default function BusSearchForm() {
   const { from, to, date, setFrom, setTo, setDate } = useBusSearchStore();
-  const [fromOptions, setFromOptions] = useState([]);
-  const [toOptions, setToOptions] = useState([]);
-  const [fromLoading, setFromLoading] = useState(false);
-  const [toLoading, setToLoading] = useState(false);
+  const [fromSearchText, setFromSearchText] = useState("");
+  const [toSearchText, setToSearchText] = useState("");
 
-  const searchStations = useCallback(async (term, type) => {
-    if (!term || term.length < 2) return [];
-    try {
-      const { data: json } = await api.post("/bus/stations", { term, type });
-      if (json.success && json.data) {
-        return json.data.map((station) => ({
-          label: station.name,
-          value: station.name,
-        }));
-      }
-    } catch (error) {
-      console.error("Error fetching stations:", error);
-    }
-    return [];
-  }, []);
+  const { data: fromOptions = [], isLoading: fromLoading } = useBusStationSearch(fromSearchText, "from");
+  const { data: toOptions = [], isLoading: toLoading } = useBusStationSearch(toSearchText, "to");
 
-  const handleFromSearch = useCallback(
-    async (val) => {
-      setFromLoading(true);
-      const options = await searchStations(val, "from");
-      setFromOptions(options);
-      setFromLoading(false);
-    },
-    [searchStations]
-  );
-
-  const handleToSearch = useCallback(
-    async (val) => {
-      setToLoading(true);
-      const options = await searchStations(val, "to");
-      setToOptions(options);
-      setToLoading(false);
-    },
-    [searchStations]
-  );
+  const stationOptions = (stations) =>
+    stations.map((station) => ({
+      label: station.name,
+      value: station.name,
+    }));
 
   return (
     <div>
@@ -56,24 +26,24 @@ export default function BusSearchForm() {
 
       <div className="grid md:grid-cols-4 gap-4">
         <Select
+          showSearch={{ onSearch: setFromSearchText, filterOption: false }}
           size="large"
           placeholder="From"
           value={from || undefined}
           onChange={setFrom}
-          onSearch={handleFromSearch}
           loading={fromLoading}
-          options={fromOptions}
-          filterOption={false}
+          options={stationOptions(fromOptions)}
+          variant="borderless"
         />
         <Select
+          showSearch={{ onSearch: setToSearchText, filterOption: false }}
           size="large"
           placeholder="To"
           value={to || undefined}
           onChange={setTo}
-          onSearch={handleToSearch}
           loading={toLoading}
-          options={toOptions}
-          filterOption={false}
+          options={stationOptions(toOptions)}
+          variant="borderless"
         />
 
         <DatePicker

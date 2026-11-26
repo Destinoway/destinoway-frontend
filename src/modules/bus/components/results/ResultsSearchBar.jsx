@@ -1,15 +1,14 @@
 "use client";
 
-import { api } from "@/services/axios";
-
 import { RESULTS_IMG } from "@/modules/bus/data/busResultsData";
 import { useBusSearchStore } from "@/modules/bus/store/busSearch.store";
+import { useBusStationSearch } from "@/modules/bus/hooks/useBusStationSearch";
 import { busSearchHref } from "@/modules/bus/utils/busSearchHref";
 import { App, DatePicker, Select } from "antd";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 
 
 function Field({ label, icon, iconSize, children, className = "" }) {
@@ -36,48 +35,19 @@ export default function ResultsSearchBar({ query }) {
   const [from, setFrom] = useState(query.from);
   const [to, setTo] = useState(query.to);
   const [date, setDate] = useState(query.date);
-  const [fromOptions, setFromOptions] = useState([]);
-  const [toOptions, setToOptions] = useState([]);
-  const [fromLoading, setFromLoading] = useState(false);
-  const [toLoading, setToLoading] = useState(false);
+  const [fromSearchText, setFromSearchText] = useState("");
+  const [toSearchText, setToSearchText] = useState("");
   const selected = dayjs(date);
   const today = dayjs().startOf("day");
 
-  const searchStations = useCallback(async (term, type) => {
-    if (!term || term.length < 2) return [];
-    try {
-      const { data: json } = await api.post("/bus/stations", { term, type });
-      if (json.success && json.data) {
-        return json.data.map((station) => ({
-          label: station.name,
-          value: station.name,
-        }));
-      }
-    } catch (error) {
-      console.error("Error fetching stations:", error);
-    }
-    return [];
-  }, []);
+  const { data: fromOptions = [], isLoading: fromLoading } = useBusStationSearch(fromSearchText, "from");
+  const { data: toOptions = [], isLoading: toLoading } = useBusStationSearch(toSearchText, "to");
 
-  const handleFromSearch = useCallback(
-    async (val) => {
-      setFromLoading(true);
-      const options = await searchStations(val, "from");
-      setFromOptions(options);
-      setFromLoading(false);
-    },
-    [searchStations]
-  );
-
-  const handleToSearch = useCallback(
-    async (val) => {
-      setToLoading(true);
-      const options = await searchStations(val, "to");
-      setToOptions(options);
-      setToLoading(false);
-    },
-    [searchStations]
-  );
+  const stationOptions = (stations) =>
+    stations.map((station) => ({
+      label: station.name,
+      value: station.name,
+    }));
 
   const submit = (e) => {
     e.preventDefault();
@@ -94,11 +64,6 @@ export default function ResultsSearchBar({ query }) {
     router.push(busSearchHref({ from, to, date }));
   };
 
-  const selectStyle = {
-    width: "100%",
-    backgroundColor: "transparent",
-  };
-
   return (
     <form
       onSubmit={submit}
@@ -106,15 +71,18 @@ export default function ResultsSearchBar({ query }) {
     >
       <Field label="From City" icon={`${RESULTS_IMG}/sb-search.svg`} iconSize={[16.67, 16.67]} className="border-[#969696]">
         <Select
+          showSearch={{ onSearch: setFromSearchText, filterOption: false }}
           value={from || undefined}
           onChange={setFrom}
-          onSearch={handleFromSearch}
           loading={fromLoading}
-          options={fromOptions}
-          filterOption={false}
+          options={stationOptions(fromOptions)}
           placeholder="From"
-          style={selectStyle}
-          className="ant-select-no-border"
+          classNames={{
+            selector: "!bg-transparent !border-0 !shadow-none",
+            selection: "!bg-transparent !border-0 !shadow-none",
+          }}
+          suffixIcon={null}
+          variant="borderless"
         />
       </Field>
 
@@ -132,15 +100,18 @@ export default function ResultsSearchBar({ query }) {
 
       <Field label="To Destination" icon={`${RESULTS_IMG}/sb-pin.svg`} iconSize={[14.85, 18.52]}>
         <Select
+          showSearch={{ onSearch: setToSearchText, filterOption: false }}
           value={to || undefined}
           onChange={setTo}
-          onSearch={handleToSearch}
           loading={toLoading}
-          options={toOptions}
-          filterOption={false}
+          options={stationOptions(toOptions)}
           placeholder="To"
-          style={selectStyle}
-          className="ant-select-no-border"
+          classNames={{
+            selector: "!bg-transparent !border-0 !shadow-none",
+            selection: "!bg-transparent !border-0 !shadow-none",
+          }}
+          suffixIcon={null}
+          variant="borderless"
         />
       </Field>
 

@@ -159,7 +159,6 @@ export default function BusResults({ query }) {
   const pageItems = results.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
   const fastest = results.length ? toDuration(Math.min(...results.map((b) => b.duration))) : null;
 
-  // Chips shown at the top of the filter panel, each removable.
   const without = (key, value) => ({ ...filters, [key]: filters[key].filter((v) => v !== value) });
   const activeChips = [
     ...(filters.freeCancel ? [{ key: "fc", label: "Free Cancellation", remove: () => setFilters({ ...filters, freeCancel: false }) }] : []),
