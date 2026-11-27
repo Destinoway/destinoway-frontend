@@ -26,27 +26,23 @@ export default function BusSearchForm() {
 
       <div className="grid md:grid-cols-4 gap-4">
         <Select
-          showSearch
+          showSearch={{ onSearch: setFromSearchText, filterOption: false }}
           size="large"
           placeholder="From"
           value={from || undefined}
           onChange={setFrom}
-          onSearch={setFromSearchText}
           loading={fromLoading}
           options={stationOptions(fromOptions)}
-          filterOption={false}
           variant="borderless"
         />
         <Select
-          showSearch
+          showSearch={{ onSearch: setToSearchText, filterOption: false }}
           size="large"
           placeholder="To"
           value={to || undefined}
           onChange={setTo}
-          onSearch={setToSearchText}
           loading={toLoading}
           options={stationOptions(toOptions)}
-          filterOption={false}
           variant="borderless"
         />
 

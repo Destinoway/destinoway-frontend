@@ -1,6 +1,6 @@
 "use client";
 
-import { AMENITIES, BUS_TYPES, DEPARTURE_SLOTS, RESULTS_IMG } from "@/modules/bus/data/busResultsData";
+import { BUS_TYPES, DEPARTURE_SLOTS, RESULTS_IMG } from "@/modules/bus/data/busResultsData";
 import { Slider } from "antd";
 import Image from "next/image";
 import { useState } from "react";
@@ -267,29 +267,6 @@ export default function FiltersPanel({ filters, setFilters, facets, priceBounds,
               onChange={() => set({ operators: toggle(filters.operators, o.label) })}
             />
           ))}
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-3 pt-1">
-        <Heading>Bus Amenities</Heading>
-        <div className="grid grid-cols-2 gap-2">
-          {AMENITIES.map((a) => {
-            const active = filters.amenities.includes(a.key);
-            return (
-              <button
-                key={a.key}
-                type="button"
-                aria-pressed={active}
-                onClick={() => set({ amenities: toggle(filters.amenities, a.key) })}
-                className={`flex h-[26px] cursor-pointer items-center gap-1.5 rounded border p-[5px] text-[10px] leading-[14px] font-bold text-[#0b1c30] ${
-                  active ? "border-[#05144b] bg-[#dce9ff]" : "border-[rgba(198,197,209,0.2)] bg-[#f8f9ff] hover:border-[#05144b]"
-                }`}
-              >
-                <Image src={a.icon} alt="" width={a.size[0]} height={a.size[1]} />
-                {a.label} ({facets.amenities[a.key] || 0})
-              </button>
-            );
-          })}
         </div>
       </section>
 

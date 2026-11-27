@@ -1,12 +1,12 @@
 "use client";
 
-import { QUICK_FILTERS, RESULTS_IMG, SORTS } from "@/modules/bus/data/busResultsData";
+import { RESULTS_IMG, SORTS } from "@/modules/bus/data/busResultsData";
 import Image from "next/image";
 
-export default function ResultsToolbar({ sort, setSort, quick, toggleQuick, total, from, to, fastest, onOpenFilters, filterCount }) {
+export default function ResultsToolbar({ sort, setSort, total, from, to, fastest, onOpenFilters, filterCount }) {
   const onSort = (key) => {
     if (sort.key === key) setSort({ key, dir: sort.dir === "asc" ? "desc" : "asc" });
-    else setSort({ key, dir: key === "rating" ? "desc" : "asc" });
+    else setSort({ key, dir: "asc" });
   };
 
   return (
@@ -56,31 +56,6 @@ export default function ResultsToolbar({ sort, setSort, quick, toggleQuick, tota
           <Image src={`${RESULTS_IMG}/f-filter.svg`} alt="" width={12} height={12} />
           Filters{filterCount > 0 ? ` (${filterCount})` : ""}
         </button>
-        {QUICK_FILTERS.map((q) => {
-          const active = quick.includes(q.key);
-          return (
-            <button
-              key={q.key}
-              type="button"
-              aria-pressed={active}
-              onClick={() => toggleQuick(q.key)}
-              className={`flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-[13px] py-[7px] text-xs leading-[14px] font-bold whitespace-nowrap ${
-                active
-                  ? "border-[rgba(229,138,0,0.4)] bg-[#ba611e] text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)]"
-                  : "border-[rgba(198,197,209,0.3)] bg-[#e5eeff] text-[#0b1c30] hover:border-[#05144b]"
-              }`}
-            >
-              <Image
-                src={q.icon}
-                alt=""
-                width={q.size[0]}
-                height={q.size[1]}
-                className={active && q.key !== "primo" ? "brightness-0 invert" : ""}
-              />
-              {q.label}
-            </button>
-          );
-        })}
       </div>
 
       <div className="flex flex-col gap-2 pt-3 sm:flex-row sm:items-center sm:justify-between sm:px-1">
@@ -91,9 +66,6 @@ export default function ResultsToolbar({ sort, setSort, quick, toggleQuick, tota
               from {from} to {to}
             </span>
           </h1>
-          <p className="text-[11px] leading-4 text-[#45464f]">
-            All prices inclusive of GST &amp; operator tolls · Free travel insurance available
-          </p>
         </div>
         {fastest && (
           <span className="flex w-fit items-center gap-1 rounded-full border border-[#a7f3d0] bg-[#ecfdf5] px-[11px] py-[5px] text-[10px] leading-[14px] font-bold text-[#006d04]">

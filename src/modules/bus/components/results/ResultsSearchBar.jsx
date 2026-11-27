@@ -71,13 +71,11 @@ export default function ResultsSearchBar({ query }) {
     >
       <Field label="From City" icon={`${RESULTS_IMG}/sb-search.svg`} iconSize={[16.67, 16.67]} className="border-[#969696]">
         <Select
-          showSearch
+          showSearch={{ onSearch: setFromSearchText, filterOption: false }}
           value={from || undefined}
           onChange={setFrom}
-          onSearch={setFromSearchText}
           loading={fromLoading}
           options={stationOptions(fromOptions)}
-          filterOption={false}
           placeholder="From"
           classNames={{
             selector: "!bg-transparent !border-0 !shadow-none",
@@ -102,13 +100,11 @@ export default function ResultsSearchBar({ query }) {
 
       <Field label="To Destination" icon={`${RESULTS_IMG}/sb-pin.svg`} iconSize={[14.85, 18.52]}>
         <Select
-          showSearch
+          showSearch={{ onSearch: setToSearchText, filterOption: false }}
           value={to || undefined}
           onChange={setTo}
-          onSearch={setToSearchText}
           loading={toLoading}
           options={stationOptions(toOptions)}
-          filterOption={false}
           placeholder="To"
           classNames={{
             selector: "!bg-transparent !border-0 !shadow-none",
@@ -144,4 +140,3 @@ export default function ResultsSearchBar({ query }) {
     </form>
   );
 }
-

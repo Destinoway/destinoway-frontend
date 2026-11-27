@@ -73,20 +73,14 @@ function CityField({ label, icon, iconSize, value, onChange, placeholder, option
             {label}
           </span>
           <Select
-            showSearch
             value={value || undefined}
             onChange={onChange}
-            onSearch={onSearch}
+            showSearch={{ onSearch, filterOption: false }}
             placeholder={placeholder}
             options={options}
             loading={loading}
-            filterOption={false}
-            classNames={{
-              selector: "!bg-transparent !border-0 !shadow-none",
-              selection: "!bg-transparent !border-0 !shadow-none",
-            }}
-            suffixIcon={null}
-            variant="borderless"
+            style={{ width: "100%" }}
+            className="ant-select-no-border"
           />
         </span>
       </div>
@@ -241,6 +235,7 @@ export default function BusHero() {
                       </span>
                     </span>
                   </div>
+                  {/* Invisible picker layered over the date text opens the calendar on click. */}
                   <DatePicker
                     aria-label="Journey date"
                     value={selected}

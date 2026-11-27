@@ -1,27 +1,21 @@
 "use client";
 
-import { MAX_SEATS, RESULTS_IMG, SEAT_ICONS, SEAT_LEGEND, fareBreakdown, inr } from "@/modules/bus/data/busResultsData";
-import { busBookingHref } from "@/modules/bus/utils/busSearchHref";
+import { MAX_SEATS, RESULTS_IMG, SEAT_ICONS, SEAT_LEGEND } from "@/modules/bus/data/busResultsData";
 import { App } from "antd";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-const ROW_ORDER_TOP = ["A", "B"];
-const ROW_ORDER_BOTTOM = ["C", "D"];
 
 // Sleeper berth colours per state (Figma "Bus Sleeper Container").
 const BERTH_STYLES = {
   available: { box: "border-[#777] bg-transparent", pillow: "bg-[#c4c9cd] border-white/50", text: "text-[#777]" },
   availableMale: { box: "border-[#1088d7] bg-white", pillow: "bg-[#bae6fd] border-[#7dd3fc]", text: "text-[#1088d7]" },
   availableFemale: { box: "border-[#f472b6] bg-white", pillow: "bg-[rgba(249,168,212,0.8)] border-[rgba(244,114,182,0.5)]", text: "text-[#be185d]" },
-  bookedMale: { box: "border-[#1088d7] bg-[#e1f3ff]", pillow: "bg-[#1088d7] border-white", text: "text-[#1088d7]" },
-  bookedFemale: { box: "border-[#f472b6] bg-[#fce7f3]", pillow: "bg-[#be185d] border-white", text: "text-[#be185d]" },
+  unavailable: { box: "border-[#cbd5e1] bg-[#e2e8f0]", pillow: "bg-[#cbd5e1] border-white", text: "text-[#64748b]" },
   selected: { box: "border-white bg-[#fbbf24]", pillow: "bg-[#e38d0f] border-[#b45309]", text: "text-white" },
 };
 
 function Berth({ seat, selected, onToggle, price }) {
-  const booked = seat.state.startsWith("booked");
+  const booked = seat.state === "unavailable";
   const s = BERTH_STYLES[selected ? "selected" : seat.state];
   const who = seat.state === "availableMale" ? ", male only" : seat.state === "availableFemale" ? ", female only" : "";
   return (
@@ -29,11 +23,11 @@ function Berth({ seat, selected, onToggle, price }) {
       type="button"
       disabled={booked}
       aria-pressed={selected}
-      aria-label={`Berth ${seat.id}${booked ? ", booked" : `, ₹${price}${who}`}`}
-      title={booked ? `${seat.id} · Booked` : `${seat.id} · ₹${price}`}
+      aria-label={`Berth ${seat.id}${booked ? ", unavailable" : `, ₹${price}${who}`}`}
+      title={booked ? `${seat.id} · Unavailable` : `${seat.id} · ₹${price}`}
       onClick={() => onToggle(seat)}
       className={`flex h-[30px] w-12 shrink-0 items-center justify-center rounded-md ${
-        booked ? "cursor-not-allowed" : "cursor-pointer focus-visible:ring-2 focus-visible:ring-[#05144b]/50"
+        booked ? "cursor-not-allowed opacity-50" : "cursor-pointer focus-visible:ring-2 focus-visible:ring-[#05144b]/50"
       }`}
     >
       <span
@@ -57,59 +51,9 @@ function BerthSwatch({ state }) {
   );
 }
 
-function BerthMap({ seats, selectedIds, onToggle, price }) {
-  const byRow = (r) => seats.filter((s) => s.row === r);
-  const row = (r) => (
-    <div key={r} className="flex items-center gap-[9px]">
-      <span className="-mr-[5px] w-3 text-center text-[9px] font-bold text-[#94a3b8]">{r}</span>
-      {byRow(r).map((s) => (
-        <Berth key={s.id} seat={s} selected={selectedIds.includes(s.id)} onToggle={onToggle} price={price} />
-      ))}
-    </div>
-  );
-  return (
-    <div className="overflow-x-auto pt-2 pb-3 [scrollbar-width:thin]">
-      <div className="relative mt-1 w-[510px] rounded-[10px] border-[3px] border-[#c3c3c3] bg-[#f2f9ff] py-[11px] pr-3 pl-[93px]">
-        <span aria-hidden className="absolute -top-2 left-[42px] h-1.5 w-6 rounded-t-md border border-[#64748b] bg-[#94a3b8]" />
-        <span aria-hidden className="absolute -bottom-2 left-[42px] h-1.5 w-6 rounded-b-md border border-[#64748b] bg-[#94a3b8]" />
-        <span aria-hidden className="absolute -top-2 right-[52px] h-1.5 w-6 rounded-t-md border border-[#64748b] bg-[#94a3b8]" />
-        <span aria-hidden className="absolute -bottom-2 right-[52px] h-1.5 w-6 rounded-b-md border border-[#64748b] bg-[#94a3b8]" />
-        <span aria-hidden className="absolute top-[15px] bottom-[15px] -left-1.5 w-1.5 rounded-l-full bg-[#cbd5e1]" />
-        <div aria-hidden className="absolute top-[12px] bottom-[12px] left-[12px] flex w-[68px] flex-col items-center rounded-md bg-[#d8dde3]">
-          <Image src={`${RESULTS_IMG}/x-container2.svg`} alt="" width={26} height={26} className="mt-4 -rotate-90" />
-          <span className="mx-2 my-3 h-px self-stretch bg-[#cbd5e1]" />
-          <span className="flex items-center gap-1">
-            <span className="flex size-7 items-center justify-center rounded-lg bg-[#e58a00] shadow-[0_0_0_1px_#c47500]">
-              <Image src={`${RESULTS_IMG}/x-container3.svg`} alt="" width={10} height={10} className="-rotate-90" />
-            </span>
-            <span className="text-[9px] font-semibold text-[#475569] [writing-mode:vertical-rl]">Entry Gate</span>
-          </span>
-          <span className="mt-auto mb-1 text-[8px] font-bold tracking-[0.8px] text-[#94a3b8] uppercase">Front</span>
-        </div>
-
-        <div className="flex flex-col gap-px">{ROW_ORDER_TOP.map(row)}</div>
-        <div className="my-1.5 ml-1.5 flex items-center gap-11 border-y border-dashed border-[rgba(182,182,182,0.35)] p-0.5">
-          <span className="flex items-center gap-1.5 text-[9px] font-bold tracking-[0.45px] text-[#94a3b8] uppercase">
-            Aisle <Image src={`${RESULTS_IMG}/x-container4.svg`} alt="" width={8.67} height={8.67} />
-          </span>
-          <span className="flex gap-2">
-            <span className="flex h-5 items-center gap-1 rounded border border-[#fde68a] bg-[#fffbeb] px-[9px] text-[9px] font-bold text-[#e58a00]">
-              <Image src={`${RESULTS_IMG}/x-container5.svg`} alt="" width={9} height={9} /> Pantry Hub
-            </span>
-            <span className="flex h-5 items-center gap-1 rounded border border-[#bfdbfe] bg-[#eff6ff] px-[9px] text-[9px] font-bold text-[#05144b]">
-              <Image src={`${RESULTS_IMG}/x-container6.svg`} alt="" width={8.5} height={10} /> Clean Restroom
-            </span>
-          </span>
-        </div>
-        <div className="flex flex-col gap-px">{ROW_ORDER_BOTTOM.map(row)}</div>
-      </div>
-    </div>
-  );
-}
-
 function Seat({ seat, selected, onToggle, price }) {
-  const booked = seat.state.startsWith("booked");
-  const icon = selected ? SEAT_ICONS.selected : SEAT_ICONS[seat.state];
+  const booked = seat.state === "unavailable";
+  const icon = selected ? SEAT_ICONS.selected : SEAT_ICONS[seat.state] || SEAT_ICONS.available;
   const who =
     seat.state === "availableMale" ? ", male only" : seat.state === "availableFemale" ? ", female only" : "";
   return (
@@ -117,11 +61,11 @@ function Seat({ seat, selected, onToggle, price }) {
       type="button"
       disabled={booked}
       aria-pressed={selected}
-      aria-label={`Seat ${seat.id}${booked ? ", booked" : `, ₹${price}${who}`}`}
-      title={booked ? `${seat.id} · Booked` : `${seat.id} · ₹${price}`}
+      aria-label={`Seat ${seat.id}${booked ? ", unavailable" : `, ₹${price}${who}`}`}
+      title={booked ? `${seat.id} · Unavailable` : `${seat.id} · ₹${price}`}
       onClick={() => onToggle(seat)}
       className={`flex size-[30.6px] items-center justify-center rounded-md transition-transform ${
-        booked ? "cursor-not-allowed" : "cursor-pointer hover:scale-110 focus-visible:ring-2 focus-visible:ring-[#05144b]/50"
+        booked ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:scale-110 focus-visible:ring-2 focus-visible:ring-[#05144b]/50"
       }`}
     >
       <Image src={icon} alt="" width={25.5} height={22.1} />
@@ -129,58 +73,26 @@ function Seat({ seat, selected, onToggle, price }) {
   );
 }
 
-function SeatRow({ row, seats, selectedIds, onToggle, price }) {
-  return (
-    <div className="flex items-center">
-      <span className="w-3 text-[9px] font-bold text-[#94a3b8]">{row}</span>
-      {seats.map((s) => (
-        <Seat key={s.id} seat={s} selected={selectedIds.includes(s.id)} onToggle={onToggle} price={price} />
-      ))}
-    </div>
-  );
-}
-
-function CoachMap({ seats, selectedIds, onToggle, price }) {
-  const byRow = (r) => seats.filter((s) => s.row === r);
+function CoachMap({ seats, selected, onToggle }) {
   return (
     <div className="overflow-x-auto pb-2 [scrollbar-width:thin]">
-      <div className="relative mt-2 w-[500px] rounded-[10px] border border-[#c3c3c3] bg-[#f2f9ff] p-[15px] pl-[93px]">
-        {/* front cabin */}
-        <span aria-hidden className="absolute -top-2 left-[42px] h-1.5 w-6 rounded-t-md border border-[#64748b] bg-[#94a3b8]" />
-        <span aria-hidden className="absolute -bottom-2 left-[42px] h-1.5 w-6 rounded-b-md border border-[#64748b] bg-[#94a3b8]" />
-        <span aria-hidden className="absolute top-[15px] bottom-[15px] -left-1.5 w-1.5 rounded-r-full bg-[#cbd5e1]" />
-        <div aria-hidden className="absolute top-[15px] bottom-[15px] left-[15px] flex w-[68px] flex-col items-center rounded-md bg-[#d8dde3]">
-          <Image src={`${RESULTS_IMG}/x-container2.svg`} alt="" width={26} height={26} className="mt-4" />
-          <span className="mx-2 my-3 h-px self-stretch bg-[#cbd5e1]" />
-          <span className="flex size-7 items-center justify-center rounded-lg bg-[#e58a00]">
-            <Image src={`${RESULTS_IMG}/x-container3.svg`} alt="" width={10} height={10} />
-          </span>
-          <span className="mt-1 text-[9px] font-semibold text-[#475569]">Entry Gate</span>
-          <span className="mt-auto mb-1 text-[8px] font-bold tracking-[0.8px] text-[#94a3b8] uppercase">Front</span>
+      <div className="flex w-max gap-4 rounded-[10px] border border-[#c3c3c3] bg-[#f2f9ff] p-4">
+        <div className="flex min-w-12 flex-col items-center justify-between gap-4 rounded-md bg-[#d8dde3] p-2">
+          <Image src={`${RESULTS_IMG}/x-container2.svg`} alt="" width={26} height={26} />
+          <span className="text-[10px] font-bold uppercase text-[#475569]">Front</span>
         </div>
-
-        <div className="flex flex-col gap-0.5">
-          {ROW_ORDER_TOP.map((r) => (
-            <SeatRow key={r} row={r} seats={byRow(r)} selectedIds={selectedIds} onToggle={onToggle} price={price} />
-          ))}
-        </div>
-        <div className="my-1 ml-3 flex items-center gap-11 border-y border-dashed border-[rgba(182,182,182,0.35)] p-0.5">
-          <span className="flex items-center gap-1.5 text-[9px] font-bold tracking-[0.45px] text-[#94a3b8] uppercase">
-            Aisle <Image src={`${RESULTS_IMG}/x-container4.svg`} alt="" width={8.67} height={8.67} />
-          </span>
-          <span className="flex gap-2">
-            <span className="flex h-5 items-center gap-1 rounded border border-[#fde68a] bg-[#fffbeb] px-[9px] text-[9px] font-bold text-[#e58a00]">
-              <Image src={`${RESULTS_IMG}/x-container5.svg`} alt="" width={9} height={9} /> Pantry Hub
-            </span>
-            <span className="flex h-5 items-center gap-1 rounded border border-[#bfdbfe] bg-[#eff6ff] px-[9px] text-[9px] font-bold text-[#05144b]">
-              <Image src={`${RESULTS_IMG}/x-container6.svg`} alt="" width={8.5} height={10} /> Clean Restroom
-            </span>
-          </span>
-        </div>
-        <div className="flex flex-col gap-0.5">
-          {ROW_ORDER_BOTTOM.map((r) => (
-            <SeatRow key={r} row={r} seats={byRow(r)} selectedIds={selectedIds} onToggle={onToggle} price={price} />
-          ))}
+        <div className="grid auto-cols-[32px] auto-rows-[32px] place-items-center gap-1" aria-label="Coach layout">
+          {seats.map((seat) => {
+            const SeatButton = seat.berth ? Berth : Seat;
+            return (
+              <div key={seat.key} style={{
+                gridRow: `${seat.row + 1} / span ${seat.height}`,
+                gridColumn: `${seat.column + 1} / span ${seat.width}`,
+              }}>
+                <SeatButton seat={seat} selected={selected.includes(seat.key)} onToggle={onToggle} price={seat.price} />
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -272,68 +184,13 @@ function PointsPanel({ bus, pickup, drop, setPickup, setDrop }) {
   );
 }
 
-function BookingDetails({ seats, price, pickup, drop, onEdit, onProceed }) {
-  const { base, gst, total } = fareBreakdown(seats.length, price);
-  const row = "flex justify-between text-xs leading-5 text-[#45464f]";
-
-  return (
-    <div className="flex w-full flex-col gap-3 rounded-xl border border-[rgba(198,197,209,0.2)] bg-white p-4">
-      <div>
-        <h4 className="text-lg font-bold text-[#05144b]">Booking Details</h4>
-        <p className="text-[11px] text-[#45464f]">
-          {seats.length} {seats.length === 1 ? "Passenger" : "Passengers"} Selected
-        </p>
-      </div>
-      {[
-        ["Boarding Point", pickup],
-        ["Dropping Point", drop],
-      ].map(([label, p]) => (
-        <div key={label} className="flex flex-col gap-1">
-          <span className="text-[10px] font-semibold text-[#45464f]">{label}</span>
-          <button
-            type="button"
-            onClick={onEdit}
-            className="cursor-pointer truncate rounded-md border border-[#c6c5d1] px-3 py-2 text-left text-xs text-[#0b1c30] hover:border-[#05144b]"
-          >
-            {p.name} ({p.time})
-          </button>
-        </div>
-      ))}
-      <div className="flex flex-col gap-1 rounded-lg bg-[#f8f9ff] p-3">
-        <div className={row}>
-          <span>Base Fare (Seat {seats.join(", ")})</span>
-          <span>{inr(base)}</span>
-        </div>
-        <div className={row}>
-          <span>GST (5%)</span>
-          <span>{inr(gst)}</span>
-        </div>
-        <div className="mt-1 flex justify-between border-t border-[#e2e8f0] pt-2 text-base font-bold text-[#05144b]">
-          <span>Total Payable</span>
-          <span>{inr(total)}</span>
-        </div>
-        <p className="text-[10px] text-[#0f766e]">Apply coupons on the next step.</p>
-      </div>
-      <button
-        type="button"
-        onClick={onProceed}
-        className="cursor-pointer rounded-lg bg-[#e58a00] py-2.5 text-sm font-bold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] hover:bg-[#c97c00]"
-      >
-        Proceed to Passenger Details
-      </button>
-    </div>
-  );
-}
-
-export default function SeatSelector({ bus, query }) {
+export default function SeatSelector({ bus }) {
   const { message } = App.useApp();
-  const router = useRouter();
   const deckKeys = Object.keys(bus.decks);
   const [deck, setDeck] = useState(deckKeys[0]);
   const [selected, setSelected] = useState([]);
   const [pickup, setPickup] = useState(null);
   const [drop, setDrop] = useState(null);
-  const [editingPoints, setEditingPoints] = useState(false);
 
   const availableCount = Object.fromEntries(
     deckKeys.map((k) => [k, bus.decks[k].filter((s) => s.state.startsWith("available")).length]),
@@ -341,17 +198,22 @@ export default function SeatSelector({ bus, query }) {
 
   const toggleSeat = (seat) => {
     setSelected((cur) => {
-      if (cur.includes(seat.id)) return cur.filter((id) => id !== seat.id);
+      if (cur.includes(seat.key)) return cur.filter((id) => id !== seat.key);
       if (cur.length >= MAX_SEATS) {
         message.warning({ content: `You can select up to ${MAX_SEATS} seats per booking`, key: "seat-max" });
         return cur;
       }
-      return [...cur, seat.id];
+      return [...cur, seat.key];
     });
   };
 
-  const fare = selected.length * bus.price;
-  const showSummary = selected.length > 0 && pickup && drop && !editingPoints;
+  const selectedSeats = Object.values(bus.decks).flat().filter((seat) => selected.includes(seat.key));
+  const fare = selectedSeats.reduce((total, seat) => total + seat.price, 0);
+  const hasBerths = bus.decks[deck].some((seat) => seat.berth);
+  const legend = [
+    ...SEAT_LEGEND.filter((item) => !item.state.startsWith("booked")),
+    { label: "Unavailable", state: "unavailable", icon: SEAT_ICONS.available, size: [18, 15] },
+  ];
 
   return (
     <div className="border-t border-[rgba(198,197,209,0.3)] bg-[#eff4ff] p-4 sm:px-6 sm:pt-[25px] sm:pb-6">
@@ -378,12 +240,12 @@ export default function SeatSelector({ bus, query }) {
           )}
         </div>
         <ul className="grid max-w-[482px] grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-4" aria-label="Seat legend">
-          {SEAT_LEGEND.map((l) => (
+          {legend.map((l) => (
             <li key={l.label} className="flex items-center gap-1.5 text-[10px] font-bold text-[#0b1c30]">
-              {bus.layout === "sleeper" ? (
+              {hasBerths ? (
                 <BerthSwatch state={l.state} />
               ) : (
-                <Image src={l.icon} alt="" width={l.size[0]} height={l.size[1]} className="shrink-0" />
+                <Image src={l.icon} alt="" width={l.size[0]} height={l.size[1]} className={l.state === "unavailable" ? "shrink-0 opacity-50" : "shrink-0"} />
               )}
               {l.label}
             </li>
@@ -393,61 +255,23 @@ export default function SeatSelector({ bus, query }) {
 
       <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_345px]">
         <div className="flex min-w-0 flex-col gap-4">
-          {bus.layout === "sleeper" ? (
-            <BerthMap seats={bus.decks[deck]} selectedIds={selected} onToggle={toggleSeat} price={bus.price} />
-          ) : (
-            <CoachMap seats={bus.decks[deck]} selectedIds={selected} onToggle={toggleSeat} price={bus.price} />
-          )}
+          <CoachMap seats={bus.decks[deck]} selected={selected} onToggle={toggleSeat} />
           <div className="flex flex-col gap-1.5 rounded-xl border border-[rgba(198,197,209,0.2)] bg-white p-[15px] lg:max-w-[514px]">
             <p className="text-lg font-medium text-[#45464f] sm:text-xl">
               Selected Seat:{" "}
-              <span className="font-bold text-[#05144b]">{selected.length ? selected.join(", ") : "None"}</span>
+              <span className="font-bold text-[#05144b]">{selectedSeats.length ? selectedSeats.map((seat) => seat.id).join(", ") : "None"}</span>
             </p>
             <p className="flex items-center gap-1.5 font-bold">
               <span className="text-base text-[#0b1c30]">Bus Fare:</span>
               <span className="text-xl text-[#ba611e]">₹{fare}</span>
             </p>
-            {selected.length > 0 && !(pickup && drop) && (
-              <p className="text-[11px] text-[#45464f]">Choose your pickup and drop points to continue.</p>
+            {selected.length > 0 && (
+              <p className="text-[11px] text-[#45464f]">Online booking is currently unavailable.</p>
             )}
           </div>
         </div>
 
-        {showSummary ? (
-          <BookingDetails
-            seats={selected}
-            price={bus.price}
-            pickup={pickup}
-            drop={drop}
-            onEdit={() => setEditingPoints(true)}
-            onProceed={() =>
-              router.push(busBookingHref({ query, busId: bus.id, seats: selected, pickupId: pickup.id, dropId: drop.id }))
-            }
-          />
-        ) : (
-          <div className="flex flex-col gap-3">
-            <PointsPanel
-              key={editingPoints ? "edit" : "pick"}
-              bus={bus}
-              pickup={pickup}
-              drop={drop}
-              setPickup={setPickup}
-              setDrop={(p) => {
-                setDrop(p);
-                setEditingPoints(false);
-              }}
-            />
-            {editingPoints && pickup && drop && (
-              <button
-                type="button"
-                onClick={() => setEditingPoints(false)}
-                className="cursor-pointer self-end text-xs font-bold text-[#ba611e] underline"
-              >
-                Back to booking details
-              </button>
-            )}
-          </div>
-        )}
+        <PointsPanel bus={bus} pickup={pickup} drop={drop} setPickup={setPickup} setDrop={setDrop} />
       </div>
     </div>
   );

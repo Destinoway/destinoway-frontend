@@ -1,14 +1,167 @@
 "use client";
 
-import { AMENITIES, RESULTS_IMG, toDuration } from "@/modules/bus/data/busResultsData";
+import { inr, RESULTS_IMG, toDuration } from "@/modules/bus/data/busResultsData";
+import { fetchBusAmenities, fetchBusCancellationPolicy, fetchSeatLayout } from "@/modules/bus/services/busSearch";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-// Seat map is only needed once a card is opened.
 const SeatSelector = dynamic(() => import("./SeatSelector"), {
-  loading: () => <div className="h-[420px] animate-pulse border-t border-[rgba(198,197,209,0.3)] bg-[#eff4ff]" />,
+  loading: () => <p role="status" className="p-4">Loading seat picker…</p>,
 });
+
+function SeatLayoutPanel({ bus }) {
+  const [layout, setLayout] = useState(null);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const request = bus.seatLayoutRequest;
+
+  useEffect(() => {
+    if (!request?.tui) return;
+    const controller = new AbortController();
+    fetchSeatLayout(request, controller.signal).then(
+      (data) => {
+        if (!controller.signal.aborted) setLayout(data);
+      },
+      () => {
+        if (!controller.signal.aborted) setFailed(true);
+      },
+    );
+    return () => controller.abort();
+  }, [request, attempt]);
+
+  if (layout && Object.keys(layout.decks).length) return <SeatSelector bus={{ ...bus, ...layout }} />;
+  return (
+    <div className="border-t border-[#e2e8f0] bg-[#eff4ff] p-4">
+      {failed ? (
+        <div role="alert">
+          <p>Couldn’t load the seat layout.</p>
+          <button type="button" className="mt-2 font-bold text-[#ba611e]" onClick={() => {
+            setFailed(false);
+            setAttempt((value) => value + 1);
+          }}>Retry</button>
+        </div>
+      ) : layout || !request?.tui ? (
+        <p>Seat layout is unavailable for this bus.</p>
+      ) : (
+        <p role="status">Loading seat layout…</p>
+      )}
+    </div>
+  );
+}
+
+function CancellationPolicyPanel({ request }) {
+  const [result, setResult] = useState(null);
+  const [attempt, setAttempt] = useState(0);
+  const canFetch = Boolean(request?.tui && request?.busServiceId);
+
+  useEffect(() => {
+    if (!canFetch) return;
+    const controller = new AbortController();
+    fetchBusCancellationPolicy(request, controller.signal).then(
+      (policies) => {
+        if (!controller.signal.aborted) setResult({ policies });
+      },
+      () => {
+        if (!controller.signal.aborted) setResult({ failed: true });
+      },
+    );
+    return () => controller.abort();
+  }, [canFetch, request, attempt]);
+
+  return (
+    <div className="overflow-x-auto border-t border-[#e2e8f0] px-4 py-3 text-xs text-[#45464f] sm:px-6">
+      {!canFetch || result?.policies?.length === 0 ? (
+        <p>Cancellation policy information unavailable.</p>
+      ) : !result ? (
+        <p role="status">Loading cancellation policy…</p>
+      ) : result.failed ? (
+        <div role="alert">
+          <p>Couldn’t load the cancellation policy.</p>
+          <button
+            type="button"
+            className="mt-2 font-bold text-[#ba611e]"
+            onClick={() => {
+              setResult(null);
+              setAttempt((value) => value + 1);
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      ) : (
+        <table aria-label="Cancellation policy" className="w-full text-left">
+          <thead className="bg-[#f8f9ff] text-[#0b1c30]">
+            <tr>
+              <th scope="col" className="px-2 py-2">Cancellation window</th>
+              <th scope="col" className="px-2 py-2">Charge</th>
+              <th scope="col" className="px-2 py-2">Deduction</th>
+            </tr>
+          </thead>
+          <tbody>
+            {result.policies.map(({ cancellationTime, cancellationCharges, deductionPercentage }, index) => (
+              <tr key={index} className="border-b border-[#e2e8f0] last:border-0">
+                <td className="px-2 py-2">{cancellationTime}</td>
+                <td className="px-2 py-2">{cancellationCharges == null ? "—" : inr(cancellationCharges)}</td>
+                <td className="px-2 py-2">{deductionPercentage ?? "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+function AmenitiesPanel({ request }) {
+  const [result, setResult] = useState(null);
+  const [attempt, setAttempt] = useState(0);
+  const canFetch = Boolean(request?.tui && request?.busServiceId);
+
+  useEffect(() => {
+    if (!canFetch) return;
+    const controller = new AbortController();
+    fetchBusAmenities(request, controller.signal).then(
+      (names) => {
+        if (!controller.signal.aborted) setResult({ names });
+      },
+      () => {
+        if (!controller.signal.aborted) setResult({ failed: true });
+      },
+    );
+    return () => controller.abort();
+  }, [canFetch, request, attempt]);
+
+  return (
+    <div className="border-t border-[#e2e8f0] px-4 py-3 text-xs text-[#45464f] sm:px-6">
+      {!canFetch || result?.names?.length === 0 ? (
+        <p>Amenities information unavailable.</p>
+      ) : !result ? (
+        <p role="status">Loading amenities…</p>
+      ) : result.failed ? (
+        <div role="alert">
+          <p>Couldn’t load amenities.</p>
+          <button
+            type="button"
+            className="mt-2 font-bold text-[#ba611e]"
+            onClick={() => {
+              setResult(null);
+              setAttempt((value) => value + 1);
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      ) : (
+        <ul className="flex flex-wrap gap-2" aria-label="Bus amenities">
+          {result.names.map((name) => (
+            <li key={name} className="rounded border border-[#e2e8f0] bg-[#f8f9ff] px-2 py-1">{name}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function StripButton({ icon, iconSize, label, open, onClick }) {
   return (
@@ -25,20 +178,16 @@ function StripButton({ icon, iconSize, label, open, onClick }) {
   );
 }
 
-export default function BusCard({ bus, query, expanded, onToggle }) {
-  const [info, setInfo] = useState(null); // "policy" | "amenities" | null
+export default function BusCard({ bus }) {
+  const [expanded, setExpanded] = useState(false);
+  const [showStops, setShowStops] = useState(false);
+  const [showPolicy, setShowPolicy] = useState(false);
+  const [showAmenities, setShowAmenities] = useState(false);
 
   return (
     <article className="overflow-hidden rounded-md border border-[rgba(198,197,209,0.3)] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
       <div className="grid grid-cols-1 gap-4 px-4 pt-[14px] pb-4 sm:px-6 md:grid-cols-12 md:pb-6">
         <div className="flex flex-col justify-center gap-1.5 md:col-span-4">
-          <div className="flex items-center gap-2">
-            <span className="flex items-center gap-0.5 rounded bg-[#006d04] px-1.5 py-0.5 text-[11px] leading-5 font-bold text-white">
-              {bus.rating.toFixed(1)}
-              <Image src={`${RESULTS_IMG}/c-star.svg`} alt="" width={10} height={9.5} />
-            </span>
-            <span className="text-[11px] leading-5 text-[#45464f]">({bus.reviews.toLocaleString("en-IN")} reviews)</span>
-          </div>
           <h2 className="text-lg leading-[22.5px] font-extrabold text-[#0b1c30]">{bus.operator}</h2>
           <p className="text-xs leading-4 text-[#45464f]">{bus.coach}</p>
         </div>
@@ -56,7 +205,6 @@ export default function BusCard({ bus, query, expanded, onToggle }) {
               <span className="h-0.5 flex-1 bg-gradient-to-r from-[#05144b] via-[#e58a00] to-[#005952]" />
               <span className="size-2.5 shrink-0 rounded-full bg-[#e58a00]" />
             </div>
-            <span className="truncate pt-1 text-[10px] leading-5 font-bold text-[#ba611e]">{bus.routeNote}</span>
           </div>
           <div className="flex flex-col items-end text-right">
             <span className="text-lg leading-6 font-extrabold text-[#0b1c30]">{bus.arrTime}</span>
@@ -67,18 +215,17 @@ export default function BusCard({ bus, query, expanded, onToggle }) {
 
         <div className="flex items-center justify-between gap-2.5 md:col-span-3 md:flex-col md:items-end md:justify-center">
           <div className="flex flex-col md:items-end">
-            <span className="text-xs leading-4 text-[#45464f] line-through">₹{bus.originalPrice}</span>
             <span className="text-[22px] leading-7 font-extrabold text-[#05144b]">₹{bus.price}</span>
           </div>
           <button
             type="button"
-            onClick={onToggle}
+            onClick={() => setExpanded(!expanded)}
             aria-expanded={expanded}
             className={`flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-6 py-2.5 text-sm leading-5 font-bold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition-colors ${
               expanded ? "bg-[#05144b] hover:bg-[#0c2fb1]" : "bg-[#e58a00] hover:bg-[#c97c00]"
             }`}
           >
-            {expanded ? "Hide Seat" : "Select Seats"}
+            {expanded ? "Hide seats" : "Select seats"}
             <Image
               src={`${RESULTS_IMG}/c-chevron-down-white.svg`}
               alt=""
@@ -90,66 +237,51 @@ export default function BusCard({ bus, query, expanded, onToggle }) {
         </div>
       </div>
 
-      {!expanded && (
-        <>
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[rgba(198,197,209,0.2)] bg-[#eff4ff] px-4 pt-[9px] pb-2 sm:px-6">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <StripButton
-                icon={`${RESULTS_IMG}/c-policy.svg`}
-                iconSize={[11, 12]}
-                label="Cancellation Policy"
-                open={info === "policy"}
-                onClick={() => setInfo(info === "policy" ? null : "policy")}
-              />
-              <StripButton
-                icon={`${RESULTS_IMG}/c-amenities.svg`}
-                iconSize={[18, 18]}
-                label="Amenities"
-                open={info === "amenities"}
-                onClick={() => setInfo(info === "amenities" ? null : "amenities")}
-              />
-              <span className="flex items-center gap-1 text-xs leading-[14px] font-bold text-[#45464f] sm:text-sm">
-                <Image src={`${RESULTS_IMG}/c-seat.svg`} alt="" width={18} height={18} />
-                {bus.seatsLeft} Seats Left
-              </span>
-            </div>
-            {bus.cashback > 0 && (
-              <span className="flex items-center gap-1 text-[10px] leading-[14px] font-bold text-[#c47500]">
-                <Image src={`${RESULTS_IMG}/c-rupee.svg`} alt="" width={7} height={10.5} />
-                Extra ₹{bus.cashback} Wallet Cashback applied
-              </span>
-            )}
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[rgba(198,197,209,0.2)] bg-[#eff4ff] px-4 py-2 sm:px-6">
+        <StripButton
+          icon={`${RESULTS_IMG}/c-policy.svg`}
+          iconSize={[11, 12]}
+          label="Cancellation Policy"
+          open={showPolicy}
+          onClick={() => setShowPolicy(!showPolicy)}
+        />
+        <StripButton
+          icon={`${RESULTS_IMG}/c-amenities.svg`}
+          iconSize={[18, 18]}
+          label="Amenities"
+          open={showAmenities}
+          onClick={() => setShowAmenities(!showAmenities)}
+        />
+        <StripButton
+          icon={`${RESULTS_IMG}/c-chevron.svg`}
+          iconSize={[6, 9]}
+          label="View stops"
+          open={showStops}
+          onClick={() => setShowStops(!showStops)}
+        />
+        <span className="text-xs font-bold text-[#45464f] sm:text-sm">{bus.seatsLeft} Seats Left</span>
+      </div>
 
-          {info === "policy" && (
-            <div className="border-t border-[rgba(198,197,209,0.2)] px-4 py-3 text-xs leading-5 text-[#45464f] sm:px-6">
-              {bus.freeCancellation ? (
-                <p>
-                  <strong className="text-[#006d04]">Free cancellation</strong> up to 6 hours before departure. 50% refund
-                  between 6 and 2 hours before departure; no refund after that.
-                </p>
-              ) : (
-                <p>75% refund up to 12 hours before departure, 50% up to 4 hours before. No refund after that.</p>
-              )}
+      {showPolicy && <CancellationPolicyPanel request={bus.seatLayoutRequest} />}
+
+      {showAmenities && <AmenitiesPanel request={bus.seatLayoutRequest} />}
+      {showStops && (
+        <div className="grid gap-4 border-t border-[rgba(198,197,209,0.2)] px-4 py-3 text-sm sm:grid-cols-2 sm:px-6">
+          {[["Boarding points", bus.pickups], ["Drop-off points", bus.drops]].map(([label, points]) => (
+            <div key={label}>
+              <h3 className="mb-2 font-bold">{label}</h3>
+              {points.length ? (
+                <ul>
+                  {points.map(({ name, time }, index) => (
+                    <li className="flex gap-2" key={index}><span className="font-semibold">{time}</span>{name}</li>
+                  ))}
+                </ul>
+              ) : <p>No stops listed.</p>}
             </div>
-          )}
-          {info === "amenities" && (
-            <ul className="flex flex-wrap gap-2 border-t border-[rgba(198,197,209,0.2)] px-4 py-3 sm:px-6">
-              {AMENITIES.filter((a) => bus.amenities.includes(a.key)).map((a) => (
-                <li
-                  key={a.key}
-                  className="flex items-center gap-1.5 rounded border border-[rgba(198,197,209,0.2)] bg-[#f8f9ff] px-2 py-1 text-[11px] font-bold text-[#0b1c30]"
-                >
-                  <Image src={a.icon} alt="" width={a.size[0]} height={a.size[1]} />
-                  {a.label}
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
+          ))}
+        </div>
       )}
-
-      {expanded && <SeatSelector bus={bus} query={query} />}
+      {expanded && <SeatLayoutPanel bus={bus} />}
     </article>
   );
 }
