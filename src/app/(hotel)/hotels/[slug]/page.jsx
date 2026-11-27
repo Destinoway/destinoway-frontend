@@ -11,7 +11,7 @@ import dayjs from "dayjs";
 import { redirectIfCmsMoved } from "@/modules/cms/services/cmsRedirect";
 import { buildRequestedPath } from "@/modules/cms/utils/redirectPath";
 import { notFound } from "next/navigation";
-import { getSiteUrl } from "@/modules/cms/utils/seoUrl";
+import { buildPageTitle, getSiteUrl } from "@/modules/cms/utils/seoUrl";
 
 const formatCityName = (value = "") => {
   return (
@@ -78,7 +78,8 @@ export async function generateMetadata({ params, searchParams }) {
 
   return {
     metadataBase: new URL(siteUrl),
-    title: buildHotelTitle(cityName),
+    // Title already ends with "| Destinoway"; bypass the root template.
+    title: buildPageTitle(buildHotelTitle(cityName)),
     description: buildHotelDescription(cityName),
     keywords: buildHotelKeywords(cityName),
     alternates: {

@@ -16,50 +16,52 @@ export default function OfferBanner() {
 
         <div className="absolute inset-0 z-10 bg-black/10" />
 
-        <Image
-          src="/images/luggage.webp"
-          alt="luggage"
-          width={600}
-          height={600}
-            sizes="(max-width: 639px) 70px, (max-width: 767px) 100px, (max-width: 1023px) 180px, 280px"
-          className="absolute right-1 bottom-0 z-20 h-auto w-17.5 drop-shadow-2xl sm:w-25 md:w-45 lg:w-70"
-        />
+        <div className="absolute inset-0 z-20 flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-10">
+          <div className="flex flex-col items-start justify-center">
+            <p className="text-[13px] text-gray-100 sm:text-[16px] md:text-[20px] lg:text-[26px]">
+              Lowest Deals Are Here
+            </p>
 
-        <div className="absolute top-2 left-2 z-20 h-12.5 w-12.5 sm:top-4 sm:left-4 sm:h-22.5 sm:w-22.5 md:top-6 md:left-6 md:h-35 md:w-35 lg:top-10 lg:left-10 lg:h-45 lg:w-45">
-          <Image
-            src="/images/offer.webp"
-            alt="offer badge"
-            fill
-            sizes="(max-width: 639px) 50px, (max-width: 767px) 90px, (max-width: 1023px) 140px, 180px"
-            className="rotate-[-15deg] object-contain"
-          />
+            <h1 className="mt-2 text-[20px] leading-tight font-bold text-white sm:text-[28px] md:text-[40px] lg:text-[56px]">
+              Cashback Guaranteed
+            </h1>
+
+            <p className="mt-3 max-w-xs text-[11px] leading-5 text-gray-100 sm:max-w-sm sm:text-sm sm:leading-6 md:max-w-md md:text-[14px] lg:max-w-lg lg:text-base">
+              Get cashback on every booking with Destinoway.
+            </p>
+
+            <button
+              onClick={() =>
+                document.getElementById("hero-search")?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                })
+              }
+              className="buttion-background-color mt-4 h-10 w-42.5 rounded-lg text-[16px] font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:opacity-90 active:scale-[0.98] sm:h-11 sm:w-48 sm:text-[18px] md:h-12 md:w-52 md:text-[18px]"
+            >
+              Start Booking →
+            </button>
+          </div>
+
+          <div className="relative h-32 w-32 shrink-0 sm:h-48 sm:w-48 md:h-64 md:w-64">
+            <Image
+              src="/images/offer.webp"
+              alt="offer badge"
+              fill
+              sizes="(max-width: 639px) 128px, (max-width: 767px) 192px, (max-width: 1023px) 256px, 256px"
+              className="rotate-[-15deg] object-contain"
+            />
+          </div>
         </div>
 
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-3 text-center">
-          <p className="mb-1 text-[13px] text-gray-200 sm:text-[16px] md:text-[20px] lg:text-[26px]">
-            Lowest Deals Are Here
-          </p>
-
-          <h1 className="mb-3 text-[20px] leading-tight font-bold text-white sm:text-[28px] md:text-[40px] lg:text-[56px]">
-            Cashback Guaranteed
-          </h1>
-
-          <p className="mb-4 max-w-[95%] text-[11px] leading-5 text-gray-200 sm:max-w-[85%] sm:text-sm sm:leading-6 md:max-w-xl md:text-[14px] lg:text-base">
-            It is a long established fact that a reader will be distracted by
-            the readable content of a page when looking at its layout.
-          </p>
-
-          <button
-            onClick={() =>
-              document.getElementById("hero-search")?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              })
-            }
-            className="text-teb-color! h-8.5 w-35 rounded bg-white text-[13px] font-semibold shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] sm:h-10 sm:w-42.5 sm:text-[16px] md:h-10.5 md:w-50 md:text-[18px]"
-          >
-            Start Booking →
-          </button>
+        <div className="absolute right-0 bottom-0 z-20 h-32 w-32 sm:h-48 sm:w-48 md:h-64 md:w-64">
+          <Image
+            src="/images/luggage.webp"
+            alt="luggage"
+            fill
+            sizes="(max-width: 639px) 128px, (max-width: 767px) 192px, (max-width: 1023px) 256px, 256px"
+            className="object-contain drop-shadow-2xl"
+          />
         </div>
       </div>
     </div>

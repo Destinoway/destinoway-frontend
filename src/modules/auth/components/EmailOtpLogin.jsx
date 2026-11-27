@@ -5,7 +5,7 @@ import RHFInput from "@/components/ui/RHFinputs/RHFInput";
 import OtpInput from "@/modules/auth/components/OtpInput";
 import { useSendEmailotp } from "@/modules/auth/hooks/useLogin";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { App } from "antd";
+import { message } from "antd";
 import { signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -17,7 +17,6 @@ const schema = z.object({
 });
 
 export default function EmailOtpLogin({ onSuccess }) {
-  const { message } = App.useApp();
   const [step, setStep] = useState("email");
   const [timer, setTimer] = useState(0);
   const [verifying, setVerifying] = useState(false);
@@ -47,13 +46,20 @@ export default function EmailOtpLogin({ onSuccess }) {
     try {
       // SEND OTP
       if (step === "email") {
-        await sendOtpMutation.mutateAsync({
-          email: data.email,
-        });
-        message.success("OTP sent to email");
-        setStep("otp");
-        setTimer(30);
-        return;
+        try {
+          const response = await sendOtpMutation.mutateAsync({
+            email: data.email,
+          });
+          console.log("OTP sent successfully:", response);
+          message.success("OTP sent to email");
+          setStep("otp");
+          setTimer(30);
+          return;
+        } catch (otpError) {
+          console.error("Failed to send OTP:", otpError);
+          message.error(otpError?.response?.data?.message || otpError?.message || "Failed to send OTP");
+          return;
+        }
       }
 
       if (!data.otp || data.otp.length !== 6) {

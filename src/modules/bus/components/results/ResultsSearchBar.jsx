@@ -2,8 +2,9 @@
 
 import { RESULTS_IMG } from "@/modules/bus/data/busResultsData";
 import { useBusSearchStore } from "@/modules/bus/store/busSearch.store";
+import { useBusStationSearch } from "@/modules/bus/hooks/useBusStationSearch";
 import { busSearchHref } from "@/modules/bus/utils/busSearchHref";
-import { App, DatePicker } from "antd";
+import { App, DatePicker, Select } from "antd";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -34,8 +35,19 @@ export default function ResultsSearchBar({ query }) {
   const [from, setFrom] = useState(query.from);
   const [to, setTo] = useState(query.to);
   const [date, setDate] = useState(query.date);
+  const [fromSearchText, setFromSearchText] = useState("");
+  const [toSearchText, setToSearchText] = useState("");
   const selected = dayjs(date);
   const today = dayjs().startOf("day");
+
+  const { data: fromOptions = [], isLoading: fromLoading } = useBusStationSearch(fromSearchText, "from");
+  const { data: toOptions = [], isLoading: toLoading } = useBusStationSearch(toSearchText, "to");
+
+  const stationOptions = (stations) =>
+    stations.map((station) => ({
+      label: station.name,
+      value: station.name,
+    }));
 
   const submit = (e) => {
     e.preventDefault();
@@ -52,16 +64,26 @@ export default function ResultsSearchBar({ query }) {
     router.push(busSearchHref({ from, to, date }));
   };
 
-  const inputCls =
-    "w-full truncate bg-transparent text-base leading-6 font-bold text-[#0f172a] outline-none placeholder:text-[#94a3b8] sm:text-xl";
-
   return (
     <form
       onSubmit={submit}
       className="relative grid grid-cols-1 gap-2 rounded-md bg-[#d5e0e6] p-2 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] md:grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)_minmax(0,1fr)_188px] lg:items-center lg:gap-x-6 lg:px-7"
     >
       <Field label="From City" icon={`${RESULTS_IMG}/sb-search.svg`} iconSize={[16.67, 16.67]} className="border-[#969696]">
-        <input aria-label="From city" value={from} onChange={(e) => setFrom(e.target.value)} className={inputCls} placeholder="From" />
+        <Select
+          showSearch={{ onSearch: setFromSearchText, filterOption: false }}
+          value={from || undefined}
+          onChange={setFrom}
+          loading={fromLoading}
+          options={stationOptions(fromOptions)}
+          placeholder="From"
+          classNames={{
+            selector: "!bg-transparent !border-0 !shadow-none",
+            selection: "!bg-transparent !border-0 !shadow-none",
+          }}
+          suffixIcon={null}
+          variant="borderless"
+        />
       </Field>
 
       <button
@@ -77,7 +99,20 @@ export default function ResultsSearchBar({ query }) {
       </button>
 
       <Field label="To Destination" icon={`${RESULTS_IMG}/sb-pin.svg`} iconSize={[14.85, 18.52]}>
-        <input aria-label="To destination" value={to} onChange={(e) => setTo(e.target.value)} className={inputCls} placeholder="To" />
+        <Select
+          showSearch={{ onSearch: setToSearchText, filterOption: false }}
+          value={to || undefined}
+          onChange={setTo}
+          loading={toLoading}
+          options={stationOptions(toOptions)}
+          placeholder="To"
+          classNames={{
+            selector: "!bg-transparent !border-0 !shadow-none",
+            selection: "!bg-transparent !border-0 !shadow-none",
+          }}
+          suffixIcon={null}
+          variant="borderless"
+        />
       </Field>
 
       <Field label="Journey Date" icon={`${RESULTS_IMG}/sb-calendar.svg`} iconSize={[16.69, 18.52]} className="md:col-span-2 lg:col-span-1">

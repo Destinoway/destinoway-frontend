@@ -20,7 +20,6 @@ import { useSelectedHotelStore } from "../store/selectedHotel.store";
 import { useHotelSearchStore } from "../store/serchData.store";
 import { buildHotelPayload } from "../utils/buildHotelPayload";
 import { buildHotelDetailsPayload } from "../utils/buildHotelDetailsPayload";
-import { buildWishlistPayload } from "../utils/buildWishlistPayload";
 import { mapHotelDetailsResponse } from "../utils/mapHotelDetailsResponse";
 import { shareHotel } from "../utils/shareHotel";
 import { slugify } from "@/utils/slug/slugify";
@@ -39,7 +38,7 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
   const currency = useCurrencyStore((state) => state.selectedCurrency.code);
   const { setBookingData } = useHotelBookingStore();
   const { requireAuth } = useAuthGuard();
-  const { mutateAsync } = useToggleWishlist();
+  const { mutateAsync, isPending: isWishlistPending } = useToggleWishlist();
   const { data: wishlistData } = useWishlistIds();
   const isMobile = useIsMobile();
 
@@ -187,8 +186,6 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
     [wishlistData],
   );
 
-  const hotelId = payload?.hotelId?.toString() || "";
-  const isWishlisted = hotelId ? wishlistIds.has(hotelId) : false;
   const isValidPayload = Boolean(payload?.searchId && payload?.supplierHotelId);
 
   const contentQuery = useHotelContent(payload, isValidPayload);
@@ -204,6 +201,14 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
 
   const hotelData = data || EMPTY_OBJECT;
   const hotel = hotelData?.hotel || EMPTY_OBJECT;
+  const hotelId = (
+    payload?.hotelId ||
+    hotel?.id ||
+    hotel?.hotelId ||
+    payload?.hotelMeta?.hotelId ||
+    ""
+  ).toString();
+  const isWishlisted = wishlistIds.has(hotelId);
   const hasInitialPayload = initialPayload != null;
   const storedSearchId =
     selectedHotel?.hotelMeta?.searchId || selectedHotel?.searchId || "";
@@ -475,27 +480,14 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
   }, [roomQuery]);
 
   const handleWishlist = useCallback(() => {
+    if (!hotelId || isWishlistPending) return;
+
     requireAuth(async () => {
       try {
-        const wishlistPayload = buildWishlistPayload({
-          hotel: {
-            ...hotel,
-            image: hotel?.image || hotel?.heroImage || "",
-          },
-          hotelId: payload?.hotelId,
-          supplierData,
-          searchData: appliedSearchData,
-          hotelMeta: payload?.hotelMeta,
-          pricing: {
-            basePrice,
-            platformFeeAndTax,
-          },
-        });
-
-        await mutateAsync(wishlistPayload);
+        const response = await mutateAsync({ hotelId });
 
         message.success(
-          isWishlisted ? "Removed from wishlist" : "Added to wishlist",
+          response.data.wishlisted ? "Added to wishlist" : "Removed from wishlist",
         );
       } catch (error) {
         message.error(
@@ -505,18 +497,7 @@ export const useHotelDetailsPage = ({ initialPayload = null }) => {
         );
       }
     });
-  }, [
-    message,
-    appliedSearchData,
-    basePrice,
-    isWishlisted,
-    hotel,
-    mutateAsync,
-    payload,
-    platformFeeAndTax,
-    requireAuth,
-    supplierData,
-  ]);
+  }, [hotelId, isWishlistPending, message, mutateAsync, requireAuth]);
 
   const handleShare = useCallback(async () => {
     await shareHotel({

@@ -26,5 +26,5 @@ export async function generateMetadata({ searchParams }) {
 
 export default async function BusSearchPage({ searchParams }) {
   const query = normalize(await searchParams);
-  return <BusResults query={query} />;
+  return <BusResults key={JSON.stringify(query)} query={query} />;
 }

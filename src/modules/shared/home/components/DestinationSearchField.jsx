@@ -1,7 +1,11 @@
 "use client";
 
 import { useDestinationSearch } from "@/modules/hotel/hooks/useDestinationSearch";
-import { EnvironmentOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  CloseCircleFilled,
+  EnvironmentOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { Popover, Select, Spin } from "antd";
 import debounce from "lodash/debounce";
 import { memo, useEffect, useMemo, useState } from "react";
@@ -354,7 +358,10 @@ function DestinationSearchField({
               >
                 <Select
                   showSearch
-                  allowClear
+                  allowClear={{ clearIcon: <CloseCircleFilled /> }}
+                  // No arrow/loading suffix: it overlapped the clear icon, and
+                  // the dropdown already shows its own loading spinner.
+                  suffixIcon={null}
                   labelInValue
                   value={
                     value?.cityData?.id

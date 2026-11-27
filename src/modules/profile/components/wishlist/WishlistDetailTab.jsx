@@ -41,10 +41,12 @@ export default function WishlistDetailTab() {
   const handleRemoveHotel = async (hotel) => {
     try {
       setRemovingHotelId(hotel.hotelId);
-      await mutateAsync({
+      const response = await mutateAsync({
         hotelId: hotel.hotelId,
       });
-      message.success("Hotel removed from wishlist");
+      message.success(
+        response.data.wishlisted ? "Added to wishlist" : "Hotel removed from wishlist",
+      );
     } catch {
       message.error("Failed to remove hotel");
     } finally {

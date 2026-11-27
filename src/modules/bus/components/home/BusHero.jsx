@@ -2,17 +2,17 @@
 
 import { POPULAR_ROUTES, TRIP_MODES } from "@/modules/bus/data/busHomeData";
 import { useBusSearchStore } from "@/modules/bus/store/busSearch.store";
-import { App, DatePicker, Tooltip } from "antd";
+import { useBusStationSearch } from "@/modules/bus/hooks/useBusStationSearch";
+import { App, DatePicker, Tooltip, Select } from "antd";
 import dayjs from "dayjs";
 import { busSearchHref } from "@/modules/bus/utils/busSearchHref";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const IMG = "/images/bus";
 
-// Below `md` this follows the mobile Figma frame (labels under the service
-// tiles, labels above inputs); from `md` up it follows the desktop frame.
 const SERVICE_TABS = [
   { key: "hotel", label: "Hotel", icon: `${IMG}/tab-hotel.svg`, size: [43.75, 43.75], href: "/" },
   { key: "flight", label: "Flight", icon: `${IMG}/tab-flight.svg`, size: [50, 50], comingSoon: true },
@@ -58,31 +58,32 @@ function ServiceTab({ tab }) {
   );
 }
 
-function CityField({ label, icon, iconSize, value, onChange, placeholder, id }) {
+function CityField({ label, icon, iconSize, value, onChange, placeholder, options, loading, onSearch }) {
   return (
     <div className="flex min-w-0 flex-col gap-2 md:gap-0">
-      <label htmlFor={id} className="text-sm leading-[22px] font-semibold text-[#222] md:hidden">
+      <label className="text-sm leading-[22px] font-semibold text-[#222] md:hidden">
         {label}
       </label>
-      <label
-        htmlFor={id}
-        className="flex h-[65px] min-w-0 cursor-text items-center gap-3 rounded border-[0.667px] border-[#d1d5dc] bg-white px-4 focus-within:border-[#ba611e] md:rounded-xl md:border md:border-[#e2e8f0] md:bg-[rgba(248,250,252,0.5)] md:p-[15px]"
+      <div
+        className="flex h-[65px] min-w-0 items-center gap-3 rounded border-[0.667px] border-[#d1d5dc] bg-white px-4 focus-within:border-[#ba611e] md:rounded-xl md:border md:border-[#e2e8f0] md:bg-[rgba(248,250,252,0.5)] md:p-[15px]"
       >
         <Image src={icon} alt="" width={iconSize[0]} height={iconSize[1]} className="shrink-0" />
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="hidden text-[11px] leading-[16.5px] font-bold tracking-[0.55px] text-[#5a6588] uppercase md:block">
             {label}
           </span>
-          <input
-            id={id}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
+          <Select
+            value={value || undefined}
+            onChange={onChange}
+            showSearch={{ onSearch, filterOption: false }}
             placeholder={placeholder}
-            autoComplete="off"
-            className="w-full truncate bg-transparent text-xl leading-6 font-bold text-[#0f172a] outline-none placeholder:font-semibold placeholder:text-[#94a3b8] min-[400px]:text-2xl md:text-xl"
+            options={options}
+            loading={loading}
+            style={{ width: "100%" }}
+            className="ant-select-no-border"
           />
         </span>
-      </label>
+      </div>
     </div>
   );
 }
@@ -91,6 +92,11 @@ export default function BusHero() {
   const { message } = App.useApp();
   const router = useRouter();
   const { tripMode, from, to, date, setTripMode, setFrom, setTo, setDate, swap, setRoute } = useBusSearchStore();
+  const [fromSearchText, setFromSearchText] = useState("");
+  const [toSearchText, setToSearchText] = useState("");
+
+  const { data: fromOptions = [], isLoading: fromLoading } = useBusStationSearch(fromSearchText, "from");
+  const { data: toOptions = [], isLoading: toLoading } = useBusStationSearch(toSearchText, "to");
 
   const selected = dayjs(date);
   const today = dayjs().startOf("day");
@@ -114,9 +120,14 @@ export default function BusHero() {
       active ? "bg-[#ba611e] text-white" : "border border-[#e2e8f0] text-[#acacac] hover:text-[#5a6588]"
     }`;
 
+  const stationOptions = (stations) =>
+    stations.map((station) => ({
+      label: station.name,
+      value: station.name,
+    }));
+
   return (
     <section id="bus-search" className="relative w-full scroll-mt-4 bg-white">
-      {/* Mobile: photo fills the whole hero behind the card. md+: banner strip. */}
       <div className="absolute inset-0 overflow-hidden bg-[#d9d9d9] md:relative md:inset-auto md:h-[280px] lg:h-[339px]">
         <Image
           src={`${IMG}/hero-banner.png`}
@@ -170,13 +181,15 @@ export default function BusHero() {
 
           <div className="grid grid-cols-1 items-end gap-3 pt-4 md:items-center md:py-[13px] lg:grid-cols-[minmax(0,1fr)_36px_minmax(0,1fr)_261px_190px]">
             <CityField
-              id="bus-from"
               label="From City"
               icon={`${IMG}/field-search.svg`}
               iconSize={[16.67, 16.67]}
               value={from}
               onChange={setFrom}
               placeholder="Jaipur, Sindhi Camp"
+              options={stationOptions(fromOptions)}
+              loading={fromLoading}
+              onSearch={setFromSearchText}
             />
 
             <button
@@ -189,13 +202,15 @@ export default function BusHero() {
             </button>
 
             <CityField
-              id="bus-to"
               label="To Destination"
               icon={`${IMG}/field-pin.svg`}
               iconSize={[14.85, 18.52]}
               value={to}
               onChange={setTo}
               placeholder="Delhi, Kashmiri Gate"
+              options={stationOptions(toOptions)}
+              loading={toLoading}
+              onSearch={setToSearchText}
             />
 
             <div className="flex flex-col gap-2 md:gap-0">
@@ -215,7 +230,6 @@ export default function BusHero() {
                         {selected.format("MMM YYYY")}
                       </span>
                       <span className="text-lg leading-4 font-semibold text-[#ba611e] min-[400px]:text-xl md:text-xs">
-                        {/* Short weekday on narrow phones so "Wednesday" etc. still fit. */}
                         <span className="min-[440px]:hidden">{selected.format("ddd")}</span>
                         <span className="hidden min-[440px]:inline">{selected.format("dddd")}</span>
                       </span>

@@ -25,7 +25,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { memo, useMemo, useState } from "react";
 
-import { buildWishlistPayload } from "../utils/buildWishlistPayload";
 import { navigateToHotelDetails } from "../utils/navigateToHotelDetails";
 import { shareHotel } from "../utils/shareHotel";
 import MobileHotelCard from "./MobileHotelCard";
@@ -50,7 +49,8 @@ function HotelCard({ hotel, wishlistIds }) {
   const { mutateAsync, isPending } = useToggleWishlist();
   const { requireAuth } = useAuthGuard();
 
-  const isWishlisted = wishlistIds?.has(hotel?.id?.toString()) || false;
+  const hotelId = hotel?.id || hotel?.hotelId;
+  const isWishlisted = wishlistIds?.has(hotelId?.toString()) || false;
 
   const hotelName = useMemo(() => {
     return (
@@ -306,17 +306,14 @@ function HotelCard({ hotel, wishlistIds }) {
     e.preventDefault();
     e.stopPropagation();
 
+    if (!hotelId) return;
+
     requireAuth(async () => {
       try {
-        const payload = buildWishlistPayload({
-          hotel,
-          searchData: appliedSearchData,
-        });
-
-        await mutateAsync(payload);
+        const response = await mutateAsync({ hotelId });
 
         message.success(
-          isWishlisted ? "Removed from wishlist" : "Added to wishlist",
+          response.data.wishlisted ? "Added to wishlist" : "Removed from wishlist",
         );
       } catch {
         message.error("Wishlist update failed");

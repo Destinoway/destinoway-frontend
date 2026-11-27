@@ -99,12 +99,28 @@
 }
 
 /* CROSS / CLEAR ICON */
+/* antd sizes/offsets the clear button for a 12px icon; re-centre it for 16px. */
 .destinationSelect :global(.ant-select-clear) {
-  font-size: 18px !important;
+  top: 50% !important;
+  margin-top: 0 !important;
+  transform: translateY(-50%);
+  width: 20px !important;
+  height: 20px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  color: #9ca3af;
+  background: #fff;
+}
+
+.destinationSelect :global(.ant-select-clear:hover) {
+  color: #4b5563;
 }
 
 .destinationSelect :global(.ant-select-clear .anticon) {
-  font-size: 18px !important;
+  font-size: 16px !important;
 }
 
 /* EDITING */

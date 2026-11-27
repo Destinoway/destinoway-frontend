@@ -1,6 +1,6 @@
 "use client";
 
-import { AMENITIES, generateBuses, toDuration } from "@/modules/bus/data/busResultsData";
+import { AMENITIES, toDuration } from "@/modules/bus/data/busResultsData";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useEffect, useState, useSyncExternalStore } from "react";
@@ -21,21 +21,8 @@ const AMENITY_PILLS = {
 
 const clock12 = (mins) => dayjs().startOf("day").add(mins, "minute").format("hh:mm a");
 
-export function resolveBooking(params) {
-  const bus = generateBuses(params).find((b) => b.id === params.bus);
-  if (!bus) return { error: "This bus is no longer available for the selected date." };
-  const all = Object.values(bus.decks).flat();
-  const seats = params.seats
-    .split(",")
-    .filter(Boolean)
-    .map((id) => all.find((s) => s.id === id));
-  if (!seats.length || seats.some((s) => !s || s.state.startsWith("booked"))) {
-    return { error: "One or more of your seats is no longer available." };
-  }
-  const pickup = bus.pickups.find((p) => p.id === params.pickup);
-  const drop = bus.drops.find((p) => p.id === params.drop);
-  if (!pickup || !drop) return { error: "Please choose your pickup and drop points again." };
-  return { bus, seats, pickup, drop };
+export function resolveBooking() {
+  return { error: "Seat booking is currently unavailable." };
 }
 
 // ---- per-booking session data (seat hold + traveller details) ----

@@ -1,6 +1,10 @@
 "use client";
 
-import { CheckCircleFilled, EditOutlined } from "@ant-design/icons";
+import {
+  CheckCircleFilled,
+  CheckOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { App, Button, Divider, Input } from "antd";
 import dayjs from "dayjs";
@@ -21,13 +25,27 @@ import {
 } from "../hooks/useProfile";
 
 import {
-  countryStateCityData,
   genderOptions,
   maritalStatusOptions,
 } from "@/modules/shared/home/components/data/profileData";
 
 import RHFPhoneInput from "@/components/ui/RHFinputs/RHFPhoneInput";
+import { useCountries } from "@/modules/shared/home/hooks/useCountries";
+import { useCities } from "@/modules/shared/home/hooks/useCities";
+import { useStates } from "@/modules/shared/home/hooks/useStates";
 import { profileSchema } from "../schema/profileValidation";
+
+// Delays API searches until the user stops typing.
+const useDebouncedValue = (value, delay = 300) => {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debounced;
+};
 
 const ViewField = memo(({ label, value, type, prefix }) => (
   <div className="space-y-1">
@@ -55,9 +73,13 @@ const ViewField = memo(({ label, value, type, prefix }) => (
 
 ViewField.displayName = "ViewField";
 
+const getApiError = (error, fallback) =>
+  error?.response?.data?.message || error?.message || fallback;
+
 const VerifySection = ({
   name,
   label,
+  changed,
   verified,
   otp,
   setOtp,
@@ -70,46 +92,64 @@ const VerifySection = ({
   setVerified,
 }) => {
   const { message } = App.useApp();
+  const value = formValues[name];
+  const target =
+    name === "mobile" ? `${formValues.phoneCode || ""} ${value}` : value;
+
+  // Unchanged saved value counts as already verified.
+  const isVerified = verified || (!changed && Boolean(value));
+
   const handleSendOtp = async () => {
     if (sendOtp.isPending) return;
 
     const valid = await trigger(name);
-
     if (!valid) return;
 
-    sendOtp.mutate({
-      [name]: formValues[name],
-    });
-
-    setShowOtp(true);
-  };
-  const handleVerifyOtp = () => {
-    if (verifyOtp.isPending) return;
-
-    if (otp.length !== 6) {
-      message.error("Enter valid OTP");
-      return;
-    }
-
-    verifyOtp.mutate(
+    sendOtp.mutate(
+      { [name]: value },
       {
-        [name]: formValues[name],
-        otp,
-      },
-      {
-        onSuccess: () => {
-          setVerified(true);
-          setShowOtp(false);
-
-          message.success(`${label} verified`);
+        onSuccess: (res) => {
+          setOtp("");
+          setShowOtp(true);
+          message.success(res?.data?.message || `OTP sent to ${target}`);
+        },
+        onError: (error) => {
+          message.error(getApiError(error, "Unable to send OTP"));
         },
       },
     );
   };
+
+  const handleVerifyOtp = () => {
+    if (verifyOtp.isPending) return;
+
+    if (otp.length !== 6) {
+      message.error("Please enter the 6-digit OTP");
+      return;
+    }
+
+    verifyOtp.mutate(
+      { [name]: value, otp },
+      {
+        onSuccess: (res) => {
+          setVerified(true);
+          setShowOtp(false);
+          setOtp("");
+          message.success(res?.data?.message || `${label} verified`);
+        },
+        onError: (error) => {
+          message.error(getApiError(error, "Invalid or expired OTP"));
+        },
+      },
+    );
+  };
+
   return (
-    <>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-        <div className="w-full">
+    <div className="flex flex-col gap-3">
+      {/* items-start keeps the button level with the input even when a
+          validation error appears below the input. */}
+      <div className="flex items-start gap-2">
+        <div className="min-w-0 flex-1">
           {name === "mobile" ? (
             <RHFPhoneInput name="mobile" codeName="phoneCode" label={label} />
           ) : (
@@ -117,40 +157,77 @@ const VerifySection = ({
           )}
         </div>
 
-        <Button
-          className="h-10.5! min-w-27.5!"
-          disabled={verified}
-          loading={sendOtp.isPending}
-          onClick={handleSendOtp}
-        >
-          Verify
-        </Button>
-
-        {verified && (
-          <CheckCircleFilled className="mb-2.5 text-[18px] text-green-500" />
+        {isVerified ? (
+          <span className="flex h-11 shrink-0 items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-[13px] font-semibold text-emerald-700 sm:px-4">
+            <CheckCircleFilled />
+            <span className="max-[380px]:hidden">Verified</span>
+          </span>
+        ) : (
+          <Button
+            onClick={handleSendOtp}
+            loading={sendOtp.isPending}
+            disabled={showOtp}
+            className="h-11! shrink-0 rounded-lg! border-(--theme-secondary)! px-4! text-[14px]! font-semibold! text-(--theme-secondary)! hover:bg-(--theme-secondary)/5! disabled:border-gray-200! disabled:text-gray-400! sm:px-5!"
+          >
+            Verify
+          </Button>
         )}
       </div>
 
-      {showOtp && (
-        <div className="mt-2 flex gap-2">
-          <Input
-            className="h-10.5!"
-            placeholder="6 digit OTP"
-            maxLength={6}
-            value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-          />
+      {showOtp && !isVerified && (
+        <div className="rounded-xl border border-[#E5EEF7] bg-[#FAFCFF] p-4">
+          <p className="mb-0! text-[14px] font-semibold text-[#05144b]">
+            Enter verification code
+          </p>
+          <p className="mt-0.5 mb-3! text-[13px] break-all text-gray-500">
+            We sent a 6-digit code to{" "}
+            <span className="font-medium text-gray-700">{target}</span>
+          </p>
 
-          <Button
-            className="h-10.5! px-5!"
-            loading={verifyOtp.isPending}
-            onClick={handleVerifyOtp}
-          >
-            OK
-          </Button>
+          {/* Boxes shrink to fit the card; the tick button stays fixed. */}
+          <div className="flex items-center gap-2">
+            <Input.OTP
+              length={6}
+              value={otp}
+              onChange={(val) => setOtp(val.replace(/\D/g, ""))}
+              formatter={(val) => val.replace(/\D/g, "")}
+              className="min-w-0 flex-1 gap-1.5! sm:gap-2! [&_.ant-otp-input]:h-11! [&_.ant-otp-input]:w-auto! [&_.ant-otp-input]:max-w-11 [&_.ant-otp-input]:min-w-0 [&_.ant-otp-input]:flex-1 [&_.ant-otp-input]:rounded-lg! [&_.ant-otp-input]:px-0! [&_.ant-otp-input]:text-[16px]! [&_.ant-otp-input]:font-semibold!"
+            />
+
+            <Button
+              type="primary"
+              aria-label="Confirm OTP"
+              title="Confirm OTP"
+              onClick={handleVerifyOtp}
+              loading={verifyOtp.isPending}
+              icon={!verifyOtp.isPending && <CheckOutlined />}
+              className="buttion-background-color h-11! w-11! shrink-0 rounded-lg! border-none! p-0! text-[18px]!"
+            />
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">
+            <button
+              type="button"
+              onClick={handleSendOtp}
+              disabled={sendOtp.isPending}
+              className="cursor-pointer font-semibold text-(--theme-secondary) hover:underline disabled:cursor-wait disabled:opacity-60"
+            >
+              {sendOtp.isPending ? "Sending..." : "Resend code"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowOtp(false);
+                setOtp("");
+              }}
+              className="cursor-pointer text-gray-500 hover:text-gray-700"
+            >
+              Change {label.toLowerCase()}
+            </button>
+          </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
@@ -169,17 +246,21 @@ const defaultValues = {
   anniversary: null,
 };
 
-const toOptions = (arr = []) =>
-  arr.map((item) => ({
-    label: item,
-    value: item,
-  }));
-
 const profileFields = ({
   selectedCountry,
+  countryOptions,
+  countriesLoading,
+  onCountrySearch,
+  onCountryOpenChange,
+  stateOptions,
+  statesLoading,
+  onStateSearch,
+  onStateOpenChange,
   selectedState,
-  filteredStateOptions,
-  filteredCityOptions,
+  cityOptions,
+  citiesLoading,
+  onCitySearch,
+  onCityOpenChange,
   maritalStatus,
 }) => [
   {
@@ -218,10 +299,11 @@ const profileFields = ({
     component: RHFSelect,
     props: {
       placeholder: "Select Country",
-      options: Object.keys(countryStateCityData).map((country) => ({
-        label: country,
-        value: country,
-      })),
+      options: countryOptions,
+      loading: countriesLoading,
+      showSearch: { onSearch: onCountrySearch, filterOption: false },
+      onOpenChange: onCountryOpenChange,
+      notFoundContent: countriesLoading ? "Loading..." : "No countries found",
     },
   },
   {
@@ -231,7 +313,11 @@ const profileFields = ({
     props: {
       placeholder: selectedCountry ? "Select State" : "Select Country First",
       disabled: !selectedCountry,
-      options: filteredStateOptions,
+      options: stateOptions,
+      loading: statesLoading,
+      showSearch: { onSearch: onStateSearch, filterOption: false },
+      onOpenChange: onStateOpenChange,
+      notFoundContent: statesLoading ? "Loading..." : "No states found",
     },
   },
   {
@@ -241,7 +327,11 @@ const profileFields = ({
     props: {
       placeholder: selectedState ? "Select City" : "Select State First",
       disabled: !selectedState,
-      options: filteredCityOptions,
+      options: cityOptions,
+      loading: citiesLoading,
+      showSearch: { onSearch: onCitySearch, filterOption: false },
+      onOpenChange: onCityOpenChange,
+      notFoundContent: citiesLoading ? "Loading..." : "No cities found",
     },
   },
   {
@@ -307,35 +397,102 @@ export default function ProfileOverview() {
     maritalStatus,
   } = formValues;
 
-  // ================= FILTERED STATE OPTIONS =================
+  // ================= COUNTRY OPTIONS (API) =================
 
-  const filteredStateOptions = useMemo(
-    () => toOptions(Object.keys(countryStateCityData[selectedCountry] || {})),
-    [selectedCountry],
+  const [countrySearch, setCountrySearch] = useState("");
+  const debouncedCountrySearch = useDebouncedValue(countrySearch);
+
+  // Full list (same cached query the phone input uses) — needed to map the
+  // selected country name to its code for the states API.
+  const { data: allCountries = [] } = useCountries("");
+  const { data: countries = [], isFetching: countriesLoading } = useCountries(
+    debouncedCountrySearch,
   );
 
-  // ================= FILTERED CITY OPTIONS =================
-
-  const filteredCityOptions = useMemo(
+  const countryOptions = useMemo(
     () =>
-      toOptions(countryStateCityData[selectedCountry]?.[selectedState] || []),
-    [selectedCountry, selectedState],
+      countries.map((country) => ({
+        label: country.countryName,
+        value: country.countryName,
+      })),
+    [countries],
   );
+
+  const selectedCountryCode = useMemo(
+    () =>
+      allCountries.find((country) => country.countryName === selectedCountry)
+        ?.countryCode,
+    [allCountries, selectedCountry],
+  );
+
+  // ================= STATE OPTIONS (API) =================
+
+  const [stateSearch, setStateSearch] = useState("");
+  const debouncedStateSearch = useDebouncedValue(stateSearch);
+
+  const { data: states = [], isFetching: statesLoading } = useStates(
+    selectedCountryCode,
+    debouncedStateSearch,
+  );
+
+  const stateOptions = useMemo(
+    () =>
+      states.map((state) => ({
+        label: state.stateName,
+        value: state.stateName,
+      })),
+    [states],
+  );
+
+  // ================= CITY OPTIONS (API) =================
+
+  const [citySearch, setCitySearch] = useState("");
+  const debouncedCitySearch = useDebouncedValue(citySearch);
+
+  const { data: cities = [], isFetching: citiesLoading } = useCities(
+    selectedCountryCode,
+    selectedState,
+    debouncedCitySearch,
+  );
+
+  const cityOptions = useMemo(() => {
+    const names = cities
+      .map((city) => city.cityName || city.name || city.city)
+      .filter(Boolean);
+
+    // De-duplicate so antd doesn't get repeated option keys.
+    return [...new Set(names)].map((name) => ({ label: name, value: name }));
+  }, [cities]);
 
   const fields = useMemo(
     () =>
       profileFields({
         selectedCountry,
+        countryOptions,
+        countriesLoading,
+        onCountrySearch: setCountrySearch,
+        // Reset the search so reopening shows the full list again.
+        onCountryOpenChange: (open) => !open && setCountrySearch(""),
+        stateOptions,
+        statesLoading,
+        onStateSearch: setStateSearch,
+        onStateOpenChange: (open) => !open && setStateSearch(""),
         selectedState,
-        filteredStateOptions,
-        filteredCityOptions,
+        cityOptions,
+        citiesLoading,
+        onCitySearch: setCitySearch,
+        onCityOpenChange: (open) => !open && setCitySearch(""),
         maritalStatus,
       }),
     [
       selectedCountry,
+      countryOptions,
+      countriesLoading,
+      stateOptions,
+      statesLoading,
       selectedState,
-      filteredStateOptions,
-      filteredCityOptions,
+      cityOptions,
+      citiesLoading,
       maritalStatus,
     ],
   );
@@ -509,7 +666,19 @@ export default function ProfileOverview() {
 
             <Divider className="my-8!" />
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {isEdit && (
+              <div className="mb-5">
+                <h3 className="font-roboto! mb-0! text-[16px] font-semibold text-[#1f1f1f]">
+                  Contact Details
+                </h3>
+                <p className="mt-0.5 mb-0! text-[13px] text-gray-500">
+                  Changed email or mobile number must be verified with an OTP
+                  before saving.
+                </p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
               {/* EMAIL */}
 
               <div>
@@ -517,6 +686,7 @@ export default function ProfileOverview() {
                   <VerifySection
                     name="email"
                     label="Email"
+                    changed={emailChanged}
                     verified={emailVerified}
                     otp={emailOtp}
                     setOtp={setEmailOtp}
@@ -540,6 +710,7 @@ export default function ProfileOverview() {
                   <VerifySection
                     name="mobile"
                     label="Mobile Number"
+                    changed={mobileChanged}
                     verified={mobileVerified}
                     otp={mobileOtp}
                     setOtp={setMobileOtp}
@@ -563,10 +734,10 @@ export default function ProfileOverview() {
             </div>
 
             {isEdit && (
-              <div className="mt-6 flex gap-3">
+              <div className="mt-8 flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 sm:flex-row">
                 <Button
                   onClick={() => setIsEdit(false)}
-                  className="h-10.5! px-6!"
+                  className="h-11! rounded-lg! px-6! text-[14px]! font-semibold!"
                 >
                   Cancel
                 </Button>
@@ -576,7 +747,7 @@ export default function ProfileOverview() {
                   type="primary"
                   disabled={!canSave}
                   loading={updateProfile.isPending}
-                  className="buttion-background-color h-10.5! border-none! px-6!"
+                  className="buttion-background-color h-11! rounded-lg! border-none! px-6! text-[14px]! font-semibold! disabled:opacity-60!"
                 >
                   Save Changes
                 </Button>

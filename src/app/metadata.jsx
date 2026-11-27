@@ -24,14 +24,13 @@ export const metadata = {
     "travel deals",
   ],
 
-  alternates: {
-    canonical: "/",
-  },
+  // No site-wide canonical / og:url: every page that inherited "/" (404s, pages
+  // without their own alternates) was telling search engines it is the homepage.
+  // Each public page sets its own self-referencing canonical.
 
   openGraph: {
     title: "Destinoway - Travel & Booking",
     description: "Book hotels, flights and travel packages with Destinoway.",
-    url: "/",
     siteName: "Destinoway",
     locale: "en_IN",
     type: "website",
