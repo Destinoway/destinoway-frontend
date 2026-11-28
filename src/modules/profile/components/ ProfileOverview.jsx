@@ -456,7 +456,8 @@ export default function ProfileOverview() {
   );
 
   const cityOptions = useMemo(() => {
-    const names = cities
+    const citiesArray = Array.isArray(cities) ? cities : [];
+    const names = citiesArray
       .map((city) => city.cityName || city.name || city.city)
       .filter(Boolean);
 
