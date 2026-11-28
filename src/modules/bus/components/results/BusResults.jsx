@@ -9,6 +9,7 @@ import { searchBuses } from "@/modules/bus/services/busSearch";
 import { Drawer } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import BusCard from "./BusCard";
+import { BusFiltersSkeleton, BusResultsSkeleton } from "./BusResultsSkeleton";
 import DateStrip from "./DateStrip";
 import FiltersPanel from "./FiltersPanel";
 import ResultsSearchBar from "./ResultsSearchBar";
@@ -202,7 +203,7 @@ export default function BusResults({ query }) {
 
       <div className="mx-auto -mt-4 grid max-w-[1280px] grid-cols-1 items-start gap-3 px-3 sm:px-4 lg:grid-cols-[295px_minmax(0,1fr)]">
         <aside className="sticky top-3 hidden max-h-[calc(100vh-24px)] overflow-y-auto rounded-md [scrollbar-width:thin] lg:block">
-          {status === "ready" && buses.length > 0 && panel}
+          {status === "loading" ? <BusFiltersSkeleton /> : status === "ready" && buses.length > 0 && panel}
         </aside>
 
         <div id="bus-results" className="flex min-w-0 scroll-mt-4 flex-col gap-3">
@@ -221,10 +222,10 @@ export default function BusResults({ query }) {
           )}
 
           {status === "loading" ? (
-            <p role="status" className="rounded-md bg-white p-8 text-center">Searching for buses…</p>
+            <BusResultsSkeleton />
           ) : status === "error" ? (
             <div role="alert" className="rounded-md bg-white p-8 text-center">
-              <p>We couldn't load bus results. Please try again.</p>
+              <p>We couldn&apos;t load bus results. Please try again.</p>
               <button type="button" className="mt-3 font-bold text-[#ba611e]" onClick={() => {
                 setSearch({ status: "loading", buses: [] });
                 setAttempt((value) => value + 1);

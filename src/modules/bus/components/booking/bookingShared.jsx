@@ -3,12 +3,11 @@
 import { AMENITIES, toDuration } from "@/modules/bus/data/busResultsData";
 import dayjs from "dayjs";
 import Image from "next/image";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 // Shared by the booking (passenger details) and payment pages.
 
 const IMG = "/images/bus/booking";
-export const HOLD_SECONDS = 10 * 60;
 const card = "rounded-xl bg-white p-4 sm:p-6";
 const shadow = "shadow-[1px_1px_10px_rgba(0,0,0,0.2)]";
 
@@ -21,13 +20,7 @@ const AMENITY_PILLS = {
 
 const clock12 = (mins) => dayjs().startOf("day").add(mins, "minute").format("hh:mm a");
 
-export function resolveBooking() {
-  return { error: "Seat booking is currently unavailable." };
-}
-
-// ---- per-booking session data (seat hold + traveller details) ----
-// Kept in sessionStorage only: it never leaves this browser tab.
-
+// Seat selection and booking progress are scoped to this browser tab.
 export const bookingKey = (p) => `bus-booking:${p.bus}|${p.date}|${p.seats}|${p.pickup}|${p.drop}`;
 
 export function readBookingSession(p) {
@@ -48,55 +41,12 @@ export function writeBookingSession(p, patch) {
   }
 }
 
-/** Seat hold end time (ms). Created on first visit, reused afterwards. */
-export function getHoldEnd(p) {
-  const saved = readBookingSession(p)?.holdEnd;
-  if (saved) return saved;
-  const holdEnd = Date.now() + HOLD_SECONDS * 1000;
-  writeBookingSession(p, { holdEnd });
-  return holdEnd;
-}
-
-/** Seconds left until `endAt`; calls onExpire once when it reaches zero. */
-export function useCountdown(endAt, onExpire) {
-  const [left, setLeft] = useState(() => Math.max(0, Math.round((endAt - Date.now()) / 1000)));
-  useEffect(() => {
-    const t = setInterval(() => {
-      const s = Math.max(0, Math.round((endAt - Date.now()) / 1000));
-      setLeft(s);
-      if (s === 0) {
-        clearInterval(t);
-        onExpire?.();
-      }
-    }, 1000);
-    return () => clearInterval(t);
-  }, [endAt, onExpire]);
-  return left;
-}
-
-export const mmss = (secs) => `${String(Math.floor(secs / 60)).padStart(2, "0")}:${String(secs % 60).padStart(2, "0")}`;
-
-export function HoldTimer({ endAt, onExpire }) {
-  const left = useCountdown(endAt, onExpire);
-  const mm = String(Math.floor(left / 60)).padStart(2, "0");
-  const ss = String(left % 60).padStart(2, "0");
-  return (
-    <span
-      role="timer"
-      aria-label={`Seats held for ${mm} minutes ${ss} seconds`}
-      className="flex items-center gap-1.5 rounded-full bg-white px-2 py-0.5 text-[11px] leading-[14px] font-semibold text-[#05144b]"
-    >
-      <span className={`size-2 rounded-full ${left < 120 ? "bg-[#dc2626]" : "bg-[#e58a00]"}`} />
-      Seats held for <span className="font-bold tabular-nums">{mm}:{ss} min</span>
-    </span>
-  );
-}
-
 export function TripSummary({ bus, seats, pickup, drop, date }) {
   const [open, setOpen] = useState(false);
   const [terms, setTerms] = useState(false);
   const from = date.from.split(",")[0];
   const to = date.to.split(",")[0];
+  const amenities = Array.isArray(bus.amenities) ? bus.amenities : [];
 
   return (
     <section className={`${card} ${shadow} flex flex-col gap-4`} aria-labelledby="booking-details">
@@ -190,7 +140,7 @@ export function TripSummary({ bus, seats, pickup, drop, date }) {
           </div>
           <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
             <ul className="flex flex-wrap gap-1">
-              {AMENITIES.filter((a) => bus.amenities.includes(a.key)).map((a) => {
+              {AMENITIES.filter((a) => amenities.includes(a.key) && AMENITY_PILLS[a.key]).map((a) => {
                 const pill = AMENITY_PILLS[a.key];
                 return (
                   <li

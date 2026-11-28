@@ -1,8 +1,11 @@
 "use client";
 
 import { MAX_SEATS, RESULTS_IMG, SEAT_ICONS, SEAT_LEGEND } from "@/modules/bus/data/busResultsData";
+import { busBookingHref } from "@/modules/bus/utils/busSearchHref";
+import { writeBookingSession } from "../booking/bookingShared";
 import { App } from "antd";
 import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 // Sleeper berth colours per state (Figma "Bus Sleeper Container").
@@ -186,6 +189,8 @@ function PointsPanel({ bus, pickup, drop, setPickup, setDrop }) {
 
 export default function SeatSelector({ bus }) {
   const { message } = App.useApp();
+  const router = useRouter();
+  const search = useSearchParams();
   const deckKeys = Object.keys(bus.decks);
   const [deck, setDeck] = useState(deckKeys[0]);
   const [selected, setSelected] = useState([]);
@@ -209,6 +214,38 @@ export default function SeatSelector({ bus }) {
 
   const selectedSeats = Object.values(bus.decks).flat().filter((seat) => selected.includes(seat.key));
   const fare = selectedSeats.reduce((total, seat) => total + seat.price, 0);
+  const request = bus.seatLayoutRequest;
+  const canProceed = selectedSeats.length > 0 && pickup?.id != null && drop?.id != null &&
+    Number.isSafeInteger(Number(pickup.id)) && Number.isSafeInteger(Number(drop.id)) &&
+    request?.tui && request?.busServiceId;
+
+  const proceed = async () => {
+    if (!canProceed) return;
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(request.tui));
+    const searchKey = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    const params = {
+      from: search.get("from"),
+      to: search.get("to"),
+      date: request.journeyDate,
+      bus: `${bus.id}:${searchKey}`,
+      seats: selectedSeats.map((seat) => seat.key).join(","),
+      pickup: pickup.id,
+      drop: drop.id,
+    };
+    const selection = { bus, seats: selectedSeats, pickup, drop };
+    if (!writeBookingSession(params, { selection })) {
+      message.error("Could not save your seat selection in this tab.");
+      return;
+    }
+    router.push(busBookingHref({
+      query: params,
+      busId: params.bus,
+      seats: selectedSeats.map((seat) => seat.key),
+      pickupId: pickup.id,
+      dropId: drop.id,
+    }));
+  };
+
   const hasBerths = bus.decks[deck].some((seat) => seat.berth);
   const legend = [
     ...SEAT_LEGEND.filter((item) => !item.state.startsWith("booked")),
@@ -265,9 +302,14 @@ export default function SeatSelector({ bus }) {
               <span className="text-base text-[#0b1c30]">Bus Fare:</span>
               <span className="text-xl text-[#ba611e]">₹{fare}</span>
             </p>
-            {selected.length > 0 && (
-              <p className="text-[11px] text-[#45464f]">Online booking is currently unavailable.</p>
-            )}
+            <button
+              type="button"
+              onClick={proceed}
+              disabled={!canProceed}
+              className="self-start rounded-lg bg-[#e08b00] px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
+            >
+              Proceed to Passenger Info
+            </button>
           </div>
         </div>
 

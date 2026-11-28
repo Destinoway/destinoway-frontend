@@ -140,7 +140,7 @@ export default function TravelerDetails({ seats, passengers, setPassengers, erro
           aria-label={open ? "Collapse traveler details" : "Expand traveler details"}
           className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#eff4ff]"
         >
-          <Image src={`${IMG}/chevron-down.svg`} alt="" width={8} height={4.93} className={open ? "rotate-180" : ""} />
+          <Image src={`${IMG}/chevron-small.svg`} alt="" width={8} height={4.93} className={open ? "rotate-180" : ""} />
         </button>
       </div>
 

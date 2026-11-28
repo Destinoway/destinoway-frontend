@@ -7,7 +7,8 @@ import { useState } from "react";
 const IMG = "/images/bus/booking";
 const card = "rounded-xl bg-white p-5 drop-shadow-[1px_1px_5px_rgba(0,0,0,0.2)] sm:p-6";
 
-export function PriceDetails({ fare, seatCount, price }) {
+export function PriceDetails({ fare, seatCount, price, estimatedTotal }) {
+  const isEstimate = estimatedTotal != null;
   const row = "flex items-center justify-between text-sm leading-5";
   return (
     <section className={card} aria-labelledby="price-details">
@@ -20,6 +21,12 @@ export function PriceDetails({ fare, seatCount, price }) {
         </span>
       </div>
       <div className="flex flex-col gap-[7.5px] pt-2 pb-6">
+        {isEstimate ? (
+          <div className={row}>
+            <span className="text-[#45464f]">Selected seat fares</span>
+            <span className="font-medium text-[#0b1c30]">{inr(estimatedTotal)}</span>
+          </div>
+        ) : <>
         <div className={row}>
           <span className="text-[#45464f]">
             Base Fare ({seatCount} {seatCount === 1 ? "Seat" : "Seats"} × {inr(price)})
@@ -39,18 +46,19 @@ export function PriceDetails({ fare, seatCount, price }) {
             <span className="font-bold">- {inr(fare.discount)}</span>
           </div>
         )}
+        </>}
       </div>
       <div className="flex flex-col gap-2 rounded-xl bg-[#eff4ff] p-4">
         <div className="flex items-start justify-between pt-1.5">
           <div className="flex flex-col gap-1">
-            <span className="text-base leading-[22px] font-bold text-[#0b1c30]">Total Amount</span>
+            <span className="text-base leading-[22px] font-bold text-[#0b1c30]">{isEstimate ? "Estimated Total" : "Total Amount"}</span>
             <span className="text-[11px] leading-[14px] font-medium tracking-[0.33px] text-[#45464f]">
-              Taxes &amp; levies included
+              {isEstimate ? "Final fare shown before payment" : "Taxes & levies included"}
             </span>
           </div>
-          <span className="text-xl leading-8 font-bold tracking-[-0.24px] text-[#0b1c30]">{inr(fare.total)}</span>
+          <span className="text-xl leading-8 font-bold tracking-[-0.24px] text-[#0b1c30]">{inr(isEstimate ? estimatedTotal : fare.total)}</span>
         </div>
-        {fare.discount > 0 && (
+        {!isEstimate && fare.discount > 0 && (
           <p className="flex min-h-[46px] items-center gap-1 rounded bg-[#ffdcbd] px-2 py-1 text-[11px] leading-[14px] font-medium tracking-[0.33px] text-[#0b1c30]">
             <Image src={`${IMG}/piggy.svg`} alt="" width={13.33} height={12.67} />
             <span>
